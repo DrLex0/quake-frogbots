@@ -7,6 +7,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "../settings.h"
+
 void() GameSettings;
 void() LoadTemp1;
 void() AddBot;
@@ -15,6 +17,11 @@ void() AddBotError;
 void() AddBots;
 void() DoCountDown;
 void() PlayerReady;
+
+#ifdef MANUAL
+void() ToggleManualMode;
+void() ManualImpulseCommands;
+#endif
 
 /*
 ============
@@ -67,9 +74,22 @@ void() SetGame =
 	game_disable_autoreport = (!(gamemode & GAME_ENABLE_AUTOREPORT));
 	game_disable_dropweap = (!(gamemode & GAME_ENABLE_DROPWEAP));
 	game_disable_autosteams = (!(gamemode & GAME_ENABLE_AUTOSTEAMS));
+#ifdef TALK
 	game_disable_botchat = (!(gamemode & GAME_ENABLE_BOTCHAT)); 
+#endif
+#ifdef QUAKE
+	game_qwphysics = gamemode & GAME_QWPHYSICS;
+	game_skins = (!(gamemode & GAME_NOSKINS));
+	game_qwaim = gamemode & GAME_QWAIM;
+#else
 	game_qizmo = (stof(infokey(world, "proxy")));
+#endif
+#ifdef ARENA
 	a_gamemode();
+#else
+	// Avoids the need for some #ifdefs
+	game_arena = FALSE;
+#endif
 };
 
 /*
@@ -101,11 +121,15 @@ void() InitParameters =
 
 	InitBodyQue ();
 
+#ifdef QUAKE
+	temp1 = cvar("temp1");
+#else
 	temp1 = stof(infokey(world, "temp1"));
 	deathmatch = cvar("deathmatch");
 
 	if (maxplayers > 24)
 		maxplayers = 24;
+#endif
 
 	nextmap = mapname;
 	pre_game = TRUE;
@@ -116,7 +140,9 @@ void() InitParameters =
 
 	teamplay = cvar("teamplay");
 
+#ifdef ARENA
 	initialize();
+#endif
 
 	if (teamplay == 1)
 		healthplay = TEAM_TOTAL_HEALTH_PROTECT;
@@ -228,9 +254,13 @@ SaveTemp1
 */
 void() SaveTemp1 =
 {
+#ifdef QUAKE
+	cvar_set_("temp1", skill + 1);
+#else
 	localcmd("localinfo temp1 ");
 	localcmd_ftos(skill + 1);
 	localcmd("\n");
+#endif
 };
 
 /*
@@ -241,6 +271,10 @@ SetSkill
 */
 void() SetSkill =
 {
+#ifdef QUAKE
+	cvar_set_("skill", skill);
+	old_skill = skill;
+#endif
 	bprint_fb(2, "\"skill\" changed to \"");
 	bprint_ftos(2, skill);
 	bprint_fb(2, "\"\n");
@@ -311,12 +345,19 @@ void() LoadFrogbot =
 
 	if (frogbot_load_stage)
 	{
+	#ifdef QUAKE
+		registered = cvar("registered");
+	#endif
+
 		if (numberofbots == -1)
 		{
 			first_ent.admin_code = self.admin_code = registered;
 			numberofbots = 0;
 			if (invalid_map)
 			{
+			#ifdef QUAKE
+				cvar_set("registered", "1");
+			#endif
 				load_frogbots = FALSE;
 				return;
 			}
@@ -337,7 +378,10 @@ void() LoadFrogbot =
 			}
 			else if (frogbot_load_stage == 2)
 				self.botnumber = registered;
+
+#ifdef TALK
 			self.old_bot = TRUE;
+#endif
 
 			if (frogbot_load_stage <= NUMBER_LOAD_STAGE)
 			{
@@ -363,7 +407,11 @@ void() CheckParameters =
 {
 	if (!game_not_match || game_arena)
 		real_time = check_parm_time - start_time;
+#ifndef ARENA
+	timelimit = cvar("timelimit") * 60;
+#else
 	if (!game_not_match)
+#endif
 	if (start_time)
 		DoCountDown();
 
@@ -411,6 +459,55 @@ void() CheckParameters =
 	}
 
 
+#ifdef QUAKE
+	if (cvar("sys_ticrate") > 0.025)
+		cvar_set("sys_ticrate", "0.025");
+
+	if (game_qwphysics)
+		sv_maxfriction = sv_accelerate;
+	else
+		sv_maxfriction = sv_accelerate * 0.5;
+
+	if (sv_maxfriction > 10)
+		sv_maxfriction = 10;
+
+	if (sv_friction > sv_maxfriction)
+		cvar_set_("sv_friction", sv_maxfriction);
+
+	if (sv_friction != cvar("sv_friction"))
+	{
+		sv_friction = cvar("sv_friction");
+		if (sv_friction < 0)
+		{
+			sv_friction = 0;
+			cvar_set_("sv_friction", 0);
+		}
+	}
+
+	skill = cvar("skill");
+	skill = floor(skill);
+	if (skill < 0)
+		skill = 0;
+	if (skill > MAX_SKILL)
+		skill = MAX_SKILL;
+
+	if (skill != old_skill)
+		SetSkill();
+
+	if (host_framerate != cvar("host_framerate"))
+	{
+		host_framerate = cvar("host_framerate");
+	#ifndef ARENA
+		bprint_fb(2, "host_framerate changed to ");
+		bprint_ftos(2, host_framerate * 1000000);
+		bprint_fb(2, "/1000000\n");
+	#else
+		bprint_fb(2, "\"host_framerate\" changed to \"");
+		bprint_ftos(2, host_framerate);
+		bprint_fb(2, "\"\n");
+	#endif
+	}
+#else
 	if (sv_accelerate > 10)
 		sv_maxfriction = 10;
 	else
@@ -426,6 +523,7 @@ void() CheckParameters =
 			sv_friction = 0;
 		cvar_log("sv_friction", sv_friction);
 	}
+#endif
 
 	fraglimit = cvar("fraglimit");
 
@@ -636,7 +734,15 @@ void() AddBot =
 	}
 	if (markers_loaded)
 	{
+#ifdef QUAKE
+		local float maxplayers;
+		maxplayers = cvar("maxplayers");
+		if (maxplayers < 2)	//user forgot to put it up
+			maxplayers = 16;
+		if ((numberofclients >= maxplayers) || (numberofbots >= 12))
+#else
 		if ((numberofclients >= stof(infokey(world, "maxclients"))) || (numberofbots == 16))
+#endif
 		{
 			sprint_fb(self, 2, "Server is full.\n");
 		}
@@ -663,6 +769,17 @@ void() AddBot =
 			self.frogbot = TRUE;
 			self.classname = "frogbot";
 			self.stringname = "gamer";
+		#ifdef QUAKE
+			self_aiment = self.aiment = EntityAt(world, self.colormap);
+			self_aiment.colormap = self.colormap;
+			self_aiment.flags = 0;
+			self_aiment.player = TRUE;
+			self_aiment.movetype = 0;
+			if (game_skins)
+				self_aiment.skin = other.spawn_skin;
+			else
+				self_aiment.skin = 0;
+		#endif
 			self.waterlevel = 0;
 			self.watertype = 0;
 			self.frags = 0;
@@ -673,9 +790,13 @@ void() AddBot =
 			self.effects = 0;
 			self.color_ = other.color_;
 			self.teamcolor = other.teamcolor;
+		#ifdef ARENA
 			if (game_arena)
 				other.teamcolor = 0;
 			self.bot_skill = skill;
+		#else
+			self.bot_skill = other.bot_skill;
+		#endif
 			CopyBot(self, other);
 			CopyBot(other, world);	// NULL
 			scoreboardsize = scoreboardsize + 1;
@@ -724,9 +845,11 @@ void() AddBot =
 			ClientConnect_apply();
 			SetAttribs();
 			PutClientInServer();
+#ifdef TALK
 			self.old_bot = other.old_bot;
 			if (!game_disable_botchat && !self.old_bot)
 				say_hello(self);
+#endif
 			self.oldorigin = self.origin;
 			if (!game_not_match && !game_arena)
 			{
@@ -832,6 +955,109 @@ void() RemoveAllBots =
 	test_enemy.think = AutoRemoveBot;
 	test_enemy.nextthink = 0.001;
 };
+
+#ifdef QUAKE
+/*
+============
+BecomeBot
+
+============
+*/
+void() BecomeBot =
+{
+	if (invalid_map)
+	{
+		InvalidMap();
+	}
+	else
+	{
+		if (markers_loaded)
+		{
+			if (game_show_rules)
+			{
+				bprint_fb(2, self.netname);
+				bprint_fb(2, " has become a frogbot\n");
+			}
+			else
+			{
+				if (!self.client_)
+				{
+					bprint_fb(2, self.netname);
+					bprint_fb(2, " is playing\n");
+				}
+			}
+
+			if (!self.client_)
+				PrepareToClient();
+
+			self.frogbot = TRUE;
+
+			SetAttribs();
+
+			if (self.deadflag == DEAD_NO)
+			{
+				if (self.v_angle_x < 0)
+					self.angles_x = self.v_angle_x - 2.8125;	// crosshair
+				else
+					self.angles_x = self.v_angle_x;
+				self.angles_z = 0;
+
+				self.real_pitch = self.angles_x;
+				self.real_yaw = self.angles_y;
+
+				self.state = 0;
+			}
+			#ifdef ARENA
+				self.oldangles = self.angles;
+			#endif
+		}
+	}
+};
+
+/*
+============
+BecomePlayer
+
+============
+*/
+void() BecomePlayer =
+{
+	if (self.netname != "")
+	{
+		if ((game_show_rules) || (!self.client_))
+		{
+			bprint_fb(2, self.netname);
+			bprint_fb(2, " is playing\n");
+		}
+
+		if (self.client_)
+			self.frogbot = FALSE;
+		else
+			PrepareToClient();
+
+		self.lookahead_time = 30;
+		self.prediction_error = 0;
+
+		self.arrow = 0;
+		ClearLookObject(self);
+		self.linked_marker = self.old_linked_marker = world;
+	}
+};
+
+/*
+============
+ToggleFrogbot
+
+============
+*/
+void() ToggleFrogbot =
+{
+	if (self.frogbot)
+		BecomePlayer();
+	else
+		BecomeBot();
+};
+#endif
 
 /*
 ============
@@ -953,7 +1179,9 @@ void() PrintRules =
 	sprint_fb(self, 2, "\nôåáíðìáù.... ");
 	sprint_ftos(self, 2, teamplay);
 	sprint_fb(self, 2, "\n");
+#ifdef ARENA
 	a_rulesfix();
+#endif
 	print_boolean(GAME_ENABLE_POWERUPS, "ðï÷åòõðó.... ");
 	print_boolean(GAME_ENABLE_RUNES, "òõîå........ ");
 	print_boolean(GAME_RUNE_RJ, "òõîåßòê..... ");
@@ -966,7 +1194,14 @@ void() PrintRules =
 	print_boolean(GAME_ENABLE_DROPWEAP, "äòïð÷åáð.... ");
 	print_boolean(GAME_ENABLE_AUTOSTEAMS, "áõôïóôåáíó.. ");
 	print_boolean(GAME_ENABLE_BOTCHAT, "âïôãèáô..... ");
+#ifdef ARENA
 	a_boolean();
+#endif
+#ifdef QUAKE
+	print_boolean(GAME_NOSKINS, "îïóëéîó..... ");
+	print_boolean(GAME_QWPHYSICS, "ñ÷ðèùóéãó... ");
+	print_boolean(GAME_QWAIM, "ñ÷áéí....... ");
+#endif
 	sprint_fb(self, 2, "\n");
 
 	if (sv_accelerate != 10)
@@ -981,6 +1216,20 @@ void() PrintRules =
 		sprint_ftos(self, 2, sv_friction);
 		sprint_fb(self, 2, "\n");
 	}
+#ifdef QUAKE
+	if (host_framerate)
+	{
+	#ifdef ARENA
+		sprint_fb(self, 2, "\"host_framerate\" is \"");
+		sprint_ftos(self, 2, host_framerate);
+		sprint_fb(self, 2, "\"\n");
+	#else
+		sprint_fb(self, 2, "host_framerate is ");
+		sprint_ftos(self, 2, host_framerate * 1000000);
+		sprint_fb(self, 2, "/1000000\n");
+	#endif
+	}
+#endif
 };
 
 /*
@@ -1024,6 +1273,20 @@ void() PrintTime =
 
 /*
 ============
+SetSkin
+
+============
+*/
+#ifdef QUAKE
+void() SetSkin =
+{
+	if (game_skins)
+		self.skin = self.spawn_skin;
+};
+#endif
+
+/*
+============
 AddBotError
 
 ============
@@ -1064,10 +1327,12 @@ void() ImpulseCommands =
 		{
 			impulse_ = self.impulse;
 
+		#ifndef QUAKE
 			if (impulse_ == IMP_JOIN)
 				join();
 			else if (impulse_ == IMP_OBSERVE)
 				observe();
+		#endif
 
 			if (!self.client_ && numberofplayers > 0) return; 
 
@@ -1079,9 +1344,7 @@ void() ImpulseCommands =
 					AddBotError();
 					return;
 				}
-			} 
-			else if (impulse_ >= 200 && impulse_ <= 245)
-				SelectMap();
+			}
 
 			if (impulse_ == 140)
 				f_jump();
@@ -1107,6 +1370,20 @@ void() ImpulseCommands =
 				{
 					if (self.lines)
 						AddBotError();
+
+				#ifdef MANUAL
+					if (impulse_ == 131)
+						ToggleManualMode();
+					if (manual_mode)
+					#ifdef ARENA
+						{
+					#endif
+						ManualImpulseCommands();
+					#ifdef ARENA
+						return;
+						}
+					#endif
+				#endif
 				}
 				else if (impulse_ <= IMP_END2)
 				{
@@ -1219,8 +1496,10 @@ void() ImpulseCommands =
 					ToggleGameMode(GAME_MATCH, "match");
 				else if (impulse_ == IMP_OVERTIME)
 					ChangeOvertime();
+#ifdef TALK
 				else if (impulse_ == IMP_BOTCHAT)
 					ToggleGameModeNow(GAME_ENABLE_BOTCHAT, "botchat");
+#endif
 				else if (impulse_ == IMP_RL_PREF)
 				{
 					if (game_lg_pref)
@@ -1235,7 +1514,9 @@ void() ImpulseCommands =
 				} 
 				else if (impulse_ == IMP_RUNE_RJ)
 					ToggleGameModeNow(GAME_RUNE_RJ, "rune_rj");
+			#ifdef ARENA
 				a_impulses();
+			#endif
 			}
 		}
 		else

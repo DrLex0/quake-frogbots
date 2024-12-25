@@ -9,6 +9,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 /*
 GENERAL ITEM NOTES
 
@@ -55,6 +57,54 @@ void() bf =
 	msg_entity = firstperson;
 };
 
+#ifdef QUAKE
+/*
+============
+SetViewPort
+
+============
+*/
+
+void() SetViewPort =
+{
+	WriteByte(MSG_ONE, SVC_SETVIEWPORT);
+	WriteEntity(MSG_ONE, viewport);
+};
+
+void() SetViewPortClient =
+{
+	if (non_viewport.modelindex)
+	{
+		non_viewport.modelindex = 0;
+		if (msg_entity.player)
+			SetViewPort();
+		while (msg_entity = msg_entity.clink)
+		{
+			if (msg_entity.pflags & PF_FIRSTPERSON)
+				SetViewPort();
+		}
+	}
+};
+
+void() SetViewPlayer =
+{
+	msg_entity = self;
+	if (self.player)
+	{
+		viewport = self;
+		non_viewport = self.aiment;
+	}
+	else
+	{
+		viewport = self.aiment;
+		non_viewport = self;
+	}
+
+	SetViewPortClient();
+	viewport.modelindex = modelindex_player;
+};
+#endif
+
 /* ALL LIGHTS SHOULD BE 0 1 0 IN COLOR ALL OTHER ITEMS SHOULD
 BE .8 .3 .4 IN COLOR */
 
@@ -80,8 +130,10 @@ Sets the clipping size and plants the object on the floor
 */
 void() StartItem =
 {
+#ifdef ARENA
 	if (a_item())
 		return;
+#endif
 // put on save que
 	AddToQue();
 	self.view_ofs = '80 80 24';
@@ -189,6 +241,10 @@ void() item_health =
 			if (deathmatch != 4)
 			{
 				self.touch = health_touch;
+			#ifndef ARENA
+				precache_model("maps/b_bh100.bsp");
+				precache_sound("items/r_item2.wav");
+			#endif
 				setmodel(self, "maps/b_bh100.bsp");
 				self.noise = "items/r_item2.wav";
 				self.healamount = 100;
@@ -202,6 +258,10 @@ void() item_health =
 			self.touch = health_touch;
 			if (self.spawnflags & H_ROTTEN)
 			{
+			#ifndef ARENA
+				precache_model("maps/b_bh10.bsp");
+				precache_sound("items/r_item1.wav");
+			#endif
 				setmodel(self, "maps/b_bh10.bsp");
 				self.noise = "items/r_item1.wav";
 				self.healamount = 15;
@@ -209,6 +269,10 @@ void() item_health =
 			}
 			else
 			{
+			#ifndef ARENA
+				precache_model("maps/b_bh25.bsp");
+				precache_sound("items/health1.wav");
+			#endif
 				setmodel(self, "maps/b_bh25.bsp");
 				self.noise = "items/health1.wav";
 				self.healamount = 25;
@@ -228,6 +292,12 @@ void() health_touch =
 	{
 		if (marker_time)
 			check_marker();
+
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (self.nextthink)
 			return;
 		if (other.takedamage)
@@ -248,7 +318,9 @@ void() health_touch =
 				self.think = item_megahealth_rot;
 				self.owner = other;
 				other.items = other.items | 65536;
+#ifdef TALK
 				teamreport2(other, 4);
+#endif
 			}
 			else
 			{
@@ -316,6 +388,12 @@ void() armor_touch =
 	{
 		if (marker_time)
 			check_marker();
+
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (self.nextthink)
 			return;
 		if (other.takedamage)
@@ -349,15 +427,21 @@ void() armor_touch =
 
 			if (self.armorvalue == 100) {
 				other.s_GA = other.s_GA + 1;
+#ifdef TALK
 				teamreport2(other, 1);
+#endif
 			} 
 			if (self.armorvalue == 150) {
 				other.s_YA = other.s_YA + 1;
+#ifdef TALK
 				teamreport2(other, 2);
+#endif
 			} 
 			if (self.armorvalue == 200) {
 				other.s_RA = other.s_RA + 1;
+#ifdef TALK
 				teamreport2(other, 3);
+#endif
 			}
 
 			msg_entity = other;
@@ -394,6 +478,9 @@ void() item_armor1 =
 	if (deathmatch != 2)
 	{
 		self.touch = armor_touch;
+	#ifndef ARENA
+		precache_model ("progs/armor.mdl");
+	#endif
 		setmodel (self, "progs/armor.mdl");
 //		self.skin = 0;
 		self.armortype = 0.3;
@@ -439,6 +526,9 @@ void() item_armor2 =
 	if (deathmatch != 2)
 	{
 		self.touch = armor_touch;
+	#ifndef ARENA
+		precache_model ("progs/armor.mdl");
+	#endif
 		setmodel (self, "progs/armor.mdl");
 		self.skin = 1;
 		self.armortype = 0.6;
@@ -483,6 +573,9 @@ void() item_armorInv =
 	if (deathmatch != 2)
 	{
 		self.touch = armor_touch;
+	#ifndef ARENA
+		precache_model ("progs/armor.mdl");
+	#endif
 		setmodel (self, "progs/armor.mdl");
 		self.skin = 2;
 		self.armortype = 0.8;
@@ -511,9 +604,9 @@ void() bound_ammo =
 	if (other.ammo_nails > 200)
 		other.ammo_nails = 200;
 	if (other.ammo_rockets > 100)
-		other.ammo_rockets = 100;		
+		other.ammo_rockets = 100;
 	if (other.ammo_cells > 100)
-		other.ammo_cells = 100;		
+		other.ammo_cells = 100;
 };
 
 
@@ -534,6 +627,7 @@ float(float w) RankForWeapon =
 	return 7;
 };
 
+#ifndef QUAKE
 float (float w) WeaponCode =
 {
 	if (w == IT_SUPER_SHOTGUN)
@@ -550,6 +644,7 @@ float (float w) WeaponCode =
 		return 8;
 	return 1;
 };
+#endif
 
 /*
 =============
@@ -560,11 +655,18 @@ Deathmatch weapon change rules for picking up a weapon
 */
 void(float new) Deathmatch_Weapon =
 {
+#ifdef QUAKE
+	if (game_qwphysics)
+	{
+#endif
 		if (other.flags & FL_INWATER)
 		{
 			if (new == IT_LIGHTNING)
 				return;
 		}
+#ifdef QUAKE
+	}
+#endif
 
 // change other.weapon if desired
 	or = RankForWeapon (other.weapon);
@@ -585,6 +687,12 @@ void() weapon_touch =
 	{
 		if (marker_time)
 			check_marker();
+
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (self.nextthink)
 			return;
 		if (other.takedamage)
@@ -605,15 +713,21 @@ void() weapon_touch =
 				other.ammo_shells = other.ammo_shells + 5;
 			else if (self.weapon == IT_ROCKET_LAUNCHER) {
 				other.ammo_rockets = other.ammo_rockets + 5;
+#ifdef TALK
 			teamreport2(other, 6);
+#endif
 			} 
 			else if (self.weapon == IT_GRENADE_LAUNCHER) {
 				other.ammo_rockets = other.ammo_rockets + 5;
+#ifdef TALK
 				teamreport2(other, 5);
+#endif
 			}
 			else if (self.weapon == IT_LIGHTNING) {
 				other.ammo_cells = other.ammo_cells + 15;
+#ifdef TALK
 				teamreport2(other, 7);
+#endif
 			}
 
 			other.weapon_refresh_time = 0;
@@ -633,14 +747,22 @@ void() weapon_touch =
 
 		// change to the weapon
 			other.items = other.items | self.weapon;
+
+		#ifndef QUAKE
 			w_switch = stof(infokey(other,"w_switch"));
 			if (!w_switch)
 				w_switch = 8;
 
 			if ( WeaponCode(self.weapon) <= w_switch )
 			{
+		#endif
+
 			Deathmatch_Weapon (self.weapon);
+
+		#ifndef QUAKE
 			}
+		#endif
+
 			if (!leave)
 			{
 				UpdateGoalEntity();
@@ -693,6 +815,9 @@ void() weapon_supershotgun =
 	{
 		self.touch = weapon_touch;
 		available_weapons = available_weapons | IT_SUPER_SHOTGUN;
+	#ifndef ARENA
+		precache_model ("progs/g_shot.mdl");
+	#endif
 		setmodel (self, "progs/g_shot.mdl");
 		self.weapon = IT_SUPER_SHOTGUN;
 		self.netname = "Double-barrelled Shotgun";
@@ -740,6 +865,9 @@ void() weapon_nailgun =
 	{
 		self.touch = weapon_touch;
 		available_weapons = available_weapons | IT_NAILGUN;
+	#ifndef ARENA
+		precache_model ("progs/g_nail.mdl");
+	#endif
 		setmodel (self, "progs/g_nail.mdl");
 		self.weapon = IT_NAILGUN;
 		self.netname = "nailgun";
@@ -787,6 +915,9 @@ void() weapon_supernailgun =
 	{
 		self.touch = weapon_touch;
 		available_weapons = available_weapons | IT_SUPER_NAILGUN;
+	#ifndef ARENA
+		precache_model ("progs/g_nail2.mdl");
+	#endif
 		setmodel (self, "progs/g_nail2.mdl");
 		self.weapon = IT_SUPER_NAILGUN;
 		self.netname = "Super Nailgun";
@@ -832,6 +963,9 @@ void() weapon_grenadelauncher =
 	{
 		self.touch = weapon_touch;
 		available_weapons = available_weapons | IT_GRENADE_LAUNCHER;
+	#ifndef ARENA
+		precache_model ("progs/g_rock.mdl");
+	#endif
 		setmodel (self, "progs/g_rock.mdl");
 		self.weapon = IT_GRENADE_LAUNCHER;
 		self.netname = "Grenade Launcher";
@@ -877,6 +1011,9 @@ void() weapon_rocketlauncher =
 	{
 		self.touch = weapon_touch;
 		available_weapons = available_weapons | IT_ROCKET_LAUNCHER;
+	#ifndef ARENA
+		precache_model ("progs/g_rock2.mdl");
+	#endif
 		setmodel (self, "progs/g_rock2.mdl");
 		self.weapon = IT_ROCKET_LAUNCHER;
 		self.netname = "Rocket Launcher";
@@ -923,6 +1060,9 @@ void() weapon_lightning =
 	{
 		self.touch = weapon_touch;
 		available_weapons = available_weapons | IT_LIGHTNING;
+	#ifndef ARENA
+		precache_model ("progs/g_light.mdl");
+	#endif
 		setmodel (self, "progs/g_light.mdl");
 		self.weapon = IT_LIGHTNING;
 		self.netname = "Thunderbolt";
@@ -956,6 +1096,12 @@ void() ammo_touch =
 	{
 		if (marker_time)
 			check_marker();
+
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (self.nextthink)
 			return;
 		if (other.takedamage)
@@ -1063,11 +1209,17 @@ void() item_shells =
 
 		if (self.spawnflags & WEAPON_BIG2)
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_shell1.bsp");
+	#endif
 			setmodel (self, "maps/b_shell1.bsp");
 			self.aflag = 40;
 		}
 		else
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_shell0.bsp");
+	#endif
 			setmodel (self, "maps/b_shell0.bsp");
 			self.aflag = 20;
 		}
@@ -1109,11 +1261,17 @@ void() item_spikes =
 
 		if (self.spawnflags & WEAPON_BIG2)
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_nail1.bsp");
+	#endif
 			setmodel (self, "maps/b_nail1.bsp");
 			self.aflag = 50;
 		}
 		else
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_nail0.bsp");
+	#endif
 			setmodel (self, "maps/b_nail0.bsp");
 			self.aflag = 25;
 		}
@@ -1154,11 +1312,17 @@ void() item_rockets =
 
 		if (self.spawnflags & WEAPON_BIG2)
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_rock1.bsp");
+	#endif
 			setmodel (self, "maps/b_rock1.bsp");
 			self.aflag = 10;
 		}
 		else
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_rock0.bsp");
+	#endif
 			setmodel (self, "maps/b_rock0.bsp");
 			self.aflag = 5;
 		}
@@ -1201,11 +1365,17 @@ void() item_cells =
 
 		if (self.spawnflags & WEAPON_BIG2)
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_batt1.bsp");
+	#endif
 			setmodel (self, "maps/b_batt1.bsp");
 			self.aflag = 12;
 		}
 		else
 		{
+	#ifndef ARENA
+			precache_model ("maps/b_batt0.bsp");
+	#endif
 			setmodel (self, "maps/b_batt0.bsp");
 			self.aflag = 6;
 		}
@@ -1244,11 +1414,17 @@ void() item_weapon =
 
 			if (self.spawnflags & WEAPON_BIG)
 			{
+	#ifndef ARENA
+				precache_model ("maps/b_shell1.bsp");
+	#endif
 				setmodel (self, "maps/b_shell1.bsp");
 				self.aflag = 40;
 			}
 			else
 			{
+	#ifndef ARENA
+				precache_model ("maps/b_shell0.bsp");
+	#endif
 				setmodel (self, "maps/b_shell0.bsp");
 				self.aflag = 20;
 			}
@@ -1265,11 +1441,17 @@ void() item_weapon =
 
 			if (self.spawnflags & WEAPON_BIG)
 			{
+	#ifndef ARENA
+				precache_model ("maps/b_nail1.bsp");
+	#endif
 				setmodel (self, "maps/b_nail1.bsp");
 				self.aflag = 40;
 			}
 			else
 			{
+	#ifndef ARENA
+				precache_model ("maps/b_nail0.bsp");
+	#endif
 				setmodel (self, "maps/b_nail0.bsp");
 				self.aflag = 20;
 			}
@@ -1285,11 +1467,17 @@ void() item_weapon =
 
 			if (self.spawnflags & WEAPON_BIG)
 			{
+	#ifndef ARENA
+				precache_model ("maps/b_rock1.bsp");
+	#endif
 				setmodel (self, "maps/b_rock1.bsp");
 				self.aflag = 10;
 			}
 			else
 			{
+	#ifndef ARENA
+				precache_model ("maps/b_rock0.bsp");
+	#endif
 				setmodel (self, "maps/b_rock0.bsp");
 				self.aflag = 5;
 			}
@@ -1370,9 +1558,27 @@ void() powerup_touch_apply =
 	if (items_ == IT_INVISIBILITY)
 	{
 	// use the eyes
+	#ifdef QUAKE
+		msg_entity = other;
+		if (other.skin) // => (other.player)
+		{
+			viewport = other.aiment;
+			non_viewport = other;
+		}
+		else
+		{
+			viewport = other;
+			non_viewport = other.aiment;
+		}
 
+		SetViewPortClient();
+		viewport.modelindex = modelindex_eyes;
+	#else
 		other.modelindex = modelindex_eyes;
+	#endif
+#ifdef TALK
 		teamreport2(other, 13);
+#endif
 		other.s_RING = other.s_RING + 1;
 		other.invisible_time = 1;
 		other.invisible_finished = self.frogbot_nextthink;
@@ -1384,19 +1590,33 @@ void() powerup_touch_apply =
 	}
 	else if (items_ == IT_INVULNERABILITY)
 	{
+#ifdef TALK
 		teamreport2(other, 12);
+#endif
 		other.s_PENT = other.s_PENT + 1;
 		other.invincible_time = 1;
 		other.invincible_finished = self.frogbot_nextthink;
+
+	#ifdef QUAKE
+		other.effects = other.aiment.effects = other.effects | EF_DIMLIGHT;
+	#else
 		other.effects = other.effects | EF_DIMLIGHT_RED;
+	#endif
 	}
 	else if (items_ == IT_QUAD)
 	{
+#ifdef TALK
 		teamreport2(other, 11);
+#endif
 		other.s_QUAD = other.s_QUAD + 1;
 		other.super_time = 1;
 		other.super_damage_finished = self.frogbot_nextthink;
+
+	#ifdef QUAKE
+		other.effects = other.aiment.effects = other.effects | EF_DIMLIGHT;
+	#else
 		other.effects = other.effects | EF_DIMLIGHT_BLUE;
+	#endif
 	}
 
 	other.items = other.items | items_;
@@ -1410,6 +1630,12 @@ void() powerup_touch =
 	{
 		if (marker_time)
 			check_marker();
+
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (self.nextthink)
 			return;
 		if (other.takedamage)
@@ -1436,6 +1662,12 @@ void() dynamic_powerup_touch =
 {
 	if (other.client_)
 	{
+
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (other.takedamage)
 		{
 			if (other.goalentity == self)
@@ -1473,10 +1705,15 @@ void() item_artifact_invulnerability =
 	if (!game_disable_powerups)
 	{
 		self.touch = powerup_touch;
+	#ifndef ARENA
+		precache_model ("progs/invulner.mdl");
+	#endif
 		self.noise = "items/protect.wav";
 		setmodel (self, "progs/invulner.mdl");
 		self.netname = "Pentagram of Protection";
+	#ifndef QUAKE
 		self.effects = self.effects | EF_RED;
+	#endif
 		self.items = IT_INVULNERABILITY;
 		self.aflag = 300;
 		self.desire = goal_artifact_invulnerability;
@@ -1493,10 +1730,16 @@ void() lose_artifact_invulnerability =
 	self.invincible_finished = 0;
 	if (!self.super_damage_finished)
 //	if (!(self.player_flag & ITEM_ENEMY_FLAG))
+#ifdef QUAKE
+	{
+		self.effects = self.aiment.effects = self.effects & NOT_EF_DIMLIGHT;
+	}
+#else
 	{
 		self.effects = self.effects & NOT_EF_DIMLIGHT;
 	}
 	self.effects = self.effects & NOT_EF_RED;
+#endif
 };
 
 /*QUAKED item_artifact_envirosuit (0 .5 .8) (-16 -16 -24) (16 16 32)
@@ -1505,6 +1748,12 @@ Player takes no damage from water or slime for 30 seconds
 void() item_artifact_envirosuit =
 {
 	self.touch = powerup_touch;
+
+#ifndef ARENA
+	precache_model ("progs/suit.mdl");
+	precache_sound ("items/suit.wav");
+	precache_sound ("items/suit2.wav");
+#endif
 	self.noise = "items/suit.wav";
 	setmodel (self, "progs/suit.mdl");
 	self.netname = "Biosuit";
@@ -1547,6 +1796,14 @@ void() item_artifact_invisibility =
 	if (!game_disable_powerups)
 	{
 		item.touch = powerup_touch;
+
+	#ifndef ARENA
+		precache_model ("progs/invisibl.mdl");
+		precache_sound ("items/inv1.wav");
+		precache_sound ("items/inv2.wav");
+		precache_sound ("items/inv3.wav");
+	#endif
+
 		item_artifact_invisibility_apply();
 		item.aflag = 300;
 		item.pickup = pickup_true;
@@ -1580,15 +1837,22 @@ void() drop_artifact_invisibility =
 
 void() lose_artifact_invisibility =
 {
+#ifdef TALK
 	if (teamplay && !game_disable_autoreport)
 	{
 		if (self.invisible_finished > time)
 		teamreport2(self, 18);
 	}
+#endif
 	self.items = self.items & IT_NOT_INVISIBILITY;
 	self.invisible_finished = 0;
 	self.invisible_time = 0;
+
+#ifdef QUAKE
+	SetViewPlayer();
+#else
 	self.modelindex = modelindex_player;
+#endif
 };
 
 /*QUAKED item_artifact_super_damage (0 .5 .8) (-16 -16 -24) (16 16 32)
@@ -1618,8 +1882,18 @@ void() item_artifact_super_damage =
 	if (!game_disable_powerups)
 	{
 		item.touch = powerup_touch;
+
+	#ifndef ARENA
+		precache_model ("progs/quaddama.mdl");
+		precache_sound ("items/damage.wav");
+		precache_sound ("items/damage2.wav");
+		precache_sound ("items/damage3.wav");
+	#endif
+
 		item_artifact_super_damage_apply();
+	#ifndef QUAKE
 		item.effects = item.effects | EF_BLUE;
+	#endif
 		item.aflag = 60;
 		item.pickup = pickup_true;
 	}
@@ -1633,7 +1907,10 @@ void() drop_artifact_super_damage =
 
 	item.origin = self.origin;
 	item.goal_respawn_time = time;
+
+#ifndef QUAKE
 	item.effects = item.effects | EF_BLUE;
+#endif
 	item_artifact_super_damage_apply();
 	setsize (item, '-16 -16 -24', '16 16 32');
 
@@ -1653,20 +1930,28 @@ void() drop_artifact_super_damage =
 
 void() lose_artifact_super_damage =
 {
+#ifdef TALK
 	if (teamplay && !game_disable_autoreport)
 	{
 		if (self.super_damage_finished > time)
 			teamreport2(self, 17);
 	}
+#endif
 	self.items = self.items & IT_NOT_QUAD;
 	self.super_damage_finished = 0;
 	self.super_time = 0;
 	if (!self.invincible_finished)
 //	if (!(self.player_flag & ITEM_ENEMY_FLAG))
+#ifdef QUAKE
+	{
+		self.effects = self.aiment.effects = self.effects & NOT_EF_DIMLIGHT;
+	}
+#else
 	{
 		self.effects = self.effects & NOT_EF_DIMLIGHT;
 	}
 	self.effects = self.effects & NOT_EF_BLUE;
+#endif
 };
 
 /*
@@ -1727,6 +2012,12 @@ void() backpack_touch =
 
 	if (other.client_)
 	{
+
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (other.takedamage)
 		{
 			if (other.goalentity == self)
@@ -1763,7 +2054,12 @@ void() backpack_touch =
 						bf();
 						bprint_fb(2, other.netname);
 						bprint_fb(2, " attains bonus powers!!!\n");
+
+					#ifdef QUAKE
+						other.effects = other.aiment.effects = other.effects | EF_DIMLIGHT;
+					#else
 						other.effects = other.effects | EF_DIMLIGHT_RED;
+					#endif
 					}
 				}
 			}
@@ -1789,14 +2085,18 @@ void() backpack_touch =
 						other.items = other.items | self.items;
 					}
 
+				#ifdef QUAKE
+					Deathmatch_Weapon (self.items);
+				#else
 					b_switch = stof(infokey(other,"b_switch"));
 					if (!b_switch)
 						b_switch = 8;
 
 					if ( WeaponCode(self.items) <= b_switch )
 					{
-					Deathmatch_Weapon (self.items);
+						Deathmatch_Weapon (self.items);
 					}
+				#endif
 				}
 
 				if (self.ammo_shells)
@@ -1839,12 +2139,14 @@ void() backpack_touch =
 
 				bf();
 
+#ifdef TALK
 				if (self.items == IT_GRENADE_LAUNCHER)
 					teamreport2(other, 8);
 				if (self.items == IT_ROCKET_LAUNCHER)
 					teamreport2(other, 9);
 				if (self.items == IT_LIGHTNING)
 					teamreport2(other, 10);
+#endif
 
 				other.weapon_refresh_time = 0;
 
@@ -1858,7 +2160,9 @@ void() backpack_touch =
 				self = other;
 				W_SetCurrentAmmo ();
 
+#ifdef TALK
 				if (self.frogbot) teamreport(self);
+#endif
 			}
 		}
 	}
@@ -2009,6 +2313,11 @@ void() RuneTouch =
 {
 	if (other.client_)
 	{
+	#ifdef MANUAL
+		if (manual_mode)
+			return;
+	#endif
+
 		if (other.player_flag & ITEM_RUNE_MASK)
 			return; // one per customer
 		if (other.takedamage)

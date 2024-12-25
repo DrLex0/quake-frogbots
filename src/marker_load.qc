@@ -4,6 +4,8 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 */
 
+#include "settings.h"
+
 /*
 ============
 AddToQue
@@ -62,6 +64,12 @@ void() AddToQue_apply =
 		m281=m282;m282=m283;m283=m284;m284=m285;m285=m286;m286=m287;m287=m288;m288=m289;m289=m290;m290=m291;
 		m291=m292;m292=m293;m293=m294;m294=m295;m295=m296;m296=m297;m297=m298;m298=m299;m299=m300;m300=self;
 	}
+
+#ifdef MANUAL
+	else
+		bprint_("ERROR: Max Que size exceeded\n");
+#endif
+
 	que_size = que_size + 1;
 };
 

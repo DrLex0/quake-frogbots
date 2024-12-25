@@ -8,6 +8,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() Add_takedamage;
 float DOOR_START_OPEN = 1;
 float DOOR_DONT_LINK = 4;
@@ -170,6 +172,11 @@ void() door_use =
 
 void() door_trigger_touch =
 {
+#ifdef MANUAL
+	if (manual_mode)
+		return;
+#endif
+
 	if (counting_down)
 		return;
 
@@ -765,5 +772,17 @@ void () func_door_secret =
 		self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 		adjust_view_ofs_z();
 		BecomeMarker(self);
+	}
+
+// DOOR_OPEN for maps
+// FIXME this is really ugly and should somehow be specified by the map waypoint file
+
+	if (mapname == "cmt4" || mapname == "dakdm1" || mapname == "exdm3" ||
+	    mapname == "efdm13" || mapname == "naked7b2" || mapname == "naked6" ||
+	    mapname == "e1m6" || mapname == "e1m5" || mapname == "egyptele" ||
+	    mapname == "damaul2" || mapname == "filthy")
+	{
+		setorigin (self, self.pos2);
+		self.pos1 = self.pos2;
 	}
 };

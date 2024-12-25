@@ -6,6 +6,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() Calc_G_time_path;
 void() Calc_G_time_1;
 void() Calc_G_time_2;
@@ -192,11 +194,13 @@ TravelTime
 
 void() TravelTime =
 {
+#ifdef ARENA
 	if (m_D & ROCKET_JUMP)
 	{
 		traveltime = 100000;
 		return;
 	}
+#endif
 	if (m_D & JUMP_LEDGE)
 		m_D = m_D | NO_DODGE;
 

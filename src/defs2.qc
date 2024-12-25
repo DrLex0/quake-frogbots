@@ -8,6 +8,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() SightMarker;
 void() AvoidEdge;
 void() PlayerBreak;
@@ -16,8 +18,10 @@ void() frogbot_marker_touch;
 void() SightMarker;
 void() HigherSightMarker;
 void() AvoidHazards;
+#ifdef TALK
 void(entity me) teamreport;
 void(entity me, float nt) teamreport2;
+#endif
 void() teams_frags_count;
 void(entity e) remove_apply = #15;
 float(entity ent) IsVisible;
@@ -99,7 +103,6 @@ float door_open;
 .float s_RING;
 .float s_dmg;
 .float t_dmg;
-.float k_vote;
 .float k_flag;
 .float t_health;
 .float t_armortype;
@@ -122,6 +125,23 @@ float door_open;
 .float old_bot; 
 .string stringname;
 string string_null;
+
+#ifdef QUAKE
+string(entity player, string key) infokey =
+{
+	return "";
+};
+#define EF_BLUE 0
+#define MULTICAST_PHS 0
+#define MSG_MULTICAST MSG_BROADCAST
+void(vector org, float pvs) multicast =
+{
+};
+float(string s) stof =
+{
+	return 0;
+};
+#endif
 
 void() SprintVersion =
 {

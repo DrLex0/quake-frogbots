@@ -8,6 +8,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() bubble_bob;
 
 /*
@@ -100,7 +102,9 @@ void() player_run_ =
 	self.nextthink = time + 0.1;
 	self.walkframe = self.walkframe + 1;
 
+#ifdef TALK
 	teamreport2(self, 0);
+#endif
 
 	if (!self.velocity_x)
 	{
@@ -141,9 +145,13 @@ void() player_run =
 
 void() muzzleflash =
 {
+#ifdef QUAKE
+	self.effects = self.aiment.effects = self.effects | EF_MUZZLEFLASH;
+#else
 	WriteByte (MSG_MULTICAST, SVC_MUZZLEFLASH);
 	WriteEntity (MSG_MULTICAST, self);
 	multicast (self.origin, MULTICAST_PVS);
+#endif
 };
 
 void()	player_shot1 =	[$shotatt1, player_shot2	]
@@ -479,8 +487,25 @@ void(string gibname) ThrowGib =
 void() GibPlayer =
 {
 // throw head
+#ifdef QUAKE
+	msg_entity = self;
+	if (self.player)
+	{
+		viewport = self.aiment;
+		non_viewport = self;
+	}
+	else
+	{
+		viewport = self;
+		non_viewport = self.aiment;
+	}
 
+	SetViewPortClient();
+	viewport.modelindex = modelindex_head;
+#else
 	self.modelindex = modelindex_head;
+#endif
+
 	self.nextthink = time + 1;
 	self.think = PlayerDead;
 	self.movetype = MOVETYPE_BOUNCE;
@@ -517,16 +542,25 @@ void() PlayerDie =
 
 	if (!pre_game)
 	{
+	#ifdef ARENA
 		selfdie();
 		if (!game_arena)
-
+	#endif
 		DropBackpack();
 
+	#ifdef ARENA
 		if (game_drop)
+	#else
+		if (game_dropring)
+	#endif
 		if (self.invisible_finished > time)
 			drop_artifact_invisibility();
 
+	#ifdef ARENA
 		if (game_drop)
+	#else
+		if (game_dropquad)
+	#endif
 		if (self.super_damage_finished > time)
 			drop_artifact_super_damage();
 	}
@@ -552,6 +586,10 @@ void() PlayerDie =
 	
 		self.angles_x = 0;
 		self.angles_z = 0;
+
+	#ifdef QUAKE
+		self.aiment.angles = self.angles;	// this can happen after FrogbotPostPhysics
+	#endif
 	
 		if (self.weapon == IT_AXE)
 			player_die_ax1 ();
@@ -571,6 +609,10 @@ void() PlayerDie =
 				player_diee1();
 		}
 	}
+
+#ifdef QUAKE
+	self.aiment.frame = self.frame;	// this can happen after FrogbotPostPhysics
+#endif
 };
 
 void() set_suicide_frame =

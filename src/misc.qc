@@ -9,6 +9,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 /*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for spotlights, etc.
 */
@@ -168,7 +170,13 @@ void() Laser_Touch =
 
 			if (other.takedamage)
 			{
+			#ifdef QUAKE
+				damage = 15;
+				SpawnBlood (org_, self.velocity*0.2);
+			#else
 				SpawnBlood (org_);
+			#endif
+
 				deathtype = "laser";
 				inflictor = self;
 				attacker = self.owner;

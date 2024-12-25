@@ -5,6 +5,8 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 */
 
+#include "settings.h"
+
 /*
 ============
 BecomeMarker
@@ -54,6 +56,12 @@ void(vector org) spawn_marker =
 	marker_.solid = SOLID_TRIGGER;
 	marker_.touch = marker_touch;
 	marker_.view_ofs = '80 80 24';
+#ifdef MANUAL
+	marker_.display = marker_;
+	setmodel(marker_, "progs/player.mdl");
+	marker_.model = "";
+#endif
+
 	setsize (marker_, '-65 -65 -24', '65 65 32');
 };
 
@@ -135,6 +143,10 @@ void() adjust_view_ofs_z =
 		}
 	}
 	self = fallspot_self;
+#ifdef MANUAL
+	self.arrow = self.view_ofs_z;
+#endif
+
 };
 
 /*
@@ -160,6 +172,9 @@ entity(vector org) LocateMarker =
 			if (trace_fraction != 1)
 				distance = distance + 1000;
 			if (distance < shortest_distance)
+		#ifndef ARENA
+			if (marker_.classname != "trigger_teleport")
+		#endif
 			{
 				self.near_teleport = world;
 				shortest_distance = distance;

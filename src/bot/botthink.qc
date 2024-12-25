@@ -5,6 +5,7 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
 */
+#include "../settings.h"
 
 /*
 ============
@@ -58,7 +59,9 @@ void() ThinkTime =
 
 	//	assertion: self.touch_marker != world
 
+	#ifdef ARENA
 		if (self.touch_marker)
+	#endif
 		if (self.state & AWARE_SURROUNDINGS)
 		{
 			enemy_ = self.enemy;
@@ -286,7 +289,9 @@ void() ThinkTime =
 	if (self.frogbot)
 	{
 		if (!(self.weapon & IT_CONTINUOUS))
+	#ifdef ARENA
 		if (!self.rocketjumping)
+	#endif
 			self.button0_ = FALSE;
 
 		if (!game_arena)
@@ -307,7 +312,10 @@ void() ThinkTime =
 
 			look_object_ = self.look_object;
 			enemy_ = self.enemy;
+
+		#ifdef ARENA
 			a_attackfix();
+		#endif
 
 			if (look_object_)
 			{
@@ -340,8 +348,10 @@ void() ThinkTime =
 						if (rel_time > 0.5)
 							rel_time = 0.5;
 
+					#ifdef ARENA
 						if (enemy_)
 						{
+					#endif
 						enemy_.oldsolid = enemy_.solid;
 						enemy_.solid = SOLID_NOT;
 
@@ -370,7 +380,9 @@ void() ThinkTime =
 
 						if (look_object_ == enemy_)
 							rel_pos = self.predict_origin - self.origin;
+					#ifdef ARENA
 						}
+					#endif
 					}
 				}
 				else
@@ -485,7 +497,10 @@ void() ThinkTime =
 					self.yawaccel = self.yawaccel + 5400;
 				else if (self.yawaccel < 0)
 					self.yawaccel = self.yawaccel - 5400;
+
+			#ifdef ARENA
 				if (!self.rocketjumping)
+			#endif
 				SetFireButton();
 			}
 		}

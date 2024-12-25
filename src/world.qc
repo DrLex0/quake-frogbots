@@ -9,6 +9,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() InitBodyQue;
 void() CheckParameters;
 void() InitParameters;
@@ -19,6 +21,11 @@ void() FrogbotPrePhysics1;
 void() FrogbotPrePhysics2;
 void() ThinkTime;
 void() TimerThink;
+
+#ifdef MANUAL
+void() MarkerDisplay;
+#endif
+
 void() main = {};
 
 //=======================
@@ -101,6 +108,10 @@ worldspawn
 */
 void() worldspawn =
 {
+#ifdef QUAKE
+	InitParameters();
+#endif
+
 	if (self.model == "maps/e1m8.bsp")
 		cvar_set ("sv_gravity", "100");
 	else
@@ -109,7 +120,10 @@ void() worldspawn =
 // the area based ambient sounds MUST be the first precache_sounds
 // player precaches	
 	W_Precache ();			// get weapon precaches
+
+#ifdef ARENA
 	a_precache();
+#endif
 
 // sounds used from C physics code
 	precache_sound ("demon/dland2.wav");		// landing thud
@@ -306,11 +320,14 @@ StartFrame
 void() StartFrame =
 {
 	local entity timer;
+
+#ifndef QUAKE
 	real_frametime = (time - old_time);
 	old_time = time;
 
 	if (real_frametime > 0.1)
 		real_frametime = 0.1;
+#endif
 
 	framecount = framecount + 1;
 
@@ -343,8 +360,10 @@ void() StartFrame =
 			InitFrogbots1();
 		else if (framecount == 3)
 			InitFrogbots2();
+#ifndef QUAKE
 		else
 			InitParameters();
+#endif
 	}
 
 	time_12 = time + 12;
@@ -372,7 +391,9 @@ void() StartFrame =
 	else
 		hazard_time = FALSE;
 
+#ifndef QUAKE
 	frametime = real_frametime;
+#endif
 
 	average_frametime = (0.9 * average_frametime) + (0.1 * frametime);
 	sv_accelerate_frametime = sv_accelerate * frametime;
@@ -380,7 +401,12 @@ void() StartFrame =
 	sv_friction_frametime = sv_friction * frametime;
 	inv_sv_friction_frametime = 1 - sv_friction_frametime;
 	sv_friction_frametime_100 = sv_friction_frametime * 100;	// sv_stopspeed = 100
-	frametime = real_frametime;
+
+#ifdef QUAKE
+	inv_sv_friction_frametime_2 = 1 - sv_friction_frametime * 2;
+	sv_friction_frametime_200 = sv_friction_frametime * 200;
+#endif
+
 	mouse_friction = 5400 * frametime;
 
 	if (prephysics)
@@ -413,7 +439,17 @@ void() StartFrame =
 
 		FrogbotPrePhysics1();
 	}
+#ifdef MANUAL
+	if (manual_mode)
+	{
+		self = first_ent;
+		MarkerDisplay();
+	}
+#endif
+
+#ifdef ARENA
 	framethink();
+#endif
 };
 
 /*
@@ -424,6 +460,107 @@ BODY QUE
 ==============================================================================
 */
 
+#ifdef QUAKE
+void() FindClientBodyQue =
+{
+	while (bodyque_client != dropper)
+	{
+		if (!(bodyque_client.flags & FL_BODYQUE))
+		if (!bodyque_client.player)
+		{
+			bodyque_entry.aiment = bodyque_client;
+			bodyque_client.flags = FL_BODYQUE;
+			return;
+		}
+		bodyque_client = nextent(bodyque_client);
+	}
+	bodyque_entry.aiment = world;
+};
+
+void() AssignClientBodyQue =
+{
+	score_pos_ = 0;
+	bodyque_client = first_ent;
+	while (bodyque_client != dropper)
+	{
+		bodyque_client.score_pos = score_pos_;
+		score_pos_ = score_pos_ + 1;
+		bodyque_client = nextent(bodyque_client);
+	}
+
+	bodyque_entry = first_bodyque;
+	bodyque_client = first_ent;
+
+	while (bodyque_entry)
+	{
+		if (!(bodyque_entry.aiment.flags & FL_BODYQUE))
+			FindClientBodyQue();
+		bodyque_entry = bodyque_entry.next;
+	}
+};
+
+void() InitBodyQue =
+{
+	bodyque_head = first_bodyque = spawn();
+	bodyque_head.next = spawn();
+	bodyque_head.next.next = spawn();
+	bodyque_head.next.next.next = spawn();
+};
+
+// make a body que entry for the given ent so the ent can be
+// respawned elsewhere
+void() CopyToBodyQue =
+{
+	SetViewPlayer();
+
+	if (self.health >= -40)
+	{
+		if (bodyque_head.aiment)
+		{
+			bodyque_entry = bodyque_head.aiment;
+			bodyque_head.modelindex = 0;
+			WriteByte(MSG_ALL, MSG_UPDATECOLORS);
+			WriteByte(MSG_ALL, bodyque_entry.score_pos);
+			if (self.player)
+				WriteByte(MSG_ALL, (self.team - 1) * 17);
+			else
+				WriteByte(MSG_ALL, self.color_);
+			setorigin (bodyque_entry, self.origin);
+		}
+		else
+		{
+			bodyque_entry = bodyque_head;
+		}
+
+		bodyque_entry.skin = viewport.skin;
+		bodyque_entry.modelindex = modelindex_player;
+		bodyque_entry.frame = self.frame;
+	}
+	else
+	{
+		if (bodyque_head.aiment)
+			bodyque_head.aiment.modelindex = 0;
+		bodyque_entry = bodyque_head;
+		bodyque_entry.skin = 0;
+		bodyque_entry.modelindex = modelindex_head;
+		bodyque_entry.frame = 0;
+	}
+
+	viewport.model = "";
+	bodyque_entry.angles = self.angles;
+	bodyque_entry.model = "/";
+	bodyque_entry.colormap = self.colormap;
+	bodyque_head.velocity = self.velocity;
+	bodyque_head.flags = 0;
+	setorigin (bodyque_head, self.origin);
+	setsize (bodyque_head, self.mins, self.maxs);
+	bodyque_head.movetype = MOVETYPE_TOSS;
+	bodyque_head = bodyque_head.next;
+	if (!bodyque_head)
+		bodyque_head = first_bodyque;
+};
+
+#else
 void() InitBodyQue =
 {
 	bodyque_head = spawn();
@@ -458,3 +595,4 @@ void() CopyToBodyQue =
 	setsize (bodyque_head, self.mins, self.maxs);
 	bodyque_head = bodyque_head.next;
 };
+#endif

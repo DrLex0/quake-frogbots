@@ -7,6 +7,8 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field 
 */
 
+#include "settings.h"
+
 // button and multiple button
 
 void() button_wait;

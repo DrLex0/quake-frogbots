@@ -4,6 +4,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() PrintMOTD =
 {
 	local string s1, s2;
@@ -37,7 +39,6 @@ void() AliasesTime =
 	self.alias1time = time + 1;
 	self.alias2time = time + 2;
 	self.alias3time = time + 3;
-	self.alias4time = time + 4;
 };
 
 void() StuffAliases =
@@ -47,7 +48,6 @@ void() StuffAliases =
 	{
 		self.alias1time = 0;
 		aliases1();
-		sprint_fb(self, 2, "Maps downloaded\n");
 	}
 	if (self.alias2time)
 	if (time >= self.alias2time)
@@ -59,14 +59,8 @@ void() StuffAliases =
 	if (time >= self.alias3time)
 	{
 		self.alias3time = 0;
-		aliases3();
-	}
-	if (self.alias4time)
-	if (time >= self.alias4time)
-	{
-		self.alias4time = 0;
 		self.k_stuff = 1;
-		aliases4();
+		aliases3();
 		sprint_fb(self, 2, "Commands downloaded\n");
 	}
 };

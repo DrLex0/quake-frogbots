@@ -8,6 +8,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "../settings.h"
+
 float() rndval = 
 {
 	if (pre_game || arenastate != A_PLAYING) return 0.3;
@@ -67,7 +69,9 @@ void() CheckNewWeapon =
 	{
 		if (self.lines)
 			return;	// loading bots
+	#ifdef ARENA
 		self.botchose = 1;
+	#endif
 		if (desired_weapon == IT_LIGHTNING)
 			self.impulse = 8;
 		else if (desired_weapon == IT_ROCKET_LAUNCHER)
@@ -125,7 +129,9 @@ void() SetFireButton =
 		if (random() < 0.666667)
 		if (!self.impulse)
 			return;
+	#ifdef ARENA
 		if (!self.rocketjumping)
+	#endif
 		self.button0_ = FALSE;
 	}
 	else
@@ -629,7 +635,9 @@ void() SelectWeapon =
 		{
 			if (self.weapon != IT_ROCKET_LAUNCHER)
 			{
+			#ifdef ARENA
 				self.botchose = 1;
+			#endif
 				self.impulse = 7;
 			}
 			return;

@@ -7,6 +7,8 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 */
 
+#include "settings.h"
+
 void() SUB_Remove = {remove_self();};
 
 void() SUB_DelayRemove =
@@ -29,7 +31,7 @@ void() SetMovedir =
 	{
 		makevectors (self.angles);
 		self.movedir = v_forward;
-	}	
+	}
 	self.angles = '0 0 0';
 };
 

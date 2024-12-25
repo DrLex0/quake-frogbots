@@ -1,4 +1,4 @@
-../qwprogs.dat
+../progs.dat
 
 defs.qc
 defs2.qc
@@ -7,8 +7,9 @@ load.qc
 subs.qc
 combat.qc
 items.qc
+marker_util.qc
+manual.qc
 maps.qc
-observ.qc
 weapons.qc
 world.qc
 motd.qc
@@ -33,7 +34,6 @@ bot/botweap.qc
 bot/botpath.qc
 bot/botwater.qc
 bot/botthink.qc
-marker_util.qc
 route_calc.qc
 route_lookup.qc
 marker_load.qc

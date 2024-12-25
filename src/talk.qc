@@ -5,10 +5,14 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
+#ifdef TALK
+
 void(entity me) say_hello;
-void(entity at) say_comeback;
-void(entity at) say_insult;
-void(entity at) say_insult2;
+void(entity att) say_comeback;
+void(entity att) say_insult;
+void(entity att) say_insult2;
 void() say_hello_;
 void() say_comeback_;
 void() say_insult_;
@@ -85,19 +89,19 @@ say_comeback
 ==================
 */
 
-void(entity at) say_comeback =
+void(entity att) say_comeback =
 {
 	local entity talk;
 	local float r;
-	if (!at.frogbot) 
+	if (!att.frogbot) 
 		return;
 	r = random();
-	if (at.chat_time > time)
+	if (att.chat_time > time)
 		return; 
-	at.chat_time = time + 12;
+	att.chat_time = time + 12;
 	r = r * 6;
 	talk = spawn();
-	talk.owner = at;
+	talk.owner = att;
 	talk.frogbot_nextthink = time + r;
 	talk.nextthink = talk.frogbot_nextthink;
 	talk.think = say_comeback_;
@@ -109,19 +113,19 @@ say_insult
 ==================
 */
 
-void(entity at) say_insult =
+void(entity att) say_insult =
 {
 	local entity talk;
 	local float r;
-	if (!at.frogbot) 
+	if (!att.frogbot) 
 		return;
 	r = random();
-	if (at.chat_time > time)
+	if (att.chat_time > time)
 		return; 
-	at.chat_time = time + 12;
+	att.chat_time = time + 12;
 	r = r * 6;
 	talk = spawn();
-	talk.owner = at;
+	talk.owner = att;
 	talk.frogbot_nextthink = time + r;
 	talk.nextthink = talk.frogbot_nextthink;
 	talk.think = say_insult_;
@@ -133,19 +137,19 @@ say_insult2
 ==================
 */
 
-void(entity at) say_insult2 =
+void(entity att) say_insult2 =
 {
 	local entity talk;
 	local float r;
-	if (!at.frogbot) 
+	if (!att.frogbot) 
 		return;
 	r = random();
-	if (at.chat_time > time)
+	if (att.chat_time > time)
 		return; 
-	at.chat_time = time + 12;
+	att.chat_time = time + 12;
 	r = r * 6;
 	talk = spawn();
-	talk.owner = at;
+	talk.owner = att;
 	talk.frogbot_nextthink = time + r;
 	talk.nextthink = talk.frogbot_nextthink;
 	talk.think = say_insult2_;
@@ -157,18 +161,18 @@ say_ouchie
 ==================
 */
 
-void(entity tg) say_ouchie =
+void(entity tgt) say_ouchie =
 {
 	local entity talk;
 	local float r;
-	if (!tg.frogbot) 
+	if (!tgt.frogbot) 
 		return;
 	r = random();
-	if (tg.chat_time > time)
+	if (tgt.chat_time > time)
 		return; 
-	tg.chat_time = time + 12;
+	tgt.chat_time = time + 12;
 	talk = spawn();
-	talk.owner = tg;
+	talk.owner = tgt;
 	talk.frogbot_nextthink = time + r;
 	talk.nextthink = talk.frogbot_nextthink;
 	talk.think = say_ouchie_;
@@ -444,18 +448,18 @@ void() say_ouchie_ =
 CheckCombatChat
 ==================
 */
-void(entity at, entity tg) CheckCombatChat =
+void(entity att, entity tgt) CheckCombatChat =
 {
-	if (tg != at)
+	if (tgt != att)
 	if (random() > 0.675) {
-		if ((at.frags < (tg.frags - 5)) && (at.frags > 5)) {
-			say_comeback(at);
-		} else if (fabs(at.frags - tg.frags) < 7) {
-			say_insult(at);
-		} else if (fabs(at.frags - tg.frags) > 7) {
-			say_insult2(at);
+		if ((att.frags < (tgt.frags - 5)) && (att.frags > 5)) {
+			say_comeback(att);
+		} else if (fabs(att.frags - tgt.frags) < 7) {
+			say_insult(att);
+		} else if (fabs(att.frags - tgt.frags) > 7) {
+			say_insult2(att);
 		} else { 
-			say_ouchie(tg);
+			say_ouchie(tgt);
 		}
 	}
 };
@@ -675,3 +679,5 @@ void(entity me, float nt) teamreport2 =
 		}
 	}
 };
+
+#endif

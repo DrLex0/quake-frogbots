@@ -8,6 +8,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() HazardTeleport;
 
 float	SPAWNFLAG_NOTOUCH = 1;
@@ -252,12 +254,21 @@ void(vector org, entity e) spawn_tfog =
 	tfog.origin = org;
 	tfog.nextthink = time + 0.2;
 	tfog.think = SUB_Remove;
+
+#ifdef QUAKE
+	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+	WriteByte (MSG_BROADCAST, TE_TELEPORT);
+	WriteCoord (MSG_BROADCAST, org_x);
+	WriteCoord (MSG_BROADCAST, org_y);
+	WriteCoord (MSG_BROADCAST, org_z);
+#else
 	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 	WriteByte (MSG_MULTICAST, TE_TELEPORT);
 	WriteCoord (MSG_MULTICAST, org_x);
 	WriteCoord (MSG_MULTICAST, org_y);
 	WriteCoord (MSG_MULTICAST, org_z);
 	multicast (org, MULTICAST_PHS);
+#endif
 };
 
 
@@ -269,8 +280,11 @@ void() tdeath_touch =
 		{
 			if (other.takedamage)
 			{
+			#ifdef ARENA
 				if (toss_player())
 					return;
+			#endif
+
 				inflictor = self;
 				attacker = self;
 				damage = 50000;
@@ -325,6 +339,11 @@ void() teleport_touch =
 	{
 		if (other.takedamage)
 		{
+		#ifdef MANUAL
+			if (manual_mode)
+				return;
+		#endif
+
 			if (NoItemTouch())
 			{
 				other.near_teleport = self;
@@ -370,6 +389,11 @@ void() teleport_touch =
 			}
 			else
 				other.fixangle = TRUE;		// turn this way immediately		
+
+		#ifdef QUAKE
+			if (!game_qwphysics)
+				other.teleport_time = time + 0.7;
+		#endif
 
 			extra_velocity = v_forward * 300;
 			other.oldvelocity = extra_velocity;
@@ -419,6 +443,10 @@ void() GetSource =
 		return;
 	}
 
+#ifndef ARENA
+	if (find (world, target, self.targetname))
+	{
+#endif
 	// this does nothing, just serves as a target spot
 		self.mangle = self.angles;
 		self.angles = '0 0 0';
@@ -433,6 +461,11 @@ void() GetSource =
 		self.view_ofs = '80 80 24';
 		self.pickup = pickup_true;
 		adjust_view_ofs_z();
+#ifndef ARENA
+	}
+	else
+		remove_self();
+#endif
 };
 
 void() info_teleport_destination =

@@ -9,6 +9,10 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
+#ifdef QUAKE
+
 /*
 ==============================================================================
 
@@ -16,6 +20,218 @@
 
 ==============================================================================
 */
+
+//
+// system globals
+//
+entity		self;
+entity		other;
+entity		world;
+float		time;
+float		frametime;
+
+float		force_retouch;		// force all entities to touch triggers
+								// next frame. this is needed because
+								// non-moving things don't normally scan
+								// for triggers, and when a trigger is
+								// created (like a teleport trigger), it
+								// needs to catch everything.
+								// decremented each frame, so set to 2
+								// to guarantee everything is touched
+string		mapname;
+
+float		deathmatch;
+float		coop;
+float		teamplay;
+
+float		serverflags;		// propagated from level to level, used to
+								// keep track of completed episodes
+
+float		total_secrets;
+float		total_monsters;
+
+float		found_secrets;		// number of secrets found
+float		killed_monsters;	// number of monsters killed
+
+// spawnparms are used to encode information about clients across server
+// level changes
+float		parm1, parm2, parm3, parm4, parm5, parm6, parm7, parm8, parm9, parm10, parm11, parm12, parm13, parm14, parm15, parm16;
+
+//
+// global variables set by built in functions
+//	
+vector		v_forward, v_up, v_right;	// set by makevectors()
+	
+// set by traceline / tracebox
+float		trace_allsolid;
+float		trace_startsolid;
+float		trace_fraction;
+vector	trace_endpos;
+vector	trace_plane_normal;
+float		trace_plane_dist;
+entity	trace_ent;
+float		trace_inopen;
+float		trace_inwater;
+
+entity		msg_entity;				// destination of single entity writes
+
+//
+// required prog functions
+//
+void() 		main;						// only for testing
+
+void()		StartFrame;
+
+void() 		PlayerPreThink;
+void() 		PlayerPostThink;
+
+void()		ClientKill;
+void()		ClientConnect;
+void() 		PutClientInServer;		// call after setting the parm1... parms
+void()		ClientDisconnect;
+
+void()		SetNewParms;			// called when a client first connects to
+									// a server. sets parms so they can be
+									// saved off for restarts
+
+void()		SetChangeParms;			// call to set parms for self so they can
+									// be saved for a level transition
+
+
+//================================================
+void		end_sys_globals;		// flag for structure dumping
+//================================================
+
+/*
+==============================================================================
+
+			SOURCE FOR ENTVARS_T C STRUCTURE
+
+==============================================================================
+*/
+
+//
+// system fields (*** = do not set in prog code, maintained by C code)
+//
+.float		modelindex;		// *** model index in the precached list
+.vector		absmin, absmax;	// *** origin + ((mins - 1) or (maxs + 1))
+.float		ltime;			// local time for entity
+.float		movetype;
+.float		solid;
+
+.vector		origin;			// ***
+.vector		oldorigin;		// ***
+.vector		velocity;
+.vector		angles;
+.vector		avelocity;
+
+.vector		punchangle;		// temp angle adjust from damage or recoil
+
+.string		classname;		// spawn function
+.string		model;
+.float		frame;
+.float		skin;
+.float		effects;
+
+.vector		mins, maxs;		// bounding box extents reletive to origin
+.vector		size;			// maxs - mins
+
+.void()		touch;
+.void()		use;
+.void()		think;
+.void()		blocked;		// for doors or plats, called when can't push other
+.float		nextthink;
+.entity		groundentity;
+
+// stats
+.float		health;
+.float		frags;
+.float		weapon;			// one of the IT_SHOTGUN, etc flags
+.string		weaponmodel;
+.float		weaponframe;
+.float		currentammo;
+.float		ammo_shells, ammo_nails, ammo_rockets, ammo_cells;
+
+.float		items;			// bit flags
+
+.float		takedamage;
+.entity		chain;
+.float		deadflag;
+
+.vector		view_ofs;			// add to origin to get eye point
+
+
+.float		button0;		// fire
+.float		button1;		// use
+.float		button2;		// jump
+
+.float		impulse;		// weapon changes
+
+.float		fixangle;
+.vector		v_angle;		// view / targeting angle for players, range -180 to 180
+.float		idealpitch;		// calculated pitch angle for lookup up slopes
+
+.string		netname;
+
+.entity 	enemy;
+
+.float		flags;
+
+.float		colormap;
+.float		team;
+
+.float		max_health;		// players maximum health is stored here
+
+.float		teleport_time;	// don't back up
+
+.float		armortype;		// save this fraction of incoming damage
+.float		armorvalue;
+
+.float		waterlevel;		// 0 = not in, 1 = feet, 2 = waist, 3 = eyes
+.float		watertype;		// a contents value
+
+.float		ideal_yaw;
+.float		yaw_speed;
+
+.entity		aiment;
+
+.entity 	goalentity;		// a movetarget or an enemy
+
+.float		spawnflags;
+
+.string		target;
+.string		targetname;
+
+// damage is accumulated through a frame. and sent as one single
+// message, so the super shotgun doesn't generate huge messages
+.float		dmg_take;
+.float		dmg_save;
+.entity		dmg_inflictor;
+
+.entity		owner;		// who launched a missile
+.vector		movedir;	// mostly for doors, but also used for waterjump
+
+.string		message;		// trigger messages
+
+.float		sounds;		// either a cd track number or sound number
+
+.string		noise, noise1, noise2, noise3;	// contains names of wavs to play
+
+//================================================
+void		end_sys_fields;			// flag for structure dumping
+//================================================
+
+
+#else // ifndef QUAKE
+
+/*
+==============================================================================
+
+			SOURCE FOR GLOBALVARS_T C STRUCTURE
+
+==============================================================================
+*/
+
 
 //
 // system globals
@@ -222,6 +438,10 @@ void	end_sys_globals;	// flag for structure dumping
 void end_sys_fields;	// flag for structure dumping
 //================================================
 
+#endif
+
+
+
 
 /*
 ==============================================================================
@@ -265,6 +485,7 @@ void end_sys_fields;	// flag for structure dumping
 
 float FALSE					= 0;
 float TRUE					= 1;
+void() null = {};
 
 // edict.flags
 float	FL_FLY				= 1;
@@ -279,6 +500,12 @@ float	FL_WATERJUMP			= 2048;	// player jumping out of water
 float	FL_JUMPRELEASED			= 4096;	// for jump debouncing
 float FL_BODYQUE				= 262144;
 
+
+#ifdef QUAKE
+float FL_QWPHYSICS			= 1048576;
+float FL_CAMERA			= 12582912;
+float FL_CAMERA_QWPHYSICS	= 13631488;
+#endif
 
 // 4194304;
 // 12582911;
@@ -296,7 +523,6 @@ float FL_NOT_ONGROUND			= 16776703;
 .float fl_ontrain;	// for Frogbot train movement
 .float ready;
 .float p_break;
-float time1;
 float e_break;
 float counting_down;
 float match_in_progress;
@@ -498,8 +724,10 @@ float	STATE_BOTTOM	= 1;
 float	STATE_UP		= 2;
 float	STATE_DOWN		= 3;
 
+#ifndef QUAKE
 float TE_BLOOD		= 12;
 float TE_LIGHTNINGBLOOD = 13;
+#endif
 
 vector	VEC_ORIGIN = '0 0 0';
 vector	VEC_HULL_MIN = '-16 -16 -24';
@@ -509,6 +737,10 @@ vector	VEC_HULL2_MIN = '-32 -32 -24';
 vector	VEC_HULL2_MAX = '32 32 64';
 
 // protocol bytes
+#ifdef QUAKE
+float SVC_DISCONNECT		= 2;
+#endif
+
 float SVC_SETVIEWPORT		= 5;
 float MSG_PRINT			= 8;
 float MSG_STUFFCMD		= 9;
@@ -521,6 +753,8 @@ float	SVC_KILLEDMONSTER		= 27;
 float	SVC_FOUNDSECRET		= 28;
 float	SVC_INTERMISSION		= 30;
 float	SVC_CDTRACK			= 32;
+
+#ifndef QUAKE
 float SVC_SMALLKICK		= 34;
 float SVC_BIGKICK			= 35;
 float SVC_UPDATEPING		= 36;
@@ -529,6 +763,8 @@ float SVC_MUZZLEFLASH		= 39;
 float SVC_UPDATEUSERINFO	= 40;
 float SVC_PLAYERINFO		= 42;
 float SVC_SETINFO			= 51;
+#endif
+
 float	TE_SPIKE		= 0;
 float	TE_SUPERSPIKE	= 1;
 float	TE_GUNSHOT		= 2;
@@ -545,7 +781,11 @@ float	CHAN_WEAPON		= 1;
 float	CHAN_VOICE		= 2;
 float	CHAN_ITEM		= 3;
 float	CHAN_BODY		= 4;
+
+#ifndef QUAKE
 float	CHAN_NO_PHS_ADD = 8;	// ie: CHAN_BODY+CHAN_NO_PHS_ADD
+#endif
+
 float	ATTN_NONE		= 0;
 float	ATTN_NORM		= 1;
 float	ATTN_IDLE		= 2;
@@ -558,6 +798,7 @@ float	EF_DIMLIGHT 	= 8;
 
 float NOT_EF_DIMLIGHT	= 16777207;
 
+#ifndef QUAKE
 // GLQuakeWorld Stuff
 float EF_BLUE		= 64;	// Blue Globe effect for Quad
 float	EF_RED		= 128;	// Red Globe effect for Pentagram
@@ -565,6 +806,8 @@ float EF_DIMLIGHT_BLUE	= 72;
 float EF_DIMLIGHT_RED	= 136;
 float NOT_EF_BLUE		= 16777151;
 float NOT_EF_RED		= 16777087;
+#endif
+
 
 // messages
 float	MSG_BROADCAST		= 0;		// unreliable to all
@@ -575,11 +818,15 @@ float	MSG_ALL			= 2;		// reliable to all
 float PRINT_LOW		= 0;	// pickup messages
 float PRINT_MEDIUM	= 1;	// death messages
 float PRINT_HIGH	= 2;	// critical messages
+
+#ifndef QUAKE
 float MSG_MULTICAST = 4;	// for multicast() call
 
 // multicast sets
 float MULTICAST_PHS = 1;	// within hearing
 float MULTICAST_PVS = 2;	// within sight
+#endif
+
 float MAX_SKILL = 20;
 float MAX_TEAMPLAY = 5;
 float MAX_DEATHMATCH = 6;
@@ -672,17 +919,20 @@ entity attacker;
 float	framecount;
 
 float skill;
-float old_skill;
 float skill_;
 
-float temp1;
-
-string str;
-
+#ifdef QUAKE
+float old_skill;
+#else
 float teamplay;
 float deathmatch;
+#endif
+
 float next_teamplay;
 float next_deathmatch;
+
+float temp1;
+string str;
 
 .float teamflag;
 float team_index;
@@ -719,7 +969,6 @@ float realteam_;
 .float total_armor;
 
 float current_team;
-float current_frogbot;
 
 .void() th_pain;
 .void() th_die;
@@ -768,13 +1017,25 @@ float game_not_match;
 float game_disable_autoreport;
 float game_disable_dropweap;
 float game_disable_autosteams;
+#ifdef TALK
 float game_disable_botchat;
+#endif
 float game_lava_cheat;
 float game_show_rules;
 
 // miscellaneous features
-float game_fastnail = 0; // 0 or 1
+#ifndef ARENA
+float game_dropquad = 0; // 0 or 1
+float game_dropring = 0; // 0 or 1
+#endif
+
+#ifdef QUAKE
+float game_qwphysics;
+float game_skins;
+float game_qwaim;
+#else
 float game_qizmo;
+#endif
 
 // gamemode values
 float GAME_ENABLE_POWERUPS		= 1;
@@ -788,6 +1049,12 @@ float GAME_ENABLE_AUTOREPORT		= 1024;
 float GAME_ENABLE_AUTOSTEAMS		= 2048;
 float GAME_ENABLE_BOTCHAT		= 4096;
 float GAME_HIDE_RULES			= 8192;
+
+#ifdef QUAKE
+float GAME_NOSKINS			= 16384;
+float GAME_QWPHYSICS			= 32768;	// Quakeworld wall and edge slide
+float GAME_QWAIM				= 65536;	// Quakeworld aim
+#endif
 
 // 131072;
 // 262144;
@@ -872,6 +1139,7 @@ entity(vector org, float rad) findradius = #22;
 void(float level, string s) bprint = #23;
 //void(string s) dprint				= #25;
 string(float f) ftos				= #26;
+//string(vector v) vtos				= #27;
 float(float yaw, float dist) walkmove	= #32;	// returns TRUE or FALSE
 // #33 was removed
 float() droptofloor = #34;	// TRUE if landed on floor
@@ -887,12 +1155,18 @@ float(float a) floor =
 };
 float(float v) ceil					= #38;		// smallest integer >= v
 // #39 was removed
+#ifdef QUAKE
+float(entity e) checkbottom			= #40;		// true if e is on ground
+#endif
 float(vector v) pointcontents		= #41;		// returns a CONTENT_*
 // #42 was removed
 float(float f) fabs = #43;
 float(string s) cvar = #45;						// return cvar.value
 void(string s) localcmd = #46;					// put string into local que
 entity(entity e) nextent = #47;					// for looping through all ents
+#ifdef QUAKE
+void(vector o, vector d, float color, float count_) particle = #48;// start a particle effect
+#endif
 // #50 was removed
 vector(vector v) vectoangles			= #51;	// returns 0 to 360
 
@@ -903,8 +1177,10 @@ void(float to, float f) WriteByte		= #52;
 //void(float to, float f) WriteChar		= #53;
 void(float to, float f) WriteShort		= #54;
 void(float to, float f) WriteCoord		= #56;
+#ifndef QUAKE
 void(float to, float f) WriteLong		= #55;
 void(float to, float f) WriteAngle		= #57;
+#endif
 void(float to, string s) WriteString	= #58;
 void(float to, entity e) WriteEntity	= #59;
 
@@ -934,13 +1210,20 @@ string(string s) precache_sound2	= #76;		// registered version only
 												// values at level start
 												// for coop respawn
 
+#ifndef QUAKE
 string(entity e, string key) infokey = #80;	// get a key value (world = serverinfo)
 float(string s) stof = #81;	// convert string to float
 void(vector where, float set) multicast = #82;	// sends the temp message to a set
 								// of clients, possibly in 
+#endif
+
 void(entity client, float level, string s) sprint = #24;
 
 float msg_level;
+#ifdef QUAKE
+.float msg_level_;
+#endif
+
 
 // view through someones eyes
 entity firstperson;
@@ -1071,8 +1354,10 @@ entity visible_object;
 entity goalentity_;
 
 entity test_enemy;
+#ifdef QUAKE
 entity viewport;
 entity non_viewport;
+#endif
 entity self_aiment;
 vector targ_origin;
 vector targ_centre;
@@ -1109,6 +1394,10 @@ vector oldvelocity_;
 vector delta_velocity;
 
 float new_pitch;
+
+#ifdef QUAKE
+.vector postvelocity;
+#endif
 
 .vector obstruction_normal;
 .vector velocity_normal;
@@ -1166,6 +1455,10 @@ float total_pitchspeed;
 float total_yawspeed;
 float real_pitch_;
 
+#ifdef QUAKE
+.vector stored_angle;
+#endif
+
 //
 // Paths
 //
@@ -1198,9 +1491,13 @@ float old_path_state;
 // map set values
 float WATERJUMP_			= 2;
 float DM6_DOOR			= 256;
-float JUMP_LEDGE			= 1024;
 float ROCKET_JUMP		= 512;
+float JUMP_LEDGE			= 1024;
+#ifdef ARENA
 float SAVED_DESCRIPTION	= 1792;
+#else
+float SAVED_DESCRIPTION = 1280;
+#endif
 
 // auto set values
 float REVERSIBLE			= 16384;
@@ -1319,7 +1616,7 @@ entity m221,m222,m223,m224,m225,m226,m227,m228,m229,m230,m231,m232,m233,m234,m23
 entity m241,m242,m243,m244,m245,m246,m247,m248,m249,m250,m251,m252,m253,m254,m255,m256,m257,m258,m259,m260;
 entity m261,m262,m263,m264,m265,m266,m267,m268,m269,m270,m271,m272,m273,m274,m275,m276,m277,m278,m279,m280;
 entity m281,m282,m283,m284,m285,m286,m287,m288,m289,m290,m291,m292,m293,m294,m295,m296,m297,m298,m299,m300;
-
+// Trinca added 50 more just for 1 map. Let's not do that. Or maybe we can, if the pr_globals problem gets fixed anyhow...
 
 //
 // goals
@@ -1567,6 +1864,11 @@ float	take;
 
 float maxplayers;
 
+#ifdef QUAKE
+float score_pos_;
+.float spawn_skin;
+#endif
+
 .entity touch_marker;
 .float touch_distance;
 
@@ -1596,7 +1898,9 @@ float impulse_;
 
 float time_start;
 float framecount_start;
+#ifndef QUAKE  // QUAKE uses frametime sys global
 float real_frametime;
+#endif
 float sv_accelerate;
 float sv_maxfriction;
 float sv_accelerate_frametime;
@@ -1614,7 +1918,15 @@ float sv_friction_frametime;
 float inv_sv_friction_frametime;
 float sv_friction_frametime_100;
 float friction_factor;
+
+#ifdef QUAKE
+float inv_sv_friction_frametime_2;
+float sv_friction_frametime_200;
+float double_friction;
+#else
 float old_time;
+#endif
+
 float distance;
 vector hor_direction;
 vector dir_forward;
@@ -1745,8 +2057,6 @@ entity thing;
 float numspots;
 float totalspots;
 entity t;
-vector vec1;
-vector vec2;
 vector vec_;
 entity think_ent;
 entity trigger;
@@ -1818,7 +2128,6 @@ float goal_time;
 float path_time;
 float component_speed;
 float do_jump;
-entity viewport;
 float dm;
 float count_;
 entity array_sub_object_;
@@ -1836,12 +2145,20 @@ float	multi_damage;
 
 vector blood_org;
 
+#ifdef QUAKE
+vector test_point;
+vector arrow_velocity;	// arrow key input velocity
+
+float host_framerate;
+#else
 float blood_count;
 vector puff_org;
 float puff_count;
 
 float clientpants;
 float clientshirt;
+#endif
+
 .float hit_z;
 
 float load_frogbots;
@@ -1852,13 +2169,22 @@ float frogbot_removetime;
 float invalid_map;
 float frogbot_load_stage;
 
+#ifdef QUAKE
+float NUMBER_LOAD_STAGE = 6;
+#else
 float NUMBER_LOAD_STAGE = 9;
+#endif
 float NUMBERHARDBOTS = 16;
 
 float	intermission_running;
 float	intermission_exittime;
 
 entity bodyque_head;
+#ifdef QUAKE
+entity bodyque_entry;
+entity bodyque_client;
+entity first_bodyque;
+#endif
 
 .float dmgtime;
 .float k_msgcount;
@@ -1883,9 +2209,15 @@ float start_time;
 float real_time;
 float time_left;
 float minutes_left;
+
+#ifdef QUAKE
+float SPAWN_SIZE = 4;
+#else
+float SPAWN_SIZE = 1;
 .float skin0;
 .float skin1;
 .float skin2;
+#endif
 .float spawnbit0;
 .float spawnbit1;
 .float number_spawnbits;
@@ -1898,7 +2230,6 @@ float check_parm_time;
 .entity movetarget;
 .vector v_forward_;
 .vector v_right_;
-float SPAWN_SIZE = 1;
 
 
 // sharing AI
@@ -1934,9 +2265,12 @@ float beQuiet;
 
 float PREF_FLASH		= 1;
 
+#ifndef QUAKE
 // weapon switching
 float w_switch;
 float b_switch;
+#endif
+
 .float dead_time;
 float max_dead_time;
 .float desire_backpack;
@@ -1957,3 +2291,44 @@ entity search_entity;
 float RA_time;
 float enemy_time_squared;
 .void end_remove_fieldnames_;
+
+
+#ifdef MANUAL
+//
+// manual waypoint editor only stuff
+//
+
+entity active_marker;
+
+float manual_mode;
+.entity display;
+
+float mode;
+float path_mode;
+float type_mode;
+
+//
+// mode values
+//
+
+float ONE_WAY			= 1;
+float STATIC_ACTIVE_MARKER	= 2;
+float CONNECT_MARKERS		= 4;
+float CLOSEST_MARKER		= 8;
+float DISPLAY_TRAVEL_TIME	= 16;
+float DISPLAY_ZONE		= 32;
+float DISPLAY_TYPE		= 64;
+float DISPLAY_RUNAWAY		= 128;
+float DISPLAY_REACHABLE		= 256;
+
+entity save_position;
+entity virtual_marker;
+float Z_index;
+
+float test_count;
+
+vector display_origin;
+
+float save_state;
+
+#endif

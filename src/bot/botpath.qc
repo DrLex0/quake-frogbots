@@ -7,6 +7,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "../settings.h"
+
 /*
 ============
 EvalPath
@@ -18,8 +20,12 @@ void() EvalPath =
 	if (test_marker.classname == "door")
 	if (test_marker.state != STATE_BOTTOM)
 		return;
+
+#ifdef ARENA
 	if (a_evalpath())
 		return;
+#endif
+	
 	if (!path_normal)
 	{
 		if (!(description & REVERSIBLE))
@@ -618,6 +624,7 @@ void() frogbot_marker_touch =
 	}
 
 	self.state = self.state & NOT_NOTARGET_ENEMY;
+#ifdef ARENA
 	if (self.flags & FL_ONGROUND && self.wasinwater)
 	{
 		self.wasinwater = FALSE;
@@ -641,6 +648,7 @@ void() frogbot_marker_touch =
 		self.look_object = look_object_;
 		return;
 	}
+#endif
 	if (look_object_.client_)
 		return;
 
@@ -648,11 +656,14 @@ void() frogbot_marker_touch =
 //	BestLook
 //
 
+#ifdef ARENA
 	if ((self.waterlevel == 2) || (self.waterlevel == 1)) // SOUL
 	{
 		self.look_object = self.linked_marker;
 		return;
 	}
+#endif
+
 	if (random() < self.look_anywhere)
 	{
 		// FIXME: if no enemy then replace with goalentity

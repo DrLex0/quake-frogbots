@@ -4,6 +4,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 */
 
+#include "../settings.h"
 /*
 ============
 UpdateTotalDamage

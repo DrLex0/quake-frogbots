@@ -4,8 +4,8 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 */
 
-void() a_think = {};
-void() SUB_regen;
+#include "settings.h"
+
 void() marker_touch;
 void() StartItems;
 void() AssignVirtualGoal_apply;

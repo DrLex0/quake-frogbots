@@ -8,6 +8,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void () T_Damage;
 void () player_run;
 void() T_RadiusDamage;
@@ -47,7 +49,12 @@ float() crandom =
 SpawnBlood
 ================
 */
-
+#ifdef QUAKE
+void(vector org, vector vel) SpawnBlood =
+{
+	particle (org, vel*0.1, 73, damage*2);
+};
+#else
 void(vector org) SpawnBlood =
 {
 	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
@@ -58,6 +65,7 @@ void(vector org) SpawnBlood =
 	WriteCoord (MSG_MULTICAST, org_z);
 	multicast (org, MULTICAST_PVS);
 };
+#endif
 
 /*
 ================
@@ -77,7 +85,13 @@ void() W_FireAxe =
 
 		if (trace_ent.takedamage)
 		{
+		#ifdef QUAKE
+			damage = 20;
+			SpawnBlood (org, '0 0 0');
+		#else
 			SpawnBlood (org);
+		#endif
+
 			axhitme = 1;
 			deathtype = "axe";
 			inflictor = self;
@@ -98,6 +112,14 @@ void() W_FireAxe =
 		{	// hit wall
 			msg_entity = self;
 			sound (CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
+
+		#ifdef QUAKE
+			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+			WriteByte (MSG_BROADCAST, TE_GUNSHOT);
+			WriteCoord (MSG_BROADCAST, org_x);
+			WriteCoord (MSG_BROADCAST, org_y);
+			WriteCoord (MSG_BROADCAST, org_z);
+		#else
 			WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 			WriteByte (MSG_MULTICAST, TE_GUNSHOT);
 			WriteByte (MSG_MULTICAST, 3);
@@ -105,6 +127,7 @@ void() W_FireAxe =
 			WriteCoord (MSG_MULTICAST, org_y);
 			WriteCoord (MSG_MULTICAST, org_z);
 			multicast (org, MULTICAST_PVS);
+		#endif
 		}
 	}
 };
@@ -121,7 +144,12 @@ spawn_touchblood
 void() spawn_touchblood =
 {
 	weapons_vel = (normalize(weapons_vel + v_up*(random()- 0.5) + v_right*(random()- 0.5)) + 2*trace_plane_normal) * 40;
+
+#ifdef QUAKE
+	SpawnBlood (trace_endpos + weapons_vel*0.01, weapons_vel);
+#else
 	SpawnBlood (trace_endpos + weapons_vel*0.01);
+#endif
 };
 
 /*
@@ -158,9 +186,12 @@ void(float shotcount, vector spread) FireBullets =
 	src_z = self.origin_z + 14.2;
 	multi_ent = world;
 	multi_damage = 0;
+
+#ifndef QUAKE
 	blood_count = puff_count = 0;
 	traceline (src, src + v_forward*2048, FALSE, self);
 	puff_org = trace_endpos - v_forward*4;
+#endif
 
 	while (shotcount > 0)
 	{
@@ -174,7 +205,13 @@ void(float shotcount, vector spread) FireBullets =
 
 			if (trace_ent.takedamage)
 			{
+#ifdef QUAKE
+				damage = 4;
+				SpawnBlood (blood_org, weapons_vel*0.2);
+#else
 				blood_count = blood_count + 1;
+#endif
+
 				if (trace_ent != multi_ent)
 				{
 					if (multi_ent)
@@ -191,7 +228,15 @@ void(float shotcount, vector spread) FireBullets =
 			}
 			else
 			{
+#ifdef QUAKE
+				WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+				WriteByte (MSG_BROADCAST, TE_GUNSHOT);
+				WriteCoord (MSG_BROADCAST, blood_org_x);
+				WriteCoord (MSG_BROADCAST, blood_org_y);
+				WriteCoord (MSG_BROADCAST, blood_org_z);
+#else
 				puff_count = puff_count + 1;
+#endif
 			}
 		}
 
@@ -203,6 +248,8 @@ void(float shotcount, vector spread) FireBullets =
 		damage = multi_damage;
 		T_Damage ();
 	}
+
+#ifndef QUAKE
 	if (puff_count)
 	{
 		WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
@@ -224,6 +271,8 @@ void(float shotcount, vector spread) FireBullets =
 		WriteCoord (MSG_MULTICAST, blood_org_z);
 		multicast (puff_org, MULTICAST_PVS);
 	}
+#endif
+
 	//hit! !STATS!
 	if (match_in_progress)
 	if (trace_ent.client_)
@@ -245,11 +294,16 @@ void() W_FireShotgun =
 	msg_entity = self;
 	sound (CHAN_WEAPON, "weapons/guncock.wav", 1, ATTN_NORM);	
 
+#ifdef QUAKE
+	self.punchangle_x = -2;
+#else
 	if (self.player)
 	{
 		msg_entity = self;
 		WriteByte (MSG_ONE, SVC_SMALLKICK);
 	}
+#endif
+
 	//!STATS!
 	if (match_in_progress)
 		self.h_sg = self.h_sg + 1;
@@ -279,6 +333,18 @@ void()	s_explode3	=	[2,		s_explode4] {};
 void()	s_explode4	=	[3,		s_explode5] {};
 void()	s_explode5	=	[4,		s_explode6] {};
 void()	s_explode6	=	[5,		SUB_Remove] {};
+
+#ifdef QUAKE
+void() BecomeExplosion =
+{
+	self.movetype = MOVETYPE_NONE;
+	self.velocity = '0 0 0';
+	self.touch = dropper.touch;	// NULL
+	setmodel (self, "progs/s_explod.spr");
+	self.solid = SOLID_NOT;
+	s_explode1 ();
+};
+#endif
 
 void() Missile_Remove =
 {
@@ -321,6 +387,15 @@ void() T_MissileTouch =
 			T_RadiusDamage ();
 			self.origin = self.origin - 8 * normalize(self.velocity);
 			self.owner = world;
+
+		#ifdef QUAKE
+			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+			WriteByte (MSG_BROADCAST, TE_EXPLOSION);
+			WriteCoord (MSG_BROADCAST, self.origin_x);
+			WriteCoord (MSG_BROADCAST, self.origin_y);
+			WriteCoord (MSG_BROADCAST, self.origin_z);
+			BecomeExplosion ();
+		#else
 			WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 			WriteByte (MSG_MULTICAST, TE_EXPLOSION);
 			WriteCoord (MSG_MULTICAST, self.origin_x);
@@ -328,6 +403,7 @@ void() T_MissileTouch =
 			WriteCoord (MSG_MULTICAST, self.origin_z);
 			multicast (self.origin, MULTICAST_PHS);
 			remove_self();
+		#endif
 		}
 	}
 };
@@ -342,12 +418,17 @@ LIGHTNING
 
 void(entity from) LightningHit =
 {
+#ifdef QUAKE
+	particle (trace_endpos, '0 0 100', 225, damage*4);
+#else
 	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 	WriteByte (MSG_MULTICAST, TE_LIGHTNINGBLOOD);
 	WriteCoord (MSG_MULTICAST, trace_endpos_x);
 	WriteCoord (MSG_MULTICAST, trace_endpos_y);
 	WriteCoord (MSG_MULTICAST, trace_endpos_z);
 	multicast (trace_endpos, MULTICAST_PVS);
+#endif
+
 	deathtype = "cell";
 	inflictor = from;
 	attacker = from;
@@ -427,17 +508,17 @@ void() W_FireLightning =
 				}
 			}
 			if (!game_arena)
-			t_radius_damage = 35 * self.ammo_cells;
+				t_radius_damage = 35 * self.ammo_cells;
 			self.ammo_cells = 0;
 			W_SetCurrentAmmo ();
 			DelayUpdateWeapons();
 			if (!game_arena)
 			{
-			deathtype = "cell";
-			inflictor = self;
-			attacker = self;
-			ignore = world;
-			T_RadiusDamage ();
+				deathtype = "cell";
+				inflictor = self;
+				attacker = self;
+				ignore = world;
+				T_RadiusDamage ();
 			}
 		}
 		else
@@ -449,15 +530,21 @@ void() W_FireLightning =
 				self.t_width = time + 0.6;
 			}
 
+		#ifdef QUAKE
+			self.punchangle_x = -2;
+		#endif
+
 			//!STATS!
 			if (pre_game || match_in_progress)
 				self.h_lg = self.h_lg + 1;
 
+		#ifndef QUAKE
 			if (self.player)
 			{
 				msg_entity = self;
 				WriteByte (MSG_ONE, SVC_SMALLKICK);
 			}
+		#endif
 
 			if (use_ammo)
 			{
@@ -469,6 +556,18 @@ void() W_FireLightning =
 
 			makevectors(self.v_angle);
 			traceline (org_, org_ + v_forward*600, TRUE, self);
+
+		#ifdef QUAKE
+			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+			WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
+			WriteEntity (MSG_BROADCAST, self);
+			WriteCoord (MSG_BROADCAST, org__x);
+			WriteCoord (MSG_BROADCAST, org__y);
+			WriteCoord (MSG_BROADCAST, org__z);
+			WriteCoord (MSG_BROADCAST, trace_endpos_x);
+			WriteCoord (MSG_BROADCAST, trace_endpos_y);
+			WriteCoord (MSG_BROADCAST, trace_endpos_z);
+		#else
 			WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 			WriteByte (MSG_MULTICAST, TE_LIGHTNING2);
 			WriteEntity (MSG_MULTICAST, self);
@@ -479,6 +578,8 @@ void() W_FireLightning =
 			WriteCoord (MSG_MULTICAST, trace_endpos_y);
 			WriteCoord (MSG_MULTICAST, trace_endpos_z);
 			multicast (org_, MULTICAST_PHS);
+		#endif
+
 			damage = 30;
 			LightningDamage (org_, trace_endpos + v_forward*4, self);
 		}
@@ -496,6 +597,15 @@ void() GrenadeExplode =
 	t_radius_damage = 120;
 	ignore = world;
 	T_RadiusDamage ();
+
+#ifdef QUAKE
+	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+	WriteByte (MSG_BROADCAST, TE_EXPLOSION);
+	WriteCoord (MSG_BROADCAST, self.origin_x);
+	WriteCoord (MSG_BROADCAST, self.origin_y);
+	WriteCoord (MSG_BROADCAST, self.origin_z);
+	BecomeExplosion ();
+#else
 	WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 	WriteByte (MSG_MULTICAST, TE_EXPLOSION);
 	WriteCoord (MSG_MULTICAST, self.origin_x);
@@ -503,6 +613,7 @@ void() GrenadeExplode =
 	WriteCoord (MSG_MULTICAST, self.origin_z);
 	multicast (self.origin, MULTICAST_PHS);
 	remove_self ();
+#endif
 };
 
 void() GrenadeTouch =
@@ -597,11 +708,15 @@ void(float ox) W_FireSpikes =
 				launch_superspike (self.origin + '0 0 16');
 			}
 
+#ifdef QUAKE
+			self.punchangle_x = -2;
+#else
 			if (self.player)
 			{
 				msg_entity = self;
 				WriteByte (MSG_ONE, SVC_SMALLKICK);
 			}
+#endif
 			return;
 		}
 	}
@@ -636,11 +751,15 @@ void(float ox) W_FireSpikes =
 			launch_spike (self.origin + '0 0 16' + v_right*ox);
 		}
 
+	#ifdef QUAKE
+		self.punchangle_x = -2;
+	#else
 		if (self.player)
 		{
 			msg_entity = self;
 			WriteByte (MSG_ONE, SVC_SMALLKICK);
 		}
+	#endif
 	}
 };
 
@@ -658,12 +777,20 @@ void() spike_touch_apply =
 		}
 		else
 		{
+		#ifdef QUAKE
+			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+			WriteByte (MSG_BROADCAST, TE_SPIKE);
+			WriteCoord (MSG_BROADCAST, trace_endpos_x);
+			WriteCoord (MSG_BROADCAST, trace_endpos_y);
+			WriteCoord (MSG_BROADCAST, trace_endpos_z);
+		#else
 			WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 			WriteByte (MSG_MULTICAST, TE_SPIKE);
 			WriteCoord (MSG_MULTICAST, trace_endpos_x);
 			WriteCoord (MSG_MULTICAST, trace_endpos_y);
 			WriteCoord (MSG_MULTICAST, trace_endpos_z);
 			multicast (trace_endpos, MULTICAST_PHS);
+		#endif
 		}
 	}
 };
@@ -699,12 +826,20 @@ void() superspike_touch_apply =
 		}
 		else
 		{
+		#ifdef QUAKE
+			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+			WriteByte (MSG_BROADCAST, TE_SUPERSPIKE);
+			WriteCoord (MSG_BROADCAST, trace_endpos_x);
+			WriteCoord (MSG_BROADCAST, trace_endpos_y);
+			WriteCoord (MSG_BROADCAST, trace_endpos_z);
+		#else
 			WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
 			WriteByte (MSG_MULTICAST, TE_SUPERSPIKE);
 			WriteCoord (MSG_MULTICAST, trace_endpos_x);
 			WriteCoord (MSG_MULTICAST, trace_endpos_y);
 			WriteCoord (MSG_MULTICAST, trace_endpos_z);
 			multicast (trace_endpos, MULTICAST_PHS);
+		#endif
 		}
 	}
 };
@@ -794,14 +929,23 @@ void() W_SetCurrentAmmo =
 float() W_BestWeapon =
 {
 	items_ = self.items;
-	if (best_rl())
+	// In general, we don't want to auto-switch to weapons that can make
+	// the player nuke themself, hence no LG under water.
+	// However, older versions of this code allowed RL and GL ifdef ARENA.
+	// I guess it's OK to switch to those weapons in arena mode, but then
+	// we must _also_ check for game_arena.
+#ifdef ARENA
+	if (game_arena && best_rl())
 		return IT_ROCKET_LAUNCHER;
+#endif
 	if (items_ & IT_LIGHTNING)
 		if (self.ammo_cells >= 1)
 			if (self.waterlevel <= 1)
 				return IT_LIGHTNING;
-	if (best_gl())
+#ifdef ARENA
+	if (game_arena && best_gl())
 		return IT_GRENADE_LAUNCHER;
+#endif
 	if (items_ & IT_SUPER_NAILGUN)
 		if (self.ammo_nails >= 2)
 			return IT_SUPER_NAILGUN;
@@ -897,11 +1041,15 @@ void() W_Attack =
 			msg_entity = self;
 			sound (CHAN_WEAPON, "weapons/shotgn2.wav", 1, ATTN_NORM);	
 
+#ifdef QUAKE
+			self.punchangle_x = -4;
+#else
 			if (self.player)
 			{
 				msg_entity = self;
 				WriteByte (MSG_ONE, SVC_BIGKICK);
 			}
+#endif
 			//!STATS!
 			if (match_in_progress)
 				self.h_ssg = self.h_ssg + 1;
@@ -947,11 +1095,16 @@ void() W_Attack =
 		msg_entity = self;
 		sound (CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
 
+#ifdef QUAKE
+		self.punchangle_x = -2;
+#else
 		if (self.player)
 		{
 			msg_entity = self;
 			WriteByte (MSG_ONE, SVC_SMALLKICK);
 		}
+#endif
+
 		newmis = spawn ();
 		newmis.owner = self;
 		newmis.movetype = MOVETYPE_BOUNCE;
@@ -1005,11 +1158,16 @@ void() W_Attack =
 		msg_entity = self;
 		sound (CHAN_WEAPON, "weapons/sgun1.wav", 1, ATTN_NORM);
 
+#ifdef QUAKE
+		self.punchangle_x = -2;
+#else
 		if (self.player)
 		{
 			msg_entity = self;
 			WriteByte (MSG_ONE, SVC_SMALLKICK);
 		}
+#endif
+
 		newmis = spawn ();
 		newmis.owner = self;
 		self.movetarget = newmis;

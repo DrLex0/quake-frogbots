@@ -5,6 +5,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() TimerThink =
 {
 	if (game_not_match) {
@@ -40,9 +42,11 @@ void() TimerThink =
 			bprint_fb(2, "‘ second\n");
 		else
 			bprint_fb(2, "‘ seconds\n");
+#ifdef TALK
 		if (time_left <= 10 && !game_not_match && !game_disable_botchat)
 		if (random() < 0.35 && numberofclients > 1)
 			bot_say_gg();
+#endif
 		if (time_left < 6)
 			AllPlaySnd("buttons/switch04.wav");
 	}
@@ -84,8 +88,10 @@ void() DoCountDown =
 				self = self.next;
 			}
 		}
+#ifdef TALK
 		if (!game_disable_botchat && numberofclients > 1)
 			bot_say_gl();
+#endif
 		if (c1 < 6)
 			AllPlaySnd("buttons/switch04.wav");
 		if (c1 <= 99) // count down from 99
@@ -605,6 +611,8 @@ void () PlayerStats =
 	local entity p, p2;
 	local float x1, x2;
 	local string s1, s2, tmp;
+	x1 = 0;
+	x2 = 0;
 	bprint_fb(2, "\nÐìáùåò óôáôéóôéãó:\nÆòáçó (òáîë)");
 	if (team_mode) bprint_fb(2, " æòéåîäëéììó");
 	bprint_fb(2, "  åææéãéåîãù\nžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžžŸ\n");

@@ -9,13 +9,17 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 // prototypes
 void() W_SetCurrentAmmo;
 void() W_WeaponFrame;
 void() player_run;
 void (vector org, entity death_owner) spawn_tdeath;
 void(entity e) UpdateFrags;
+#ifdef TALK
 void(string s) say;
+#endif
 void() SetScoreboard;
 void() UpdateWeapons;
 void() InvalidMap;
@@ -46,10 +50,31 @@ void() PredictSpot;
 void(entity client) ClearLookObject;
 void() CheckTwoTeams;
 void(entity marker) RemoveMarker;
-void(entity targ)say_ouchie;
+#ifdef TALK
+void(entity tgt) say_ouchie;
+#endif
 void() FrogTreadWater;
 void() FrogWaterMove;
 void() BotWaterJumpFix;
+
+
+#ifdef QUAKE
+void() obstruction;
+entity(entity start_entity, float index_) EntityAt;
+
+float(float v) FixedAngle =
+{
+	v = (v + 1.40625);
+	if ((v >= 0))
+	{
+		return (ceil(v));
+	}
+	else
+	{
+		return (floor(v));
+	}
+};
+#endif
 
 /*
 =============================================================================
@@ -75,9 +100,18 @@ void() SetChangeParms =
 	parm7 = self.spawnbit0;
 	parm8 = self.spawnbit1;
 	parm9 = self.preferences;
+#ifdef QUAKE
+	parm1 = self.flags & FL_CAMERA;
+	parm10 = self.spawn_skin;
+	parm11 = self.skin;
+	parm12 = self.msg_level_;
+	parm14 = self.frogbot;
+#else
 	parm10 = self.skin0;
 	parm11 = self.skin1;
 	parm12 = self.skin2;
+#endif
+
 //	parm13
 	parm15 = self.k_stuff;
 };
@@ -93,9 +127,16 @@ void() SetNewParms =
 	parm7 = 0;			// spawnbit0
 	parm8 = 0;			// spawnbit1
 	parm9 = PREF_FLASH;			// default preferences PREF_FLASH
+#ifdef QUAKE
+	parm10 = 0;			// default skin 0
+	parm11 = 0;			// default skin 0
+	parm12 = 0;			// default msg 0
+	parm14 = 0;
+#else
 	parm10 = 0;			// default skin ""
 	parm11 = 0;			//
 	parm12 = 0;			//
+#endif
 //	parm13
 	parm15 = 0;			// default aliases 0
 };
@@ -119,8 +160,11 @@ void() ResetItems =
 
 void() NewItems =
 {
+#ifdef ARENA
 	if (a_newitems())
 		return;
+#endif
+
 	if (pre_game)
 	{
 		self.invincible_time = 1;
@@ -145,7 +189,12 @@ void() NewItems =
 		self.armortype = 0.8;
 		self.items = available_weapons | IT_ARMOR3_INVULNERABILITY;
 		self.invincible_finished = time + 3;
+
+	#ifdef QUAKE
+		self.effects = self.aiment.effects = self.effects | EF_DIMLIGHT;
+	#else
 		self.effects = self.effects | EF_DIMLIGHT_RED;
+	#endif
 
 		if (deathmatch == 4)
 		{
@@ -250,23 +299,49 @@ void() execute_changelevel =
 	WriteByte (MSG_ALL, SVC_CDTRACK);
 	WriteByte (MSG_ALL, 3);
 
+#ifdef QUAKE
+	WriteByte (MSG_ALL, 3);
+#endif
+
 	FindIntermission ();
 
 	self = first_client;
 	while (self)
 	{
 		self.takedamage = self.solid = self.movetype = self.nextthink = self.view_ofs_z = 0;
+	#ifdef QUAKE
+		self.model = self.aiment.model = "";
+	#else
 		self.model = "";
+	#endif
+
 		self = self.next;
 	}
 
 	WriteByte (MSG_ALL, SVC_INTERMISSION);
+
+#ifdef QUAKE
+	self = world;
+	while (self = find(self, classname, "player"))
+	{
+		self.modelindex = 0;
+		setorigin (self, spawn_pos.origin);
+		self.angles = self.v_angle = spawn_pos.mangle;
+		self.fixangle = TRUE;		// turn this way immediately
+	}
+
+	first_ent.modelindex = modelindex_player;
+	first_ent.model = "/";
+	WriteByte(MSG_ALL, SVC_SETVIEWPORT);
+	WriteEntity(MSG_ALL, first_ent);
+#else
 	WriteCoord (MSG_ALL, spawn_pos.origin_x);
 	WriteCoord (MSG_ALL, spawn_pos.origin_y);
 	WriteCoord (MSG_ALL, spawn_pos.origin_z);
 	WriteAngle (MSG_ALL, spawn_pos.mangle_x);
 	WriteAngle (MSG_ALL, spawn_pos.mangle_y);
 	WriteAngle (MSG_ALL, spawn_pos.mangle_z);
+#endif
 };
 
 /*QUAKED trigger_changelevel (0.5 0.5 0.5) ? NO_INTERMISSION
@@ -397,6 +472,42 @@ void() ChangeTeam =
 	}
 };
 
+#ifdef QUAKE
+/*
+============
+PrepareToObserve
+
+============
+*/
+void() PrepareToObserve =
+{
+	if (self.client_)
+		ResetItems();
+	RemoveFromAllLists();
+	SetViewPlayer();
+	self.weaponmodel = self.model = "";
+	self.takedamage = self.deadflag = self.solid = self.nextthink = self.attack_finished = 0;
+	self.frags = self.deaths = self.friendly = self.efficiency = 0;
+	setorigin(self, self.origin + self.view_ofs);
+	self.velocity = '0 0 0';
+	self.view_ofs_z = 0;
+};
+
+/*
+============
+PrepareToClient
+
+============
+*/
+void() PrepareToClient =
+{
+	RemoveFromAllLists();
+	Add_client();
+	self.frags = 0;
+	PutClientInServer();
+};
+#endif
+
 /*
 ============
 SelectSpawnPoint
@@ -406,7 +517,12 @@ Returns the entity to spawn at
 */
 void() SelectSpawnPoint =
 {
+#ifdef ARENA
 	set_a_spawn();
+#else
+	local string a_spawn;
+	a_spawn = "info_player_deathmatch";
+#endif
 	spots = world;
 
 // choose a info_player_deathmatch point
@@ -473,8 +589,11 @@ called each time a player is spawned
 */
 void() PutClientInServer_apply =
 {
+#ifdef ARENA
 	if (putselfinserver())
 		return;
+#endif
+
 	if (self.player)
 		self.fixangle = TRUE;		// turn this way immediately
 
@@ -484,10 +603,20 @@ void() PutClientInServer_apply =
 		self.nextthink = 0.001;
 		return;
 	}
+#ifdef QUAKE
+	self.model = self.aiment.model = "/";
+#else
 	if (!game_qizmo || self.player)
 		self.model = "/";
+#endif
+
 	self.v_angle = self.angles;
+
+#ifdef QUAKE
+	self.flags = self.flags & FL_CAMERA_QWPHYSICS;
+#else
 	self.flags = 0;
+#endif
 
 	if (self.player)
 	{
@@ -555,7 +684,13 @@ void() PutClientInServer =
 		lightstyle(0, "m");
 //team
 
+#ifdef QUAKE
+	self.aiment.effects = 0;
+	SetViewPlayer();
+	viewport.modelindex = modelindex_player;
+#else
 	self.modelindex = modelindex_player;
+#endif
 	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
 	setorigin(self, spawn_pos.origin + '0 0 1');
 	self.oldorigin = self.origin;
@@ -776,13 +911,14 @@ Called every frame before physics are run
 */
 void() PlayerPreThink_apply =
 {
+#ifdef ARENA
 	if (a_prethink())
 		return;
+#endif
 
-//
-// WaterMove
-//
-
+	//
+	// WaterMove
+	//
 	if (self.waterlevel)
 	{
 		if (k_standby) return;
@@ -801,7 +937,9 @@ void() PlayerPreThink_apply =
 			self.air_finished = time_12;
 			self.dmg = 2;
 
+		#ifndef QUAKE
 			if (!self.player)
+		#endif
 			if (self.waterlevel == 2)
 			{
 			//
@@ -901,9 +1039,13 @@ void() PlayerPreThink_apply =
 			self.dmgtime = 0;
 		}
 
+	#ifndef QUAKE
 		if (!self.player)
+	#endif
 		if (!(self.flags & FL_WATERJUMP))
-				self.velocity = self.velocity - 0.8*self.waterlevel*frametime*self.velocity;
+		{
+			self.velocity = self.velocity - 0.8*self.waterlevel*frametime*self.velocity;
+		}
 	}
 	else
 	{
@@ -926,15 +1068,19 @@ void() PlayerPreThink_apply =
 		{
 			if (self.waterlevel >= 2)
 			{
+			#ifndef QUAKE
 				if (!self.player)
 				{
+			#endif
 					if (self.watertype == CONTENT_WATER)
 						self.velocity_z = 100;
 					else if (self.watertype == CONTENT_SLIME)
 						self.velocity_z = 80;
 					else
 						self.velocity_z = 50;
+			#ifndef QUAKE
 				}
+			#endif
 
 		// play swiming sound
 				if (self.swim_flag < time)
@@ -949,21 +1095,38 @@ void() PlayerPreThink_apply =
 			}
 			else
 			{
+		#ifndef ARENA
+			#ifdef MANUAL
+				if (manual_mode)
+				{
+					self.velocity_z = 200;
+					self.flags = self.flags & FL_NOT_ONGROUND;
+				}
+			#endif
+		#endif
+
 				if (self.flags & FL_ONGROUND)
 				{
 					if (self.flags & FL_JUMPRELEASED)		// don't pogo stick
 					{
+					#ifdef ARENA
 						a_jumpfix();
+					#endif
+
 						self.flags = self.flags - FL_JUMPRELEASED;
 
+					#ifndef QUAKE
 						if (!self.player)
+					#endif
 							self.flags = self.flags - FL_ONGROUND;	// don't stairwalk
 
 					// player jumping sound
 						msg_entity = self;
 						sound (CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
 
+					#ifndef QUAKE
 						if (!self.player)
+					#endif
 							self.velocity_z = self.velocity_z + JUMPSPEED;
 
 					}
@@ -983,11 +1146,21 @@ void() PlayerPreThink_apply =
 void() PlayerPreThink =
 {
 
+#ifdef QUAKE
+	if (!(self.frogbot))
+	{
+		self.button0_ = self.button0;
+		self.button2_ = self.button2;
+	}
+#else
 	self.button0_ = self.button0;
 	self.button2_ = self.button2;
+#endif
 
+#ifdef ARENA
 	if (a_prethink())
 		return;
+#endif
 
 	if (self.takedamage)
 	{
@@ -1045,8 +1218,14 @@ void() CheckLand =
 
 void() PlayerPostThink_apply =
 {
+#ifdef ARENA
 	if (a_postthink())
 		return;
+#endif
+
+#ifdef QUAKE
+	self.postvelocity = self.velocity;
+#endif
 
 //
 // CheckPowerups
@@ -1115,7 +1294,9 @@ void() PlayerPostThink_apply =
 				{
 					lose_artifact_invisibility();
 					W_SetCurrentAmmo();
+#ifdef TALK
 					teamreport2(self, 16);
+#endif
 				}
 			}
 		}
@@ -1141,7 +1322,9 @@ void() PlayerPostThink_apply =
 
 				if (self.invincible_finished < time) {	// just stopped
 					lose_artifact_invulnerability();
-					teamreport2(self, 15); 
+#ifdef TALK
+					teamreport2(self, 15);
+#endif
 				}
 			}
 		}
@@ -1171,7 +1354,9 @@ void() PlayerPostThink_apply =
 				if (self.super_damage_finished < time)	// just stopped
 				{
 					lose_artifact_super_damage();
-					teamreport2(self, 14); 
+#ifdef TALK
+					teamreport2(self, 14);
+#endif
 					if (deathmatch == 4)
 					{
 						if (self.health > 100) self.health = 100; // rxr
@@ -1230,10 +1415,12 @@ void() PlayerPostThink_apply =
 		}
 
 	// impulse commands
+	#ifdef ARENA
 		if (self.player)
 		if (self.frogbot)
 		if (!self.botchose)
 			self.impulse = 0;
+	#endif
 
 		if (self.impulse)
 		{
@@ -1255,12 +1442,17 @@ void() PlayerPostThink_apply =
 					else // if (impulse_ == 12)
 						CycleWeaponReverseCommand ();
 				}
+			#ifdef ARENA
 				self.botchose = 0;
+			#endif
 			}
 		}
 	
 	// check for attack
+	#ifdef ARENA
 		if ((!game_arena) || (arenastate == A_PLAYING))
+	#endif
+
 		if (self.button0_)
 		{
 			W_WeaponFrame ();
@@ -1310,7 +1502,9 @@ void() PlayerPostThink_apply =
 		new_pitch = (rint(real_pitch_ / 1.40625)) * 1.40625;
 		self.real_pitch = real_pitch_;
 
+	#ifdef ARENA
 		a_rocketjump();
+	#endif
 
 	// yaw
 		yawspeed_ = self.yawspeed + self.yawaccel * frametime;
@@ -1367,8 +1561,33 @@ void() PlayerPostThink_apply =
 				new_pitch = 0;
 		}
 
+#ifdef ARENA
 		self.v_angle_x = new_pitch * -1;
 		SetViewAngle(self, self.v_angle);
+	#ifdef QUAKE
+		if (self.player)
+			self.stored_angle = self.v_angle;
+	#endif
+#else
+	#ifdef QUAKE
+		if (self.player)
+		{
+			self.angles_z = 0;	// stop incorrect roll
+
+			self.stored_angle = self.v_angle;	// used for frogbots
+
+			self.angles_x = FixedAngle(new_pitch);
+			self.angles_y = FixedAngle(self.v_angle_y);
+			self.fixangle = TRUE;
+		}
+		else
+		{
+			self.angles_x = new_pitch / -3;
+		}
+	#else
+		self.angles_x = new_pitch / -3;
+	#endif
+#endif
 	}
 };
 
@@ -1385,16 +1604,22 @@ void() PlayerPostThink =
 			show_speed(self);
 	}
 
+#ifdef ARENA
 	if (a_postthink())
 		return;
+#endif
 
 	if (self.print_framerate)
 		PrintFramerate();
 
+#ifdef ARENA
 	if (!game_arena)
+#endif
 	if (teamplay)
 	{
+	#ifndef QUAKE
 		self.team = stof(infokey(self, "bottomcolor")) + 1;
+	#endif
 
 		if (self.realteam != self.team)
 		{
@@ -1405,6 +1630,11 @@ void() PlayerPostThink =
 	}
 	if (self.takedamage)
 	{
+	#ifdef QUAKE
+		if ((self.frogbot) || (self.flags & FL_QWPHYSICS))
+			obstruction();
+	#endif
+
 	// check to see if player landed and play landing sound
 		if (self.jump_flag)
 		if (self.flags & FL_ONGROUND)
@@ -1412,6 +1642,13 @@ void() PlayerPostThink =
 
 		PlayerPostThink_apply();
 	}
+
+#ifndef ARENA
+	#ifdef MANUAL
+	if (manual_mode)
+		self.flags = self.flags | FL_ONGROUND;
+	#endif
+#endif
 };
 
 /*
@@ -1475,17 +1712,21 @@ void() goal_client =
 
 void() goal_client6 =
 {
+#ifdef ARENA
 	if (game_arena)
 		a_goal_client6();
 	else
 	{
+#endif
 	if (time < virtual_enemy.invisible_finished)
 		enemy_desire = 0;	// can't see so how chase?
 	else if (time < virtual_enemy.invincible_finished)
 		enemy_desire = 0;	// invincible
 	else
 		enemy_desire = (300 - virtual_enemy.total_damage);
+#ifdef ARENA
 	}
+#endif
 };
 
 void() ClientConnect_apply =
@@ -1506,6 +1747,10 @@ void() ClientConnect_apply =
 	if (intermission_running)
 		GotoNextMap();
 
+#ifdef QUAKE
+	AssignClientBodyQue();
+#endif
+
 	if (!game_not_match)
 		MatchMode();
 };
@@ -1519,7 +1764,23 @@ void() ClientConnect =
 	self.stringname = "gamer";
 	scoreboardsize = scoreboardsize + 1;
 	numberofplayers = numberofplayers + 1;
+
+#ifdef QUAKE
+	score_pos_ = 0;
+	test_enemy = first_ent;
+	while(test_enemy != self)
+	{
+		score_pos_ = score_pos_ + 1;
+		test_enemy = nextent(test_enemy);
+	}
+	self.score_pos = score_pos_;
+
+	self.aiment = EntityAt(first_frogbot, self.score_pos);
+	self.colormap = self.score_pos + 1;
+#else
 	self.team = stof(infokey(self, "bottomcolor")) + 1;
+#endif
+
 	self.flags = parm1;
 	self.player = TRUE;
 	self.number_bots = parm2;
@@ -1543,9 +1804,18 @@ void() ClientConnect =
 	self.spawnbit0 = parm7;
 	self.spawnbit1 = parm8;
 	self.preferences = parm9;
+
+#ifdef QUAKE
+	self.spawn_skin = parm10;
+	if (game_skins)
+		self.skin = parm11;
+	self.msg_level_ = parm12;
+#else
 	self.skin0 = parm10;
 	self.skin1 = parm11;
 	self.skin2 = parm12;
+#endif
+
 	self.k_stuff = parm15; 
 
 	if ((!game_not_match) && (match_in_progress || counting_down) && (lock))
@@ -1561,6 +1831,12 @@ void() ClientConnect =
 
 	self.kick = 0;
 
+#ifdef QUAKE
+	if (game_qwphysics)
+		self.flags = self.flags | FL_QWPHYSICS;
+#endif
+
+#ifndef MANUAL
 // ParboiL
 	if (!game_arena) 
 		MakeMOTD();
@@ -1568,12 +1844,15 @@ void() ClientConnect =
 	if (!self.k_stuff)
 		AliasesTime();
 // ParboiL
+#endif
 
 	ClientConnect_apply();
 	self.lookahead_time = 30;
 	self.prediction_error = 0;
 
+#ifndef MANUAL
 	LoadPlayer();
+#endif
 };
 
 /*
@@ -1615,7 +1894,15 @@ void() ClientDisconnect =
 		}
 
 		RemoveFromAllLists();
+
+	#ifdef QUAKE
+		self.flags = self.aiment.flags = 0;
+		AssignClientBodyQue();
+	#endif
+
+	#ifdef ARENA
 		selfdisconnect();
+	#endif
 	}
 
 	self.classname = "";
@@ -1652,8 +1939,12 @@ void() ClientObituary =
 				bprint_fb(1, self.netname);
 				bprint_fb(1, " was telefragged by his teammate\n");
 				self.deaths = self.deaths + 1; // New
+			#ifdef TALK
 				if (!game_disable_botchat)
+				{
 					say_ouchie(targ);
+				}
+			#endif
 			}
 			else
 			{
@@ -1692,8 +1983,12 @@ void() ClientObituary =
 				UpdateFrags (attacker);
 				bprint_fb(1, attacker.netname);
 				bprint_fb(1, " squished a teammate\n");
+			#ifdef TALK
 				if (!game_disable_botchat)
+				{
 					say_ouchie(targ);
+				}
+			#endif
 			}
 			else if ((attacker.client_) && attacker != self)
 			{
@@ -1754,19 +2049,28 @@ void() ClientObituary =
 				attacker.frags = attacker.frags - 1;
 				attacker.friendly = attacker.friendly + 1;
 				UpdateFrags (attacker);
+			#ifdef TALK
 				if (!game_disable_botchat)
+				{
 					say_ouchie(targ);
+				}
+			#endif
 			}
 			else
 			{
+			#ifdef ARENA
 				if (!game_damage)
 				{
+			#endif
 					attacker.frags = attacker.frags + 1;
 					self.deaths = self.deaths + 1; // New
 					if (self.spawn_frag_time > time) 
 						attacker.s_frags = attacker.s_frags + 1; // New
 					UpdateFrags (attacker);
+			#ifdef ARENA
 				}
+			#endif
+
 				if (deathtype == "shell")
 				{
 					deathstring = " chewed on ";
@@ -1875,8 +2179,12 @@ void() ClientObituary =
 						else
 							bprint_fb(1, " visits the Volcano God\n");
 					}
+				#ifdef TALK
 					if (!game_disable_botchat)
+					{
 						say_ouchie(targ);
+					}
+				#endif
 				}
 				else if (deathtype == "falling")
 					bprint_fb(1, " fell to his death\n");

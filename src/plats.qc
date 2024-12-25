@@ -9,6 +9,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() plat_center_touch;
 void() plat_go_up;
 void() plat_go_down;

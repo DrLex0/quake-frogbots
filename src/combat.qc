@@ -8,7 +8,11 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
-void(entity at, entity tg) CheckCombatChat;
+#include "settings.h"
+
+#ifdef TALK
+void(entity att, entity tgt) CheckCombatChat;
+#endif
 void() CheckCombatEnemy;
 
 /*
@@ -115,8 +119,10 @@ void() T_Damage =
 		}
 	}
 
+#ifdef ARENA
 	if (T_Damage2())
 		return;
+#endif
 
 // save damage based on the target's armor level
 
@@ -165,6 +171,10 @@ void() T_Damage =
 
 		CheckCombatEnemy();
 
+	#ifdef QUAKE
+		targ.postvelocity = targ.velocity;
+	#endif
+
 	// check for invincibility
 		if (targ.invincible_finished >= time)
 		{
@@ -202,6 +212,12 @@ void() T_Damage =
 		}
 	}
 
+#ifdef MANUAL
+	// TODO: move this up to avoid flashes and momentum in waypoint editor?
+	if (manual_mode)
+		return;
+#endif
+
 	killed_self = self;
 	self = targ;
 
@@ -212,8 +228,10 @@ void() T_Damage =
 	{
 		if (targ.health < -99)
 			targ.health = -99;		// don't let sbar look bad if a player
+	#ifdef TALK
 		if (!game_disable_botchat)
 			CheckCombatChat(attacker, targ);
+	#endif
 		self.th_die();
 	}
 	else

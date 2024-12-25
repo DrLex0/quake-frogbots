@@ -6,6 +6,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "../settings.h"
+
 /*
 ============
 obstruction
@@ -80,6 +82,11 @@ void() VelocityForArrow =
 {
 	turning_speed = 0;
 
+#ifdef QUAKE
+	if (time >= self.teleport_time)
+	{
+#endif
+
 		// first check air circle turning
 		if (!self.waterlevel)
 		{
@@ -98,7 +105,10 @@ void() VelocityForArrow =
 
 					rel_pos = (self.linked_marker.absmin + self.linked_marker.view_ofs) - self.origin;
 					rel_pos_z = 0;
+
+				#ifdef ARENA
 					if (rel_pos * rel_pos != 0)
+				#endif
 					turning_speed = 114.59156 * hor_speed * (rel_pos * hor_normal_vec) / (rel_pos * rel_pos);	// 114.59156 = 360 / PI
 
 					if (fabs(turning_speed) > 270)
@@ -144,6 +154,15 @@ void() VelocityForArrow =
 		}
 
 		arrow_ = self.arrow;
+#ifdef QUAKE
+	}
+	else
+	{
+		if (self.flags & FL_WATERJUMP)
+			return;
+		arrow_ = self.arrow - (self.arrow & BACK);
+	}
+#endif
 
 	if (!arrow_)
 	{
@@ -243,6 +262,30 @@ void() VelocityForArrow =
 	self.velocity = self.velocity + (accel_forward * dir_forward);
 };
 
+#ifdef QUAKE
+/*
+============
+DoubleFriction
+
+============
+*/
+float() DoubleFriction =
+{
+	if (self.waterlevel <= 1)
+	{
+		if (self.flags & FL_ONGROUND)
+		{
+			if (!(checkbottom(self)))
+			{
+				test_point = self.origin + '0 0 -25' + normalize(self.postvelocity) * 16;
+				return (pointcontents(test_point) != CONTENT_SOLID);
+			}
+		}
+	}
+	return FALSE;
+};
+#endif
+
 /*
 ============
 DoFriction
@@ -259,6 +302,42 @@ void() DoFriction =
 
 		// sv_stopspeed = 100
 
+	#ifdef QUAKE
+		if (hor_speed > 100)
+		{
+			if (double_friction)
+			{
+				self.velocity_x = self.velocity_x * inv_sv_friction_frametime_2;
+				self.velocity_y = self.velocity_y * inv_sv_friction_frametime_2;
+				return;
+			}
+			else
+			{
+				self.velocity_x = self.velocity_x * inv_sv_friction_frametime;
+				self.velocity_y = self.velocity_y * inv_sv_friction_frametime;
+				return;
+			}
+		}
+		else
+		{
+			if (double_friction)
+			{
+				friction_factor = (1 - (sv_friction_frametime_200 / hor_speed));
+				if (friction_factor < 0)
+					friction_factor = 0;
+			}
+			else
+			{
+				friction_factor = (1 - (sv_friction_frametime_100 / hor_speed));
+				if (friction_factor < 0)
+					friction_factor = 0;
+			}
+
+			self.velocity_x = self.velocity_x * friction_factor;
+			self.velocity_y = self.velocity_y * friction_factor;
+			return;
+		}
+	#else
 		if (hor_speed > 100)
 		{
 			self.velocity_x = self.velocity_x * inv_sv_friction_frametime;
@@ -275,6 +354,7 @@ void() DoFriction =
 			self.velocity_y = self.velocity_y * friction_factor;
 			return;
 		}
+	#endif
 	}
 };
 
@@ -286,6 +366,13 @@ ApplyFriction
 */
 void() ApplyFriction =
 {
+#ifdef QUAKE
+	if (game_qwphysics)
+		double_friction = FALSE;
+	else
+		double_friction = DoubleFriction();
+#endif
+
 	if (self.flags & FL_WATERJUMP)
 	{
 		self.velocity_x = self.movedir_x;
@@ -314,7 +401,9 @@ FrogbotPrePhysics1
 */
 void() FrogbotPrePhysics1 =
 {
+#ifndef QUAKE
 	frametime = real_frametime;
+#endif
 
 	// Remove_Obstacles for AvoidHazards
 	if (hazard_time)
@@ -335,6 +424,24 @@ void() FrogbotPrePhysics1 =
 		{
 			if (self.movetype == MOVETYPE_STEP)
 				ApplyFriction();
+		#ifdef QUAKE
+			else if (self.player)
+			{
+				self.v_angle = self.stored_angle;
+				if (game_qwphysics)
+				{
+					if (self.waterlevel <= 1)
+					{
+						if (DoubleFriction())
+						{
+							self.velocity = self.postvelocity;
+							double_friction = FALSE;
+							DoFriction();
+						}
+					}
+				}
+			}
+		#endif
 
 			if (self.takedamage)
 			{
@@ -344,6 +451,41 @@ void() FrogbotPrePhysics1 =
 					AvoidHazards();
 			}
 		}
+	#ifdef QUAKE
+		else
+		{
+			if (game_qwphysics)
+			{
+				if (self.waterlevel <= 1)
+				{
+					if (DoubleFriction())
+					{
+						arrow_velocity = self.velocity;
+
+						self.velocity = self.postvelocity;
+						double_friction = TRUE;
+						DoFriction();
+
+						arrow_velocity = arrow_velocity - self.velocity;
+
+						self.velocity = self.postvelocity;
+						double_friction = FALSE;
+						DoFriction();
+
+						self.velocity = self.velocity + arrow_velocity;
+					}
+				}
+			}
+		}
+
+		if (game_qwaim)
+		{
+			if (self.v_angle_x > 0)
+				self.v_angle = self.v_angle + '1.40625 0.703125 0';
+			else
+				self.v_angle_y = self.v_angle_y + 0.703125;
+		}
+	#endif
 
 		self = self.next;
 	}
@@ -368,7 +510,9 @@ FrogbotPrePhysics2
 */
 void() FrogbotPrePhysics2 =
 {
+#ifndef QUAKE
 	frametime = real_frametime;
+#endif
 	no_bots_stuck = TRUE;
 
 	self = first_client;
@@ -392,7 +536,9 @@ void() FrogbotPrePhysics2 =
 				}
 				else
 				{
+				#ifdef ARENA
 					self.botchose = 1;
+				#endif
 					self.impulse = CLIENTKILL;
 				}
 			}
@@ -486,7 +632,9 @@ FrogbotPostPhysics
 */
 void() FrogbotPostPhysics1 =
 {
+#ifndef QUAKE
 	frametime = real_frametime;
+#endif
 
 	self = first_client;
 	while (self)
@@ -541,20 +689,45 @@ FrogbotPostPhysics2
 */
 void() FrogbotPostPhysics2 =
 {
+#ifndef QUAKE
 	frametime = real_frametime;
+#endif
+
 	self = first_client;
 	while (self)
 	{
 		if (self.movetype == MOVETYPE_STEP)
 			PlayerPostThink_apply();
 
+	#ifdef QUAKE
+		self_aiment = self.aiment;
+		if (self_aiment.modelindex)
+		{
+			setorigin(self_aiment, self.origin);
+			self_aiment.angles = self.angles;
+			self_aiment.frame = self.frame;
+		}
+	#else
 		if (game_qizmo)
 		{
 			if (!self.player)
 				SetPlayerInfo();
 		}
+	#endif
+
 		self = self.next;
 	}
+
+#ifdef QUAKE
+	self = first_bodyque;
+	while (self)
+	{
+		self_aiment = self.aiment;
+		if (self_aiment.modelindex > 1)
+			setorigin(self_aiment, self.origin);
+		self = self.next;
+	}
+#endif
 };
 
 /*

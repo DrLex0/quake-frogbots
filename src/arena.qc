@@ -7,15 +7,31 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
+// Not an actual impulse, but the number of the highest arena-related impulse
+float IMP_END4		= 130;
+
+
+#ifdef ARENA
+
 // definitions
 
-.float entertime;
 .float ping;
 .float ping_;
 .float packetloss;
 .float packetloss_;
 float pingupdate;
+#ifndef QUAKE
+.float entertime;
 float SVC_UPDATEPACKETLOSS = 53;
+#else
+.float chase;
+void() togglechase;
+.float hop_time;
+.vector hop_velocity; // asdf
+void(float to, float f) WriteAngle = #57;
+#endif
 float SVC_SETANGLE = 10;
 .float itemstarted;
 .float botchose;
@@ -31,7 +47,6 @@ float SVC_SETANGLE = 10;
 .float alias1time;
 .float alias2time;
 .float alias3time;
-.float alias4time;
 .float damfrags;
 .float players;
 .float wins;
@@ -139,6 +154,7 @@ float BIT_01 = 2;
 float BIT_00 = 1;
 
 // functions
+#ifndef QUAKE
 void(float to, entity e) updatetime;
 void(float to, entity e) updateping;
 void(float to, entity e) updatepacketloss;
@@ -147,6 +163,12 @@ void(string s) dprint = #25;
 // void() bot_netname;
 // void() dprint_obituary;
 void() updatebotpings;
+#else
+void(float to, entity e) updatename;
+void(float to, entity e) updatecolors;
+void() togglechase;
+#endif
+
 void() print_limit;
 void() FinalStats;
 void() SetScoreboard2;
@@ -190,7 +212,9 @@ void() forcestart;
 void() changesounds;
 void(float which, string wname) toggleweapon;
 void() changearmortype;
+#ifdef NOCLIP
 void() togglenoclip;
+#endif
 void() fight;
 void() print1;
 void() print2;
@@ -213,12 +237,15 @@ void() track_off;
 void() track_next;
 void() track_toggle;
 void() track;
-void() a_think;
-void() null = {};
+// Hack ported from Trinca's sources (needed for recent fteqcc)
+#ifdef FTEQCC
+var void() a_think;
+#else
+void() a_think = {};
+#endif
 void() aliases1;
 void() aliases2;
 void() aliases3;
-void() aliases4;
 void(string s, float value) alias;
 
 // other functions used
@@ -270,7 +297,9 @@ void() item_artifact_invisibility;
 void() item_artifact_super_damage;
 void() SUB_regen;
 void() BotWaterJumpFix;
+#ifndef QUAKE
 void(float to, entity client) SetColorName;
+#endif
 
 // impulses
 float IMP_DROP		= 71;
@@ -331,8 +360,9 @@ float IMP_WS_ON		= 126;
 float IMP_WS_OFF		= 127;
 float IMP_WS_RES		= 128;
 float IMP_SH_SPEED	= 129;
-float IMP_END4		= 130;
-float IMP_NOCLIP		= 131;
+#ifdef NOCLIP
+float IMP_NOCLIP		= 130;
+#endif
 // 140 kf_jump
 // 141 kr_jump
 
@@ -465,8 +495,13 @@ float(float a, float b) pow =
 void() power_ =
 {
 	local float a, b, c;
+#ifdef QUAKE
+	a = cvar("saved1");
+	b = cvar("saved2");
+#else
 	a = stof(infokey(self, "saved1"));
 	b = stof(infokey(self, "saved2"));
+#endif
 	b = rint(b * 100) / 100;
 	c = pow(a, b);
 	sprint_ftos(self, 2, a);
@@ -533,6 +568,8 @@ float() check_cvar =
 	}
 	if ((asdf < min_) || (asdf > max_))
 	{
+		// Old code contained logic here to set asdf=rint(asdf/10)
+		// when (asfd>max_ && varg=="skill"). Why? Nobody knows.
 		if (asdf < min_)
 			asdf = min_;
 		else if (asdf > max_)
@@ -569,6 +606,11 @@ void() check_cvars =
 	min_ = 1;
 	max_ = MAX_DEATHMATCH;
 	next_deathmatch = check_cvar();
+
+#ifdef QUAKE
+	print_ = 0;
+#endif
+
 	varg = "teamplay";
 	var_ = next_teamplay;
 	min_ = 0;
@@ -588,6 +630,16 @@ void() check_cvars =
 	min_ = 0;
 	max_ = 9999;
 	fraglimit = check_cvar();
+
+#ifdef QUAKE
+	print_ = 1;
+
+	varg = "skill";
+	var_ = skill;
+	min_ = 0;
+	max_ = MAX_SKILL;
+	skill = check_cvar();
+#endif
 };
 
 // set skill, i guess
@@ -712,6 +764,14 @@ void() a_jumpfix =
 {
 	if (self.velocity_z < 0)
 		self.velocity_z = 0;
+#ifdef QUAKE
+	if (game_qwphysics)
+	if (self.hop_time > time)
+	{
+		self.velocity_x = self.hop_velocity_x;
+		self.velocity_y = self.hop_velocity_y;
+	}
+#endif
 };
 
 // list commands
@@ -804,60 +864,12 @@ void(string s, float val) alias =
 	stuffcmd("\n");
 };
 
-// stuff 1st quarter of aliases
-void() aliases1 =
-{
-	msg_entity = self;
-	stuffcmd("alias ztndm3 impulse 200\n");
-	stuffcmd("alias aerowalk impulse 201\n");
-	stuffcmd("alias spinev2 impulse 202\n");
-	stuffcmd("alias pkeg1 impulse 203\n");
-	stuffcmd("alias ultrav impulse 204\n");
-	stuffcmd("alias frobodm2 impulse 205\n");
-	stuffcmd("alias amphi2 impulse 206\n");
-	stuffcmd("alias povdmm4 impulse 207\n");
-	stuffcmd("alias e1m1 impulse 208\n");
-	stuffcmd("alias e1m2 impulse 209\n");
-	stuffcmd("alias e1m3 impulse 210\n");
-	stuffcmd("alias e1m4 impulse 211\n");
-	stuffcmd("alias e1m5 impulse 212\n");
-	stuffcmd("alias e1m6 impulse 213\n");
-	stuffcmd("alias e1m7 impulse 214\n");
-	stuffcmd("alias e1m8 impulse 215\n");
-	stuffcmd("alias e2m1 impulse 216\n");
-	stuffcmd("alias e2m2 impulse 217\n");
-	stuffcmd("alias e2m3 impulse 218\n");
-	stuffcmd("alias e2m4 impulse 219\n");
-	stuffcmd("alias e2m5 impulse 220\n");
-	stuffcmd("alias e2m6 impulse 221\n");
-	stuffcmd("alias e2m7 impulse 222\n");
-	stuffcmd("alias e3m1 impulse 223\n");
-	stuffcmd("alias e3m2 impulse 224\n");
-	stuffcmd("alias e3m3 impulse 225\n");
-	stuffcmd("alias e3m4 impulse 226\n");
-	stuffcmd("alias e3m5 impulse 227\n");
-	stuffcmd("alias e3m6 impulse 228\n");
-	stuffcmd("alias e3m7 impulse 229\n");
-	stuffcmd("alias e4m1 impulse 230\n");
-	stuffcmd("alias e4m2 impulse 231\n");
-	stuffcmd("alias e4m3 impulse 232\n");
-	stuffcmd("alias e4m4 impulse 233\n");
-	stuffcmd("alias e4m5 impulse 234\n");
-	stuffcmd("alias e4m6 impulse 235\n");
-	stuffcmd("alias e4m7 impulse 236\n");
-	stuffcmd("alias e4m8 impulse 237\n");
-	stuffcmd("alias dm1 impulse 238\n");
-	stuffcmd("alias dm2 impulse 239\n");
-	stuffcmd("alias dm3 impulse 240\n");
-	stuffcmd("alias dm4 impulse 241\n");
-	stuffcmd("alias dm5 impulse 242\n");
-	stuffcmd("alias dm6 impulse 243\n");
-	stuffcmd("alias start impulse 244\n");
-	stuffcmd("alias end impulse 245\n");
-};
+// We used to create aliases to maps here, and tied the maps to impulses.
+// This has become tedious and pointless when rebuilding Frogbot with different
+// map sets. Just load maps with the 'map' command and vote with 'cmd'.
 
-// stuff more aliases
-void() aliases2 =
+// stuff aliases
+void() aliases1 =
 {
 	msg_entity = self;
 	alias("random", IMP_RANDOM);
@@ -898,7 +910,7 @@ void() aliases2 =
 };
 
 // 1 second delay between these stuffings
-void() aliases3 =
+void() aliases2 =
 {
 	msg_entity = self;
 	alias("hide", IMP_HIDE);
@@ -942,7 +954,7 @@ void() aliases3 =
 };
 
 // last one
-void() aliases4 =
+void() aliases3 =
 {
 	msg_entity = self;
 	alias("armortype", IMP_ARMORTYPE);
@@ -983,7 +995,9 @@ void() aliases4 =
 	alias("observe", IMP_OBSERVE);
 	alias("lock", IMP_LOCK);
 	alias("silence", IMP_SILENCE); 
+	#ifdef NOCLIP
 	alias("noclip_", IMP_NOCLIP);
+	#endif
 	alias("impulse_0", IMP_IMPULSE_0);
 	stuffcmd("alias kfjump \"impulse 140;+jump;wait;-jump\"\n");
 	stuffcmd("alias krjump \"impulse 141;+jump;wait;-jump\"\n");
@@ -1120,6 +1134,28 @@ void(float to, entity e) UpdateFrags2 =
 	WriteShort(to, e.frags);
 };
 
+#ifdef QUAKE
+// update name
+void(float to, entity e) updatename =
+{
+	WriteByte(to, MSG_UPDATENAME);
+	WriteByte(to, e.score_pos);
+	WriteString(to, e.netname);
+};
+
+// update colors
+void(float to, entity e) updatecolors =
+{
+	WriteByte(to, MSG_UPDATECOLORS);
+	WriteByte(to, e.score_pos);
+	WriteByte(to, e.color_);
+};
+
+void(float to, entity e) updateping = {};
+void(float to, entity e) updatepacketloss = {};
+
+#else
+
 // update ping
 void(float to, entity e) updateping =
 {
@@ -1247,6 +1283,7 @@ void() updatebotpings =
 		self = self.next;
 	}
 };
+#endif
 
 // add timelimit & fraglimit to PrintRules()
 void() a_rulesfix =
@@ -1375,7 +1412,9 @@ void() framethink =
 		}
 		self = self.next;
 	}
+#ifndef QUAKE
 	updatebotpings();
+#endif
 	if (game_arena)
 	if (a_nextthink)
 	if (time >= a_nextthink)
@@ -1460,10 +1499,13 @@ void() framethink =
 	{
 		if (self.player)
 		{
+		#ifndef QUAKE
 			local float topcolor, bottomcolor;
 			topcolor = stof(infokey(self, "topcolor"));
 			bottomcolor = stof(infokey(self, "bottomcolor"));
-			if ((topcolor != self.shirtcolor) || (bottomcolor != self.pantscolor))
+			if ((topcolor != self.shirtcolor) ||
+			    (bottomcolor != self.pantscolor))
+		#endif
 			changecolor();
 		}
 		if (!self.invisible) // hack: if spawned outside map, respawn
@@ -1515,7 +1557,11 @@ void() changecolor =
 	{
 		self.color_ = self.shirtcolor * 16 + (self.color_ & 15);
 		self.color_ = (self.color_ & 240) + self.pantscolor;
+	#ifdef QUAKE
+		updatecolors(MSG_ALL, self);
+	#else
 		updateuserinfo(MSG_ALL, self);
+	#endif
 	}
 	self.realteam = self.pantscolor + 1;
 };
@@ -1778,6 +1824,7 @@ float() lowest_userid =
 };
 
 // change any bot's userid conflicting with self
+#ifndef QUAKE
 void() bumpfrogbot =
 {
 	users = stof(infokey(world, "users"));
@@ -1808,6 +1855,7 @@ void() bumpfrogbot =
 		asdf = asdf.next;
 	}
 };
+#endif
 
 // load scoreboard 1 bot at a time
 void() SetScoreboard2 =
@@ -1822,8 +1870,13 @@ void() SetScoreboard2 =
 		{
 			msg_entity = self;
 			UpdateFrags2(MSG_ONE, updatebot);
+		#ifdef QUAKE
+			updatename(MSG_ONE, updatebot);
+			updatecolors(MSG_ONE, updatebot);
+		#else
 			updatetime(MSG_ONE, updatebot);
 			updateuserinfo(MSG_ONE, updatebot);
+		#endif
 		}
 		if (updatebot)
 			updatebot = updatebot.next;
@@ -1840,7 +1893,9 @@ void() selfconnect =
 {
 	if (!self.player)
 	return;
+#ifndef QUAKE
 	bumpfrogbot();
+#endif
 	stuffcmd("alias aliases impulse ");
 	stuffcmd_ftos(IMP_ALIASES);
 	stuffcmd("\nalias commands impulse ");
@@ -1859,26 +1914,30 @@ void() selfdisconnect =
 	self.nextthink2 =
 	self.botpantscolor = 0;
 	checkifstart();
+#ifndef QUAKE
 	if (!self.player)
 	{
-			self.ping =
-			self.ping_ = 0;
-			dprint(self.netname);
-			dprint(" removed\n");
+		self.ping =
+		self.ping_ = 0;
+		dprint(self.netname);
+		dprint(" removed\n");
 	}
 	else
 	{
-			localcmd("localinfo ");
-			localcmd(self.netname);
-			localcmd(" 0\n");
+		localcmd("localinfo ");
+		localcmd(self.netname);
+		localcmd(" 0\n");
 	}
+#endif
 };
 
 // called in PlayerDie, print attacker's stats
 void() selfdie =
 {
 /*
+#ifndef QUAKE
 	dprint_obituary();
+#endif
 */
 	if (!game_arena)
 		return;
@@ -1979,7 +2038,11 @@ void(float seconds_) timesound =
 		return;
 	local string timesound_;
 	local float channel;
+#ifndef QUAKE
 	channel = CHAN_AUTO + CHAN_NO_PHS_ADD;
+#else
+	channel = CHAN_AUTO;
+#endif
 	if (a_sounds == 2)
 	{
 		if (seconds_== 0) timesound_ = "sffight.wav";
@@ -2095,22 +2158,27 @@ void() a_impulses =
 		ToggleGameModeNow(GAME_BOTJUMP, "botjump");
 	else if (impulse_ == IMP_DROP)
 		ToggleGameMode(GAME_DROP, "drop powerups");
+#ifdef NOCLIP
 	else if (impulse_ == IMP_NOCLIP)
 		togglenoclip();
+#endif
 	else if (impulse_ == IMP_COMMANDS)
 		commands();
 	else if (impulse_ == IMP_RESTART)
 		changelevel(nextmap);
+#ifdef TALK
 	else if (impulse_ == IMP_REPORT)
 		teamreport(self);
+#endif
+#ifndef QUAKE
 	else if (impulse_ == IMP_ALIASES)
 	{
-			sprint_fb(self, 2, "Stuffing aliases, please wait 4 seconds.\n");
+			sprint_fb(self, 2, "Stuffing aliases, please wait 3 seconds.\n");
 			self.alias1time = time + 1;
 			self.alias2time = time + 2;
 			self.alias3time = time + 3;
-			self.alias4time = time + 4;
 	}
+#endif
 	local float asdf;
 	asdf = scratch1();
 	if (impulse_ == IMP_SET_DEATHMATCH)
@@ -2122,7 +2190,13 @@ void() a_impulses =
 	else if (impulse_ == IMP_SET_FRAGLIMIT)
 		cvar_set_("fraglimit", asdf);
 	else if (impulse_ == IMP_SET_SKILL)
+	{
+#ifdef QUAKE
+		cvar_set_("skill", asdf);
+#else
 		set_skill();
+#endif
+	}
 	else if (impulse_ == 150)
 		power_();
 	if (!game_arena)
@@ -2206,6 +2280,10 @@ float() putselfinserver =
 			self.aggressive = rint(random());
 			UpdateFrags2(MSG_ALL, self);
 /*
+			#ifdef QUAKE
+				updatename(MSG_ALL, self);
+				updatecolors(MSG_ALL, self);
+			#else
 				self.entertime = time;
 				updatetime(MSG_ALL, self);
 				self.userid = lowest_userid();
@@ -2213,6 +2291,7 @@ float() putselfinserver =
 				bot_netname();
 				dprint(self.netname);
 				dprint(" added\n");
+			#endif
 */
 			if (game_arena)
 				self.botpantscolor = self.team - 1;
@@ -2220,7 +2299,14 @@ float() putselfinserver =
 		else
 		{
 			self.printmotd = time + 0.1;
+		#ifndef QUAKE
 			self.scoreboard = time + 1.5;
+		#else
+			self.scoreboard = time + 0.1;
+			self.alias1time = time + 0.1;
+			self.alias2time = time + 0.2;
+			self.alias3time = time + 0.3;
+		#endif
 		}
 	}
 	if (!game_arena)
@@ -2280,10 +2366,11 @@ float() a_prethink =
 	}
 	if (self.waterlevel)
 	{
+	#ifndef QUAKE
 		if (!(self.player))
+	#endif
 		if (self.waterlevel == 2)
-
-	{
+		{
 			BotWaterJumpFix();
 			makevectors (self.v_angle);
 			start = self.origin;
@@ -2306,7 +2393,9 @@ float() a_prethink =
 				}
 			}
 		}
+	#ifndef QUAKE
 		if (!(self.player))
+	#endif
 		if (!(self.flags & FL_WATERJUMP))
 			self.velocity = self.velocity - 0.8*self.waterlevel*frametime*self.velocity;
 	}
@@ -2316,15 +2405,19 @@ float() a_prethink =
 		{
 			if (self.waterlevel >= 2)
 			{
+			#ifndef QUAKE
 				if (!(self.player))
 				{
+			#endif
 				if (self.watertype == CONTENT_WATER)
 					self.velocity_z = 100;
 				else if (self.watertype == CONTENT_SLIME)
 					self.velocity_z = 80;
 				else
 					self.velocity_z = 50;
+			#ifndef QUAKE
 				}
+			#endif
 			}
 			else
 			{
@@ -2334,10 +2427,14 @@ float() a_prethink =
 					{
 						a_jumpfix();
 						self.flags = self.flags - FL_JUMPRELEASED;
+					#ifndef QUAKE
 						if (!(self.player))
+					#endif
 						self.flags = self.flags - FL_ONGROUND;
 						self.button2 = 0;
+					#ifndef QUAKE
 						if (!(self.player))
+					#endif
 						self.velocity_z = self.velocity_z + JUMPSPEED;
 					}
 				}
@@ -2354,6 +2451,17 @@ float() a_prethink =
 // check if should do invisible postthink
 float() a_postthink =
 {
+#ifdef QUAKE
+	if (game_qwphysics)
+	if (!(self.flags & FL_ONGROUND))
+	if (!self.waterlevel)
+	{
+		self.hop_time = time + 0.1;
+		self.hop_velocity_x = self.velocity_x;
+		self.hop_velocity_y = self.velocity_y;
+	}
+#endif
+
 	if (!game_arena)
 		return 0;
 	if (intermission_running)
@@ -2393,6 +2501,10 @@ float() a_postthink =
 		self.a_button2 = 0;
 		track_next();
 	}
+#ifdef QUAKE
+	if (self.flags & FL_QWPHYSICS)
+		obstruction();
+#endif
 	return 1;
 };
 
@@ -2583,15 +2695,40 @@ void() track =
 	local vector org, dir;
 	local float pdistance;
 	org = self.chasing.origin;
+#ifdef QUAKE
+	org_z = org_z + 22;
+#endif
 	makevectors(self.chasing.v_angle);
 	traceline(org, org - v_forward * 140, FALSE, self.chasing);
 	org = trace_endpos + v_forward * 40;
 	pdistance = vlen(org - self.origin);
 	dir = normalize(org - self.origin);
-	self.velocity = dir * distance * 4;
+	self.velocity = dir * pdistance * 4;
 	self.origin = org;
 	self.weaponmodel = "";
 	self.view_ofs_z = 0;
+#ifdef QUAKE
+	msg_entity = self;
+	WriteByte(MSG_ONE, SVC_SETVIEWPORT);
+	if (self.chase)
+	{
+		WriteEntity(MSG_ONE, self);
+		self.modelindex = modelindex_player;
+	}
+	else
+	{
+		if (self.chasing.player)
+			WriteEntity(MSG_ONE, self.chasing);
+		else
+			WriteEntity(MSG_ONE, self.chasing.aiment);
+		self.modelindex = 0;
+
+		self.view_ofs = self.chasing.view_ofs;
+		self.origin = self.chasing.origin;
+		self.weaponmodel = self.chasing.weaponmodel;
+		self.weaponframe = self.chasing.weaponframe;
+	}
+#endif
 	setorigin(self, self.origin);
 	self.oldorigin = self.origin;
 /*
@@ -2629,9 +2766,32 @@ void() track =
 float() scratch1 =
 {
 	local float amount;
+#ifdef QUAKE
+	amount = cvar("scratch1");
+#else
 	amount = stof(infokey(self, "scratch1"));
+#endif
 	return amount;
 };
+
+#ifdef QUAKE
+// toggle chase from behind or POV
+void() togglechase =
+{
+	if (!game_arena)
+		return;
+	if (self.chase)
+	{
+		self.chase = 0;
+		sprint_fb(self, 2, "Chase from POV\n");
+	}
+	else
+	{
+		self.chase = 1;
+		sprint_fb(self, 2, "Chase from behind\n");
+	}
+};
+#endif
 
 // add bot to team
 void(entity newteam) addtoteam =
@@ -2809,6 +2969,7 @@ void() changearmortype =
 	bprint_fb(2, "\"\n");
 };
 
+#ifdef NOCLIP
 // toggle noclip mode for editing; remove later!
 void() togglenoclip =
 {
@@ -2824,6 +2985,7 @@ void() togglenoclip =
 		sprint_fb(self, 2, "Noclip ON\n");
 	}
 };
+#endif
 
 // match begins
 void() fight = 
@@ -2903,7 +3065,9 @@ void() fiveseconds =
 {
 	if (arenastate != A_PREROUND)
 		return;
+#ifndef QUAKE
 	sound(CHAN_NO_PHS_ADD, "misc/talk.wav", 1, ATTN_NONE);
+#endif
 	updateteams();
 	local entity asdf, asdf2;
 	local float number, number_;
@@ -2959,7 +3123,11 @@ void() roundsound =
 	else if (round == 8) round_ = "sf8.wav";
 	else if (round == 9) round_ = "sf9.wav";
 	local float channel;
+#ifndef QUAKE
 	channel = CHAN_AUTO + CHAN_NO_PHS_ADD;
+#else
+	channel = CHAN_AUTO;
+#endif
 	sound(channel, round_, 1, ATTN_NONE);
 };
 
@@ -2979,15 +3147,21 @@ void() nextround =
 		if (self.pantscolor_)
 		{
 			PutClientInServer();
+		#ifndef QUAKE
 			self.team = (self.color_ & 15) + 1;
 			SetColorName(MSG_ALL, self);
+		#endif
 		}
 		self = self.next;
 	}
 	round = round + 1;
 	if ((a_sounds == 2) && (round < 10))
 	{
+	#ifdef QUAKE
+		sound(CHAN_AUTO, "sfround.wav", 1, ATTN_NONE);
+	#else
 		sound(CHAN_NO_PHS_ADD, "sfround.wav", 1, ATTN_NONE);
+	#endif
 		a_think = roundsound;
 		a_nextthink = time + 0.75;
 	}
@@ -3006,7 +3180,9 @@ void() bluevsred =
 {
 	if (arenastate != A_STARTING)
 		return;
+#ifndef QUAKE
 	sound(CHAN_NO_PHS_ADD, "misc/talk.wav", 1, ATTN_NONE);
+#endif
 	local entity asdf;
 	asdf = first_client;
 	while (asdf)
@@ -3086,7 +3262,9 @@ void() allinvisible =
 // only 1 team left alive
 void() ateamwon =
 {
+#ifndef QUAKE
 	sound(CHAN_NO_PHS_ADD, "misc/talk.wav", 1, ATTN_NONE);
+#endif
 	local entity asdf;
 	asdf = first_client;
 	while (asdf)
@@ -3399,7 +3577,12 @@ void() becomeinvisible =
 	setorigin(self, self.origin);
 	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
 	self.oldorigin = self.origin;
+#ifdef QUAKE
+	self.hop_velocity = '0 0 0';
+	self.modelindex = modelindex_player;
+#else
 	self.modelindex = 0;
+#endif
 	self.weaponmodel = self.model = "";
 	if (self.aiment)
 		self.aiment.modelindex = 0;
@@ -3421,6 +3604,11 @@ void() becomeinvisible =
 	{
 		self.movetype = MOVETYPE_WALK;
 		self.fixangle = TRUE;
+	#ifdef QUAKE
+		msg_entity = self;
+		WriteByte(MSG_ONE, SVC_SETVIEWPORT);
+		WriteEntity(MSG_ONE, self);
+	#endif
 	}
 	else
 	{
@@ -3476,3 +3664,5 @@ float() toss_player =
 	other.nextthink2 = time + 1;
 	return 1;
 };
+
+#endif

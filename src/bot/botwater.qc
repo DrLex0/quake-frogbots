@@ -4,6 +4,8 @@
 	Copyright (C) 1999-2000 Numb
 */
 
+#include "../settings.h"
+
 float() WaterCombat =
 {
 	if (self.waterlevel < 2)

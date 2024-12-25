@@ -7,6 +7,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "../settings.h"
+
 float(entity me) near_teammate;
 
 // moving in right direction to rocket-jump

@@ -5,6 +5,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "../settings.h"
+
 float(vector vec) EntVisible =
 {
 	traceline(self.origin, vec, TRUE, self);

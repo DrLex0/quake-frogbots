@@ -5,6 +5,8 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
 void() thud_touch;
 void() FrogbotPrePhysics2;
 void() FrogbotPostPhysics;
@@ -243,6 +245,11 @@ ClearName
 */
 void(float to, entity client) ClearName =
 {
+#ifdef QUAKE
+	WriteByte(to, MSG_UPDATENAME);
+	WriteByte(to, client.score_pos);
+	WriteByte(to, 0);
+#else
 	WriteByte(to, SVC_UPDATEUSERINFO);		// update userinfo
 	WriteByte(to, client.score_pos);		// client number
 	WriteLong(to, 0);					// client userid
@@ -253,6 +260,7 @@ void(float to, entity client) ClearName =
 	WriteByte(to, _e);
 	WriteByte(to, 92); // \
 	WriteByte(to, 0);
+#endif
 };
 
 /*
@@ -261,6 +269,11 @@ SetColorName QW // ParboiL
 
 ============
 */
+#ifdef QUAKE
+void(float to, entity client) SetColorName =
+{
+};
+#else
 void(float to, entity client) SetColorName =
 {
 	local string s1;
@@ -341,6 +354,7 @@ void(float to, entity client) SetColorName =
 		WriteString(to, s1); 
 	}
 };
+#endif
 
 /*
 ============
@@ -359,6 +373,7 @@ void() SetScoreboard =
 	{
 		if (test_enemy.frogbot)
 		{
+		#ifndef QUAKE
 			WriteByte(MSG_ONE, SVC_UPDATEPING);			// update ping
 			WriteByte(MSG_ONE, test_enemy.score_pos);		// client number
 			WriteShort(MSG_ONE, (300 + (random() * 40)));	// client ping
@@ -368,6 +383,7 @@ void() SetScoreboard =
 			WriteByte(MSG_ONE, SVC_UPDATETIME);			// update time
 			WriteByte(MSG_ONE, test_enemy.score_pos);		// client number
 			WriteLong(MSG_ONE, time);				// client enter time
+		#endif
 			WriteByte(MSG_ONE, MSG_UPDATEFRAGS);
 			WriteByte(MSG_ONE, test_enemy.score_pos);
 			WriteShort(MSG_ONE, test_enemy.frags);
@@ -379,6 +395,7 @@ void() SetScoreboard =
 	other.enemy = test_enemy;
 };
 
+#ifndef QUAKE
 void() SetPlayerInfo =
 {
 	WriteByte(MSG_BROADCAST, SVC_PLAYERINFO);
@@ -418,3 +435,4 @@ void() SetPlayerInfo =
 	if (self.effects)
 		WriteByte(MSG_BROADCAST, self.effects);
 };
+#endif

@@ -5,8 +5,13 @@
 	Copyright (C) 2000-2007 ParboiL
 */
 
+#include "settings.h"
+
+#ifndef QUAKE
+
 void() ObserverTeleporter =
 {
+	local vector vec1, vec2;
 	vec1 = normalize(((test_enemy.absmax + test_enemy.absmin) * 0.5) - self.origin);
 	vec2 = normalize(self.velocity);
 	if ((vec1 * vec2) <= 0.1)
@@ -135,3 +140,5 @@ void() SpectatorThink =
 		test_enemy = test_enemy.next;
 	}
 };
+
+#endif
