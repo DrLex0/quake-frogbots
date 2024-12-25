@@ -93,11 +93,20 @@ void() AddToQue =
 ============
 N (New marker)
 
-Load a marker
+Load a marker.
+Changed by DrLex (2024-12): use 3 float arguments instead of a vector.
+This eliminates the endless accumulation of pr_globals. Now we can
+in theory add an infinite number of maps, until we hit another limit.
+Old waypoint files will need a trivial conversion, use the -t option
+in the generate_maplist.py script.
 ============
 */
-void(vector org) N =
+void(float vx, float vy, float vz) N =
 {
+	local vector org;
+	org_x = vx;
+	org_y = vy;
+	org_z = vz;
 // put on save que
 	spawn_marker(org);
 	self = marker_;

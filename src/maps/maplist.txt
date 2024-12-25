@@ -1,0 +1,12 @@
+map_aerowalk.qc
+map_amphi2.qc
+map_dm3.qc
+map_dm4.qc
+map_dm6.qc
+map_e1m2.qc
+map_frobodm2.qc
+map_pkeg1.qc
+map_povdmm4.qc
+map_spinev2.qc
+map_ultrav.qc
+map_ztndm3.qc

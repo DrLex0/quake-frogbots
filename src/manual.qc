@@ -711,13 +711,13 @@ void() SaveCoords =
 	m = find(m, classname, "marker");
 	while (m)
 	{
-		bprintold("N('");
+		bprintold("N(");
 		bprintold(ftos(m.origin_x));
-		bprintold(" ");
+		bprintold(",");
 		bprintold(ftos(m.origin_y));
-		bprintold(" ");
+		bprintold(",");
 		bprintold(ftos(m.origin_z));
-		bprintold("');");
+		bprintold(");");
 		count_ = count_ + 1;
 		if (count_ == 10)
 		{
@@ -728,6 +728,13 @@ void() SaveCoords =
 	}
 	if (count_)
 	{
+		bprintold("\n");
+	}
+	m = find(world, classname, "marker");
+	if(m)
+	{
+		bprintold("// first custom marker m");
+		bprintold_ftos(m.index);
 		bprintold("\n");
 	}
 	bprintold("LSQ();\n");
@@ -1148,7 +1155,13 @@ void() PrintGoal =
 		bprintold(", G");
 		bprintold_ftos(active_marker.G_);
 	}
-	bprintold("\n");
+	bprintold("  (");
+	bprintold(ftos(rint(active_marker.origin_x)));
+	bprintold(",");
+	bprintold(ftos(rint(active_marker.origin_y)));
+	bprintold(",");
+	bprintold(ftos(rint(active_marker.origin_z)));
+	bprintold(")\n");
 
 	if (active_marker.RA0)
 	{
