@@ -1357,8 +1357,8 @@ entity test_enemy;
 #ifdef QUAKE
 entity viewport;
 entity non_viewport;
-#endif
 entity self_aiment;
+#endif
 vector targ_origin;
 vector targ_centre;
 vector inflictor_origin;
@@ -1405,7 +1405,6 @@ float new_pitch;
 float average_frametime;
 float time_12;
 
-entity current_waiting_bot;
 entity first_client;
 entity first_item;
 entity first_ent;
@@ -1481,7 +1480,6 @@ float m_D;
 
 .float path_state;
 float new_path_state;
-float old_path_state;
 
 //
 // path_state/path_mode values for paths
@@ -1580,8 +1578,6 @@ float SHOT_FOR_LUCK			= 2;
 
 float nextthink_;
 
-float try_shoot;
-
 //
 // SaveMarker variables
 //
@@ -1592,7 +1588,6 @@ float que_size;
 float markers_loaded;
 float no_change;
 //entity new_m_G;	// new marker Goal
-float goal_index;
 entity m, m_2;
 vector m_pos, m_2_pos;
 vector m_P_pos;
@@ -1833,9 +1828,6 @@ float weapon_refresh_time_;
 
 .float total_damage;
 .float firepower;
-//.float toughness;
-
-float toughness_;
 
 float items_;
 float weapon_;
@@ -1947,7 +1939,6 @@ float last_clear_hor_speed;
 vector jump_velocity;
 vector jump_origin;
 float oldflags;
-float current_arrow;
 float content;
 float content1;
 float content2;
@@ -1967,10 +1958,7 @@ float test_left;
 float test_back;
 float test_back_left;
 float test_back_right;
-vector self_view;
 vector testplace;
-vector testplace_mins;
-vector testplace_maxs;
 vector test_enemy_mins;
 vector test_enemy_maxs;
 .vector virtual_mins;
@@ -1998,7 +1986,6 @@ entity best_goal2;
 float goal_desire;
 float enemy_desire;
 float enemy_repel;
-float best_goal_score;
 float current_goal_time;
 float current_goal_time_125;
 float best_respawn_time;
@@ -2068,48 +2055,31 @@ vector tmin;
 vector tmax;
 float or;
 float nr;
-float best_weapon;
 float score_count;
-vector item_pos;
 entity closest_marker;
 float shortest_distance;
 vector marker_pos;
 entity marker_;
-entity marker2;
 float zone_time;
 float real_yaw_;
-entity fireball;
 entity bubble;
 entity bubble_spawner;
 vector org_;
 float rnd1;
 float rnd2;
 float rnd3;
-float character;
-float block_;
-float char_count;
-float word_count;
 float spawnflags_;
-float digit;
-float exponent;
-float previous_exponent;
 entity target_;
 float traveltime;
 float traveltime2;
 float traveltime3;
 float look_traveltime;
 float look_traveltime_squared;
-entity flag_self;
-float flag_pos;
-entity flag1;
-entity flag2;
 entity tfog;
 vector weapons_vel;
 entity death;
 entity trace_ent1;
 entity trace_ent2;
-entity old_self;
-entity old_other;
 float ledge_backup;
 .float ledge_backup_time;
 float try_jump_ledge;
@@ -2126,12 +2096,9 @@ vector end;
 float description;
 float goal_time;
 float path_time;
-float component_speed;
 float do_jump;
 float dm;
 float count_;
-entity array_sub_object_;
-float bind_char;
 float dodge_factor;
 entity dodge_missile;
 
@@ -2279,11 +2246,9 @@ float runaway_time_temp;
 float runaway_score;
 float runaway_score_temp;
 entity runaway_dest;
-float runaway_fail;
 entity runaway_marker_temp;
 entity runaway_prev_temp;
 float min_traveltime;
-entity to_zone;
 float test_away_score;
 float best_away_score;
 entity best_away_marker;
@@ -2298,9 +2263,10 @@ float enemy_time_squared;
 // manual waypoint editor only stuff
 //
 
+float manual_mode;
+float goal_index;
 entity active_marker;
 
-float manual_mode;
 .entity display;
 
 float mode;

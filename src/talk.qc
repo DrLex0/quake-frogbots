@@ -473,7 +473,7 @@ void() bot_say_gl =
 {
 	local float r;
 	self = world;
-	while (self = find(self, classname, "frogbot"))
+	while ((self = find(self, classname, "frogbot")))
 	if (!(self.reporteditems & IT_KEY1)) {
 		r = random();
 		if (r < 0.3) {
@@ -503,7 +503,7 @@ void() bot_say_gg =
 {
 	local float r;
 	self = world;
-	while (self = find(self, classname, "frogbot"))
+	while ((self = find(self, classname, "frogbot")))
 	if (self.frags > 10)
 	if (!(self.reporteditems & IT_KEY2)) {
 		r = random();

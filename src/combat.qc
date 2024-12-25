@@ -153,7 +153,7 @@ void() T_Damage =
 		firstperson = targ;
 		if (firstperson.player)
 			DamageFlash();
-		while (firstperson = firstperson.clink)
+		while ((firstperson = firstperson.clink))
 		{
 			if (firstperson.pflags & PF_FIRSTPERSON)
 				DamageFlash();

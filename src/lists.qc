@@ -196,7 +196,7 @@ void() InitFrogbots2 =
 
 	total_entity_count = 1;
 	self = world;
-	while (self = nextent(self))
+	while ((self = nextent(self)))
 		total_entity_count = total_entity_count + 1;
 
 	self = first_item;

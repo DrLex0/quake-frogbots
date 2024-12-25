@@ -423,7 +423,7 @@ void() destination_touch =
 			check_marker();
 
 			test_enemy = world;
-			while (test_enemy = find (test_enemy, target, self.targetname))
+			while ((test_enemy = find (test_enemy, target, self.targetname)))
 			{
 				if (test_enemy.arrow_time < time + 0.7)
 					test_enemy.arrow_time = time + 0.7;	// avoid telefrag

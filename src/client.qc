@@ -322,7 +322,7 @@ void() execute_changelevel =
 
 #ifdef QUAKE
 	self = world;
-	while (self = find(self, classname, "player"))
+	while ((self = find(self, classname, "player")))
 	{
 		self.modelindex = 0;
 		setorigin (self, spawn_pos.origin);
@@ -529,7 +529,7 @@ void() SelectSpawnPoint =
 // ok, find all spots that don't have players nearby
 
 	spawn_pos = world;
-	while (spawn_pos = find (spawn_pos, classname, a_spawn))
+	while ((spawn_pos = find (spawn_pos, classname, a_spawn)))
 	{
 		if (spawn_pos != previous_spot)
 		{

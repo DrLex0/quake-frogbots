@@ -18,18 +18,11 @@ void() frogbot_marker_touch;
 void() SightMarker;
 void() HigherSightMarker;
 void() AvoidHazards;
-#ifdef TALK
-void(entity me) teamreport;
-void(entity me, float nt) teamreport2;
-#endif
 void() teams_frags_count;
 void(entity e) remove_apply = #15;
 float(entity ent) IsVisible;
 entity() spawn_apply = #14;
 entity search_item;
-entity q_gamer;
-entity p_gamer;
-entity i_gamer;
 float IT_ROCKET_LIGHTNING = 96;
 float HELP_TEAMMATE = 128;
 float CP_WPSTATS = 1;
@@ -54,9 +47,6 @@ float TEAM_COLOR11 = 10;
 float TEAM_COLOR12 = 11;
 float TEAM_COLOR13 = 12;
 float TEAM_COLOR14 = 13;
-float last_say_q;
-float last_say_p;
-float last_say_i;
 float game_arena;
 float k_scores1;
 float k_scores2;
@@ -66,10 +56,22 @@ float ar_time;
 float sudden_death;
 float break_match;
 float timelimit_user;
+
+#ifdef TALK
+void(entity me) teamreport;
+void(entity me, float nt) teamreport2;
+entity q_gamer;
+entity p_gamer;
+entity i_gamer;
+float last_say_q;
+float last_say_p;
+float last_say_i;
 float line_one;
 float line_two;
 float line_three;
 float line_four;
+#endif
+
 float open_bracket = 40;
 float close_bracket = 41;
 float MSG_HIGH = 3;

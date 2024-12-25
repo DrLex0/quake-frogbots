@@ -104,6 +104,7 @@ void() InitParameters =
 
 	first_ent = nextent(world);
 	test_enemy = first_ent;
+	maxplayers = 0;
 	while(test_enemy)
 	{
 		maxplayers = maxplayers + 1;
@@ -735,11 +736,11 @@ void() AddBot =
 	if (markers_loaded)
 	{
 #ifdef QUAKE
-		local float maxplayers;
-		maxplayers = cvar("maxplayers");
-		if (maxplayers < 2)	//user forgot to put it up
-			maxplayers = 16;
-		if ((numberofclients >= maxplayers) || (numberofbots >= 12))
+		local float cv_maxplay;
+		cv_maxplay = cvar("maxplayers");
+		if (cv_maxplay < 2)	//user forgot to put it up
+			cv_maxplay = 16;
+		if ((numberofclients >= cv_maxplay) || (numberofbots >= 12))
 #else
 		if ((numberofclients >= stof(infokey(world, "maxclients"))) || (numberofbots == 16))
 #endif

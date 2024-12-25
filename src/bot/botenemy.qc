@@ -110,8 +110,11 @@ void() check_sound =
 						if (vlen(enemy_.origin - self.origin) < 1000)	// ear shot
 						{
 							visible_object = enemy_;
-							if (Visible_360())
+							Visible_360();
+							if (enemy_visible)
+							{
 								self.look_object = enemy_;
+							}
 						}
 			self = self.next;
 		}

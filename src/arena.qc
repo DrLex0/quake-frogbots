@@ -21,10 +21,11 @@ float IMP_END4		= 130;
 .float ping_;
 .float packetloss;
 .float packetloss_;
-float pingupdate;
 #ifndef QUAKE
+float pingupdate;
 .float entertime;
 float SVC_UPDATEPACKETLOSS = 53;
+float users;
 #else
 .float chase;
 void() togglechase;
@@ -82,7 +83,6 @@ float max_;
 float idleprint_time;
 float last_action_time;
 float force_time;
-float users;
 float inter_print;
 float loadbot_time;
 float loadingbots;

@@ -48,7 +48,7 @@ void() bf =
 	firstperson = msg_entity;
 	if (msg_entity.player)
 		bf_apply();
-	while (msg_entity = msg_entity.clink)
+	while ((msg_entity = msg_entity.clink))
 	{
 		if (msg_entity.pflags & PF_FIRSTPERSON)
 			bf_apply();
@@ -78,7 +78,7 @@ void() SetViewPortClient =
 		non_viewport.modelindex = 0;
 		if (msg_entity.player)
 			SetViewPort();
-		while (msg_entity = msg_entity.clink)
+		while ((msg_entity = msg_entity.clink))
 		{
 			if (msg_entity.pflags & PF_FIRSTPERSON)
 				SetViewPort();
