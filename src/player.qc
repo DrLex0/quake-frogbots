@@ -520,6 +520,8 @@ void() GibPlayer =
 	ThrowGib ("progs/gib1.mdl");
 	ThrowGib ("progs/gib2.mdl");
 	ThrowGib ("progs/gib3.mdl");
+	if (random() > 0.9)
+		ThrowGib ("progs/eyes.mdl");
 
 	msg_entity = self;
 	if (attacker.classname == "teledeath")
