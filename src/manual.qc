@@ -1077,7 +1077,8 @@ void() PrintGoal =
 	bprint("  (",
 		ftos(rint(active_marker.origin_x)), ",",
 		ftos(rint(active_marker.origin_y)), ",",
-		ftos(rint(active_marker.origin_z)), ")\n");
+		ftos(rint(active_marker.origin_z)), ")  ");
+	bprint(active_marker.classname, "\n");
 
 	if (active_marker.RA0)
 	{
@@ -1159,6 +1160,7 @@ void() ToggleManualMode =
 	else
 	{
 		manual_mode = TRUE;
+		alt_marker_idx = 0;
 		DisplayAllMarkers();
 		bprint("Manual mode ON\n");
 	}
@@ -1280,6 +1282,21 @@ void() CycleDescriptionMode =
 		bprint("path mode OFF\n");
 	}
 };
+
+/* To be able to select between markers that have the exact same coordinates,
+ * like some in aerowalk. Only works in closest marker mode. */
+void() CycleAltMarker =
+{
+	alt_marker_idx = alt_marker_idx + 1;
+	if (alt_marker_idx > 2)
+		alt_marker_idx = 0;
+	if (! alt_marker_idx)
+		bprint("preferring first closest marker\n");
+	else
+	{
+		bprint("preferring alternate closest marker ", ftos(alt_marker_idx), "\n");
+	}
+}
 
 void() DefaultMarkerMode =
 {
@@ -1463,6 +1480,10 @@ void() ManualImpulseCommands =
 	else if (impulse_ == 155)
 	{
 		DisplayReachable();
+	}
+	else if (impulse_ == 156)
+	{
+		CycleAltMarker();
 	}
 };
 

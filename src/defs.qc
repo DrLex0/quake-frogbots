@@ -2274,7 +2274,10 @@ float enemy_time_squared;
 
 float manual_mode;
 float goal_index;
+float alt_marker_idx;
 entity active_marker;
+entity next_closest1;
+entity next_closest2;
 
 .entity display;
 
