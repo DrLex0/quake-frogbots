@@ -14,14 +14,6 @@ void() SavePaths;
 float(entity marker) changed_view_ofs_z;
 void() ZoneInfo;
 
-// Artifact from decompiling. TODO: replace with normal calls
-void (...) bprintold = #23;
-void(float f) bprintold_ftos =
-{
-	str = ftos(f);
-	bprintold(str);
-};
-
 
 void(entity marker) CheckReachable =
 {
@@ -40,11 +32,10 @@ void(entity marker) CheckReachable =
 	self.movetype = MOVETYPE_STEP;
 	self.solid = SOLID_SLIDEBOX;
 	test_count = floor(dist * 0.03125);
-	bprintold(ftos(test_count));
-	bprintold("\n");
+	bprint(ftos(test_count), "\n");
 	if (test_count > 7)
 	{
-		bprintold("Reachanble TOO FAR\n");
+		bprint("Reachable TOO FAR\n");
 		self.movetype = 0;
 		self.solid = 0;
 		self = test_enemy;
@@ -54,7 +45,7 @@ void(entity marker) CheckReachable =
 	{
 		if (!walkmove(yaw, 32))
 		{
-			bprintold("Reachanble FAIL\n");
+			bprint("Reachable FAIL\n");
 			self.movetype = 0;
 			self.solid = 0;
 			self = test_enemy;
@@ -62,7 +53,7 @@ void(entity marker) CheckReachable =
 		}
 		test_count = (test_count - 1);
 	}
-	bprintold("Reachable SUCCESS\n");
+	bprint("Reachable SUCCESS\n");
 	self.movetype = 0;
 	self.solid = 0;
 	self = test_enemy;
@@ -107,7 +98,7 @@ void(entity marker) manual_marker_touch =
 					ConnectMarker();
 				}
 			}
-			mode = (mode - CONNECT_MARKERS);
+			mode = mode - CONNECT_MARKERS;
 		}
 		if (mode & DISPLAY_TRAVEL_TIME)
 		{
@@ -115,16 +106,12 @@ void(entity marker) manual_marker_touch =
 			from_marker = active_marker;
 			marker.zone_marker();
 			marker.sub_arrival_time();
-			bprintold("time from active marker = ");
-			bprintold(ftos(traveltime));
-			bprintold("\n");
+			bprint("time from active marker = ", ftos(traveltime), "\n");
 			from_marker = marker;
 			active_marker.zone_marker();
 			active_marker.sub_arrival_time();
-			bprintold("time to active marker = ");
-			bprintold(ftos(traveltime));
-			bprintold("\n");
-			mode = (mode - DISPLAY_TRAVEL_TIME);
+			bprint("time to active marker = ", ftos(traveltime), "\n");
+			mode = mode - DISPLAY_TRAVEL_TIME;
 		}
 		if (mode & DISPLAY_REACHABLE)
 		{
@@ -142,7 +129,7 @@ void(entity marker) manual_marker_touch =
 				test_enemy.solid = test_enemy.oldsolid;
 				test_enemy = test_enemy.next;
 			}
-			mode = (mode - DISPLAY_REACHABLE);
+			mode = mode - DISPLAY_REACHABLE;
 		}
 	}
 	else
@@ -160,7 +147,7 @@ void() RemoveActiveMarker =
 {
 	if (!active_marker)
 	{
-		bprintold("no active marker\n");
+		bprint("no active marker\n");
 		return;
 	}
 	if (active_marker.classname == "marker")
@@ -204,13 +191,13 @@ void() RemoveActiveMarker =
 		}
 		RemoveMarker(active_marker);
 		remove(active_marker);
-		bprintold("active marker removed\n");
+		bprint("active marker removed\n");
 		active_marker = world;
 		self.touch_marker = world;
 	}
 	else
 	{
-		bprintold("Active marker cannot be removed\n");
+		bprint("Active marker cannot be removed\n");
 	}
 };
 
@@ -218,16 +205,16 @@ void() DisableActiveMarker =
 {
 	if (!active_marker)
 	{
-		bprintold("no active marker\n");
+		bprint("no active marker\n");
 		return;
 	}
-	bprintold("active marker disabled\n");
+	bprint("active marker disabled\n");
 	active_marker.display.frame = 12;
 	active_marker = world;
 	if (!(mode & STATIC_ACTIVE_MARKER))
 	{
 		mode = (mode | STATIC_ACTIVE_MARKER);
-		bprintold("static active marker ON\n");
+		bprint("static active marker ON\n");
 	}
 };
 
@@ -235,7 +222,7 @@ void() ClearActiveMarker =
 {
 	if (!active_marker)
 	{
-		bprintold("no active marker\n");
+		bprint("no active marker\n");
 		return;
 	}
 	active_marker.P7 = world;
@@ -254,7 +241,7 @@ void() ClearActiveMarker =
 	active_marker.D2 = 0;
 	active_marker.D1 = 0;
 	active_marker.D0 = 0;
-	bprintold("Active marker path cleared\n");
+	bprint("Active marker path cleared\n");
 };
 
 void() DisplayZone =
@@ -474,55 +461,55 @@ void() ConnectMarker =
 
 	if (!from_marker.P0)
 	{
-		bprintold("marker connected on path 0\n");
+		bprint("marker connected on path 0\n");
 		from_marker.P0 = to_marker;
 		from_marker.D0 = 0;
 	}
 	else if (!from_marker.P1)
 	{
-		bprintold("marker connected on path 1\n");
+		bprint("marker connected on path 1\n");
 		from_marker.P1 = to_marker;
 		from_marker.D1 = 0;
 	}
 	else if (!from_marker.P2)
 	{
-		bprintold("marker connected on path 2\n");
+		bprint("marker connected on path 2\n");
 		from_marker.P2 = to_marker;
 		from_marker.D2 = 0;
 	}
 	else if (!from_marker.P3)
 	{
-		bprintold("marker connected on path 3\n");
+		bprint("marker connected on path 3\n");
 		from_marker.P3 = to_marker;
 		from_marker.D3 = 0;
 	}
 	else if (!from_marker.P4)
 	{
-		bprintold("marker connected on path 4\n");
+		bprint("marker connected on path 4\n");
 		from_marker.P4 = to_marker;
 		from_marker.D4 = 0;
 	}
 	else if (!from_marker.P5)
 	{
-		bprintold("marker connected on path 5\n");
+		bprint("marker connected on path 5\n");
 		from_marker.P5 = to_marker;
 		from_marker.D5 = 0;
 	}
 	else if (!from_marker.P6)
 	{
-		bprintold("marker connected on path 6\n");
+		bprint("marker connected on path 6\n");
 		from_marker.P6 = to_marker;
 		from_marker.D6 = 0;
 	}
 	else if (!from_marker.P7)
 	{
-		bprintold("marker connected on path 7\n");
+		bprint("marker connected on path 7\n");
 		from_marker.P7 = to_marker;
 		from_marker.D7 = 0;
 	}
 	else
 	{
-		bprintold("to_markers full.\n");
+		bprint("to_markers full.\n");
 	}
 };
 
@@ -530,49 +517,49 @@ void() DisconnectMarker =
 {
 	if (from_marker.P0 == to_marker)
 	{
-		bprintold("marker disconnected on path 0\n");
+		bprint("marker disconnected on path 0\n");
 		from_marker.P0 = world;
 		from_marker.D0 = 0;
 	}
 	else if (from_marker.P1 == to_marker)
 	{
-		bprintold("marker disconnected on path 1\n");
+		bprint("marker disconnected on path 1\n");
 		from_marker.P1 = world;
 		from_marker.D1 = 0;
 	}
 	else if (from_marker.P2 == to_marker)
 	{
-		bprintold("marker disconnected on path 2\n");
+		bprint("marker disconnected on path 2\n");
 		from_marker.P2 = world;
 		from_marker.D2 = 0;
 	}
 	else if (from_marker.P3 == to_marker)
 	{
-		bprintold("marker disconnected on path 3\n");
+		bprint("marker disconnected on path 3\n");
 		from_marker.P3 = world;
 		from_marker.D3 = 0;
 	}
 	else if (from_marker.P4 == to_marker)
 	{
-		bprintold("marker disconnected on path 4\n");
+		bprint("marker disconnected on path 4\n");
 		from_marker.P4 = world;
 		from_marker.D4 = 0;
 	}
 	else if (from_marker.P5 == to_marker)
 	{
-		bprintold("marker disconnected on path 5\n");
+		bprint("marker disconnected on path 5\n");
 		from_marker.P5 = world;
 		from_marker.D5 = 0;
 	}
 	else if (from_marker.P6 == to_marker)
 	{
-		bprintold("marker disconnected on path 6\n");
+		bprint("marker disconnected on path 6\n");
 		from_marker.P6 = world;
 		from_marker.D6 = 0;
 	}
 	else if (from_marker.P7 == to_marker)
 	{
-		bprintold("marker disconnected on path 7\n");
+		bprint("marker disconnected on path 7\n");
 		from_marker.P7 = world;
 		from_marker.D7 = 0;
 	}
@@ -580,11 +567,7 @@ void() DisconnectMarker =
 
 void(string print_string, float path_number) PrintDescription =
 {
-	bprintold("marker ");
-	bprintold(print_string);
-	bprintold(" on path ");
-	bprintold(ftos(path_number));
-	bprintold("\n");
+	bprint("marker ", print_string, " on path ", ftos(path_number), "\n");
 };
 
 void(string print_string) DescriptionMarker =
@@ -638,40 +621,23 @@ void(string field) Save_m_P =
 {
 	if (m_P)
 	{
-		bprintold("m");
-		bprintold(ftos(m.index));
-		bprintold(".");
-		bprintold(field);
-		bprintold("=m");
-		bprintold(ftos(m_P.index));
-		bprintold(";");
+		bprint("m", ftos(m.index), ".", field, "=m", ftos(m_P.index), ";");
 		count_ = (count_ + 1);
 	}
 };
 
 void(string field) Save_m_D =
 {
-	if (m_P)
+	if (m_P && (m_D & SAVED_DESCRIPTION))
 	{
-		if (m_D & SAVED_DESCRIPTION)
-		{
-			bprintold("m");
-			bprintold(ftos(m.index));
-			bprintold(".");
-			bprintold(field);
-			bprintold("=");
-			bprintold(ftos(m_D & SAVED_DESCRIPTION));
-			bprintold(";");
-			count_ = (count_ + 1);
-		}
+		bprint("m", ftos(m.index), ".", field, "=", ftos(m_D & SAVED_DESCRIPTION), ";");
+		count_ = (count_ + 1);
 	}
 };
 
 void() Save_dm6_door =
 {
-	bprintold("dm6_door=m");
-	bprintold(ftos(m.index));
-	bprintold(";");
+	bprint("dm6_door=m", ftos(m.index), ";");
 	count_ = (count_ + 1);
 };
 
@@ -693,11 +659,12 @@ void() SaveMarkers =
 	if (markers_loaded || invalid_map)
 	{
 		SetMarkerIndexes();
-		m = world;
 		save_state = 0;
-		bprintold("\nvoid() map_");
-		bprintold(mapname);
-		bprintold(" =\n{\n");
+		bprint("\nvoid() map_", mapname, " =\n{\n");
+		m = find(world, classname, "marker");
+		if(m)
+			bprint("// first custom marker m", ftos(m.index), "\n");
+		m = world;
 		save_position = spawn();
 		save_position.nextthink = 0.001;
 		save_position.think = SaveCoords;
@@ -711,33 +678,20 @@ void() SaveCoords =
 	m = find(m, classname, "marker");
 	while (m)
 	{
-		bprintold("N(");
-		bprintold(ftos(m.origin_x));
-		bprintold(",");
-		bprintold(ftos(m.origin_y));
-		bprintold(",");
-		bprintold(ftos(m.origin_z));
-		bprintold(");");
+		bprint("N(", ftos(m.origin_x), ",", ftos(m.origin_y), ",", ftos(m.origin_z), ");");
 		count_ = count_ + 1;
 		if (count_ == 10)
 		{
-			bprintold("\n");
+			bprint("\n");
 			return;
 		}
 		m = find(m, classname, "marker");
 	}
 	if (count_)
 	{
-		bprintold("\n");
+		bprint("\n");
 	}
-	m = find(world, classname, "marker");
-	if(m)
-	{
-		bprintold("// first custom marker m");
-		bprintold_ftos(m.index);
-		bprintold("\n");
-	}
-	bprintold("LSQ();\n");
+	bprint("LSQ();\n");
 	m = first_marker;
 	self.think = SavePaths;
 };
@@ -752,137 +706,110 @@ void() SavePaths =
 		{
 			if (m.Z_)
 			{
-				bprintold("Z");
-				bprintold_ftos(m.Z_);
-				bprintold("(m");
-				bprintold_ftos(m.index);
-				bprintold(");");
+				bprint("Z", ftos(m.Z_), "(m", ftos(m.index), ");");
 				count_ = (count_ + 1);
 			}
 		}
-		else
+		else if (save_state == 1)
 		{
-			if (save_state == 1)
+			if (
+				m.G_ &&
+				((m.classname != "item_cells") || (m.G_ != 19)) &&
+				((m.classname != "weapon_supernailgun") || (m.G_ != 20)) &&
+				((m.classname != "weapon_supershotgun") || (m.G_ != 21)) &&
+				((m.classname != "weapon_nailgun") || (m.G_ != 22)) &&
+				((m.classname != "item_spikes") || (m.G_ != 23)) &&
+				((m.classname != "item_shells") || (m.G_ != 24))
+			)
 			{
-				if (m.G_)
+				bprint("G", ftos(m.G_), "(m", ftos(m.index), ");");
+				count_ = (count_ + 1);
+			}
+		}
+		else if (save_state == 2)
+		{
+			if (changed_view_ofs_z(m))
+			{
+				bprint("m", ftos(m.index), ".view_ofs_z=",
+					ftos(m.view_ofs_z), ";");
+				count_ = (count_ + 1);
+			}
+		}
+		else if (save_state == 3)
+		{
+			if (m.T & SAVED_T)
+			{
+				bprint("m", ftos(m.index), ".T=", ftos(m.T & SAVED_T), ";");
+				count_ = (count_ + 1);
+			}
+		}
+		else if (save_state == 4)
+		{
+			m_P = m.P0;
+			Save_m_P("P0");
+			m_P = m.P1;
+			Save_m_P("P1");
+			m_P = m.P2;
+			Save_m_P("P2");
+			m_P = m.P3;
+			Save_m_P("P3");
+			m_P = m.P4;
+			Save_m_P("P4");
+			m_P = m.P5;
+			Save_m_P("P5");
+			m_P = m.P6;
+			Save_m_P("P6");
+			m_P = m.P7;
+			Save_m_P("P7");
+		}
+		else if (save_state == 5)
+		{
+			m_P = m.P0;
+			m_D = m.D0;
+			Save_m_D("D0");
+			m_P = m.P1;
+			m_D = m.D1;
+			Save_m_D("D1");
+			m_P = m.P2;
+			m_D = m.D2;
+			Save_m_D("D2");
+			m_P = m.P3;
+			m_D = m.D3;
+			Save_m_D("D3");
+			m_P = m.P4;
+			m_D = m.D4;
+			Save_m_D("D4");
+			m_P = m.P5;
+			m_D = m.D5;
+			Save_m_D("D5");
+			m_P = m.P6;
+			m_D = m.D6;
+			Save_m_D("D6");
+			m_P = m.P7;
+			m_D = m.D7;
+			Save_m_D("D7");
+		}
+		else if (save_state == 6)
+		{
+			if (mapname == "dm6")
+			{
+				if (m.classname == "door")
 				{
-					if ((m.classname != "item_cells") || (m.G_ != 19))
-					{
-						if ((m.classname != "weapon_supernailgun") || (m.G_ != 20))
-						{
-							if ((m.classname != "weapon_supershotgun") || (m.G_ != 21))
-							{
-								if ((m.classname != "weapon_nailgun") || (m.G_ != 22))
-								{
-									if ((m.classname != "item_spikes") || (m.G_ != 23))
-									{
-										if ((m.classname != "item_shells") || (m.G_ != 24))
-										{
-											bprintold("G");
-											bprintold_ftos(m.G_);
-											bprintold("(m");
-											bprintold_ftos(m.index);
-											bprintold(");");
-											count_ = (count_ + 1);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else if (save_state == 2)
-			{
-				if (changed_view_ofs_z(m))
-				{
-					bprintold("m");
-					bprintold(ftos(m.index));
-					bprintold(".view_ofs_z=");
-					bprintold(ftos(m.view_ofs_z));
-					bprintold(";");
-					count_ = (count_ + 1);
-				}
-			}
-			else if (save_state == 3)
-			{
-				if (m.T & SAVED_T)
-				{
-					bprintold("m");
-					bprintold(ftos(m.index));
-					bprintold(".T=");
-					bprintold(ftos(m.T & SAVED_T));
-					bprintold(";");
-					count_ = (count_ + 1);
-				}
-			}
-			else if (save_state == 4)
-			{
-				m_P = m.P0;
-				Save_m_P("P0");
-				m_P = m.P1;
-				Save_m_P("P1");
-				m_P = m.P2;
-				Save_m_P("P2");
-				m_P = m.P3;
-				Save_m_P("P3");
-				m_P = m.P4;
-				Save_m_P("P4");
-				m_P = m.P5;
-				Save_m_P("P5");
-				m_P = m.P6;
-				Save_m_P("P6");
-				m_P = m.P7;
-				Save_m_P("P7");
-			}
-			else if (save_state == 5)
-			{
-				m_P = m.P0;
-				m_D = m.D0;
-				Save_m_D("D0");
-				m_P = m.P1;
-				m_D = m.D1;
-				Save_m_D("D1");
-				m_P = m.P2;
-				m_D = m.D2;
-				Save_m_D("D2");
-				m_P = m.P3;
-				m_D = m.D3;
-				Save_m_D("D3");
-				m_P = m.P4;
-				m_D = m.D4;
-				Save_m_D("D4");
-				m_P = m.P5;
-				m_D = m.D5;
-				Save_m_D("D5");
-				m_P = m.P6;
-				m_D = m.D6;
-				Save_m_D("D6");
-				m_P = m.P7;
-				m_D = m.D7;
-				Save_m_D("D7");
-			}
-			else if (save_state == 6)
-			{
-				if (mapname == "dm6")
-				{
-					if (m.classname == "door")
-					{
-						Save_dm6_door();
-					}
+					Save_dm6_door();
 				}
 			}
 		}
+
 		m = m.marker_link;
 		if (count_ >= 10)
 		{
-			bprintold("\n");
+			bprint("\n");
 			return;
 		}
 	}
 	if (count_)
 	{
-		bprintold("\n");
+		bprint("\n");
 	}
 	if (save_state < 6)
 	{
@@ -891,7 +818,7 @@ void() SavePaths =
 	}
 	else
 	{
-		bprintold("};\n\n");
+		bprint("};\n\n");
 		remove_self();
 	}
 };
@@ -920,12 +847,12 @@ void() MoveActiveMarker =
 {
 	if (!active_marker)
 	{
-		bprintold("no active marker\n");
+		bprint("no active marker\n");
 		return;
 	}
 	if (active_marker.classname == "marker")
 	{
-		bprintold("active marker moved\n");
+		bprint("active marker moved\n");
 		active_marker.origin_x = rint(self.origin_x);
 		active_marker.origin_y = rint(self.origin_y);
 		active_marker.origin_z = rint(self.origin_z);
@@ -933,7 +860,7 @@ void() MoveActiveMarker =
 	}
 	else
 	{
-		bprintold("Active marker cannot be moved\n");
+		bprint("Active marker cannot be moved\n");
 	}
 };
 
@@ -941,10 +868,10 @@ void() VerMoveActiveMarker =
 {
 	if (!active_marker)
 	{
-		bprintold("no active marker\n");
+		bprint("no active marker\n");
 		return;
 	}
-	bprintold("active marker vertically moved\n");
+	bprint("active marker vertically moved\n");
 
 	if (active_marker.classname == "marker")
 	{
@@ -957,7 +884,7 @@ void() VerMoveActiveMarker =
 	}
 	else
 	{
-		bprintold("Active marker cannot be moved\n");
+		bprint("Active marker cannot be moved\n");
 	}
 	
 };
@@ -995,20 +922,18 @@ void() print_goal =
 {
 	if (!goal_index)
 	{
-		bprintold("clear goal");
+		bprint("clear goal");
 	}
 	else if (goal_index <= NUMBER_GOALS)
 	{
-		bprintold("goal index = ");
-		bprintold_ftos(goal_index);
+		bprint("goal index = ", ftos(goal_index));
 	}
 	else
 	{
-		bprintold("zone index = ");
-		bprintold_ftos(goal_index - NUMBER_GOALS);
+		bprint("zone index = ", ftos(goal_index - NUMBER_GOALS));
 	}
 	
-	bprintold("\n");
+	bprint("\n");
 };
 
 void() IncGoal =
@@ -1033,10 +958,7 @@ void() DecGoal =
 
 void() PrintGoalZoneIndex =
 {
-	bprintold_ftos(Z_index);
-	bprintold(" set (total = ");
-	bprintold_ftos(S_index);
-	bprintold(")\n");
+	bprint(ftos(Z_index), " set (total = ", ftos(S_index), ")\n");
 };
 
 void() GoalInfo =
@@ -1099,17 +1021,17 @@ void() SetGoal =
 					Z_index = goal_index;
 					GoalInfo();
 					active_marker.G_ = Z_index;
-					bprintold("goal ");
+					bprint("goal ");
 					PrintGoalZoneIndex();
 				}
 				else
 				{
-					bprintold("goal cleared\n");
+					bprint("goal cleared\n");
 				}
 			}
 			else
 			{
-				bprintold("goal must be an item.\n");
+				bprint("goal must be an item.\n");
 			}
 		}
 		else
@@ -1120,18 +1042,18 @@ void() SetGoal =
 			if (S_index <= NUMBER_SUBZONES)
 			{
 				active_marker.Z_ = Z_index;
-				bprintold("zone ");
+				bprint("zone ");
 				PrintGoalZoneIndex();
 			}
 			else
 			{
-				bprintold("Zone full.\n");
+				bprint("Zone full.\n");
 			}
 		}
 	}
 	else
 	{
-		bprintold("no active marker\n");
+		bprint("no active marker\n");
 	}
 };
 
@@ -1139,119 +1061,91 @@ void() PrintGoal =
 {
 	if (!active_marker)
 	{
-		bprintold("no active marker\n");
+		bprint("no active marker\n");
 		return;
 	}
 	SetMarkerIndexes();
-	bprintold("m");
-	bprintold_ftos(active_marker.index);
+	bprint("m", ftos(active_marker.index));
 	if (active_marker.Z_)
 	{
-		bprintold(", Z");
-		bprintold_ftos(active_marker.Z_);
+		bprint(", Z", ftos(active_marker.Z_));
 	}
 	if (active_marker.G_)
 	{
-		bprintold(", G");
-		bprintold_ftos(active_marker.G_);
+		bprint(", G", ftos(active_marker.G_));
 	}
-	bprintold("  (");
-	bprintold(ftos(rint(active_marker.origin_x)));
-	bprintold(",");
-	bprintold(ftos(rint(active_marker.origin_y)));
-	bprintold(",");
-	bprintold(ftos(rint(active_marker.origin_z)));
-	bprintold(")\n");
+	bprint("  (",
+		ftos(rint(active_marker.origin_x)), ",",
+		ftos(rint(active_marker.origin_y)), ",",
+		ftos(rint(active_marker.origin_z)), ")\n");
 
 	if (active_marker.RA0)
 	{
-		bprintold(ftos(active_marker.RA0_time));
-		bprintold(" ");
+		bprint(ftos(active_marker.RA0_time), " ");
 	}
 	if (active_marker.RA1)
 	{
-		bprintold(ftos(active_marker.RA1_time));
-		bprintold(" ");
+		bprint(ftos(active_marker.RA1_time), " ");
 	}
 	if (active_marker.RA2)
 	{
-		bprintold(ftos(active_marker.RA2_time));
-		bprintold(" ");
+		bprint(ftos(active_marker.RA2_time), " ");
 	}
 	if (active_marker.RA3)
 	{
-		bprintold(ftos(active_marker.RA3_time));
-		bprintold(" ");
+		bprint(ftos(active_marker.RA3_time), " ");
 	}
 	if (active_marker.RA4)
 	{
-		bprintold(ftos(active_marker.RA4_time));
-		bprintold(" ");
+		bprint(ftos(active_marker.RA4_time), " ");
 	}
 	if (active_marker.RA5)
 	{
-		bprintold(ftos(active_marker.RA5_time));
-		bprintold(" ");
+		bprint(ftos(active_marker.RA5_time), " ");
 	}
 	if (active_marker.RA6)
 	{
-		bprintold(ftos(active_marker.RA6_time));
-		bprintold(" ");
+		bprint(ftos(active_marker.RA6_time), " ");
 	}
 	if (active_marker.RA7)
 	{
-		bprintold(ftos(active_marker.RA7_time));
+		bprint(ftos(active_marker.RA7_time));
 	}
-	bprintold("\n");
+	bprint("\n");
 
 	if (active_marker.RA0)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA0.index));
-		bprintold(" ");
+		bprint("  m", ftos(active_marker.RA0.index), " ");
 	}
 	if (active_marker.RA1)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA1.index));
-		bprintold(" ");
+		bprint("  m", ftos(active_marker.RA1.index), " ");
 	}
 	if (active_marker.RA2)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA2.index));
-		bprintold(" ");
+		bprint("  m", ftos(active_marker.RA2.index), " ");
 	}
 	if (active_marker.RA3)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA3.index));
-		bprintold(" ");
+		bprint("  m", ftos(active_marker.RA3.index), " ");
 	}
 	if (active_marker.RA4)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA4.index));
-		bprintold(" ");
+		bprint("  m", ftos(active_marker.RA4.index), " ");
 	}
 	if (active_marker.RA5)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA5.index));
-		bprintold(" ");
+		bprint("  m", ftos(active_marker.RA5.index), " ");
 	}
 	if (active_marker.RA6)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA6.index));
-		bprintold(" ");
+		bprint("  m", ftos(active_marker.RA6.index), " ");
 	}
 	if (active_marker.RA7)
 	{
-		bprintold("  m");
-		bprintold(ftos(active_marker.RA7.index));
+		bprint("  m", ftos(active_marker.RA7.index));
 	}
-	bprintold("\n\n");
+	bprint("\n\n");
 };
 
 void() ToggleManualMode =
@@ -1260,13 +1154,13 @@ void() ToggleManualMode =
 	{
 		manual_mode = FALSE;
 		HideAllMarkers();
-		bprintold("Manual mode OFF\n");
+		bprint("Manual mode OFF\n");
 	}
 	else
 	{
 		manual_mode = TRUE;
 		DisplayAllMarkers();
-		bprintold("Manual mode ON\n");
+		bprint("Manual mode ON\n");
 	}
 };
 
@@ -1275,12 +1169,12 @@ void() ToggleActiveMarker =
 	if (mode & STATIC_ACTIVE_MARKER)
 	{
 		mode = (mode - STATIC_ACTIVE_MARKER);
-		bprintold("static active marker OFF\n");
+		bprint("static active marker OFF\n");
 	}
 	else
 	{
 		mode = (mode | STATIC_ACTIVE_MARKER);
-		bprintold("static active marker ON\n");
+		bprint("static active marker ON\n");
 	}
 };
 
@@ -1289,12 +1183,12 @@ void() ToggleOneWayMode =
 	if (mode & ONE_WAY)
 	{
 		mode = (mode - ONE_WAY);
-		bprintold("one way mode OFF\n");
+		bprint("one way mode OFF\n");
 	}
 	else
 	{
 		mode = (mode | ONE_WAY);
-		bprintold("one way mode ON\n");
+		bprint("one way mode ON\n");
 	}
 };
 
@@ -1309,28 +1203,28 @@ void() ToggleConnectMarkersMode =
 		if (type_mode)
 		{
 			active_marker.T = (active_marker.T | type_mode);
-			bprintold("active marker type SET\n");
+			bprint("active marker type SET\n");
 		}
 		else
 		{
 			active_marker.T = SAVED_T;
-			bprintold("active marker type CLEARED\n");
+			bprint("active marker type CLEARED\n");
 		}
 		return;
 	}
 	if (mode & CONNECT_MARKERS)
 	{
 		mode = (mode - CONNECT_MARKERS);
-		bprintold("connect markers mode OFF\n");
+		bprint("connect markers mode OFF\n");
 	}
 	else
 	{
 		mode = (mode | CONNECT_MARKERS);
-		bprintold("connect markers mode ON\n");
+		bprint("connect markers mode ON\n");
 		if (!(mode & STATIC_ACTIVE_MARKER))
 		{
 			mode = (mode | STATIC_ACTIVE_MARKER);
-			bprintold("static active marker ON\n");
+			bprint("static active marker ON\n");
 		}
 	}
 };
@@ -1342,48 +1236,48 @@ void() CycleDescriptionMode =
 		if (type_mode == 0)
 		{
 			type_mode = UNREACHABLE;
-			bprintold("unreachable node ON\n");
+			bprint("unreachable node ON\n");
 		}
 		else //if (type_mode == UNREACHABLE)
 		{
 			type_mode = 0;
-			bprintold("type mode OFF\n");
+			bprint("type mode OFF\n");
 		}
 	}
 	else if (path_mode == 0)
 	{
 		path_mode = JUMP_LEDGE;
-		bprintold("jump ledge mode ON\n");
+		bprint("jump ledge mode ON\n");
 	}
 	else if (path_mode == JUMP_LEDGE)
 	{
 		path_mode = DM6_DOOR;
-		bprintold("dm6 door mode ON\n");
+		bprint("dm6 door mode ON\n");
 	}
 	else if (path_mode == DM6_DOOR)
 	{
 		path_mode = DISCONNECT_MARKERS;
-		bprintold("disconnect mode ON\n");
+		bprint("disconnect mode ON\n");
 	}
 	else if (path_mode == DISCONNECT_MARKERS)
 	{
 		path_mode = REVERSIBLE;
-		bprintold("reversible display mode ON\n");
+		bprint("reversible display mode ON\n");
 	}
 	else if (path_mode == REVERSIBLE)
 	{
 		path_mode = WATER_PATH;
-		bprintold("water path display mode ON\n");
+		bprint("water path display mode ON\n");
 	}
 	else if (path_mode == WATER_PATH)
 	{
 		path_mode = ROCKET_JUMP;
-		bprintold("rocket jump mode ON\n");
+		bprint("rocket jump mode ON\n");
 	}
 	else //if (path_mode == ROCKET_JUMP)
 	{
 		path_mode = 0;
-		bprintold("path mode OFF\n");
+		bprint("path mode OFF\n");
 	}
 };
 
@@ -1392,7 +1286,7 @@ void() DefaultMarkerMode =
 	type_mode = 0;
 	path_mode = 0;
 	mode = 0;
-	bprintold("default marker mode\n");
+	bprint("default marker mode\n");
 };
 
 void() ToggleClosestMarkerMode =
@@ -1400,12 +1294,12 @@ void() ToggleClosestMarkerMode =
 	if (mode & CLOSEST_MARKER)
 	{
 		mode = (mode - CLOSEST_MARKER);
-		bprintold("Closest marker mode OFF\n");
+		bprint("Closest marker mode OFF\n");
 	}
 	else
 	{
 		mode = (mode | CLOSEST_MARKER);
-		bprintold("Closest marker mode ON\n");
+		bprint("Closest marker mode ON\n");
 	}
 };
 
@@ -1424,22 +1318,22 @@ void() CycleDisplayMode =
 	if (mode & DISPLAY_ZONE)
 	{
 		mode = ((mode - DISPLAY_ZONE) | DISPLAY_TYPE);
-		bprintold("Display type ON\n");
+		bprint("Display type ON\n");
 	}
 	else if (mode & DISPLAY_TYPE)
 	{
 		mode = ((mode - DISPLAY_TYPE) | DISPLAY_RUNAWAY);
-		bprintold("Display runaway ON\n");
+		bprint("Display runaway ON\n");
 	}
 	else if (mode & DISPLAY_RUNAWAY)
 	{
 		mode = (mode - DISPLAY_RUNAWAY);
-		bprintold("Display path ON\n");
+		bprint("Display path ON\n");
 	}
 	else
 	{
 		mode = (mode | DISPLAY_ZONE);
-		bprintold("Display zone ON\n");
+		bprint("Display zone ON\n");
 	}
 };
 
@@ -1451,13 +1345,13 @@ void() CheckAllZones =
 		if (!marker_.Z_)
 		{
 			active_marker = marker_;
-			bprintold("Zone missing\n");
+			bprint("Zone missing\n");
 			setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
 			return;
 		}
 		marker_ = marker_.marker_link;
 	}
-	bprintold("Zones completed\n");
+	bprint("Zones completed\n");
 };
 
 void() CheckAllGoals =
@@ -1468,13 +1362,13 @@ void() CheckAllGoals =
 		if (!marker_.G_)
 		{
 			active_marker = marker_;
-			bprintold("Goal missing\n");
+			bprint("Goal missing\n");
 			setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
 			return;
 		}
 		marker_ = marker_.next;
 	}
-	bprintold("Goals completed\n");
+	bprint("Goals completed\n");
 };
 
 // NOTE: I had to change all impulses compared to the waypoint tool distributed

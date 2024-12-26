@@ -1136,7 +1136,9 @@ void(string s) stuffcmd =
 		stuffcmd_apply (msg_entity, s);
 };
 entity(vector org, float rad) findradius = #22;
-void(float level, string s) bprint = #23;
+
+// 1 to 8 arguments, all strings, will be concatenated
+void (...) bprint					= #23;
 //void(string s) dprint				= #25;
 string(float f) ftos				= #26;
 //string(vector v) vtos				= #27;
@@ -1232,6 +1234,11 @@ entity firstperson;
 float PF_FIRSTPERSON = 1; //view through players eyes
 float scoreboardsize;
 
+// Note by DrLex: NO idea what the level parameter is supposed to be.
+// Specs for bprint (#23): 1 to 8 parameters which must all be strings.
+// Non-strings are simply skipped, making the level parameter useless,
+// unless this is something custom for a specific engine.
+// FTTB I'll just leave it, not going to change 100s of occurrences.
 void(float level, string s) bprint_fb =
 {
 	if (scoreboardsize)
