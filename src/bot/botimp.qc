@@ -5,6 +5,7 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 1999-2000 Numb
 	Copyright (C) 2000-2007 ParboiL
+	Fixes by DrLex 2024
 */
 
 #include "../settings.h"
@@ -75,7 +76,7 @@ void() SetGame =
 	game_disable_dropweap = (!(gamemode & GAME_ENABLE_DROPWEAP));
 	game_disable_autosteams = (!(gamemode & GAME_ENABLE_AUTOSTEAMS));
 #ifdef TALK
-	game_disable_botchat = (!(gamemode & GAME_ENABLE_BOTCHAT)); 
+	game_disable_botchat = (!(gamemode & GAME_ENABLE_BOTCHAT));
 #endif
 #ifdef QUAKE
 	game_qwphysics = gamemode & GAME_QWPHYSICS;
@@ -819,9 +820,9 @@ void() AddBot =
 				{
 					if (search_entity != self)
 					{
-						if (search_entity.realteam == TEAM_COLOR1) 
+						if (search_entity.realteam == TEAM_COLOR1)
 							t1 = t1 + 1;
-						else if (search_entity.realteam == TEAM_COLOR2) 
+						else if (search_entity.realteam == TEAM_COLOR2)
 							t2 = t2 + 1;
 					}
 					search_entity = search_entity.next;
@@ -854,7 +855,7 @@ void() AddBot =
 			self.oldorigin = self.origin;
 			if (!game_not_match && !game_arena)
 			{
-				self.ready = 0; 
+				self.ready = 0;
 				PlayerReady();
 			}
 			self = other;
@@ -924,7 +925,7 @@ float(float remove_name) RemoveBot =
 				ClientDisconnect();
 			self.nextthink = 0;
 
-			self.netname = ""; 
+			self.netname = "";
 
 			if (remove_name)
 				ClearName(MSG_ALL, self);
@@ -1312,6 +1313,24 @@ void() NoAdmin =
 	sprint_fb(self, 2, "You don't have admin privileges\n");
 };
 
+#ifdef NOCLIP
+// toggle noclip mode for editing; should not be in production builds
+void() togglenoclip =
+{
+	msg_entity = self;
+	if (self.movetype == MOVETYPE_NOCLIP)
+	{
+		self.movetype = MOVETYPE_WALK;
+		sprint_fb(self, 2, "Noclip OFF\n");
+	}
+	else
+	{
+		self.movetype = MOVETYPE_NOCLIP;
+		sprint_fb(self, 2, "Noclip ON\n");
+	}
+};
+#endif
+
 /*
 ============
 ImpulseCommands
@@ -1320,210 +1339,203 @@ ImpulseCommands
 */
 void() ImpulseCommands =
 {
-	if (self.impulse)
+	if (! self.impulse)	return;
+
+	if (intermission_running || k_standby) return;
+
+	if (time < self.input_time)
 	{
-		if (intermission_running || k_standby) return;
+		self.impulse = 0;
+		self.input_time = time + 2;
+		return;
+	}
 
-		if (time >= self.input_time)
+	impulse_ = self.impulse;
+
+#ifndef QUAKE
+	if (impulse_ == IMP_JOIN)
+		join();
+	else if (impulse_ == IMP_OBSERVE)
+		observe();
+#endif
+
+	if (!self.client_ && numberofplayers > 0) return;
+
+	if (self.lines)
+	{
+		self.lines = self.lines - 1;
+		if (self.lines < 2)
 		{
-			impulse_ = self.impulse;
+			AddBotError();
+			return;
+		}
+	}
 
-		#ifndef QUAKE
-			if (impulse_ == IMP_JOIN)
-				join();
-			else if (impulse_ == IMP_OBSERVE)
-				observe();
-		#endif
+	if (self.spawnflags)
+	{
+		self.impulse = 0;
+		ScratchCommands();
+	}
+	else if (impulse_ < IMP_START1)
+	{
+		if (self.lines)
+			AddBotError();
+	}
+	else
+	{
+		self.impulse = 0;
 
-			if (!self.client_ && numberofplayers > 0) return; 
-
+		if (impulse_ > IMP_END4)
+		{
 			if (self.lines)
-			{
-				self.lines = self.lines - 1;
-				if (self.lines < 2)
-				{
-					AddBotError();
-					return;
-				}
-			}
+				AddBotError();
 
 			if (impulse_ == 140)
 				f_jump();
-
-			if (impulse_ == 141)
+			else if (impulse_ == 141)
 				r_jump();
-
-			if (self.spawnflags)
-			{
-				self.impulse = 0;
-				ScratchCommands();
-			}
-			else if (impulse_ < IMP_START1)
-			{
-				if (self.lines)
-					AddBotError();
-			}
+		#ifdef MANUAL
+			else if (impulse_ == 131)
+				ToggleManualMode();
+			else if (manual_mode)
+				ManualImpulseCommands();
+		#endif
+		}
+		else if (impulse_ <= IMP_END2)
+		{
+			if (impulse_ <= IMP_END1)
+				self.spawnflags = impulse_ - IMP_START1 + START_SKILL;
 			else
 			{
-				self.impulse = 0;
-
-				if (impulse_ > IMP_END4)
+				if (self.lines)
 				{
-					if (self.lines)
-						AddBotError();
-
-				#ifdef MANUAL
-					if (impulse_ == 131)
-						ToggleManualMode();
-					if (manual_mode)
-					#ifdef ARENA
-						{
-					#endif
-						ManualImpulseCommands();
-					#ifdef ARENA
-						return;
-						}
-					#endif
-				#endif
-				}
-				else if (impulse_ <= IMP_END2)
-				{
-					if (impulse_ <= IMP_END1)
-						self.spawnflags = impulse_ - IMP_START1 + START_SKILL;
-					else
+					if (self.lines != 2)
 					{
-						if (self.lines)
-						{
-							if (self.lines != 2)
-							{
-								AddBotError();
-								return;
-							}
-							self.lines = 0;
-						}
-						if (impulse_ == IMP_LINES)
-							self.spawnflags = START_LINES;
-						else if (self.admin_code != dropper.admin_code)
-							NoAdmin();
-						else if (impulse_ <= IMP_ADD4BOTS)
-						{
-							impulse_ = impulse_ - IMP_ADDBOT + 1;
-							AddBots();
-						}
-						else
-						{
-							self.teamcolor = (impulse_ - IMP_ADDBOT0) * 17;
-							AddBot();
-						}
+						AddBotError();
+						return;
 					}
+					self.lines = 0;
 				}
-				else if (self.lines)
-					AddBotError();
-				else if (impulse_ == IMP_MSG)
-					self.spawnflags = START_MSG;
-				else if (impulse_ == IMP_BOTS)
-					self.spawnflags = START_BOTS;
-				else if (impulse_ == IMP_ADMIN)
-					self.spawnflags = START_ADMIN1;
-				else if (impulse_ == IMP_TIME)
-					PrintTime();
-				else if (impulse_ == IMP_RULES)
-					PrintRules();
-				else if (impulse_ == IMP_ABOUT)
-					SprintVersion();
-				else if (impulse_ == IMP_SCORES)
-					PrintScores();
-				else if (impulse_ == IMP_FLASH)
-					ToggleFlash();
+				if (impulse_ == IMP_LINES)
+					self.spawnflags = START_LINES;
 				else if (self.admin_code != dropper.admin_code)
 					NoAdmin();
-				else if (impulse_ == IMP_HIDE)
-					ToggleGameModeNow(GAME_HIDE_RULES, "hide");
-				else if (impulse_ == IMP_REMOVEBOT)
-					RemoveBot(TRUE);
-				else if (impulse_ == IMP_REMOVEALLBOTS)
-					RemoveAllBots();
-				else if (impulse_ == IMP_LAVACHEAT)
-					ToggleGameModeNow(GAME_LAVA_CHEAT, "lavacheat");
-				else if (impulse_ == IMP_FRAMERATE)
-					ToggleFramerate();
-				else if (impulse_ == IMP_POWERUP)
-					ToggleGameMode(GAME_ENABLE_POWERUPS, "powerups");
-				else if (impulse_ == IMP_AUTOREPORT)
-					ToggleGameModeNow(GAME_ENABLE_AUTOREPORT, "autoreport");
-				else if (impulse_ == IMP_DROPWEAP)
-					ToggleGameModeNow(GAME_ENABLE_DROPWEAP, "dropweap");
-				else if (impulse_ == IMP_AUTOSTEAMS)
-					ToggleGameModeNow(GAME_ENABLE_AUTOSTEAMS, "autosteams");
-				else if (impulse_ == IMP_RUNE)
-					ToggleGameMode(GAME_ENABLE_RUNES, "rune");
-				else if (impulse_ == IMP_READY)
-					PlayerReady();
-				else if (impulse_ == IMP_WHO)
-					PlayerStatus();
-				else if (impulse_ == IMP_BREAK)
-					PlayerBreak();
-				else if (impulse_ == IMP_TIMEDOWN)
-					TimeDown();
-				else if (impulse_ == IMP_TIMEUP)
-					TimeUp();
-				else if (impulse_ == IMP_FRAGSDOWN)
-					FragsDown();
-				else if (impulse_ == IMP_FRAGSUP)
-					FragsUp();
-				else if (impulse_ == IMP_SKILLDOWN)
-					SkillDown();
-				else if (impulse_ == IMP_SKILLUP)
-					SkillUp();
-				else if (impulse_ == IMP_CHDM)
-					ChangeDM();
-				else if (impulse_ == IMP_NO_LG)
-					ToggleLighting();
-				else if (impulse_ == IMP_SH_SPEED)
-					toggle_sh_speed();
-				else if (impulse_ == IMP_WS_ON)
-					start_print_wp_stats();
-				else if (impulse_ == IMP_WS_OFF)
-					end_print_wp_stats();
-				else if (impulse_ == IMP_WS_RES)
-					reset_wp_stats();
-				else if (impulse_ == IMP_CHTP)
-					ChangeTP(); 
-				else if (impulse_ == IMP_LOCK)
-					ChangeLock();
-				else if (impulse_ == IMP_SILENCE)
-					ToggleSpecTalk();
-				else if (impulse_ == IMP_MATCH)
-					ToggleGameMode(GAME_MATCH, "match");
-				else if (impulse_ == IMP_OVERTIME)
-					ChangeOvertime();
-#ifdef TALK
-				else if (impulse_ == IMP_BOTCHAT)
-					ToggleGameModeNow(GAME_ENABLE_BOTCHAT, "botchat");
-#endif
-				else if (impulse_ == IMP_RL_PREF)
+				else if (impulse_ <= IMP_ADD4BOTS)
 				{
-					if (game_lg_pref)
-						ToggleGameModeNow(GAME_LG_PREF, "lg_pref"); 
-					ToggleGameModeNow(GAME_RL_PREF, "rl_pref");
+					impulse_ = impulse_ - IMP_ADDBOT + 1;
+					AddBots();
 				}
-				else if (impulse_ == IMP_LG_PREF)
+				else
 				{
-					if (game_rl_pref)
-						ToggleGameModeNow(GAME_RL_PREF, "rl_pref");
-					ToggleGameModeNow(GAME_LG_PREF, "lg_pref");
-				} 
-				else if (impulse_ == IMP_RUNE_RJ)
-					ToggleGameModeNow(GAME_RUNE_RJ, "rune_rj");
-			#ifdef ARENA
-				a_impulses();
-			#endif
+					self.teamcolor = (impulse_ - IMP_ADDBOT0) * 17;
+					AddBot();
+				}
 			}
 		}
-		else
+		else if (self.lines)
+			AddBotError();
+	#ifdef NOCLIP
+		else if (impulse_ == IMP_NOCLIP)
+			togglenoclip();
+	#endif
+		else if (impulse_ == IMP_MSG)
+			self.spawnflags = START_MSG;
+		else if (impulse_ == IMP_BOTS)
+			self.spawnflags = START_BOTS;
+		else if (impulse_ == IMP_ADMIN)
+			self.spawnflags = START_ADMIN1;
+		else if (impulse_ == IMP_TIME)
+			PrintTime();
+		else if (impulse_ == IMP_RULES)
+			PrintRules();
+		else if (impulse_ == IMP_FLASH)
+			ToggleFlash();
+		else if (self.admin_code != dropper.admin_code)
+			NoAdmin();
+		else if (impulse_ == IMP_HIDE)
+			ToggleGameModeNow(GAME_HIDE_RULES, "hide");
+		else if (impulse_ == IMP_REMOVEBOT)
+			RemoveBot(TRUE);
+		else if (impulse_ == IMP_REMOVEALLBOTS)
+			RemoveAllBots();
+		else if (impulse_ == IMP_LAVACHEAT)
+			ToggleGameModeNow(GAME_LAVA_CHEAT, "lavacheat");
+		else if (impulse_ == IMP_FRAMERATE)
+			ToggleFramerate();
+		else if (impulse_ == IMP_POWERUP)
+			ToggleGameMode(GAME_ENABLE_POWERUPS, "powerups");
+		else if (impulse_ == IMP_AUTOREPORT)
+			ToggleGameModeNow(GAME_ENABLE_AUTOREPORT, "autoreport");
+		else if (impulse_ == IMP_DROPWEAP)
+			ToggleGameModeNow(GAME_ENABLE_DROPWEAP, "dropweap");
+		else if (impulse_ == IMP_AUTOSTEAMS)
+			ToggleGameModeNow(GAME_ENABLE_AUTOSTEAMS, "autosteams");
+		else if (impulse_ == IMP_RUNE)
+			ToggleGameMode(GAME_ENABLE_RUNES, "rune");
+		else if (impulse_ == IMP_READY)
+			PlayerReady();
+		else if (impulse_ == IMP_WHO)
+			PlayerStatus();
+	#ifdef ARENA
+		else if (impulse_ == IMP_ABOUT)
+			SprintVersion();
+		else if (impulse_ == IMP_SCORES)
+			PrintScores();
+		else if (impulse_ == IMP_BREAK)
+			PlayerBreak();
+		else if (impulse_ == IMP_TIMEDOWN)
+			TimeDown();
+		else if (impulse_ == IMP_TIMEUP)
+			TimeUp();
+		else if (impulse_ == IMP_FRAGSDOWN)
+			FragsDown();
+		else if (impulse_ == IMP_FRAGSUP)
+			FragsUp();
+		else if (impulse_ == IMP_SKILLDOWN)
+			SkillDown();
+		else if (impulse_ == IMP_SKILLUP)
+			SkillUp();
+		else if (impulse_ == IMP_CHDM)
+			ChangeDM();
+		else if (impulse_ == IMP_NO_LG)
+			ToggleLighting();
+		else if (impulse_ == IMP_SH_SPEED)
+			toggle_sh_speed();
+		else if (impulse_ == IMP_WS_ON)
+			start_print_wp_stats();
+		else if (impulse_ == IMP_WS_OFF)
+			end_print_wp_stats();
+		else if (impulse_ == IMP_WS_RES)
+			reset_wp_stats();
+		else if (impulse_ == IMP_CHTP)
+			ChangeTP();
+		else if (impulse_ == IMP_LOCK)
+			ChangeLock();
+		else if (impulse_ == IMP_SILENCE)
+			ToggleSpecTalk();
+		else if (impulse_ == IMP_MATCH)
+			ToggleGameMode(GAME_MATCH, "match");
+		else if (impulse_ == IMP_OVERTIME)
+			ChangeOvertime();
+#ifdef TALK
+		else if (impulse_ == IMP_BOTCHAT)
+			ToggleGameModeNow(GAME_ENABLE_BOTCHAT, "botchat");
+#endif
+		else if (impulse_ == IMP_RL_PREF)
 		{
-			self.impulse = 0;
-			self.input_time = time + 2;
+			if (game_lg_pref)
+				ToggleGameModeNow(GAME_LG_PREF, "lg_pref");
+			ToggleGameModeNow(GAME_RL_PREF, "rl_pref");
 		}
+		else if (impulse_ == IMP_LG_PREF)
+		{
+			if (game_rl_pref)
+				ToggleGameModeNow(GAME_RL_PREF, "rl_pref");
+			ToggleGameModeNow(GAME_LG_PREF, "lg_pref");
+		}
+		else if (impulse_ == IMP_RUNE_RJ)
+			ToggleGameModeNow(GAME_RUNE_RJ, "rune_rj");
+		a_impulses();
+	#endif
 	}
 };

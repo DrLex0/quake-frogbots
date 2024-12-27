@@ -192,10 +192,12 @@ entity(vector org) LocateMarker =
 			}
 		#endif
 			if (distance < shortest_distance)
-		#ifndef ARENA
-			if (marker_.classname != "trigger_teleport")
-		#endif
 			{
+			#ifndef ARENA
+				// note by DrLex: unsure about this, near_teleport is only used
+				// in dead code; maybe this may just be dropped
+				if (marker_.classname != "trigger_teleport")
+			#endif
 				self.near_teleport = world;
 				shortest_distance = distance;
 				closest_marker = marker_;

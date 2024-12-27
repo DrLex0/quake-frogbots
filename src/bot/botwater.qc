@@ -6,6 +6,8 @@
 
 #include "../settings.h"
 
+void() VelocityForArrow;
+
 float() WaterCombat =
 {
 	if (self.waterlevel < 2)

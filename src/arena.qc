@@ -9,10 +9,6 @@
 
 #include "settings.h"
 
-// Not an actual impulse, but the number of the highest arena-related impulse
-float IMP_END4		= 130;
-
-
 #ifdef ARENA
 
 // definitions
@@ -35,7 +31,6 @@ void(float to, float f) WriteAngle = #57;
 #endif
 float SVC_SETANGLE = 10;
 .float itemstarted;
-.float botchose;
 .float aggressive;
 .float invisible;
 .float trackprint_time;
@@ -43,7 +38,6 @@ float SVC_SETANGLE = 10;
 .float printmotd;
 .float connected;
 .float scoreboard;
-.float rocketjumping;
 .float userid;
 .float alias1time;
 .float alias2time;
@@ -212,9 +206,6 @@ void() forcestart;
 void() changesounds;
 void(float which, string wname) toggleweapon;
 void() changearmortype;
-#ifdef NOCLIP
-void() togglenoclip;
-#endif
 void() fight;
 void() print1;
 void() print2;
@@ -250,8 +241,6 @@ void(string s, float value) alias;
 
 // other functions used
 void() obstruction;
-void() VelocityForArrow;
-void() BestArrowForDirection;
 void() PrintRules;
 void() GameSettings;
 void() SetGame;
@@ -259,7 +248,6 @@ void() SpawnRunes;
 void() fd_secret_use;
 void() train_next;
 void() CheckNewWeapon;
-void() PrintRules;
 void() GotoNextMap;
 void(string s) centerprint_all;
 void(entity e) UpdateFrags;
@@ -360,9 +348,6 @@ float IMP_WS_ON		= 126;
 float IMP_WS_OFF		= 127;
 float IMP_WS_RES		= 128;
 float IMP_SH_SPEED	= 129;
-#ifdef NOCLIP
-float IMP_NOCLIP		= 130;
-#endif
 // 140 kf_jump
 // 141 kr_jump
 
@@ -2158,10 +2143,6 @@ void() a_impulses =
 		ToggleGameModeNow(GAME_BOTJUMP, "botjump");
 	else if (impulse_ == IMP_DROP)
 		ToggleGameMode(GAME_DROP, "drop powerups");
-#ifdef NOCLIP
-	else if (impulse_ == IMP_NOCLIP)
-		togglenoclip();
-#endif
 	else if (impulse_ == IMP_COMMANDS)
 		commands();
 	else if (impulse_ == IMP_RESTART)
@@ -2968,24 +2949,6 @@ void() changearmortype =
 	bprint_fb(2, armortype_);
 	bprint_fb(2, "\"\n");
 };
-
-#ifdef NOCLIP
-// toggle noclip mode for editing; remove later!
-void() togglenoclip =
-{
-	msg_entity = self;
-	if (self.movetype == MOVETYPE_NOCLIP)
-	{
-		self.movetype = MOVETYPE_WALK;
-		sprint_fb(self, 2, "Noclip OFF\n");
-	}
-	else
-	{
-		self.movetype = MOVETYPE_NOCLIP;
-		sprint_fb(self, 2, "Noclip ON\n");
-	}
-};
-#endif
 
 // match begins
 void() fight = 

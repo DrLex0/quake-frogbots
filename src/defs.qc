@@ -7,6 +7,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
+	Fixes by DrLex 2024
 */
 
 #include "settings.h"
@@ -550,7 +551,7 @@ float START_ADMIN2		= 16;
 float START_ADMIN3		= 17;
 
 
-
+// The START and END values are not actual impulses, but delineate groups of impulses
 
 //---------------------------
 float IMP_START1		= 14;			// command value, during loading
@@ -614,6 +615,11 @@ float IMP_RL_PREF		= 67;
 float IMP_LG_PREF		= 68;
 float IMP_RUNE_RJ		= 69;
 float IMP_NOSKINS		= 70;
+//---------------------------
+#ifdef NOCLIP
+float IMP_NOCLIP		= 130;
+#endif
+float IMP_END4		= 130;
 //---------------------------
 float IMP_RANDOM		= 250;
 float IMP_IMPULSE_0	= 255;
@@ -1338,6 +1344,8 @@ void() bf;
 //
 
 .float arrow;
+.float botchose;
+.float rocketjumping;
 .float wasinwater;
 .float swim_arrow;
 .float button0_;

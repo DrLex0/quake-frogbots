@@ -34,6 +34,7 @@ void() MakeMOTD =
 	motd.attack_finished = time + 7;
 };
 
+#ifdef ARENA
 void() AliasesTime =
 {
 	self.alias1time = time + 1;
@@ -64,3 +65,4 @@ void() StuffAliases =
 		sprint_fb(self, 2, "Commands downloaded\n");
 	}
 };
+#endif

@@ -118,7 +118,7 @@ void() worldspawn =
 		cvar_set ("sv_gravity", "800");
 
 // the area based ambient sounds MUST be the first precache_sounds
-// player precaches	
+// player precaches
 	W_Precache ();			// get weapon precaches
 
 #ifdef ARENA
@@ -180,7 +180,7 @@ void() worldspawn =
 	precache_sound ("boss1/sight1.wav"); 
 	precache_sound ("boss2/pop2.wav");
 
-// ax sounds	
+// ax sounds
 	precache_sound ("weapons/ax1.wav");			// ax swoosh
 	precache_sound ("player/axhit1.wav");		// ax hit meat
 	precache_sound ("player/axhit2.wav");		// ax hit world
@@ -229,7 +229,7 @@ void() worldspawn =
 	precache_model ("progs/bolt2.mdl");		// for lightning gun
 	precache_model ("progs/bolt3.mdl");		// for boss shock
 	precache_model ("progs/lavaball.mdl");	// for testing
-	
+
 	precache_model ("progs/missile.mdl");
 	precache_model ("progs/grenade.mdl");
 	precache_model ("progs/spike.mdl");
@@ -415,10 +415,12 @@ void() StartFrame =
 		postphysics.nextthink = 0.001;	// ie. this frame
 
 		if (game_arena)
-		{ 
+		{
+		#ifdef ARENA
 			if (load_frogbots)
 			if (loadbot_time_())
 				LoadFrogbot();
+		#endif
 		}
 		else
 		{

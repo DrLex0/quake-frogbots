@@ -1595,8 +1595,14 @@ void() PlayerPostThink =
 {
 	ImpulseCommands();
 
+#ifdef ARENA
+	// Ideally we should still stuff non-arena specific aliases otherwise.
+	// However, the ARENA toggle is only really provided to build
+	// the waypoint tool without unnecessary fluff. In all other cases,
+	// one should build with ARENA.
 	if (self.player && !self.k_stuff)
 		StuffAliases();
+#endif
 
 	if (pre_game)
 	{

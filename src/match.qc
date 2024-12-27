@@ -7,6 +7,12 @@
 
 #include "settings.h"
 
+#ifdef ARENA
+float dm_pline;
+float t1_pline;
+float t2_pline;
+#endif
+
 void() TimerThink =
 {
 	if (game_not_match) {
@@ -274,7 +280,9 @@ void() DoCountDown =
 		self = old;
 		self = self.next; 
 	}
+#ifdef ARENA
 	centerprint_all("");
+#endif
 	bprint_fb(2, "‘ËÂ Ì·Ù„Ë Ë·Û ‚ÂÁıÓ°\n");
 	s1 = stof(infokey(world, "allow_startsound"));
 	if (s1) sound_apply(world, CHAN_AUTO, "boss2/pop2.wav", 0.13, ATTN_NONE);
@@ -288,7 +296,7 @@ void() DoCountDown =
 	localcmd_ftos(timelimit);
 	localcmd(" min left\"\n");
 	if (team_mode)
-	TestTeamName();
+		TestTeamName();
 };
 
 void() PlayerBreak =
@@ -401,6 +409,7 @@ void() PlayerReady =
 	}
 };
 
+#ifdef ARENA
 void () TopScorers =
 {
 	local entity p;
@@ -741,6 +750,7 @@ void() FinalStats =
 	if (team_mode) FinalTeamStats();
 	bprint_fb(2, "\n");
 };
+#endif
 
 /*
 ============

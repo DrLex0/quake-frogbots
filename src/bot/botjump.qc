@@ -9,6 +9,8 @@
 
 #include "../settings.h"
 
+void() VelocityForArrow;
+void() BestArrowForDirection;
 float(entity me) near_teammate;
 
 // moving in right direction to rocket-jump
@@ -48,7 +50,9 @@ float() able_rj =
 	|| (teamplay == 1) || (teamplay == 5))
 	&& (self.items & IT_ROCKET_LAUNCHER)
 	&& (self.ammo_rockets > 2)
+#ifdef ARENA
 	&& ((!game_arena) || (arenastate == A_PLAYING))
+#endif
 	&& (!beQuiet)
 	&& (random() > 0.5))
 		return 1;
@@ -199,7 +203,9 @@ void() a_rocketjump =
 
 void() CheckCombatJump =
 {
+#ifdef ARENA
 	if (game_botjump) 
+#endif
 	if (self.frogbot)
 	{ 
 		if (!self.waterlevel)

@@ -10,12 +10,6 @@
 
 #include "../settings.h"
 
-float() rndval = 
-{
-	if (pre_game || arenastate != A_PLAYING) return 0.3;
-	else return 1;
-};
-
 /*
 ============
 AttackRespawns

@@ -8,6 +8,9 @@
 
 #include "../settings.h"
 
+void() VelocityForArrow;
+void() BestArrowForDirection;
+
 /*
 ============
 HazardTeleport
