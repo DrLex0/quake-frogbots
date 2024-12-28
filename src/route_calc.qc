@@ -4,6 +4,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
+	Universal doors by DrLex 2024/12
 */
 
 #include "settings.h"
@@ -532,30 +533,129 @@ void() Calc_G_time_5_path =
 {
 	same_zone = (m.Z_ == m_P.Z_);
 
-	if (m.Z1_time > (P_time + m_P.Z1_time)) { no_change = FALSE; m.Z1_ = m_P.Z1_; m.Z1_time = P_time + m_P.Z1_time; m.Z1_next = m_P; { if (same_zone) m.Z1_next_zone = m_P.Z1_next_zone; else m.Z1_next_zone = m_P; } m.Z1_task = m_D | m_P.Z1_task; }
-	if (m.Z2_time > (P_time + m_P.Z2_time)) { no_change = FALSE; m.Z2_ = m_P.Z2_; m.Z2_time = P_time + m_P.Z2_time; m.Z2_next = m_P; { if (same_zone) m.Z2_next_zone = m_P.Z2_next_zone; else m.Z2_next_zone = m_P; } }
-	if (m.Z3_time > (P_time + m_P.Z3_time)) { no_change = FALSE; m.Z3_ = m_P.Z3_; m.Z3_time = P_time + m_P.Z3_time; m.Z3_next = m_P; { if (same_zone) m.Z3_next_zone = m_P.Z3_next_zone; else m.Z3_next_zone = m_P; } }
-	if (m.Z4_time > (P_time + m_P.Z4_time)) { no_change = FALSE; m.Z4_ = m_P.Z4_; m.Z4_time = P_time + m_P.Z4_time; m.Z4_next = m_P; { if (same_zone) m.Z4_next_zone = m_P.Z4_next_zone; else m.Z4_next_zone = m_P; } }
-	if (m.Z5_time > (P_time + m_P.Z5_time)) { no_change = FALSE; m.Z5_ = m_P.Z5_; m.Z5_time = P_time + m_P.Z5_time; m.Z5_next = m_P; { if (same_zone) m.Z5_next_zone = m_P.Z5_next_zone; else m.Z5_next_zone = m_P; } }
-	if (m.Z6_time > (P_time + m_P.Z6_time)) { no_change = FALSE; m.Z6_ = m_P.Z6_; m.Z6_time = P_time + m_P.Z6_time; m.Z6_next = m_P; { if (same_zone) m.Z6_next_zone = m_P.Z6_next_zone; else m.Z6_next_zone = m_P; } }
-	if (m.Z7_time > (P_time + m_P.Z7_time)) { no_change = FALSE; m.Z7_ = m_P.Z7_; m.Z7_time = P_time + m_P.Z7_time; m.Z7_next = m_P; { if (same_zone) m.Z7_next_zone = m_P.Z7_next_zone; else m.Z7_next_zone = m_P; } }
-	if (m.Z8_time > (P_time + m_P.Z8_time)) { no_change = FALSE; m.Z8_ = m_P.Z8_; m.Z8_time = P_time + m_P.Z8_time; m.Z8_next = m_P; { if (same_zone) m.Z8_next_zone = m_P.Z8_next_zone; else m.Z8_next_zone = m_P; } }
-	if (m.Z9_time > (P_time + m_P.Z9_time)) { no_change = FALSE; m.Z9_ = m_P.Z9_; m.Z9_time = P_time + m_P.Z9_time; m.Z9_next = m_P; { if (same_zone) m.Z9_next_zone = m_P.Z9_next_zone; else m.Z9_next_zone = m_P; } }
-	if (m.Z10_time > (P_time + m_P.Z10_time)) { no_change = FALSE; m.Z10_ = m_P.Z10_; m.Z10_time = P_time + m_P.Z10_time; m.Z10_next = m_P; { if (same_zone) m.Z10_next_zone = m_P.Z10_next_zone; else m.Z10_next_zone = m_P; } }
-	if (m.Z11_time > (P_time + m_P.Z11_time)) { no_change = FALSE; m.Z11_ = m_P.Z11_; m.Z11_time = P_time + m_P.Z11_time; m.Z11_next = m_P; { if (same_zone) m.Z11_next_zone = m_P.Z11_next_zone; else m.Z11_next_zone = m_P; } }
-	if (m.Z12_time > (P_time + m_P.Z12_time)) { no_change = FALSE; m.Z12_ = m_P.Z12_; m.Z12_time = P_time + m_P.Z12_time; m.Z12_next = m_P; { if (same_zone) m.Z12_next_zone = m_P.Z12_next_zone; else m.Z12_next_zone = m_P; } }
-	if (m.Z13_time > (P_time + m_P.Z13_time)) { no_change = FALSE; m.Z13_ = m_P.Z13_; m.Z13_time = P_time + m_P.Z13_time; m.Z13_next = m_P; { if (same_zone) m.Z13_next_zone = m_P.Z13_next_zone; else m.Z13_next_zone = m_P; } }
-	if (m.Z14_time > (P_time + m_P.Z14_time)) { no_change = FALSE; m.Z14_ = m_P.Z14_; m.Z14_time = P_time + m_P.Z14_time; m.Z14_next = m_P; { if (same_zone) m.Z14_next_zone = m_P.Z14_next_zone; else m.Z14_next_zone = m_P; } }
-	if (m.Z15_time > (P_time + m_P.Z15_time)) { no_change = FALSE; m.Z15_ = m_P.Z15_; m.Z15_time = P_time + m_P.Z15_time; m.Z15_next = m_P; { if (same_zone) m.Z15_next_zone = m_P.Z15_next_zone; else m.Z15_next_zone = m_P; } }
-	if (m.Z16_time > (P_time + m_P.Z16_time)) { no_change = FALSE; m.Z16_ = m_P.Z16_; m.Z16_time = P_time + m_P.Z16_time; m.Z16_next = m_P; { if (same_zone) m.Z16_next_zone = m_P.Z16_next_zone; else m.Z16_next_zone = m_P; } }
-	if (m.Z17_time > (P_time + m_P.Z17_time)) { no_change = FALSE; m.Z17_ = m_P.Z17_; m.Z17_time = P_time + m_P.Z17_time; m.Z17_next = m_P; { if (same_zone) m.Z17_next_zone = m_P.Z17_next_zone; else m.Z17_next_zone = m_P; } }
-	if (m.Z18_time > (P_time + m_P.Z18_time)) { no_change = FALSE; m.Z18_ = m_P.Z18_; m.Z18_time = P_time + m_P.Z18_time; m.Z18_next = m_P; { if (same_zone) m.Z18_next_zone = m_P.Z18_next_zone; else m.Z18_next_zone = m_P; } }
-	if (m.Z19_time > (P_time + m_P.Z19_time)) { no_change = FALSE; m.Z19_ = m_P.Z19_; m.Z19_time = P_time + m_P.Z19_time; m.Z19_next = m_P; { if (same_zone) m.Z19_next_zone = m_P.Z19_next_zone; else m.Z19_next_zone = m_P; } }
-	if (m.Z20_time > (P_time + m_P.Z20_time)) { no_change = FALSE; m.Z20_ = m_P.Z20_; m.Z20_time = P_time + m_P.Z20_time; m.Z20_next = m_P; { if (same_zone) m.Z20_next_zone = m_P.Z20_next_zone; else m.Z20_next_zone = m_P; } }
-	if (m.Z21_time > (P_time + m_P.Z21_time)) { no_change = FALSE; m.Z21_ = m_P.Z21_; m.Z21_time = P_time + m_P.Z21_time; m.Z21_next = m_P; { if (same_zone) m.Z21_next_zone = m_P.Z21_next_zone; else m.Z21_next_zone = m_P; } }
-	if (m.Z22_time > (P_time + m_P.Z22_time)) { no_change = FALSE; m.Z22_ = m_P.Z22_; m.Z22_time = P_time + m_P.Z22_time; m.Z22_next = m_P; { if (same_zone) m.Z22_next_zone = m_P.Z22_next_zone; else m.Z22_next_zone = m_P; } }
-	if (m.Z23_time > (P_time + m_P.Z23_time)) { no_change = FALSE; m.Z23_ = m_P.Z23_; m.Z23_time = P_time + m_P.Z23_time; m.Z23_next = m_P; { if (same_zone) m.Z23_next_zone = m_P.Z23_next_zone; else m.Z23_next_zone = m_P; } }
-	if (m.Z24_time > (P_time + m_P.Z24_time)) { no_change = FALSE; m.Z24_ = m_P.Z24_; m.Z24_time = P_time + m_P.Z24_time; m.Z24_next = m_P; { if (same_zone) m.Z24_next_zone = m_P.Z24_next_zone; else m.Z24_next_zone = m_P; } }
+	if (m.Z1_time > (P_time + m_P.Z1_time)) {
+		no_change = FALSE; m.Z1_ = m_P.Z1_; m.Z1_time = P_time + m_P.Z1_time; m.Z1_next = m_P;
+		if (same_zone) m.Z1_next_zone = m_P.Z1_next_zone; else m.Z1_next_zone = m_P;
+		m.Z1_task = m_D | m_P.Z1_task; m.taskClus1 = m_D | m.taskClus1;
+	}
+	if (m.Z2_time > (P_time + m_P.Z2_time)) {
+		no_change = FALSE; m.Z2_ = m_P.Z2_; m.Z2_time = P_time + m_P.Z2_time; m.Z2_next = m_P;
+		if (same_zone) m.Z2_next_zone = m_P.Z2_next_zone; else m.Z2_next_zone = m_P;
+		m.Z2_task = m_D | m_P.Z2_task; m.taskClus1 = m_D | m.taskClus1;
+	}
+	if (m.Z3_time > (P_time + m_P.Z3_time)) {
+		no_change = FALSE; m.Z3_ = m_P.Z3_; m.Z3_time = P_time + m_P.Z3_time; m.Z3_next = m_P;
+		if (same_zone) m.Z3_next_zone = m_P.Z3_next_zone; else m.Z3_next_zone = m_P;
+		m.Z3_task = m_D | m_P.Z3_task; m.taskClus1 = m_D | m.taskClus1;
+	}
+	if (m.Z4_time > (P_time + m_P.Z4_time)) {
+		no_change = FALSE; m.Z4_ = m_P.Z4_; m.Z4_time = P_time + m_P.Z4_time; m.Z4_next = m_P;
+		if (same_zone) m.Z4_next_zone = m_P.Z4_next_zone; else m.Z4_next_zone = m_P;
+		m.Z4_task = m_D | m_P.Z4_task; m.taskClus1 = m_D | m.taskClus1;
+	}
+	if (m.Z5_time > (P_time + m_P.Z5_time)) {
+		no_change = FALSE; m.Z5_ = m_P.Z5_; m.Z5_time = P_time + m_P.Z5_time; m.Z5_next = m_P;
+		if (same_zone) m.Z5_next_zone = m_P.Z5_next_zone; else m.Z5_next_zone = m_P;
+		m.Z5_task = m_D | m_P.Z5_task; m.taskClus1 = m_D | m.taskClus1;
+	}
+	if (m.Z6_time > (P_time + m_P.Z6_time)) {
+		no_change = FALSE; m.Z6_ = m_P.Z6_; m.Z6_time = P_time + m_P.Z6_time; m.Z6_next = m_P;
+		if (same_zone) m.Z6_next_zone = m_P.Z6_next_zone; else m.Z6_next_zone = m_P;
+		m.Z6_task = m_D | m_P.Z6_task; m.taskClus1 = m_D | m.taskClus1;
+	}
+
+	if (m.Z7_time > (P_time + m_P.Z7_time)) {
+		no_change = FALSE; m.Z7_ = m_P.Z7_; m.Z7_time = P_time + m_P.Z7_time; m.Z7_next = m_P;
+		if (same_zone) m.Z7_next_zone = m_P.Z7_next_zone; else m.Z7_next_zone = m_P;
+		m.Z7_task = m_D | m_P.Z7_task; m.taskClus2 = m_D | m.taskClus2;
+	}
+	if (m.Z8_time > (P_time + m_P.Z8_time)) {
+		no_change = FALSE; m.Z8_ = m_P.Z8_; m.Z8_time = P_time + m_P.Z8_time; m.Z8_next = m_P;
+		if (same_zone) m.Z8_next_zone = m_P.Z8_next_zone; else m.Z8_next_zone = m_P;
+		m.Z8_task = m_D | m_P.Z8_task; m.taskClus2 = m_D | m.taskClus2;
+	}
+	if (m.Z9_time > (P_time + m_P.Z9_time)) {
+		no_change = FALSE; m.Z9_ = m_P.Z9_; m.Z9_time = P_time + m_P.Z9_time; m.Z9_next = m_P;
+		if (same_zone) m.Z9_next_zone = m_P.Z9_next_zone; else m.Z9_next_zone = m_P;
+		m.Z9_task = m_D | m_P.Z9_task; m.taskClus2 = m_D | m.taskClus2;
+	}
+	if (m.Z10_time > (P_time + m_P.Z10_time)) {
+		no_change = FALSE; m.Z10_ = m_P.Z10_; m.Z10_time = P_time + m_P.Z10_time; m.Z10_next = m_P;
+		if (same_zone) m.Z10_next_zone = m_P.Z10_next_zone; else m.Z10_next_zone = m_P;
+		m.Z10_task = m_D | m_P.Z10_task; m.taskClus2 = m_D | m.taskClus2;
+	}
+	if (m.Z11_time > (P_time + m_P.Z11_time)) {
+		no_change = FALSE; m.Z11_ = m_P.Z11_; m.Z11_time = P_time + m_P.Z11_time; m.Z11_next = m_P;
+		if (same_zone) m.Z11_next_zone = m_P.Z11_next_zone; else m.Z11_next_zone = m_P;
+		m.Z11_task = m_D | m_P.Z11_task; m.taskClus2 = m_D | m.taskClus2;
+	}
+	if (m.Z12_time > (P_time + m_P.Z12_time)) {
+		no_change = FALSE; m.Z12_ = m_P.Z12_; m.Z12_time = P_time + m_P.Z12_time; m.Z12_next = m_P;
+		if (same_zone) m.Z12_next_zone = m_P.Z12_next_zone; else m.Z12_next_zone = m_P;
+		m.Z12_task = m_D | m_P.Z12_task; m.taskClus2 = m_D | m.taskClus2;
+	}
+
+	if (m.Z13_time > (P_time + m_P.Z13_time)) {
+		no_change = FALSE; m.Z13_ = m_P.Z13_; m.Z13_time = P_time + m_P.Z13_time; m.Z13_next = m_P;
+		if (same_zone) m.Z13_next_zone = m_P.Z13_next_zone; else m.Z13_next_zone = m_P;
+		m.Z13_task = m_D | m_P.Z13_task; m.taskClus3 = m_D | m.taskClus3;
+	}
+	if (m.Z14_time > (P_time + m_P.Z14_time)) {
+		no_change = FALSE; m.Z14_ = m_P.Z14_; m.Z14_time = P_time + m_P.Z14_time; m.Z14_next = m_P;
+		if (same_zone) m.Z14_next_zone = m_P.Z14_next_zone; else m.Z14_next_zone = m_P;
+		m.Z14_task = m_D | m_P.Z14_task; m.taskClus3 = m_D | m.taskClus3;
+	}
+	if (m.Z15_time > (P_time + m_P.Z15_time)) {
+		no_change = FALSE; m.Z15_ = m_P.Z15_; m.Z15_time = P_time + m_P.Z15_time; m.Z15_next = m_P;
+		if (same_zone) m.Z15_next_zone = m_P.Z15_next_zone; else m.Z15_next_zone = m_P;
+		m.Z15_task = m_D | m_P.Z15_task; m.taskClus3 = m_D | m.taskClus3;
+	}
+	if (m.Z16_time > (P_time + m_P.Z16_time)) {
+		no_change = FALSE; m.Z16_ = m_P.Z16_; m.Z16_time = P_time + m_P.Z16_time; m.Z16_next = m_P;
+		if (same_zone) m.Z16_next_zone = m_P.Z16_next_zone; else m.Z16_next_zone = m_P;
+		m.Z16_task = m_D | m_P.Z16_task; m.taskClus3 = m_D | m.taskClus3;
+	}
+	if (m.Z17_time > (P_time + m_P.Z17_time)) {
+		no_change = FALSE; m.Z17_ = m_P.Z17_; m.Z17_time = P_time + m_P.Z17_time; m.Z17_next = m_P;
+		if (same_zone) m.Z17_next_zone = m_P.Z17_next_zone; else m.Z17_next_zone = m_P;
+		m.Z17_task = m_D | m_P.Z17_task; m.taskClus3 = m_D | m.taskClus3;
+	}
+	if (m.Z18_time > (P_time + m_P.Z18_time)) {
+		no_change = FALSE; m.Z18_ = m_P.Z18_; m.Z18_time = P_time + m_P.Z18_time; m.Z18_next = m_P;
+		if (same_zone) m.Z18_next_zone = m_P.Z18_next_zone; else m.Z18_next_zone = m_P;
+		m.Z18_task = m_D | m_P.Z18_task; m.taskClus3 = m_D | m.taskClus3;
+	}
+
+	if (m.Z19_time > (P_time + m_P.Z19_time)) {
+		no_change = FALSE; m.Z19_ = m_P.Z19_; m.Z19_time = P_time + m_P.Z19_time; m.Z19_next = m_P;
+		if (same_zone) m.Z19_next_zone = m_P.Z19_next_zone; else m.Z19_next_zone = m_P;
+		m.Z19_task = m_D | m_P.Z19_task; m.taskClus4 = m_D | m.taskClus4;
+	}
+	if (m.Z20_time > (P_time + m_P.Z20_time)) {
+		no_change = FALSE; m.Z20_ = m_P.Z20_; m.Z20_time = P_time + m_P.Z20_time; m.Z20_next = m_P;
+		if (same_zone) m.Z20_next_zone = m_P.Z20_next_zone; else m.Z20_next_zone = m_P;
+		m.Z20_task = m_D | m_P.Z20_task; m.taskClus4 = m_D | m.taskClus4;
+	}
+	if (m.Z21_time > (P_time + m_P.Z21_time)) {
+		no_change = FALSE; m.Z21_ = m_P.Z21_; m.Z21_time = P_time + m_P.Z21_time; m.Z21_next = m_P;
+		if (same_zone) m.Z21_next_zone = m_P.Z21_next_zone; else m.Z21_next_zone = m_P;
+		m.Z21_task = m_D | m_P.Z21_task; m.taskClus4 = m_D | m.taskClus4;
+	}
+	if (m.Z22_time > (P_time + m_P.Z22_time)) {
+		no_change = FALSE; m.Z22_ = m_P.Z22_; m.Z22_time = P_time + m_P.Z22_time; m.Z22_next = m_P;
+		if (same_zone) m.Z22_next_zone = m_P.Z22_next_zone; else m.Z22_next_zone = m_P;
+		m.Z22_task = m_D | m_P.Z22_task; m.taskClus4 = m_D | m.taskClus4;
+	}
+	if (m.Z23_time > (P_time + m_P.Z23_time)) {
+		no_change = FALSE; m.Z23_ = m_P.Z23_; m.Z23_time = P_time + m_P.Z23_time; m.Z23_next = m_P;
+		if (same_zone) m.Z23_next_zone = m_P.Z23_next_zone; else m.Z23_next_zone = m_P;
+		m.Z23_task = m_D | m_P.Z23_task; m.taskClus4 = m_D | m.taskClus4;
+	}
+	if (m.Z24_time > (P_time + m_P.Z24_time)) {
+		no_change = FALSE; m.Z24_ = m_P.Z24_; m.Z24_time = P_time + m_P.Z24_time; m.Z24_next = m_P;
+		if (same_zone) m.Z24_next_zone = m_P.Z24_next_zone; else m.Z24_next_zone = m_P;
+		m.Z24_task = m_D | m_P.Z24_task; m.taskClus4 = m_D | m.taskClus4;
+	}
 };
 
 /*

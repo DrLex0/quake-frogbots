@@ -1562,6 +1562,8 @@ float SAVED_T				= 1;
 .entity near_teleport;
 
 entity dm6_door;
+float door_open_dist;
+float door_targetZ;
 
 // state values for clients
 float NOTARGET_ENEMY			= 32;
@@ -1788,7 +1790,34 @@ float S_index;
 //
 // tasks
 //
+.float taskClus1;
 .float Z1_task;
+.float Z2_task;
+.float Z3_task;
+.float Z4_task;
+.float Z5_task;
+.float Z6_task;
+.float taskClus2;
+.float Z7_task;
+.float Z8_task;
+.float Z9_task;
+.float Z10_task;
+.float Z11_task;
+.float Z12_task;
+.float taskClus3;
+.float Z13_task;
+.float Z14_task;
+.float Z15_task;
+.float Z16_task;
+.float Z17_task;
+.float Z18_task;
+.float taskClus4;
+.float Z19_task;
+.float Z20_task;
+.float Z21_task;
+.float Z22_task;
+.float Z23_task;
+.float Z24_task;
 
 
 float path_normal;

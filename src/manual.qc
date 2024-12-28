@@ -1,8 +1,14 @@
-// DECOMPILED FROM WAYPOINTS PROGS.DAT with fteqcc and some rudimentary
-// cleanup because the original source is nowhere to be found.
-// The FrogBot source was given a GPL license by Robert Field in 2007.
-// And even if you think that message was fake, this is all so old that
-// copyright doesn't mean much anymore anyhow.
+/*
+	manual.qc
+
+	Original author unsure, but probably Robert 'Frog' Field.
+	Restored by DrLex 2024/12 by decompiling the waypoint progs.dat.
+	The FrogBot source was given a GPL license by Robert Field in 2007.
+	And even if you think that message was fake, this is all so old
+	that copyright doesn't mean much anymore anyhow.
+*/
+
+#include "settings.h"
 
 #ifdef MANUAL
 
@@ -645,8 +651,20 @@ void(string field) Save_m_D =
 
 void() Save_dm6_door =
 {
+	// Doors are no longer specific to dm6, but keep the name to avoid having to change sources
 	bprint("dm6_door=m", ftos(m.index), ";");
 	count_ = (count_ + 1);
+	// Ensure overrides of the defaults are preserved
+	if(door_open_dist != 67)
+	{
+		bprint("door_open_dist=", ftos(door_open_dist), ";");
+		count_ = (count_ + 1);
+	}
+	if(door_targetZ != 1)
+	{
+		bprint("door_targetZ=", ftos(door_targetZ), ";");
+		count_ = (count_ + 1);
+	}
 };
 
 void() SetMarkerIndexes =
@@ -799,12 +817,9 @@ void() SavePaths =
 		}
 		else if (save_state == 6)
 		{
-			if (mapname == "dm6")
+			if (m.classname == "door" && m == dm6_door)
 			{
-				if (m.classname == "door")
-				{
-					Save_dm6_door();
-				}
+				Save_dm6_door();
 			}
 		}
 

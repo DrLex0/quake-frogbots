@@ -5,6 +5,7 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2001 DMSouL
 	Copyright (C) 2000-2007 ParboiL
+	Universal doors by DrLex 2024/12
 */
 
 #include "../settings.h"
@@ -40,7 +41,7 @@ void() EvalPath =
 
 	if (description & DM6_DOOR)
 	{
-		if (dm6_door.origin_x > -64)
+		if (vlen(dm6_door.origin) < door_open_dist)
 			return;	// door not open enough
 	}
 	if (description & ROCKET_JUMP)
@@ -605,9 +606,43 @@ void() frogbot_marker_touch =
 // CheckTasks
 //
 
-	if (goalentity_marker.Z_ == 1)	// task zone
+	// DrLex: generalize dm6_door.
+	// As far as I understand it, the Z1_task property collects all path mode
+	// bits encountered until goalentity_marker if it is in Z1. I extended it to
+	// all zones, clustered so we don't need to test all 24 in the worst case.
+	if (goalentity_marker.Z_ == door_targetZ)
 	{
-		if (touch_marker_.Z1_task & DM6_DOOR)
+		if (
+			((touch_marker_.taskClus1 & DM6_DOOR) && (
+				((door_targetZ == 1) && (touch_marker_.Z1_task & DM6_DOOR)) ||
+				((door_targetZ == 2) && (touch_marker_.Z2_task & DM6_DOOR)) ||
+				((door_targetZ == 3) && (touch_marker_.Z3_task & DM6_DOOR)) ||
+				((door_targetZ == 4) && (touch_marker_.Z4_task & DM6_DOOR)) ||
+				((door_targetZ == 5) && (touch_marker_.Z5_task & DM6_DOOR)) ||
+				((door_targetZ == 6) && (touch_marker_.Z6_task & DM6_DOOR))
+			)) || ((touch_marker_.taskClus2 & DM6_DOOR) && (
+				((door_targetZ == 7) && (touch_marker_.Z7_task & DM6_DOOR)) ||
+				((door_targetZ == 8) && (touch_marker_.Z8_task & DM6_DOOR)) ||
+				((door_targetZ == 9) && (touch_marker_.Z9_task & DM6_DOOR)) ||
+				((door_targetZ == 10) && (touch_marker_.Z10_task & DM6_DOOR)) ||
+				((door_targetZ == 11) && (touch_marker_.Z11_task & DM6_DOOR)) ||
+				((door_targetZ == 12) && (touch_marker_.Z12_task & DM6_DOOR))
+			)) || ((touch_marker_.taskClus3 & DM6_DOOR) && (
+				((door_targetZ == 13) && (touch_marker_.Z13_task & DM6_DOOR)) ||
+				((door_targetZ == 14) && (touch_marker_.Z14_task & DM6_DOOR)) ||
+				((door_targetZ == 15) && (touch_marker_.Z15_task & DM6_DOOR)) ||
+				((door_targetZ == 16) && (touch_marker_.Z16_task & DM6_DOOR)) ||
+				((door_targetZ == 17) && (touch_marker_.Z17_task & DM6_DOOR)) ||
+				((door_targetZ == 18) && (touch_marker_.Z18_task & DM6_DOOR))
+			)) || ((touch_marker_.taskClus4 & DM6_DOOR) && (
+				((door_targetZ == 19) && (touch_marker_.Z19_task & DM6_DOOR)) ||
+				((door_targetZ == 20) && (touch_marker_.Z20_task & DM6_DOOR)) ||
+				((door_targetZ == 21) && (touch_marker_.Z21_task & DM6_DOOR)) ||
+				((door_targetZ == 22) && (touch_marker_.Z22_task & DM6_DOOR)) ||
+				((door_targetZ == 23) && (touch_marker_.Z23_task & DM6_DOOR)) ||
+				((door_targetZ == 24) && (touch_marker_.Z24_task & DM6_DOOR))
+			))
+		)
 		{
 			if (dm6_door.takedamage)
 			{

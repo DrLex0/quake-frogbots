@@ -19,13 +19,18 @@ The goal: revive the Frogbots in a way that:
 - makes it possible to resume editing existing waypoint data;
 - perhaps improve some things.
 
-Done so far:
+**Done so far:**
 - Solved the `numpr_globals` problem without requiring the `-Ovectorcalls` option in fteqcc, which has been broken for ages when trying to compile for many maps. This allows to build with any recent fteqcc, and basically allows an _infinite_ number of maps to be built into the qwprogs, until we hit some other QuakeC limit.
 - Simpler management of map waypoint files, with a Python script that can also convert existing files for the above fix.
-- Restored ability to build the *waypoint* tool as shown in [Mick's guide](https://mickkn.mooo.com/quakeworld/frogbot/). It is now possible to resume editing from existing waypoints, if you compile them into the tool and then simply load the map. This also allows to examine existing maps to better understand how to create good waypoints for a new map.  
-  Also added some improvements to the tool, like:
+- Restored ability to build the *waypoint* tool as shown in [Mick's guide](https://mickkn.mooo.com/quakeworld/frogbot/).  
+  It is now possible to *resume editing* from existing waypoints, if you compile them into the tool and then simply load the map. This makes creating waypoints **way** more feasible through an edit-test cycle.  
+  The waypoint tool also allows to examine existing maps to better understand how to create good waypoints for new maps.  
+  Also added improvements to the tool, like:
+  - made closest marker mode way more usable to select hard-to-reach markers like teleport triggers;
   - print more info next to goal and zone, like coordinates and marker type;
-  - allow selecting between overlapping markers in closest-marker mode.
+  - print paths going out and coming into active marker (including special modes);
+  - allow alternating between overlapping markers in closest-marker mode.
+- Made *shootable doors* work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors.
 
 Planned:
 - Add Trinca's waypoints.
@@ -33,7 +38,7 @@ Planned:
 - Improve upon Mick's waypoint guide. Figure out the more advanced things.
 - Tool to generate waypoint qc file from annotations in a `.map` file (currently only a concept, but should be easy).
 
-No promises about dates or reaching these goals whatsoever. It's done when it's done.
+No promises about dates or reaching these goals whatsoever. It is done when it's done.
 
 Not really planned, but who knows:
 - Make Frogbot work in non-Quakeworld engines (it builds and runs, but is not usable).
