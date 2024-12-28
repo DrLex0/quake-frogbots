@@ -1506,11 +1506,8 @@ float WATERJUMP_			= 2;
 float DM6_DOOR			= 256;
 float ROCKET_JUMP		= 512;
 float JUMP_LEDGE			= 1024;
-#ifdef ARENA
+// Bits to be saved in waypoint code: DM6_DOOR | ROCKET_JUMP | JUMP_LEDGE
 float SAVED_DESCRIPTION	= 1792;
-#else
-float SAVED_DESCRIPTION = 1280;
-#endif
 
 // auto set values
 float REVERSIBLE			= 16384;

@@ -154,6 +154,7 @@ void() adjust_view_ofs_z =
 LocateMarker
 
 Bot disorientated / BackPacks.
+Also for closest marker mode in MANUAL.
 ============
 */
 entity(vector org) LocateMarker =

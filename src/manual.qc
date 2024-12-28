@@ -268,11 +268,19 @@ float(entity marker_P, float marker_D) Display =
 
 void() MarkerDisplay =
 {
+	origin_ = self.origin;
+	if(mode & CLOSEST_MARKER) {
+		// override touch_marker
+		closest_marker = LocateMarker(origin_);
+		if(closest_marker != world) {
+			self.touch_marker = closest_marker;
+		}
+	}
 	if (self.touch_marker)
 	{
 		manual_marker_touch(self.touch_marker);
 	}
-	origin_ = self.origin;
+
 	marker_ = first_marker;
 	while (marker_)
 	{
@@ -298,13 +306,13 @@ void() MarkerDisplay =
 		}
 		marker_ = marker_.marker_link;
 	}
-	if (mode & CLOSEST_MARKER)
+	if ((mode & CLOSEST_MARKER) && ! (mode & STATIC_ACTIVE_MARKER))
 	{
 		if (active_marker)
 		{
 			active_marker.display.frame = 12;
 		}
-		active_marker = LocateMarker(self.origin);
+		active_marker = closest_marker;
 	}
 	if (!active_marker)
 	{
@@ -1074,10 +1082,27 @@ void() PrintGoal =
 	{
 		bprint(", G", ftos(active_marker.G_));
 	}
-	bprint("  (",
+
+	if ((active_marker.classname == "trigger_teleport") ||
+	    (active_marker.classname == "door") ||
+	    (active_marker.classname == "func_button"))
+	{
+		// These markers have no origin because they are brushes.
+		// Approximate location by center of bounding box (likely
+		// same way the display marker position is obtained).
+		local vector v_temp = (active_marker.mins + active_marker.maxs) * 0.5;
+		bprint(" ~(",
+			ftos(rint(v_temp_x)), ",",
+			ftos(rint(v_temp_y)), ",",
+			ftos(rint(v_temp_z)), ")~ ");
+	}
+	else
+	{
+		bprint("  (",
 		ftos(rint(active_marker.origin_x)), ",",
 		ftos(rint(active_marker.origin_y)), ",",
 		ftos(rint(active_marker.origin_z)), ")  ");
+	}
 	bprint(active_marker.classname, "\n");
 
 	if (active_marker.RA0)
@@ -1148,6 +1173,129 @@ void() PrintGoal =
 	}
 	bprint("\n\n");
 };
+
+void(float descbits) PrintDLabel
+{
+	if (descbits & JUMP_LEDGE)
+		bprint("\xCA");  // J
+	if (descbits & DM6_DOOR)
+		bprint("\xC4");  // D
+	if (descbits & ROCKET_JUMP)
+		bprint("\xD2");  // R
+}
+
+// Makes checking teleport paths so much easier
+void() PrintPathInfo =
+{
+	if (!active_marker)
+	{
+		bprint("no active marker\n");
+		return;
+	}
+	SetMarkerIndexes();
+	local float p_count = 0;
+	m = active_marker;
+	bprint("m", ftos(m.index), " paths\nout:");
+	if (m.P0) {
+		bprint(" m", ftos(m.P0.index));
+		PrintDLabel (m.D0);
+		p_count = p_count + 1;
+	}
+	if (m.P1) {
+		bprint(" m", ftos(m.P1.index));
+		PrintDLabel (m.D1);
+		p_count = p_count + 1;
+	}
+	if (m.P2) {
+		bprint(" m", ftos(m.P2.index));
+		PrintDLabel (m.D2);
+		p_count = p_count + 1;
+	}
+	if (m.P3) {
+		bprint(" m", ftos(m.P3.index));
+		PrintDLabel (m.D3);
+		p_count = p_count + 1;
+	}
+	if (m.P4) {
+		bprint(" m", ftos(m.P4.index));
+		PrintDLabel (m.D4);
+		p_count = p_count + 1;
+	}
+	if (m.P5) {
+		bprint(" m", ftos(m.P5.index));
+		PrintDLabel (m.D5);
+		p_count = p_count + 1;
+	}
+	if (m.P6) {
+		bprint(" m", ftos(m.P6.index));
+		PrintDLabel (m.D6);
+		p_count = p_count + 1;
+	}
+	if (m.P7) {
+		bprint(" m", ftos(m.P7.index));
+		PrintDLabel (m.D7);
+		p_count = p_count + 1;
+	}
+	if (! p_count) bprint(" none\nin: ");
+	else bprint(" [", ftos(p_count), "]\nin :");
+
+	p_count = 0;
+	m = first_marker;
+	while (m)
+	{
+		if (m.P0 && (m.P0.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D0);
+			p_count = p_count + 1;
+		}
+		else if (m.P1 && (m.P1.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D1);
+			p_count = p_count + 1;
+		}
+		else if (m.P2 && (m.P2.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D2);
+			p_count = p_count + 1;
+		}
+		else if (m.P3 && (m.P3.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D3);
+			p_count = p_count + 1;
+		}
+		else if (m.P4 && (m.P4.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D4);
+			p_count = p_count + 1;
+		}
+		else if (m.P5 && (m.P5.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D5);
+			p_count = p_count + 1;
+		}
+		else if (m.P6 && (m.P6.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D6);
+			p_count = p_count + 1;
+		}
+		else if (m.P7 && (m.P7.index == active_marker.index))
+		{
+			bprint(" m", ftos(m.index));
+			PrintDLabel (m.D7);
+			p_count = p_count + 1;
+		}
+		m = m.marker_link;
+	}
+	if (! p_count) bprint(" none\n\n");
+	else bprint(" [", ftos(p_count), "]\n\n");
+}
 
 void() ToggleManualMode =
 {
@@ -1484,6 +1632,10 @@ void() ManualImpulseCommands =
 	else if (impulse_ == 156)
 	{
 		CycleAltMarker();
+	}
+	else if (impulse_ == 157)
+	{
+		PrintPathInfo();
 	}
 };
 
