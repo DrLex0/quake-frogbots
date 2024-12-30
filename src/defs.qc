@@ -1147,7 +1147,7 @@ entity(vector org, float rad) findradius = #22;
 void (...) bprint					= #23;
 //void(string s) dprint				= #25;
 string(float f) ftos				= #26;
-//string(vector v) vtos				= #27;
+string(vector v) vtos				= #27;
 float(float yaw, float dist) walkmove	= #32;	// returns TRUE or FALSE
 // #33 was removed
 float() droptofloor = #34;	// TRUE if landed on floor
@@ -2100,7 +2100,6 @@ float or;
 float nr;
 float score_count;
 entity closest_marker;
-float shortest_distance;
 vector marker_pos;
 entity marker_;
 float zone_time;

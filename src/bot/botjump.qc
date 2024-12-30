@@ -46,15 +46,17 @@ float() able_rj =
 	if (health_after > self.armorvalue)
 		health_after = self.armorvalue;
 	health_after = self.health - ceil(50 - health_after);
-	if (((health_after > 50)
-	|| (teamplay == 1) || (teamplay == 5))
-	&& (self.items & IT_ROCKET_LAUNCHER)
-	&& (self.ammo_rockets > 2)
-#ifdef ARENA
-	&& ((!game_arena) || (arenastate == A_PLAYING))
-#endif
-	&& (!beQuiet)
-	&& (random() > 0.5))
+	if (
+		((health_after > 50)
+			|| (teamplay == 1) || (teamplay == 5))
+		&& (self.items & IT_ROCKET_LAUNCHER)
+		&& (self.ammo_rockets > 2)
+	#ifdef ARENA
+		&& ((!game_arena) || (arenastate == A_PLAYING))
+	#endif
+		&& (!beQuiet)
+		&& (random() > 0.5)
+	)
 		return 1;
 	return 0;
 };
@@ -76,6 +78,7 @@ float() a_evalpath =
 	return 0;
 };
 
+// boven = Dutch for above ;)
 float() checkboven =
 {
 	traceline(self.origin, self.origin + '0 0 140', TRUE, self);
@@ -157,17 +160,17 @@ void() a_rocketjump =
 	if (!(self.items & IT_ROCKET_LAUNCHER))
 		return;
 	if (self.waterlevel > 1)
-	if (pointcontents(self.origin + '0 0 -24') == CONTENT_LAVA)
-	if (checkboven()) 
-	{
-		lava_jump(); 
-		return;
-	}
+		if (pointcontents(self.origin + '0 0 -24') == CONTENT_LAVA)
+		if (checkboven()) 
+		{
+			lava_jump(); 
+			return;
+		}
 	if (!able_rj())
 		return;
 	if (self.items & IT_QUAD)
-	if (!(self.items & IT_INVULNERABILITY))
-		return;
+		if (!(self.items & IT_INVULNERABILITY))
+			return;
 	if (!(self.path_state & ROCKET_JUMP))
 		return;
 	if (self.button0_)

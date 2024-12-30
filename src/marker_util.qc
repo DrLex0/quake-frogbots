@@ -154,17 +154,12 @@ void() adjust_view_ofs_z =
 LocateMarker
 
 Bot disorientated / BackPacks.
-Also for closest marker mode in MANUAL.
 ============
 */
 entity(vector org) LocateMarker =
 {
-	shortest_distance = 1000000;
+	local float shortest_distance = 1000000;
 	closest_marker = world;
-#ifdef MANUAL
-	local float extras;
-	extras = 0;
-#endif
 
 	marker_ = findradius(org, 1000); // 1000
 	while (marker_)
@@ -176,22 +171,6 @@ entity(vector org) LocateMarker =
 			traceline(org, marker_pos, TRUE, dropper);
 			if (trace_fraction != 1)
 				distance = distance + 1000;
-		#ifdef MANUAL
-			if (distance == shortest_distance && closest_marker != world)
-			{
-				if (! extras)
-				{
-					next_closest1 = marker_;
-					extras = 1;
-				}
-				else if( extras == 1)
-				{
-					next_closest2 = marker_;
-					extras = 2;
-				}
-				// Ignore any others. Nobody should stack more than 3 markers.
-			}
-		#endif
 			if (distance < shortest_distance)
 			{
 			#ifndef ARENA
@@ -202,9 +181,6 @@ entity(vector org) LocateMarker =
 				self.near_teleport = world;
 				shortest_distance = distance;
 				closest_marker = marker_;
-		#ifdef MANUAL
-				extras = 0;
-		#endif
 			}
 			else if (marker_.classname == "trigger_teleport")
 			{
@@ -212,19 +188,9 @@ entity(vector org) LocateMarker =
 			}
 		}
 		marker_ = marker_.chain;
-
 	}
 
-#ifdef MANUAL
-	if (alt_marker_idx == 0 || ! extras)
-		return closest_marker;
-	else if(alt_marker_idx == 1 || extras == 1)
-		return next_closest1;
-	else
-		return next_closest2;
-#else
 	return closest_marker;
-#endif
 };
 
 

@@ -2,7 +2,7 @@
 	manual.qc
 
 	Original author unsure, but probably Robert 'Frog' Field.
-	Restored by DrLex 2024/12 by decompiling the waypoint progs.dat.
+	Restored and improved by DrLex 2024/12 by decompiling waypoint progs.dat.
 	The FrogBot source was given a GPL license by Robert Field in 2007.
 	And even if you think that message was fake, this is all so old
 	that copyright doesn't mean much anymore anyhow.
@@ -250,6 +250,70 @@ void() ClearActiveMarker =
 	bprint("Active marker path cleared\n");
 };
 
+/*
+============
+ClosestMarker
+
+Similar to LocateMarker in marker_util, but tweaked for manual mode
+============
+*/
+entity(vector org) ClosestMarker =
+{
+	local vector view_org = org + '0 0 22';
+	local vector trace_org = org + '0 0 16';
+	local float shortest_distance = 1000000;
+	local float next_dist1 = 1000000;
+	local float next_dist2 = 1000000;
+	closest_marker = world;
+	next_closest1 = world;
+	next_closest2 = world;
+
+	marker_ = findradius(org, 1000);
+	while (marker_)
+	{
+		if (marker_.fl_marker)
+		{
+			marker_pos = marker_.absmin + marker_.view_ofs;
+			distance = vlen(marker_pos - view_org);
+			// Penalize markers behind geometry, but not if very near
+			if (distance > 48)
+			{
+				traceline(trace_org, marker_pos, TRUE, dropper);
+				if (trace_fraction != 1)
+				distance = distance + 1000;
+			}
+			if (distance < shortest_distance)
+			{
+				next_dist2 = next_dist1;
+				next_closest2 = next_closest1;
+				next_dist1 = shortest_distance;
+				next_closest1 = closest_marker;
+				shortest_distance = distance;
+				closest_marker = marker_;
+			}
+			else if (distance < next_dist1)
+			{
+				next_dist2 = next_dist1;
+				next_closest2 = next_closest1;
+				next_dist1 = distance;
+				next_closest1 = marker_;
+			}
+			else if (distance < next_dist2)
+			{
+				next_dist2 = distance;
+				next_closest2 = marker_;
+			}
+		}
+		marker_ = marker_.chain;
+	}
+
+	if (alt_marker_idx == 0 || next_closest1 == world)
+		return closest_marker;
+	if (alt_marker_idx == 1 || next_closest2 == world)
+		return next_closest1;
+	return next_closest2;
+};
+
 void() DisplayZone =
 {
 	marker_ = first_marker;
@@ -277,7 +341,7 @@ void() MarkerDisplay =
 	origin_ = self.origin;
 	if(mode & CLOSEST_MARKER) {
 		// override touch_marker
-		closest_marker = LocateMarker(origin_);
+		closest_marker = ClosestMarker(origin_);
 		if(closest_marker != world) {
 			self.touch_marker = closest_marker;
 		}
@@ -301,7 +365,7 @@ void() MarkerDisplay =
 		}
 		if (marker_.display)
 		{
-			if (vlen(display_origin - origin_) <= 600)
+			if (vlen(display_origin - origin_) <= 750)
 			{
 				marker_.display.model = "/";
 			}
@@ -653,18 +717,16 @@ void() Save_dm6_door =
 {
 	// Doors are no longer specific to dm6, but keep the name to avoid having to change sources
 	bprint("dm6_door=m", ftos(m.index), ";");
-	count_ = (count_ + 1);
 	// Ensure overrides of the defaults are preserved
 	if(door_open_dist != 67)
 	{
 		bprint("door_open_dist=", ftos(door_open_dist), ";");
-		count_ = (count_ + 1);
 	}
 	if(door_targetZ != 1)
 	{
 		bprint("door_targetZ=", ftos(door_targetZ), ";");
-		count_ = (count_ + 1);
 	}
+	count_ = count_ + 1;
 };
 
 void() SetMarkerIndexes =
@@ -706,7 +768,7 @@ void() SaveCoords =
 	{
 		bprint("N(", ftos(m.origin_x), ",", ftos(m.origin_y), ",", ftos(m.origin_z), ");");
 		count_ = count_ + 1;
-		if (count_ == 10)
+		if (count_ >= 5)
 		{
 			bprint("\n");
 			return;
@@ -1210,7 +1272,10 @@ void() PrintPathInfo =
 	SetMarkerIndexes();
 	local float p_count = 0;
 	m = active_marker;
-	bprint("m", ftos(m.index), " paths\nout:");
+	bprint("m", ftos(m.index));
+	if(m.Z_) bprint(" (Z", ftos(m.Z_), ")");
+	else bprint(" (no zone!)");
+	bprint(" paths\nout:");
 	if (m.P0) {
 		bprint(" m", ftos(m.P0.index));
 		PrintDLabel (m.D0);
@@ -1446,18 +1511,19 @@ void() CycleDescriptionMode =
 	}
 };
 
-/* To be able to select between markers that have the exact same coordinates,
- * like some in aerowalk. Only works in closest marker mode. */
+/* To be able to select between markers very close to each other, or
+ * overlap like some in aerowalk. Only works in closest marker mode. */
 void() CycleAltMarker =
 {
 	alt_marker_idx = alt_marker_idx + 1;
 	if (alt_marker_idx > 2)
 		alt_marker_idx = 0;
-	if (! alt_marker_idx)
-		bprint("preferring first closest marker\n");
+	bprint("closest marker mode: ");
+	if (alt_marker_idx == 0)
+		bprint("first nearest\n");
 	else
 	{
-		bprint("preferring alternate closest marker ", ftos(alt_marker_idx), "\n");
+		bprint("next nearest ", ftos(alt_marker_idx), "\n");
 	}
 }
 
@@ -1551,8 +1617,16 @@ void() CheckAllGoals =
 	bprint("Goals completed\n");
 };
 
-// NOTE: I had to change all impulses compared to the waypoint tool distributed
-// by Mick, because extra impulses have been added in arena.qc.
+void() PrintDebugInfo =
+{
+	bprint("pos ", vtos(self.origin));
+	if (dm6_door != world)
+		bprint("; dm6_door dist ", ftos(vlen(dm6_door.origin)));
+	bprint("\n");
+}
+
+// DrLex: I had to change all impulses compared to the waypoint tool
+// distributed by Mick, because extra impulses have been added in arena.qc.
 // Skip over 140 and 141 because tied to f_jump and r_jump in botimp.qc.
 void() ManualImpulseCommands =
 {
@@ -1651,6 +1725,10 @@ void() ManualImpulseCommands =
 	else if (impulse_ == 157)
 	{
 		PrintPathInfo();
+	}
+	else if (impulse_ == 158)
+	{
+		PrintDebugInfo();
 	}
 };
 
