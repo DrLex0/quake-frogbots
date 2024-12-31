@@ -1145,7 +1145,7 @@ entity(vector org, float rad) findradius = #22;
 
 // 1 to 8 arguments, all strings, will be concatenated
 void (...) bprint					= #23;
-//void(string s) dprint				= #25;
+void (...) dprint					= #25;
 string(float f) ftos				= #26;
 string(vector v) vtos				= #27;
 float(float yaw, float dist) walkmove	= #32;	// returns TRUE or FALSE
@@ -1184,11 +1184,11 @@ vector(vector v) vectoangles			= #51;	// returns 0 to 360
 void(float to, float f) WriteByte		= #52;
 //void(float to, float f) WriteChar		= #53;
 void(float to, float f) WriteShort		= #54;
-void(float to, float f) WriteCoord		= #56;
 #ifndef QUAKE
 void(float to, float f) WriteLong		= #55;
-void(float to, float f) WriteAngle		= #57;
 #endif
+void(float to, float f) WriteCoord		= #56;
+void(float to, float f) WriteAngle		= #57;
 void(float to, string s) WriteString	= #58;
 void(float to, entity e) WriteEntity	= #59;
 

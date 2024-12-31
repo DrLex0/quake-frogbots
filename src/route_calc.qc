@@ -195,13 +195,11 @@ TravelTime
 
 void() TravelTime =
 {
-#ifdef ARENA
 	if (m_D & ROCKET_JUMP)
 	{
 		traveltime = 100000;
 		return;
 	}
-#endif
 	if (m_D & JUMP_LEDGE)
 		m_D = m_D | NO_DODGE;
 

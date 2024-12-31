@@ -2008,7 +2008,7 @@ void() goal_health_backpack =
 
 void() backpack_touch =
 {
-	local float acount;
+	local float acount = 0;
 
 	if (other.client_)
 	{

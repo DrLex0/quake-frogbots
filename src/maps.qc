@@ -35,7 +35,7 @@ float(string val) map_was_voted =
 float(string val) count_map_votes =
 {
 	local entity p;
-	local float n_v;
+	local float n_v = 0;
 	p = find(world, classname, "player");
 	while(p) {
 		if (p.k_votemap == val) n_v = n_v + 1;
@@ -137,6 +137,7 @@ float(string s) UserCmd =
 string() rndffamap =
 {
 	local float x, y, closed;
+	x = y = closed = 0;
 	local string cmap, pmap;
 	cmap = infokey(world, mapname);
 	pmap = cmap;

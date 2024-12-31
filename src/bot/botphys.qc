@@ -106,10 +106,10 @@ void() VelocityForArrow =
 					rel_pos = (self.linked_marker.absmin + self.linked_marker.view_ofs) - self.origin;
 					rel_pos_z = 0;
 
-				#ifdef ARENA
-					if (rel_pos * rel_pos != 0)
-				#endif
-					turning_speed = 114.59156 * hor_speed * (rel_pos * hor_normal_vec) / (rel_pos * rel_pos);	// 114.59156 = 360 / PI
+					local float vec_prod = rel_pos * rel_pos;
+					if (vec_prod != 0)
+						turning_speed = 114.59156 * hor_speed *
+							(rel_pos * hor_normal_vec) / vec_prod;	// 114.59156 = 360 / PI
 
 					if (fabs(turning_speed) > 270)
 					{
@@ -536,9 +536,7 @@ void() FrogbotPrePhysics2 =
 				}
 				else
 				{
-				#ifdef ARENA
 					self.botchose = 1;
-				#endif
 					self.impulse = CLIENTKILL;
 				}
 			}

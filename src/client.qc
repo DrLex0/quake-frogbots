@@ -14,7 +14,6 @@
 // prototypes
 void() W_SetCurrentAmmo;
 void() W_WeaponFrame;
-void() player_run;
 void (vector org, entity death_owner) spawn_tdeath;
 void(entity e) UpdateFrags;
 #ifdef TALK
@@ -56,6 +55,7 @@ void(entity tgt) say_ouchie;
 void() FrogTreadWater;
 void() FrogWaterMove;
 void() BotWaterJumpFix;
+void() a_rocketjump;
 
 
 #ifdef QUAKE
@@ -798,6 +798,7 @@ void() NextLevel =
 	} 
 
 	if (duel_mode) {
+		p1scores = p2scores = plfound = 0;
 		p = find(world, stringname, "gamer");
 		while(p != world) {
 			if (!plfound) {
@@ -1502,9 +1503,7 @@ void() PlayerPostThink_apply =
 		new_pitch = (rint(real_pitch_ / 1.40625)) * 1.40625;
 		self.real_pitch = real_pitch_;
 
-	#ifdef ARENA
 		a_rocketjump();
-	#endif
 
 	// yaw
 		yawspeed_ = self.yawspeed + self.yawaccel * frametime;

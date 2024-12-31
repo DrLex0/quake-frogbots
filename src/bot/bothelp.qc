@@ -54,6 +54,7 @@ entity(entity me) identify_teammate_ =
 	local vector diff, point;
 	local float currclose;
 	p = find(world, stringname, "gamer");
+	g = world;
 	while(p != world) {
 		if (me.realteam == p.realteam) {
 			diff = p.origin - me.origin;
@@ -74,8 +75,7 @@ entity(entity me) identify_teammate_ =
 		}
 		p = find(p, stringname, "gamer");		
 	}
-	if (g != world) return g;
-	return world;
+	return g;
 };
 
 float(float v) anglemod =

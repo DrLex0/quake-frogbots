@@ -24,10 +24,8 @@ float SVC_UPDATEPACKETLOSS = 53;
 float users;
 #else
 .float chase;
-void() togglechase;
 .float hop_time;
 .vector hop_velocity; // asdf
-void(float to, float f) WriteAngle = #57;
 #endif
 float SVC_SETANGLE = 10;
 .float itemstarted;
@@ -153,7 +151,6 @@ void(float to, entity e) updatetime;
 void(float to, entity e) updateping;
 void(float to, entity e) updatepacketloss;
 void(float to, entity e) updateuserinfo;
-void(string s) dprint = #25;
 // void() bot_netname;
 // void() dprint_obituary;
 void() updatebotpings;
@@ -166,7 +163,6 @@ void() togglechase;
 void() print_limit;
 void() FinalStats;
 void() SetScoreboard2;
-void() a_rocketjump;
 void(float to, entity e) UpdateFrags2;
 void() commands;
 void() framethink;
@@ -242,19 +238,13 @@ void(string s, float value) alias;
 // other functions used
 void() obstruction;
 void() PrintRules;
-void() GameSettings;
 void() SetGame;
-void() SpawnRunes;
-void() fd_secret_use;
-void() train_next;
-void() CheckNewWeapon;
 void() GotoNextMap;
 void(string s) centerprint_all;
 void(entity e) UpdateFrags;
 void() SelectSpawnPoint;
 void(vector org, entity death_owner) spawn_tdeath;
 float() W_BestWeapon;
-void() NextLevel;
 void(float value, string s) ToggleGameMode;
 void(float value, string s) ToggleGameModeNow;
 void(float value, string s) print_boolean;
@@ -264,25 +254,6 @@ void() armor_touch;
 void() weapon_touch;
 void() ammo_touch;
 void() powerup_touch;
-void() item_health;
-void() item_armor1;
-void() item_armor2;
-void() item_armorInv;
-void() weapon_supershotgun;
-void() weapon_nailgun;
-void() weapon_supernailgun;
-void() weapon_grenadelauncher;
-void() weapon_rocketlauncher;
-void() weapon_lightning;
-void() item_shells;
-void() item_spikes;
-void() item_rockets;
-void() item_cells;
-void() item_weapon;
-void() item_artifact_invulnerability;
-void() item_artifact_envirosuit;
-void() item_artifact_invisibility;
-void() item_artifact_super_damage;
 void() SUB_regen;
 void() BotWaterJumpFix;
 #ifndef QUAKE
@@ -2178,8 +2149,8 @@ void() a_impulses =
 		set_skill();
 #endif
 	}
-	else if (impulse_ == 150)
-		power_();
+//	else if (impulse_ == 150)
+//		power_();
 	if (!game_arena)
 		return;
 	else if (impulse_ == IMP_SET_TEAMS)
