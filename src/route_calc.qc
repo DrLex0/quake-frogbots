@@ -1247,6 +1247,13 @@ void() Calc_G_time_11 =
 				{
 					from_marker = prev_marker = next_marker;
 					runaway_dest.path_marker();
+					// If this happens, you may need to further delay
+					// InitFrogbots1 in StartFrame()  -- DrLex
+					if(prev_marker == next_marker)
+					{
+						dprint("ERROR: prev_marker == next_marker m", ftos(next_marker.index), "\n");
+						error("FATAL: infinite marker loop in Calc_G_time_11\n");
+					}
 
 					from_marker = m;
 					next_marker.zone_marker();

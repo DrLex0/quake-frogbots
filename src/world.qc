@@ -354,11 +354,14 @@ void() StartFrame =
 		}
 	}
 
-	if (framecount <= 3)
+	// I had to add 1 frame extra delay here to avoid a runaway loop in e1m2.
+	// Must give everything enough time to load before starting to calculate
+	// bot routes. -- DrLex
+	if (framecount <= 4)
 	{
-		if (framecount == 2)
+		if (framecount == 3)
 			InitFrogbots1();
-		else if (framecount == 3)
+		else if (framecount == 4)
 			InitFrogbots2();
 #ifndef QUAKE
 		else

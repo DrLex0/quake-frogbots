@@ -956,7 +956,6 @@ void() VerMoveActiveMarker =
 		bprint("no active marker\n");
 		return;
 	}
-	bprint("active marker vertically moved\n");
 
 	if (active_marker.classname == "marker")
 	{
@@ -970,8 +969,9 @@ void() VerMoveActiveMarker =
 	else
 	{
 		bprint("Active marker cannot be moved\n");
+		return;
 	}
-	
+	bprint("active marker vertically moved\n");
 };
 
 void() HideAllMarkers =

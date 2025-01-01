@@ -8,16 +8,17 @@
 	#define TALK
 	#define ARENA // Asdf
 	//#define NOCLIP // not supposed to be used for production
+
+	// For when a classic Quake build would ever work
+	#ifdef QUAKE
+	#pragma PROGS_DAT ../progs.dat
+	#endif
+
 #else
 	// The waypoint editor, run in regular Quake engine
 	#define MANUAL
 	#define NOCLIP
 	#define QUAKE
-#endif
-
-
-#ifdef QUAKE
-#pragma PROGS_DAT ../progs.dat
 #endif
 
 #endif

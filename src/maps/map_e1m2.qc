@@ -1,10 +1,3 @@
-// This map fails to load in the waypoint tool if built without #define ARENA.
-// The 'do' loop in Calc_G_time_11 becomes infinite. This makes NO sense, ARENA
-// code should not influence route calculations.
-// The markers that cause the runaway loops all seem to be at land-water
-// transitions.
-// Instead of taking the easy and clueless route of always building with ARENA,
-// the underlying problem should be fixed.  -- DrLex 
 void() map_e1m2 =
 {
 // first is m128
