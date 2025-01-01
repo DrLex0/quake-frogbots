@@ -1,7 +1,7 @@
 # Quake Frogbot Clan Arena v2
 
 Based on:
-- FBCA, Frogbot Clan Arena - mod that combines Frogbot, Clan Arena and Kombat Teams (KTPro)
+- FBCA, Frogbot Clan Arena - mod that combines Frogbot, ParboiL's Clan Arena and Kombat Teams (KTPro)
 - Trinca and Spike's last known sources
 - Decompiled source file from the old waypoint tool (how dare I decompile a 25-year old abandoned program, so sue me)
 
@@ -37,6 +37,7 @@ The goal: revive the Frogbots in a way that:
    - print more info next to goal and zone, like coordinates and marker type;
    - print paths going out and coming into active marker (including special modes).
 4. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors.
+5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this to the yellow armor zone of `e1m2`, it works really well.
 
 Planned:
 - Add Trinca's waypoints… and perhaps some new ones.

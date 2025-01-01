@@ -1346,6 +1346,7 @@ void() bf;
 .float arrow;
 .float botchose;
 .float rocketjumping;
+.float precise_speed;
 .float wasinwater;
 .float swim_arrow;
 .float button0_;
@@ -1501,13 +1502,13 @@ float new_path_state;
 //
 
 // map set values
-// map set values
 float WATERJUMP_			= 2;
 float DM6_DOOR			= 256;
 float ROCKET_JUMP		= 512;
 float JUMP_LEDGE			= 1024;
-// Bits to be saved in waypoint code: DM6_DOOR | ROCKET_JUMP | JUMP_LEDGE
-float SAVED_DESCRIPTION	= 1792;
+float PRECISE_JUMP		= 2048;
+// Bits to be saved in waypoint code: DM6_DOOR | ROCKET_JUMP | JUMP_LEDGE | PRECISE_JUMP
+float SAVED_DESCRIPTION	= 3840;
 
 // auto set values
 float REVERSIBLE			= 16384;

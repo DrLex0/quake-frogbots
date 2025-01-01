@@ -242,6 +242,9 @@ void() VelocityForArrow =
 			current_maxspeed = 0.7 * current_maxspeed;
 		}
 	}
+	// Slow down for accurate movements
+	if (self.precise_speed && current_maxspeed > self.precise_speed)
+		current_maxspeed = self.precise_speed;
 
 	accel_forward = sv_accelerate_frametime * current_maxspeed;
 

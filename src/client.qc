@@ -56,6 +56,7 @@ void() FrogTreadWater;
 void() FrogWaterMove;
 void() BotWaterJumpFix;
 void() a_rocketjump;
+void() PreciseJump;
 
 
 #ifdef QUAKE
@@ -1504,6 +1505,7 @@ void() PlayerPostThink_apply =
 		self.real_pitch = real_pitch_;
 
 		a_rocketjump();
+		PreciseJump();
 
 	// yaw
 		yawspeed_ = self.yawspeed + self.yawaccel * frametime;

@@ -108,6 +108,8 @@ void(entity marker) manual_marker_touch =
 					DescriptionMarker("jump ledge");
 					description = ROCKET_JUMP;
 					DescriptionMarker("rocket jump");
+					description = PRECISE_JUMP;
+					DescriptionMarker("precise jump");
 				}
 				else
 				{
@@ -1275,6 +1277,8 @@ void(float descbits) PrintDLabel
 		bprint("\xC4");  // D
 	if (descbits & ROCKET_JUMP)
 		bprint("\xD2");  // R
+	if (descbits & PRECISE_JUMP)
+		bprint("\xD0");  // P
 }
 
 // Makes checking teleport paths so much easier
@@ -1521,7 +1525,12 @@ void() CycleDescriptionMode =
 		path_mode = ROCKET_JUMP;
 		bprint("rocket jump mode ON\n");
 	}
-	else //if (path_mode == ROCKET_JUMP)
+	else if (path_mode == ROCKET_JUMP)
+	{
+		path_mode = PRECISE_JUMP;
+		bprint("precise jump mode ON\n");
+	}
+	else
 	{
 		path_mode = 0;
 		bprint("path mode OFF\n");

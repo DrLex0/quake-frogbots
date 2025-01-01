@@ -155,6 +155,8 @@ void() a_rocketjump =
 
 	if (pre_game && counting_down)
 		return;
+	if (! self.touch_marker)
+		return;
 	if (!self.ammo_rockets)
 		return;
 	if (!(self.items & IT_ROCKET_LAUNCHER))
@@ -173,6 +175,16 @@ void() a_rocketjump =
 			return;
 	if (!(self.path_state & ROCKET_JUMP))
 		return;
+	// Even when we're at the destination marker that has no outgoing paths with RJ flag,
+	// path_state will still have the flag (which is arguably a bug), ignore this
+	if (! (ROCKET_JUMP & (
+		(self.touch_marker.D0 | self.touch_marker.D1 |
+		 self.touch_marker.D2 | self.touch_marker.D3 |
+		 self.touch_marker.D4 | self.touch_marker.D5 |
+		 self.touch_marker.D6 | self.touch_marker.D7))))
+	{
+		return;
+	}
 	if (self.button0_)
 		return;
 	if (self.button2_)
@@ -201,6 +213,49 @@ void() a_rocketjump =
 	self.botchose = 1;
 	self.impulse = 7;
 	self.button0_ = 1;
+	self.button2_ = 1;
+};
+
+// DrLex: more reliable jumping onto small steps.
+// Requires the bot to be able to come within 48 units of the marker from where to jump.
+void() PreciseJump =
+{
+	self.precise_speed = 0;
+	if (! self.touch_marker)
+		return;
+	if (self.waterlevel > 1)
+		return;
+	if (self.rocketjumping)
+		return;
+	if (!(self.path_state & PRECISE_JUMP))
+		return;
+	// Even when we're at the destination marker that has no outgoing paths with PJ flag,
+	// path_state will still have the flag (which is arguably a bug), ignore this
+	if (! (PRECISE_JUMP & (
+		(self.touch_marker.D0 | self.touch_marker.D1 |
+		 self.touch_marker.D2 | self.touch_marker.D3 |
+		 self.touch_marker.D4 | self.touch_marker.D5 |
+		 self.touch_marker.D6 | self.touch_marker.D7))))
+	{
+		return;
+	}
+	local float touch_dist = vlen(self.origin - self.touch_marker.origin);
+	// slow down as target is approached
+	if (touch_dist < 80)
+		self.precise_speed = 100;
+	else if (touch_dist < 140)
+		self.precise_speed = 180;
+	if (self.button2_)
+		return;
+	if (!(self.flags & FL_ONGROUND))
+		return;
+	BestArrowForDirection();
+	VelocityForArrow();
+	// Only jump when close enough
+	if (touch_dist > 48)
+		return;
+	if (!right_direction())
+		return;
 	self.button2_ = 1;
 };
 
