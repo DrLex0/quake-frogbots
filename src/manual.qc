@@ -30,6 +30,7 @@ void(entity marker) CheckReachable =
 	dist = vlen(rel_pos);
 	test_enemy = self;
 	self = spawn();
+	self.classname = "fb_show_reach";
 	self.model = "/";
 	self.modelindex = modelindex_player;
 	setsize(self, VEC_HULL_MIN, VEC_HULL_MAX);
@@ -64,6 +65,17 @@ void(entity marker) CheckReachable =
 	self.solid = 0;
 	self = test_enemy;
 };
+
+void() CleanUpTemporaries =
+{
+	marker_ = world;
+	marker_ = find(marker_, classname, "fb_show_reach");
+	while (marker_)
+	{
+		remove(marker_);
+		marker_ = find(marker_, classname, "fb_show_reach");
+	}
+}
 
 void(entity marker) manual_marker_touch =
 {
@@ -214,6 +226,7 @@ void() DisableActiveMarker =
 		bprint("no active marker\n");
 		return;
 	}
+	CleanUpTemporaries();
 	bprint("active marker disabled\n");
 	active_marker.display.frame = 12;
 	active_marker = world;
@@ -941,6 +954,8 @@ void() MoveActiveMarker =
 		active_marker.origin_x = rint(self.origin_x);
 		active_marker.origin_y = rint(self.origin_y);
 		active_marker.origin_z = rint(self.origin_z);
+		// Must do this to ensure find() uses the new coordinates
+		setorigin(active_marker, active_marker.origin);
 		setsize(active_marker, VEC_HULL_MIN, VEC_HULL_MAX);
 	}
 	else
@@ -960,6 +975,7 @@ void() VerMoveActiveMarker =
 	if (active_marker.classname == "marker")
 	{
 		active_marker.origin_z = rint(self.origin_z);
+		setorigin(active_marker, active_marker.origin);
 	}
 	else if ((active_marker.classname == "func_button") || (active_marker.classname == "trigger_teleport"))
 	{
@@ -1398,6 +1414,7 @@ void() ToggleActiveMarker =
 {
 	if (mode & STATIC_ACTIVE_MARKER)
 	{
+		CleanUpTemporaries();
 		mode = (mode - STATIC_ACTIVE_MARKER);
 		bprint("static active marker OFF\n");
 	}
@@ -1531,7 +1548,11 @@ void() DefaultMarkerMode =
 {
 	type_mode = 0;
 	path_mode = 0;
-	mode = 0;
+	// Preserve CMM mode because it is unintuitive to reset it
+	if (mode & CLOSEST_MARKER)
+		mode = CLOSEST_MARKER;
+	else
+		mode = 0;
 	bprint("default marker mode\n");
 };
 
@@ -1620,6 +1641,8 @@ void() CheckAllGoals =
 void() PrintDebugInfo =
 {
 	bprint("pos ", vtos(self.origin));
+	if ((mode & STATIC_ACTIVE_MARKER) && active_marker)
+		bprint(" d ", ftos(vlen(self.origin - active_marker.origin)));
 	if (dm6_door != world)
 		bprint("; dm6_door dist ", ftos(vlen(dm6_door.origin)));
 	bprint("\n");

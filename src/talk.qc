@@ -186,7 +186,7 @@ say_hello_
 
 void() say_hello_ =
 {
-	local string txt;
+	local string txt = "";
 	local entity ent;
 	local float r;
 	r = random();
@@ -202,8 +202,8 @@ void() say_hello_ =
 		txt = "hi :)";
 	ent = self;
 	self = self.owner;
-	if (self.netname != "")
-		say(txt);		
+	if (self.netname != "" && txt != "")
+		say(txt);
 	self = ent;
 	remove_self();
 };
