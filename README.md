@@ -35,7 +35,7 @@ The goal: revive the Frogbots in a way that:
    Also added usability improvements to the tool, like:
    - made _closest marker mode_ way more useful, by fixing reliability issues and also allowing to cycle between 3 nearest markers; this allows to reliably select hard-to-reach markers like teleport triggers;
    - print more info next to goal and zone, like coordinates and marker type;
-   - print paths going out and coming into active marker (including special modes).
+   - print paths going out and coming into active marker (including special modes), with visualisation through flying spikes.
 4. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors.
 5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this to the yellow armor zone of `e1m2`, it works really well.
 
