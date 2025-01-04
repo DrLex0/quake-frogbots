@@ -608,51 +608,57 @@ void() frogbot_marker_touch =
 	// As far as I understand it, the Z1_task property collects all path mode
 	// bits encountered until goalentity_marker if it is in Z1. I extended it to
 	// all zones, clustered so we don't need to test all 24 in the worst case.
+	// Using zone 1 for the things behind the door is the most efficient.
 	if (goalentity_marker.Z_ == door_targetZ)
 	{
-		if (
-			((touch_marker_.taskClus1 & DM6_DOOR) && (
-				((door_targetZ == 1) && (touch_marker_.Z1_task & DM6_DOOR)) ||
-				((door_targetZ == 2) && (touch_marker_.Z2_task & DM6_DOOR)) ||
-				((door_targetZ == 3) && (touch_marker_.Z3_task & DM6_DOOR)) ||
-				((door_targetZ == 4) && (touch_marker_.Z4_task & DM6_DOOR)) ||
-				((door_targetZ == 5) && (touch_marker_.Z5_task & DM6_DOOR)) ||
-				((door_targetZ == 6) && (touch_marker_.Z6_task & DM6_DOOR))
-			)) || ((touch_marker_.taskClus2 & DM6_DOOR) && (
-				((door_targetZ == 7) && (touch_marker_.Z7_task & DM6_DOOR)) ||
-				((door_targetZ == 8) && (touch_marker_.Z8_task & DM6_DOOR)) ||
-				((door_targetZ == 9) && (touch_marker_.Z9_task & DM6_DOOR)) ||
-				((door_targetZ == 10) && (touch_marker_.Z10_task & DM6_DOOR)) ||
-				((door_targetZ == 11) && (touch_marker_.Z11_task & DM6_DOOR)) ||
-				((door_targetZ == 12) && (touch_marker_.Z12_task & DM6_DOOR))
-			)) || ((touch_marker_.taskClus3 & DM6_DOOR) && (
-				((door_targetZ == 13) && (touch_marker_.Z13_task & DM6_DOOR)) ||
-				((door_targetZ == 14) && (touch_marker_.Z14_task & DM6_DOOR)) ||
-				((door_targetZ == 15) && (touch_marker_.Z15_task & DM6_DOOR)) ||
-				((door_targetZ == 16) && (touch_marker_.Z16_task & DM6_DOOR)) ||
-				((door_targetZ == 17) && (touch_marker_.Z17_task & DM6_DOOR)) ||
-				((door_targetZ == 18) && (touch_marker_.Z18_task & DM6_DOOR))
-			)) || ((touch_marker_.taskClus4 & DM6_DOOR) && (
-				((door_targetZ == 19) && (touch_marker_.Z19_task & DM6_DOOR)) ||
-				((door_targetZ == 20) && (touch_marker_.Z20_task & DM6_DOOR)) ||
-				((door_targetZ == 21) && (touch_marker_.Z21_task & DM6_DOOR)) ||
-				((door_targetZ == 22) && (touch_marker_.Z22_task & DM6_DOOR)) ||
-				((door_targetZ == 23) && (touch_marker_.Z23_task & DM6_DOOR)) ||
-				((door_targetZ == 24) && (touch_marker_.Z24_task & DM6_DOOR))
-			))
-		)
-		{
-			if (dm6_door.takedamage)
-			{
-				direction = normalize(dm6_door.absmin + dm6_door.view_ofs - origin_ - '0 0 40');
-				src = origin_ + '0 0 16';
+		// This makes one wish that QuakeC would short-circuit && and || operators...
+		local float tZ_behind_door = 0;
+		if (touch_marker_.taskClus1 & DM6_DOOR) {
+			if ((door_targetZ == 1) && (touch_marker_.Z1_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 2) && (touch_marker_.Z2_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 3) && (touch_marker_.Z3_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 4) && (touch_marker_.Z4_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 5) && (touch_marker_.Z5_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 6) && (touch_marker_.Z6_task & DM6_DOOR)) tZ_behind_door = 1;
+		}
+		else if (touch_marker_.taskClus2 & DM6_DOOR) {
+			if ((door_targetZ == 7) && (touch_marker_.Z7_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 8) && (touch_marker_.Z8_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 9) && (touch_marker_.Z9_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 10) && (touch_marker_.Z10_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 11) && (touch_marker_.Z11_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 12) && (touch_marker_.Z12_task & DM6_DOOR)) tZ_behind_door = 1;
+		}
+		else if (touch_marker_.taskClus3 & DM6_DOOR) {
+			if ((door_targetZ == 13) && (touch_marker_.Z13_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 14) && (touch_marker_.Z14_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 15) && (touch_marker_.Z15_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 16) && (touch_marker_.Z16_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 17) && (touch_marker_.Z17_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 18) && (touch_marker_.Z18_task & DM6_DOOR)) tZ_behind_door = 1;
+		}
+		else if (touch_marker_.taskClus4 & DM6_DOOR) {
+			if ((door_targetZ == 19) && (touch_marker_.Z19_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 20) && (touch_marker_.Z20_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 21) && (touch_marker_.Z21_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 22) && (touch_marker_.Z22_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 23) && (touch_marker_.Z23_task & DM6_DOOR)) tZ_behind_door = 1;
+			else if ((door_targetZ == 24) && (touch_marker_.Z24_task & DM6_DOOR)) tZ_behind_door = 1;
+		}
 
-				traceline (src, src + direction*2048, FALSE, self);
-				if (trace_ent == dm6_door)
-					self.path_state = self.path_state | DM6_DOOR;
-			}
-			else
-				self.path_state = self.path_state - (self.path_state & DM6_DOOR);
+		if (tZ_behind_door)
+		if (dm6_door.takedamage)
+		{
+			direction = normalize(dm6_door.absmin + dm6_door.view_ofs - origin_ - '0 0 40');
+			src = origin_ + '0 0 16';
+
+			traceline (src, src + direction*2048, FALSE, self);
+			if (trace_ent == dm6_door)
+				self.path_state = self.path_state | DM6_DOOR;
+		}
+		else
+		{
+			self.path_state = self.path_state - (self.path_state & DM6_DOOR);
 		}
 	}
 

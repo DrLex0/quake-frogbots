@@ -46,17 +46,15 @@ float() able_rj =
 	if (health_after > self.armorvalue)
 		health_after = self.armorvalue;
 	health_after = self.health - ceil(50 - health_after);
-	if (
-		((health_after > 50)
-			|| (teamplay == 1) || (teamplay == 5))
-		&& (self.items & IT_ROCKET_LAUNCHER)
-		&& (self.ammo_rockets > 2)
-	#ifdef ARENA
-		&& ((!game_arena) || (arenastate == A_PLAYING))
-	#endif
-		&& (!beQuiet)
-		&& (random() > 0.5)
-	)
+
+	if ((health_after > 50) || (teamplay == 1) || (teamplay == 5))
+	if (self.items & IT_ROCKET_LAUNCHER)
+	if (self.ammo_rockets > 2)
+#ifdef ARENA
+	if ((!game_arena) || (arenastate == A_PLAYING))
+#endif
+	if (!beQuiet)
+	if (random() > 0.5)
 		return 1;
 	return 0;
 };

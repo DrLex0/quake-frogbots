@@ -815,15 +815,14 @@ void() SavePaths =
 		}
 		else if (save_state == 1)
 		{
-			if (
-				m.G_ &&
-				((m.classname != "item_cells") || (m.G_ != 19)) &&
-				((m.classname != "weapon_supernailgun") || (m.G_ != 20)) &&
-				((m.classname != "weapon_supershotgun") || (m.G_ != 21)) &&
-				((m.classname != "weapon_nailgun") || (m.G_ != 22)) &&
-				((m.classname != "item_spikes") || (m.G_ != 23)) &&
-				((m.classname != "item_shells") || (m.G_ != 24))
-			)
+			// Do not save default goal values for items
+			if (m.G_)
+			if ((m.classname != "item_cells") || (m.G_ != 19))
+			if ((m.classname != "weapon_supernailgun") || (m.G_ != 20))
+			if ((m.classname != "weapon_supershotgun") || (m.G_ != 21))
+			if ((m.classname != "weapon_nailgun") || (m.G_ != 22))
+			if ((m.classname != "item_spikes") || (m.G_ != 23))
+			if ((m.classname != "item_shells") || (m.G_ != 24))
 			{
 				bprint("G", ftos(m.G_), "(m", ftos(m.index), ");");
 				count_ = (count_ + 1);
