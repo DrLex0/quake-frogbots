@@ -10,10 +10,11 @@ Based on:
 
 The Quake Frogbot allows to add computer-controlled players to the first _Quake_ game. (Not to be confused with some JFrog thing.). It was created by _Robert 'Frog' Field_ in 1997. The Frogbot is regarded as one of the better performing bots. With a properly crafted waypoint file, the bots simulate a real human opponent rather well, and are still impressive despite their age and the fact that it is all implemented in QuakeC.
 
-The bot relies on _waypoint files_ that have to be created for each map and that need to be compiled into the Frogbot. In the first decade of the 21st century, _Trinca_ did a gargantuan job of making and collecting waypoints for about 400 maps.
+The bot relies on _waypoint files_ that have to be created for each map. In previous Frogbot incarnations, waypoints needed to be compiled into the _qwprogs.dat._ In the first decade of the 21st century, _Trinca_ did a gargantuan job of making and collecting waypoints for about 400 maps.
 
 The old Frogbot had a few issues that lead to practically nobody creating new waypoints after Trinca's anymore:
 - Building the qwprogs with support for more than a few 100 maps was only possible with a very specific Windows build of the FTEQCC compiler.
+- It was not possible to add Frogbot support to a map without recompiling the _qwprogs.dat,_ which lead to an obvious problem of getting one's new maps added to whatever was the most popularly distributed Frogbot build.
 - The waypoint creation tool had quite a few usability problems, making the workflow awkward.
 - The source for the waypoint tool had become unavailable (or near impossible to find), making it infeasible to resume editing existing waypoints. Either one had to do a whole map in one go (insane for larger maps), or manually edit the code.
 
@@ -36,7 +37,8 @@ The goal: revive the Frogbots in a way that:
    Usability improvements implemented in the tool:
    - made _closest marker mode_ way more useful, by fixing reliability issues and also allowing to cycle between 3 nearest markers; this allows to reliably select hard-to-reach markers like teleport triggers;
    - print more info next to goal and zone, like coordinates and marker type;
-   - print paths going out and coming into active marker (including special modes), with visualisation through flying spikes.
+   - print paths going out and coming into active marker (including special modes), with visualisation through flying spikes;
+   - fixed bug where the tool would often crash after deleting a marker.
 4. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors.
 5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this to the yellow armor zone of `e1m2`, it works really well.
 

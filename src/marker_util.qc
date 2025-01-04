@@ -7,6 +7,10 @@
 
 #include "settings.h"
 
+#ifdef MANUAL
+void() SetGoal;
+#endif
+
 /*
 ============
 BecomeMarker
@@ -36,6 +40,8 @@ void(entity marker) RemoveMarker =
 	while (e.marker_link != marker)
 		e = e.marker_link;
 	e.marker_link = marker.marker_link;
+	if(e == dropper)
+		first_marker = e.marker_link;
 };
 
 /*
@@ -60,6 +66,11 @@ void(vector org) spawn_marker =
 	marker_.display = marker_;
 	setmodel(marker_, "progs/player.mdl");
 	marker_.model = "";
+	if (goal_index > NUMBER_GOALS)
+	{
+		active_marker = marker_;
+		SetGoal();
+	}
 #endif
 
 	setsize (marker_, '-65 -65 -24', '65 65 32');
