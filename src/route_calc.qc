@@ -145,6 +145,9 @@ void() Calc_G_time_path =
 ============
 Calc_G_time_1
 
+Start of path calculations.
+m and m_2 must point to first_marker
+before invoking this for the first time!
 ============
 */
 void() Calc_G_time_1 =

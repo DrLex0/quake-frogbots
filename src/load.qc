@@ -7,7 +7,7 @@
 #include "settings.h"
 
 void() marker_touch;
-void() StartItems;
+void() SetUpItems;
 void() AssignVirtualGoal_apply;
 
 /*
@@ -80,7 +80,7 @@ void() remove_load =
 		current_load_position = current_load_position.next_load;	// current_load_position still has values
 	}
 
-	StartItems();
+	SetUpItems();
 
 	marker_ = first_item;
 	while (marker_)

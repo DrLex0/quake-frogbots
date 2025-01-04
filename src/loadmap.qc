@@ -53,6 +53,5 @@ void() LoadMap =
 
 	LoadWaypoints();
 
-	// assertion: map is invalid
-	StartItems();
+	SetUpItems();
 };

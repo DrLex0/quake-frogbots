@@ -2,7 +2,7 @@
 	manual.qc
 
 	Original author unsure, but probably Robert 'Frog' Field.
-	Restored and improved by DrLex 2024/12 by decompiling waypoint progs.dat.
+	Restored by decompiling waypoint progs.dat, and improved by DrLex 2024-2025.
 	The FrogBot source was given a GPL license by Robert Field in 2007.
 	And even if you think that message was fake, this is all so old
 	that copyright doesn't mean much anymore anyhow.
@@ -30,7 +30,7 @@ void(entity marker) CheckReachable =
 	dist = vlen(rel_pos);
 	test_enemy = self;
 	self = spawn();
-	self.classname = "fb_show_reach";
+	self.classname = "fb_disposable";
 	self.model = "/";
 	self.modelindex = modelindex_player;
 	setsize(self, VEC_HULL_MIN, VEC_HULL_MAX);
@@ -65,17 +65,6 @@ void(entity marker) CheckReachable =
 	self.solid = 0;
 	self = test_enemy;
 };
-
-void() CleanUpTemporaries =
-{
-	marker_ = world;
-	marker_ = find(marker_, classname, "fb_show_reach");
-	while (marker_)
-	{
-		remove(marker_);
-		marker_ = find(marker_, classname, "fb_show_reach");
-	}
-}
 
 void(entity marker) manual_marker_touch =
 {
@@ -220,6 +209,17 @@ void() RemoveActiveMarker =
 		bprint("Active marker cannot be removed\n");
 	}
 };
+
+void() CleanUpTemporaries =
+{
+	marker_ = world;
+	marker_ = find(marker_, classname, "fb_disposable");
+	while (marker_)
+	{
+		remove(marker_);
+		marker_ = find(marker_, classname, "fb_disposable");
+	}
+}
 
 void() DisableActiveMarker =
 {
@@ -923,6 +923,23 @@ void() SavePaths =
 	}
 };
 
+void() HideAllMarkers =
+{
+	marker_ = first_marker;
+	while (marker_)
+	{
+		if (marker_.classname == "marker")
+		{
+			marker_.model = "";
+		}
+		else
+		{
+			remove(marker_.display);
+		}
+		marker_ = marker_.marker_link;
+	}
+};
+
 void() DisplayAllMarkers =
 {
 	marker_ = first_marker;
@@ -990,23 +1007,6 @@ void() VerMoveActiveMarker =
 		return;
 	}
 	bprint("active marker vertically moved\n");
-};
-
-void() HideAllMarkers =
-{
-	marker_ = first_marker;
-	while (marker_)
-	{
-		if (marker_.classname == "marker")
-		{
-			marker_.model = "";
-		}
-		else
-		{
-			remove(marker_.display);
-		}
-		marker_ = marker_.marker_link;
-	}
 };
 
 float(entity marker) changed_view_ofs_z =
@@ -1281,45 +1281,74 @@ void(float descbits) PrintDLabel =
 		bprint("\xD0");  // P
 }
 
-void() spike_remove =
+/*
+============
+SpikeItDone
+
+Clean up after SpikeIt
+============
+*/
+void() SpikeItDone =
 {
 	if (self.previous != world)
 		remove(self.previous);
 	remove(self);
 }
 
-void(entity e_from, entity e_to, entity garbage) spike_it = {
+/*
+============
+SpikeIt
+
+Launch a spike that travels from one entity to another
+in 1 second, passing through any obstacles.
+============
+*/
+void(entity e_from, entity e_to, entity garbage) SpikeIt =
+{
 	entity trail = spawn();
 	setmodel (trail, "progs/spike.mdl");
 	setsize (trail, '0 0 0', '0 0 0');
-	trail.movetype = MOVETYPE_FLY;
+	trail.movetype = MOVETYPE_NOCLIP;
 	trail.solid = SOLID_NOT;
-	local vector v_from =  e_from.display.origin;
-	local vector v_to =  e_to.display.origin;
+	local vector v_from =  e_from.display.origin + '0 0 22';
+	local vector v_to =  e_to.display.origin + '0 0 22';
 	setorigin(trail, v_from);
 	trail.velocity = normalize(v_to - v_from) * vlen(v_to - v_from);
 	trail.angles = vectoangles(trail.velocity);
 	trail.nextthink = time + 1;
 	trail.previous = garbage;
-	trail.think = spike_remove;
+	trail.think = SpikeItDone;
 };
 
-void() spike_delayed_go =
-{
-	spike_it(self.previous, self.next, self);
-}
+/*
+============
+SpikeItDelayed
+SpikeDelayedGo
 
-void(entity e_from, entity e_to, float delay) spike_delayed =
+For invoking SpikeIt with a delay
+============
+*/
+void() SpikeDelayedGo = { SpikeIt(self.previous, self.next, self); }
+
+void(entity e_from, entity e_to, float delay) SpikeItDelayed =
 {
 	entity delay_me = spawn();
 	// slightly abusing some fields that happen to exist
 	delay_me.previous = e_from;
 	delay_me.next = e_to;
-	delay_me.think = spike_delayed_go;
+	delay_me.think = SpikeDelayedGo;
 	delay_me.nextthink = time + delay;
 }
 
-// Makes checking teleport paths so much easier
+/*
+============
+PrintPathInfo
+
+Print outgoing and incoming paths for the active marker,
+and visualize them through flying spikes.
+Also makes checking teleport paths so much easier.
+============
+*/
 void() PrintPathInfo =
 {
 	if (!active_marker)
@@ -1338,49 +1367,49 @@ void() PrintPathInfo =
 		bprint(" m", ftos(m.P0.index));
 		PrintDLabel (m.D0);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P0, world);
+		SpikeIt(active_marker, m.P0, world);
 	}
 	if (m.P1) {
 		bprint(" m", ftos(m.P1.index));
 		PrintDLabel (m.D1);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P1, world);
+		SpikeIt(active_marker, m.P1, world);
 	}
 	if (m.P2) {
 		bprint(" m", ftos(m.P2.index));
 		PrintDLabel (m.D2);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P2, world);
+		SpikeIt(active_marker, m.P2, world);
 	}
 	if (m.P3) {
 		bprint(" m", ftos(m.P3.index));
 		PrintDLabel (m.D3);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P3, world);
+		SpikeIt(active_marker, m.P3, world);
 	}
 	if (m.P4) {
 		bprint(" m", ftos(m.P4.index));
 		PrintDLabel (m.D4);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P4, world);
+		SpikeIt(active_marker, m.P4, world);
 	}
 	if (m.P5) {
 		bprint(" m", ftos(m.P5.index));
 		PrintDLabel (m.D5);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P5, world);
+		SpikeIt(active_marker, m.P5, world);
 	}
 	if (m.P6) {
 		bprint(" m", ftos(m.P6.index));
 		PrintDLabel (m.D6);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P6, world);
+		SpikeIt(active_marker, m.P6, world);
 	}
 	if (m.P7) {
 		bprint(" m", ftos(m.P7.index));
 		PrintDLabel (m.D7);
 		p_count = p_count + 1;
-		spike_it(active_marker, m.P7, world);
+		SpikeIt(active_marker, m.P7, world);
 	}
 	if (! p_count) bprint(" none\nin: ");
 	else bprint(" [", ftos(p_count), "]\nin :");
@@ -1394,56 +1423,56 @@ void() PrintPathInfo =
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D0);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		else if (m.P1 && (m.P1.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D1);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		else if (m.P2 && (m.P2.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D2);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		else if (m.P3 && (m.P3.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D3);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		else if (m.P4 && (m.P4.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D4);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		else if (m.P5 && (m.P5.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D5);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		else if (m.P6 && (m.P6.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D6);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		else if (m.P7 && (m.P7.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D7);
 			p_count = p_count + 1;
-			spike_delayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, 1);
 		}
 		m = m.marker_link;
 	}
@@ -1451,6 +1480,13 @@ void() PrintPathInfo =
 	else bprint(" [", ftos(p_count), "]\n\n");
 }
 
+/*
+============
+ToggleManualMode
+
+Main toggle for the waypoint tool.
+============
+*/
 void() ToggleManualMode =
 {
 	if (manual_mode)
@@ -1468,6 +1504,14 @@ void() ToggleManualMode =
 	}
 };
 
+/*
+============
+ToggleActiveMarker
+
+Sets Static Active Marker mode, which locks the currently
+active marker and ignores touching other markers.
+============
+*/
 void() ToggleActiveMarker =
 {
 	if (mode & STATIC_ACTIVE_MARKER)

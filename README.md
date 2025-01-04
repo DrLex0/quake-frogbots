@@ -24,34 +24,36 @@ The goal: revive the Frogbots in a way that:
 - makes it easier to build the qwprogs.dat (with any recent version of fteqcc or maybe other compilers);
 - makes it possible to resume editing existing waypoint data;
 - makes it easier to create and edit waypoints;
+- makes it possible to embed waypoint data in maps, to avoid the need to compile them into the qwprogs;
 - fixes some issues.
 
 **Done so far:**
 1. Solved the `numpr_globals` problem without requiring the `-Ovectorcalls` option in fteqcc, which has been broken for ages when trying to compile for many maps. This allows to build with any recent fteqcc, and basically now allows an _infinite_ number of maps to be built into the qwprogs, until we hit some other QuakeC limit.
 2. Simpler management of map waypoint files, with a Python script that can also convert existing files for the above fix.
-3. Restored ability to build the **waypoint tool** as shown in [Mick's guide](https://mickkn.mooo.com/quakeworld/frogbot/).  
+3. Restored ability to build the **waypoint tool** as shown in [Mick's guide](https://mickkn.mooo.com/quakeworld/frogbot/), and improved the usability of the tool.  
    It is now possible to _resume editing_ from existing waypoints, if you compile them into the tool and then simply load the map. This makes creating waypoints _way more feasible_ through an edit-test cycle.  
-   The waypoint tool also allows to examine existing maps to better understand how to create good waypoints for new maps.  
-   Also added usability improvements to the tool, like:
+   This also allows to examine waypoints for existing maps, and better understand how to create good waypoints for new maps.  
+   Usability improvements implemented in the tool:
    - made _closest marker mode_ way more useful, by fixing reliability issues and also allowing to cycle between 3 nearest markers; this allows to reliably select hard-to-reach markers like teleport triggers;
    - print more info next to goal and zone, like coordinates and marker type;
    - print paths going out and coming into active marker (including special modes), with visualisation through flying spikes.
 4. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors.
 5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this to the yellow armor zone of `e1m2`, it works really well.
 
-Planned:
+**Planned:**
+- Allow using waypoint data embedded in entity fields of maps, and provide a tool to inject marker data created with the waypoint tool into a `.map` file. This means no more need to recompile qwprogs to add bot support to a map for which the source is available!
 - Add Trinca's waypoints… and perhaps some new ones.
 - Something resembling documentation.
 - Improve upon Mick's waypoint guide. Figure out the more advanced things.
-- Tool to generate waypoint qc file from annotations in a `.map` file (currently only a concept, but should be easy).
+- Maybe try to keep the bots from wallhacking on skill levels up to 10. I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner.
 
 No promises about dates or reaching these goals whatsoever. It is done when it's done.
 
 Not really planned, but who knows:
-- Make Frogbot work in non-Quakeworld engines (it builds and runs, but is not usable).
+- Make Frogbot work in non-Quakeworld engines. Currently it builds and runs, but _very weird things_ happen, it is not usable.
 
 Wild ideas:
-- Find a way to avoid having to compile waypoints into the (qw)progs.dat, but I'm not sure if possible at all.
+- Find a way to load waypoints from a separate file at runtime, but I'm not sure if possible at all.
 - Construct reasonable waypoints automatically with AI and evolutionary algorithms and blockchain and all other buzzwords we can throw against it.
 
 

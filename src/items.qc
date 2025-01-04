@@ -143,7 +143,14 @@ void() StartItem =
 	BecomeMarker(self);
 };
 
-void() StartItems =
+/*
+============
+SetUpItems
+
+Set up touch and respawn logic for items
+============
+*/
+void() SetUpItems =
 {
 	marker_ = first_item;
 	while (marker_)
