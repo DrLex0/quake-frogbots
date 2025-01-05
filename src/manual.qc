@@ -58,7 +58,7 @@ void(entity marker) CheckReachable =
 			self = test_enemy;
 			return;
 		}
-		test_count = (test_count - 1);
+		test_count = test_count - 1;
 	}
 	bprint("Reachable SUCCESS\n");
 	self.movetype = 0;
@@ -336,7 +336,7 @@ void() DisplayZone =
 	{
 		if (marker_.Z_ == active_marker.Z_)
 		{
-			marker_.display.angles_y = (marker_.display.angles_y + (frametime * 90));
+			marker_.display.angles_y = marker_.display.angles_y + (frametime * 90);
 		}
 		marker_ = marker_.marker_link;
 	}
@@ -375,7 +375,7 @@ void() MarkerDisplay =
 		}
 		else
 		{
-			display_origin = (marker_.absmin + marker_.view_ofs);
+			display_origin = marker_.absmin + marker_.view_ofs;
 			setorigin(marker_.display, display_origin);
 		}
 		if (marker_.display)
@@ -715,7 +715,13 @@ void(string field) Save_m_P =
 	if (m_P)
 	{
 		bprint("m", ftos(m.index), ".", field, "=m", ftos(m_P.index), ";");
-		count_ = (count_ + 1);
+		count_ = count_ + 1;
+		pcount = pcount + 1;
+		if (pcount >= 6)
+		{
+			bprint("\n");
+			pcount = 0;
+		}
 	}
 };
 
@@ -724,7 +730,13 @@ void(string field) Save_m_D =
 	if (m_P && (m_D & SAVED_DESCRIPTION))
 	{
 		bprint("m", ftos(m.index), ".", field, "=", ftos(m_D & SAVED_DESCRIPTION), ";");
-		count_ = (count_ + 1);
+		count_ = count_ + 1;
+		pcount = pcount + 1;
+		if (pcount >= 6)
+		{
+			bprint("\n");
+			pcount = 0;
+		}
 	}
 };
 
@@ -741,7 +753,7 @@ void() Save_dm6_door =
 	{
 		bprint("door_targetZ=", ftos(door_targetZ), ";");
 	}
-	count_ = count_ + 1;
+	count_ = 10;
 };
 
 void() SetMarkerIndexes =
@@ -751,7 +763,7 @@ void() SetMarkerIndexes =
 	marker_ = find(marker_, classname, "marker");
 	while (marker_)
 	{
-		marker_index = (marker_index + 1);
+		marker_index = marker_index + 1;
 		marker_.index = marker_index;
 		marker_ = find(marker_, classname, "marker");
 	}
@@ -810,7 +822,7 @@ void() SavePaths =
 			if (m.Z_)
 			{
 				bprint("Z", ftos(m.Z_), "(m", ftos(m.index), ");");
-				count_ = (count_ + 1);
+				count_ = count_ + 1;
 			}
 		}
 		else if (save_state == 1)
@@ -825,7 +837,7 @@ void() SavePaths =
 			if ((m.classname != "item_shells") || (m.G_ != 24))
 			{
 				bprint("G", ftos(m.G_), "(m", ftos(m.index), ");");
-				count_ = (count_ + 1);
+				count_ = count_ + 1;
 			}
 		}
 		else if (save_state == 2)
@@ -834,7 +846,7 @@ void() SavePaths =
 			{
 				bprint("m", ftos(m.index), ".view_ofs_z=",
 					ftos(m.view_ofs_z), ";");
-				count_ = (count_ + 1);
+				count_ = count_ + 1;
 			}
 		}
 		else if (save_state == 3)
@@ -842,7 +854,7 @@ void() SavePaths =
 			if (m.T & SAVED_T)
 			{
 				bprint("m", ftos(m.index), ".T=", ftos(m.T & SAVED_T), ";");
-				count_ = (count_ + 1);
+				count_ = count_ + 1;
 			}
 		}
 		else if (save_state == 4)
@@ -900,19 +912,21 @@ void() SavePaths =
 		}
 
 		m = m.marker_link;
-		if (count_ >= 10)
+		if (count_ >= 8)
 		{
-			bprint("\n");
+			if (save_state < 4 || save_state > 5)
+				bprint("\n");
 			return;
 		}
 	}
-	if (count_)
-	{
+	if (count_ || pcount)
 		bprint("\n");
-	}
+
 	if (save_state < 6)
 	{
-		save_state = (save_state + 1);
+		save_state = save_state + 1;
+		if (save_state >= 4)
+			pcount = 0;
 		m = first_marker;
 	}
 	else
@@ -994,7 +1008,9 @@ void() VerMoveActiveMarker =
 		active_marker.origin_z = rint(self.origin_z);
 		setorigin(active_marker, active_marker.origin);
 	}
-	else if ((active_marker.classname == "func_button") || (active_marker.classname == "trigger_teleport"))
+	else if ((active_marker.classname == "func_button") ||
+		(active_marker.classname == "trigger_teleport") ||
+		(active_marker.classname == "door"))
 	{
 		active_marker.view_ofs_z = rint(self.origin_z - active_marker.absmin_z);
 		active_marker.display.origin_z = rint(self.origin_z);
@@ -1009,7 +1025,9 @@ void() VerMoveActiveMarker =
 
 float(entity marker) changed_view_ofs_z =
 {
-	if ((marker.classname == "func_button") || (marker.classname == "trigger_teleport"))
+	if ((marker.classname == "func_button") ||
+		(marker.classname == "trigger_teleport") ||
+		(marker.classname == "door"))
 	{
 		if (marker.view_ofs_z != marker.arrow)
 		{
@@ -1039,7 +1057,7 @@ void() print_goal =
 
 void() IncGoal =
 {
-	goal_index = (goal_index + 1);
+	goal_index = goal_index + 1;
 	if (goal_index > (NUMBER_GOALS + NUMBER_ZONES))
 	{
 		goal_index = 0;
@@ -1049,10 +1067,10 @@ void() IncGoal =
 
 void() DecGoal =
 {
-	goal_index = (goal_index - 1);
+	goal_index = goal_index - 1;
 	if (goal_index < 0)
 	{
-		goal_index = (NUMBER_GOALS + NUMBER_ZONES);
+		goal_index = NUMBER_GOALS + NUMBER_ZONES;
 	}
 	print_goal();
 };
@@ -1072,7 +1090,7 @@ void() GoalInfo =
 	{
 		if (marker.G_ == Z_index)
 		{
-			S_index = (S_index + 1);
+			S_index = S_index + 1;
 		}
 		marker = marker.marker_link;
 	}
@@ -1088,7 +1106,7 @@ void() ZoneInfo =
 	{
 		if (marker.Z_ == Z_index)
 		{
-			S_index = (S_index + 1);
+			S_index = S_index + 1;
 		}
 		marker = marker.marker_link;
 	}
@@ -1137,7 +1155,7 @@ void() SetGoal =
 		}
 		else
 		{
-			Z_index = (goal_index - NUMBER_GOALS);
+			Z_index = goal_index - NUMBER_GOALS;
 			active_marker.Z_ = 0;
 			ZoneInfo();
 			if (S_index <= NUMBER_SUBZONES)

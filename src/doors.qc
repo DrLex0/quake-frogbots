@@ -776,8 +776,9 @@ void () func_door_secret =
 
 // DOOR_OPEN for maps
 // FIXME this is really ugly and should somehow be specified by the map waypoint file
+// but it looks like at least some of these can use the improved dm6_door handling!
 
-	if (mapname == "cmt4" || mapname == "dakdm1" || mapname == "exdm3" ||
+	if (mapname == "dakdm1" || mapname == "exdm3" ||
 	    mapname == "efdm13" || mapname == "naked7b2" || mapname == "naked6" ||
 	    mapname == "e1m6" || mapname == "e1m5" || mapname == "egyptele" ||
 	    mapname == "damaul2" || mapname == "filthy")
