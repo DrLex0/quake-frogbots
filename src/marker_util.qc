@@ -65,11 +65,14 @@ void(vector org) spawn_marker =
 #ifdef MANUAL
 	marker_.display = marker_;
 	setmodel(marker_, "progs/player.mdl");
+	marker_.frame = 12;
 	marker_.model = "";
 	if (goal_index > NUMBER_GOALS)
 	{
+		local entity last_active = active_marker;
 		active_marker = marker_;
 		SetGoal();
+		if(mode & STATIC_ACTIVE_MARKER) active_marker = last_active;
 	}
 #endif
 

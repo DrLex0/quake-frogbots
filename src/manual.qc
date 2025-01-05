@@ -283,7 +283,7 @@ entity(vector org) ClosestMarker =
 	next_closest1 = world;
 	next_closest2 = world;
 
-	marker_ = findradius(org, 1000);
+	marker_ = findradius(view_org, 1000);
 	while (marker_)
 	{
 		if (marker_.fl_marker)
@@ -295,7 +295,7 @@ entity(vector org) ClosestMarker =
 			{
 				traceline(trace_org, marker_pos, TRUE, dropper);
 				if (trace_fraction != 1)
-				distance = distance + 1000;
+					distance = distance + 1000;
 			}
 			if (distance < shortest_distance)
 			{
@@ -974,7 +974,6 @@ void() MoveActiveMarker =
 		active_marker.origin_z = rint(self.origin_z);
 		// Must do this to ensure find() uses the new coordinates
 		setorigin(active_marker, active_marker.origin);
-		setsize(active_marker, VEC_HULL_MIN, VEC_HULL_MAX);
 	}
 	else
 	{

@@ -735,6 +735,14 @@ float TE_BLOOD		= 12;
 float TE_LIGHTNINGBLOOD = 13;
 #endif
 
+/*
+From the mighty QuakeWiki:
+Quake pre-calculates collision volumes for two sizes: VEC_HULL_MIN/MAX and VEC_HULL2_MIN/MAX.
+For collisions with BSPs, the Minkowski sum is pre-calculated, but only for the VEC_HULL_MIN/MAX
+and VEC_HULL2_MIN/MAX sizes. Collisions with other entities will work fine if you deviate from
+these, but collisions with BSP models specifically will become imprecise.
+Use caution when going outside these.
+*/
 vector	VEC_ORIGIN = '0 0 0';
 vector	VEC_HULL_MIN = '-16 -16 -24';
 vector	VEC_HULL_MAX = '16 16 32';
