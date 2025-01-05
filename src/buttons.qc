@@ -180,4 +180,6 @@ void() func_button =
 	}
 
 	self.targetname = "";
+	// DrLex: fix game crashing on shootable buttons like in lilith.bsp
+	self.th_pain = null;
 };
