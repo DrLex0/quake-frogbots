@@ -69,15 +69,15 @@ def generate_qc_source(args: argparse.Namespace):
             print(f'\tsprint_fb(self, 2, " {row_text}\\n");', file=qc_file)
         print("};\n", file=qc_file)
 
-        print("void() LoadWaypoints =\n{", file=qc_file)
+        print("float() LoadWaypoints =\n{", file=qc_file)
         for map_name in map_names:
             print(
                 f"""\tif (mapname == "{map_name}")
 \t{{
 \t\tmap_{map_name}();
-\t\treturn;
+\t\treturn TRUE;
 \t}}""", file=qc_file)
-        print("};\n", file=qc_file)
+        print("\treturn FALSE;\n};\n", file=qc_file)
 
         print("string(string mname) MapHasWaypoints =\n{", file=qc_file)
         for map_name in map_names:

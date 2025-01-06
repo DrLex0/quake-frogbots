@@ -355,12 +355,12 @@ void() LoadFrogbot =
 		{
 			first_ent.admin_code = self.admin_code = registered;
 			numberofbots = 0;
-			if (invalid_map)
+			if (map_lacks_waypoints)
 			{
 			#ifdef QUAKE
 				cvar_set("registered", "1");
 			#endif
-				load_frogbots = FALSE;
+				frogbot_loading = FALSE;
 				return;
 			}
 		}
@@ -370,7 +370,7 @@ void() LoadFrogbot =
 			{
 				if (registered == 1)
 				{
-					load_frogbots = FALSE;
+					frogbot_loading = FALSE;
 					return;
 				}
 				registered = registered - 2;
@@ -725,16 +725,16 @@ void() AddBot =
 	local float t1, t2, color;
 	if (self.player)
 	{
-		if (load_frogbots)
+		if (frogbot_loading)
 			return;
-		if (invalid_map)
+		if (map_lacks_waypoints)
 		{
 			InvalidMap();
 			impulse_ = 0;
 			return;
 		}
 	}
-	if (markers_loaded)
+	if (paths_computed)
 	{
 #ifdef QUAKE
 		local float cv_maxplay;
@@ -908,7 +908,7 @@ float(float remove_name) RemoveBot =
 {
 	if (numberofbots)
 	{
-		if (load_frogbots)
+		if (frogbot_loading)
 			return 0;
 		if (time >= frogbot_removetime)
 		{
@@ -967,13 +967,13 @@ BecomeBot
 */
 void() BecomeBot =
 {
-	if (invalid_map)
+	if (map_lacks_waypoints)
 	{
 		InvalidMap();
 	}
 	else
 	{
-		if (markers_loaded)
+		if (paths_computed)
 		{
 			if (game_show_rules)
 			{

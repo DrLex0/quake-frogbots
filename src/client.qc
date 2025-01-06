@@ -7,6 +7,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
+	Enhancements by DrLex 2024-2025
 */
 
 #include "settings.h"
@@ -52,6 +53,10 @@ void(entity marker) RemoveMarker;
 #ifdef TALK
 void(entity tgt) say_ouchie;
 #endif
+void() AddToQue;
+void() AddToTmpQue;
+void(entity marker) BecomeMarker;
+void(entity mk) SetFrB_Props;
 void() FrogTreadWater;
 void() FrogWaterMove;
 void() BotWaterJumpFix;
@@ -380,6 +385,7 @@ void() trigger_changelevel =
 	InitTrigger ();
 	self.nextthink = 0.001;
 	self.think = check_trigger;
+	SetFrB_Props(self);
 };
 
 
@@ -598,7 +604,7 @@ void() PutClientInServer_apply =
 	if (self.player)
 		self.fixangle = TRUE;		// turn this way immediately
 
-	if (!( invalid_map || markers_loaded ))
+	if (!( map_lacks_waypoints || paths_computed ))
 	{
 		self.health = 1;
 		self.nextthink = 0.001;
@@ -728,10 +734,32 @@ void() info_player_start2 =
 	remove_self();
 };
 
-/*
-saved out by quaked in region mode
+/* Hijack this entity to represent Frogbot markers embedded in BSP.
+To keep things sane and consistent with how the waypoint tool manages
+markers, preserve the distinction between entity and extra markers.
+Keep them in a separate queue, append to the main queue later.
+    -- DrLex
 */
-void() testplayerstart = {remove_self();};
+void() testplayerstart =
+{
+	if (! has_embedded_wp || self.FrB_ID == "") {
+		remove_self();
+		return;
+	}
+	AddToTmpQue();
+	self.classname = "marker";
+	self.flags = FL_ITEM;
+	SetFrB_Props(self);
+	self.solid = SOLID_TRIGGER;
+	self.touch = marker_touch;
+	self.view_ofs = '80 80 24';
+#ifdef MANUAL
+	self.display = self;
+	setmodel(self, "progs/player.mdl");
+	self.model = "";
+#endif
+	setsize (self, '-65 -65 -24', '65 65 32');
+};
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 24)
 potential spawning position for deathmatch games
@@ -745,6 +773,7 @@ void() info_player_deathmatch =
 	self.touch = marker_touch;
 	self.flags = FL_ITEM;
 	BecomeMarker(self);
+	SetFrB_Props(self);
 	setsize (self, '-65 -65 -24', '65 65 32');
 	self.view_ofs = '80 80 24';
 	self.pickup = pickup_true;
@@ -1684,7 +1713,7 @@ void() LoadPlayer_apply =
 		if (game_show_rules)
 		{
 			msg_entity = self;
-			if (invalid_map)
+			if (map_lacks_waypoints)
 				InvalidMap();
 		}
 		remove(other);

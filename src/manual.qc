@@ -17,6 +17,7 @@ void() DisconnectMarker;
 void(string print_string) DescriptionMarker;
 void() SaveCoords;
 void() SavePaths;
+void() DumpMarkerInfo;
 float(entity marker) changed_view_ofs_z;
 void() ZoneInfo;
 
@@ -771,14 +772,12 @@ void() SetMarkerIndexes =
 
 void() SaveMarkers =
 {
-	if (markers_loaded || invalid_map)
+	if (paths_computed || map_lacks_waypoints)
 	{
 		SetMarkerIndexes();
 		save_state = 0;
 		bprint("\nvoid() map_", mapname, " =\n{\n");
-		m = find(world, classname, "marker");
-		if(m)
-			bprint("// first custom marker m", ftos(m.index), "\n");
+		bprint("// custom markers start at m", ftos(1 + item_marker_index), "\n");
 		m = world;
 		save_position = spawn();
 		save_position.nextthink = 0.001;
@@ -931,10 +930,61 @@ void() SavePaths =
 	}
 	else
 	{
-		bprint("};\n\n");
-		remove_self();
+		bprint("};\n/* MarkerInfo\n");
+		m = first_marker;
+		self.think = DumpMarkerInfo;
 	}
 };
+
+/*
+============
+DumpMarkerInfo
+
+Dumps a list of all markers with their type and location.
+This will allow injecting marker info into .map files
+without having to rely on marker ordering.
+Also dump any FrB_ID to be able to preserve it.
+============
+*/
+void() DumpMarkerInfo =
+{
+	local float o_x, o_y, o_z;
+	local vector v_temp;
+
+	self.nextthink = 0.001;
+	count_ = 0;
+	while (m)
+	{
+		if((m.classname == "trigger_teleport") ||
+			(m.classname == "door") ||
+			(m.classname == "func_button"))
+		{
+			// See PrintGoal, take middle of bounding box to represent 'origin'
+			v_temp = (m.mins + m.maxs) * 0.5;
+			o_x = rint(v_temp_x);  o_y = rint(v_temp_y);  o_z = rint(v_temp_z);
+		}
+		else
+		{
+			o_x = rint(m.origin_x);  o_y = rint(m.origin_y);  o_z = rint(m.origin_z);
+		}
+		bprint("m", ftos(m.index), " ", m.classname, " ");
+		bprint(ftos(o_x), " ", ftos(o_y), " ", ftos(o_z));
+		if (has_embedded_wp)
+		if (m.FrB_ID != "")
+			bprint(" \"", m.FrB_ID, "\"");
+		bprint(";\n");
+		count_ = count_ + 1;
+		m = m.marker_link;
+		if (count_ >= 10)
+		{
+			return;
+		}
+	}
+
+	bprint("*/\n\n");
+	m = first_marker;
+	remove_self();
+}
 
 void() HideAllMarkers =
 {
@@ -1214,7 +1264,11 @@ void() PrintGoal =
 		ftos(rint(active_marker.origin_y)), ",",
 		ftos(rint(active_marker.origin_z)), ")  ");
 	}
-	bprint(active_marker.classname, "\n");
+	bprint(active_marker.classname);
+	if (has_embedded_wp && active_marker.FrB_ID != "")
+		bprint(" \"", active_marker.FrB_ID, "\"");
+	bprint("\n");
+
 
 	if (active_marker.RA0)
 	{
@@ -1769,6 +1823,9 @@ void() PrintDebugInfo =
 	if (dm6_door != world)
 		bprint("; dm6_door dist ", ftos(vlen(dm6_door.origin)));
 	bprint("\n");
+	if(has_embedded_wp) bprint("Embedded WP loaded\n");
+	else if(map_lacks_waypoints) bprint("No WP loaded\n");
+	else bprint("Compiled WP loaded\n");
 }
 
 // DrLex: I had to change all impulses compared to the waypoint tool

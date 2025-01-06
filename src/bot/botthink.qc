@@ -275,7 +275,7 @@ void() ThinkTime =
 			}
 			else
 			{
-				if (markers_loaded)
+				if (paths_computed)
 					self.state = self.state | AWARE_SURROUNDINGS;
 			}
 		}

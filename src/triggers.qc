@@ -6,6 +6,7 @@
 	Copyright (C) 1996-1997 Id Software, Inc.
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 2000-2007 ParboiL
+	Enhancements by DrLex 2024-2025
 */
 
 #include "settings.h"
@@ -13,6 +14,10 @@
 void() HazardTeleport;
 
 float	SPAWNFLAG_NOTOUCH = 1;
+
+void() AddToQue;
+void(entity marker) BecomeMarker;
+void(entity mk) SetFrB_Props;
 
 // the wait time has passed, so set back up for another activation
 void() multi_wait =
@@ -457,6 +462,7 @@ void() GetSource =
 		self.touch = destination_touch;
 		self.flags = FL_ITEM;
 		BecomeMarker(self);
+		SetFrB_Props(self);
 		setsize (self, '-65 -65 -24', '65 65 32');
 		self.view_ofs = '80 80 24';
 		self.pickup = pickup_true;
@@ -524,6 +530,7 @@ void() trigger_teleport =
 		self.view_ofs = 0.5 * (self.absmax - self.absmin);
 		adjust_view_ofs_z();
 		BecomeMarker(self);
+		SetFrB_Props(self);
 
 		self.nextthink = 0.001;
 		self.think = GetDest;

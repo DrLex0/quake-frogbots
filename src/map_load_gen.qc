@@ -21,68 +21,69 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    spinev2     ultrav     ztndm3\n");
 };
 
-void() LoadWaypoints =
+float() LoadWaypoints =
 {
 	if (mapname == "aerowalk")
 	{
 		map_aerowalk();
-		return;
+		return TRUE;
 	}
 	if (mapname == "amphi2")
 	{
 		map_amphi2();
-		return;
+		return TRUE;
 	}
 	if (mapname == "dm3")
 	{
 		map_dm3();
-		return;
+		return TRUE;
 	}
 	if (mapname == "dm4")
 	{
 		map_dm4();
-		return;
+		return TRUE;
 	}
 	if (mapname == "dm6")
 	{
 		map_dm6();
-		return;
+		return TRUE;
 	}
 	if (mapname == "e1m2")
 	{
 		map_e1m2();
-		return;
+		return TRUE;
 	}
 	if (mapname == "frobodm2")
 	{
 		map_frobodm2();
-		return;
+		return TRUE;
 	}
 	if (mapname == "pkeg1")
 	{
 		map_pkeg1();
-		return;
+		return TRUE;
 	}
 	if (mapname == "povdmm4")
 	{
 		map_povdmm4();
-		return;
+		return TRUE;
 	}
 	if (mapname == "spinev2")
 	{
 		map_spinev2();
-		return;
+		return TRUE;
 	}
 	if (mapname == "ultrav")
 	{
 		map_ultrav();
-		return;
+		return TRUE;
 	}
 	if (mapname == "ztndm3")
 	{
 		map_ztndm3();
-		return;
+		return TRUE;
 	}
+	return FALSE;
 };
 
 string(string mname) MapHasWaypoints =

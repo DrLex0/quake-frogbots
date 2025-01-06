@@ -6,6 +6,7 @@
 	Copyright (C) 1996-1997 Id Software, Inc.
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 2000-2007 ParboiL
+	Enhancements by DrLex 2024-2025
 */
 
 #include "settings.h"
@@ -15,6 +16,10 @@ float DOOR_START_OPEN = 1;
 float DOOR_DONT_LINK = 4;
 float DOOR_SILVER_GOLD_KEY = 24;
 float DOOR_TOGGLE = 32;
+
+void() AddToQue;
+void(entity marker) BecomeMarker;
+void(entity mk) SetFrB_Props;
 
 /*
 
@@ -484,6 +489,7 @@ void() func_door =
 		self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 		adjust_view_ofs_z();
 		BecomeMarker(self);
+		SetFrB_Props(self);
 	}
 };
 
@@ -772,6 +778,7 @@ void () func_door_secret =
 		self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 		adjust_view_ofs_z();
 		BecomeMarker(self);
+		SetFrB_Props(self);
 	}
 
 // DOOR_OPEN for maps

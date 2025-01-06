@@ -21,6 +21,7 @@ void() FrogbotPrePhysics1;
 void() FrogbotPrePhysics2;
 void() ThinkTime;
 void() TimerThink;
+void() ApplyFrB_props;
 
 #ifdef MANUAL
 void() MarkerDisplay;
@@ -309,6 +310,17 @@ void() worldspawn =
 
 	if (teamplay)
 		a_rep = stof(infokey(world, "autoreport"));
+
+	if (world.FrogBotWP != "") {
+		if (cvar("sv_frog_only_builtin"))
+			dprint("Frogbot: sv_frog_only_builtin, ignoring embedded map waypoints\n");
+		else
+		{
+			has_embedded_wp = TRUE;
+			dprint("Frogbot: using map embedded waypoints\n");
+		}
+	}
+	markers_ready = FALSE;
 };
 
 /*
@@ -356,17 +368,18 @@ void() StartFrame =
 
 	// I had to add 1 frame extra delay here to avoid a runaway loop in e1m2.
 	// Must give everything enough time to load before starting to calculate
-	// bot routes. -- DrLex
+	// bot routes, although this still feels like a pure duct tape fix for
+	// an underlying problem with the design.  -- DrLex
 	if (framecount <= 4)
 	{
 		if (framecount == 3)
 			InitFrogbots1();
 		else if (framecount == 4)
 			InitFrogbots2();
-#ifndef QUAKE
-		else
+	#ifndef QUAKE
+		else if (framecount == 1)
 			InitParameters();
-#endif
+	#endif
 	}
 
 	time_12 = time + 12;
@@ -420,7 +433,7 @@ void() StartFrame =
 		if (game_arena)
 		{
 		#ifdef ARENA
-			if (load_frogbots)
+			if (frogbot_loading)
 			if (loadbot_time_())
 				LoadFrogbot();
 		#endif
@@ -431,13 +444,13 @@ void() StartFrame =
 			{ 
 				if (!load_delay_time)
 					load_delay_time = time + 3;
-				if (load_frogbots)
+				if (frogbot_loading)
 				if (time >= load_delay_time)
 					LoadFrogbot();
 			}
 			else
 			{ 
-				if (load_frogbots)
+				if (frogbot_loading)
 					LoadFrogbot();
 			}
 		} 

@@ -69,7 +69,7 @@ void() remove_load =
 	time_start = time;
 	framecount_start = framecount;
 
-	markers_loaded = load_frogbots = TRUE;
+	paths_computed = frogbot_loading = TRUE;
 
 	while (current_load_position)
 	{

@@ -2,10 +2,13 @@
 	marker_load.qc
 
 	Copyright (C) 1997-1999 Robert 'Frog' Field
-	Fix for numpr_globals by DrLex 2024-12
+	Enhancements by DrLex 2024-2025
 */
 
 #include "settings.h"
+
+
+string FROG_ID_ERR = "Frogbot ERROR: invalid FrB_ID reference in map, see developer log\n";
 
 /*
 ============
@@ -100,6 +103,25 @@ void() AddToQue =
 
 /*
 ============
+AddToTmpQue
+
+Queue for waypoint-only markers added after entity markers.
+To keep behavior consistent between compiled and embedded waypoints,
+this list must preserve ordering.
+============
+*/
+void() AddToTmpQue
+{
+	if (last_tmp_marker)
+		last_tmp_marker.next = self;
+	else
+		first_tmp_marker = self;
+	self.next = world;
+	last_tmp_marker = self;
+}
+
+/*
+============
 N (New marker)
 
 Load a marker.
@@ -134,8 +156,6 @@ void() LSQ =
 	while ((floor(que_size * 0.02) * 50) != que_size)
 		AddToQue_apply();
 
-// set map loading info
-	load_frogbots = invalid_map = FALSE;
 	no_change = TRUE;
 	m = m_2 = first_marker;
 	m_zone = zone_stack_head;
@@ -145,3 +165,160 @@ void() LSQ =
 	dropper.think = Calc_G_time_1;
 	set_load();
 };
+
+/*
+============
+SetFrB_Props
+
+Applies Frogbot entity annotations embedded in BSP
+============
+*/
+void(entity mk) SetFrB_Props =
+{
+	if (! has_embedded_wp) return;
+
+	local string zone, goal;
+	if (mk.FrB_Z != "") {
+		zone = mk.FrB_Z;
+		if (zone == "1") Z1(mk);
+		else if (zone == "2") Z2(mk);
+		else if (zone == "3") Z3(mk);
+		else if (zone == "4") Z4(mk);
+		else if (zone == "5") Z5(mk);
+		else if (zone == "6") Z6(mk);
+		else if (zone == "7") Z7(mk);
+		else if (zone == "8") Z8(mk);
+		else if (zone == "9") Z9(mk);
+		else if (zone == "10") Z10(mk);
+		else if (zone == "11") Z11(mk);
+		else if (zone == "12") Z12(mk);
+		else if (zone == "13") Z13(mk);
+		else if (zone == "14") Z14(mk);
+		else if (zone == "15") Z15(mk);
+		else if (zone == "16") Z16(mk);
+		else if (zone == "17") Z17(mk);
+		else if (zone == "18") Z18(mk);
+		else if (zone == "19") Z19(mk);
+		else if (zone == "20") Z20(mk);
+		else if (zone == "21") Z21(mk);
+		else if (zone == "22") Z22(mk);
+		else if (zone == "23") Z23(mk);
+		else if (zone == "24") Z24(mk);
+		else
+		{
+			dprint("Invalid value for FrB_Z: '", mk.FrB_Z, "'\n");
+			error(FROG_ID_ERR);
+		}
+	}
+	if (mk.FrB_g != "") {
+		goal = mk.FrB_g;
+		if (goal == "1") G1(mk);
+		else if (goal == "2") G2(mk);
+		else if (goal == "3") G3(mk);
+		else if (goal == "4") G4(mk);
+		else if (goal == "5") G5(mk);
+		else if (goal == "6") G6(mk);
+		else if (goal == "7") G7(mk);
+		else if (goal == "8") G8(mk);
+		else if (goal == "9") G9(mk);
+		else if (goal == "10") G10(mk);
+		else if (goal == "11") G11(mk);
+		else if (goal == "12") G12(mk);
+		else if (goal == "13") G13(mk);
+		else if (goal == "14") G14(mk);
+		else if (goal == "15") G15(mk);
+		else if (goal == "16") G16(mk);
+		else if (goal == "17") G17(mk);
+		else if (goal == "18") G18(mk);
+		else if (goal == "19") G19(mk);
+		else if (goal == "20") G20(mk);
+		else if (goal == "21") G21(mk);
+		else if (goal == "22") G22(mk);
+		else if (goal == "23") G23(mk);
+		else if (goal == "24") G24(mk);
+		else
+		{
+			dprint("Invalid value for FrB_g: '", mk.FrB_g, "'\n");
+			error(FROG_ID_ERR);
+		}
+	}
+}
+
+entity (entity start_ent, string val) FindFrB_ID =
+{
+	local entity found = find(start_ent, FrB_ID, val);
+	if (found) return found;
+	dprint("ERROR: no FrB_ID='", val, "' found\n");
+	error(FROG_ID_ERR);
+	return world;  // make compiler shut up
+}
+
+/*
+============
+ApplyFrB_props
+
+Applies Frogbot embedded world annotations and path fields.
+Basically the equivalent of hard-coded map_mapname() functions.
+Must happen after all markers have spawned.
+============
+*/
+void() ApplyFrB_props =
+{
+	if (! has_embedded_wp) return;
+
+	// DO NOT just test stof("42") or you'll lose half an hour of your life
+	// and start questioning your sanity due to fteqcc optimizing this.
+	local string test_it = "42";
+	if (stof(test_it) != 42)
+		error("ERROR: build and Quake engine must support stof() to load embedded waypoints\n");
+
+	local entity mk, found, m_prev;
+
+	// Append the temporary 'Que' to the regular one
+	item_marker_index = marker_index;
+	mk = first_tmp_marker;
+	while(mk)
+	{
+		self = mk;
+		AddToQue();
+		BecomeMarker(mk);
+		m_prev = mk;
+		mk = mk.next;
+		m_prev.next = world;  // clear tmp field just to be sure
+	}
+	LSQ();
+
+	// Maybe this should split up with think to avoid a DoS on the engine?
+	mk = first_marker;
+	while(mk)
+	{
+		if (mk.FrB_P0 != "") { found = FindFrB_ID(world, mk.FrB_P0); if(found) mk.P0 = found; }
+		if (mk.FrB_P1 != "") { found = FindFrB_ID(world, mk.FrB_P1); if(found) mk.P1 = found; }
+		if (mk.FrB_P2 != "") { found = FindFrB_ID(world, mk.FrB_P2); if(found) mk.P2 = found; }
+		if (mk.FrB_P3 != "") { found = FindFrB_ID(world, mk.FrB_P3); if(found) mk.P3 = found; }
+		if (mk.FrB_P4 != "") { found = FindFrB_ID(world, mk.FrB_P4); if(found) mk.P4 = found; }
+		if (mk.FrB_P5 != "") { found = FindFrB_ID(world, mk.FrB_P5); if(found) mk.P5 = found; }
+		if (mk.FrB_P6 != "") { found = FindFrB_ID(world, mk.FrB_P6); if(found) mk.P6 = found; }
+		if (mk.FrB_P7 != "") { found = FindFrB_ID(world, mk.FrB_P7); if(found) mk.P7 = found; }
+		if (mk.FrB_D0 != "") mk.D0 = stof(mk.FrB_D0);
+		if (mk.FrB_D1 != "") mk.D1 = stof(mk.FrB_D1);
+		if (mk.FrB_D2 != "") mk.D2 = stof(mk.FrB_D2);
+		if (mk.FrB_D3 != "") mk.D3 = stof(mk.FrB_D3);
+		if (mk.FrB_D4 != "") mk.D4 = stof(mk.FrB_D4);
+		if (mk.FrB_D5 != "") mk.D5 = stof(mk.FrB_D5);
+		if (mk.FrB_D6 != "") mk.D6 = stof(mk.FrB_D6);
+		if (mk.FrB_D7 != "") mk.D7 = stof(mk.FrB_D7);
+		if (mk.FrB_oZ != "") mk.view_ofs_z = stof(mk.FrB_oZ);
+		if (mk.FrB_T != "") mk.T = stof(mk.FrB_T);
+		mk = mk.marker_link;
+	}
+
+	if (world.FrB_door != "" ) {
+		found = FindFrB_ID(world, world.FrB_door);
+		if(found) dm6_door = found;
+	}
+	if (world.FrB_doorD != "")
+		door_open_dist = stof(world.FrB_doorD);
+	if (world.FrB_doorZ != "")
+		door_targetZ = stof(world.FrB_doorZ);
+}

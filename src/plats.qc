@@ -7,6 +7,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
+	Enhancements by DrLex 2024-2025
 */
 
 #include "settings.h"
@@ -16,6 +17,10 @@ void() plat_go_up;
 void() plat_go_down;
 void() plat_crush;
 float PLAT_LOW_TRIGGER = 1;
+
+void() AddToQue;
+void(entity marker) BecomeMarker;
+void(entity mk) SetFrB_Props;
 
 void() plat_spawn_inside_trigger =
 {
@@ -194,6 +199,7 @@ void() func_plat =
 	self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 	adjust_view_ofs_z();
 	BecomeMarker(self);
+	SetFrB_Props(self);
 };
 
 //============================================================================
@@ -305,6 +311,7 @@ void() func_train_find =
 		self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 		adjust_view_ofs_z();
 		BecomeMarker(self);
+		SetFrB_Props(self);
 	}
 };
 

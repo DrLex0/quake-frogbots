@@ -14,6 +14,10 @@
 void() button_wait;
 void() button_return;
 
+void() AddToQue;
+void(entity marker) BecomeMarker;
+void(entity mk) SetFrB_Props;
+
 void() button_wait =
 {
 	self.state = STATE_TOP;
@@ -166,6 +170,7 @@ void() func_button =
 			self.touch = button_touch;
 			self.view_ofs = 0.5 * (self.absmax - self.absmin);
 			BecomeMarker(self);
+			SetFrB_Props(self);
 			adjust_view_ofs_z();
 		}
 

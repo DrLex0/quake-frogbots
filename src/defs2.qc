@@ -125,23 +125,6 @@ float door_open;
 .string stringname;
 string string_null;
 
-#ifdef QUAKE
-string(entity player, string key) infokey =
-{
-	return "";
-};
-#define EF_BLUE 0
-#define MULTICAST_PHS 0
-#define MSG_MULTICAST MSG_BROADCAST
-void(vector org, float pvs) multicast =
-{
-};
-float(string s) stof =
-{
-	return 0;
-};
-#endif
-
 void() SprintVersion =
 {
 	sprint_fb(self, 2, "\nÆגדב צועףיןמ: 1.01kt final\n");

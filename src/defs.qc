@@ -7,7 +7,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
-	Fixes by DrLex 2024
+	Enhancements by DrLex 2024-2025
 */
 
 #include "settings.h"
@@ -820,6 +820,8 @@ float EF_DIMLIGHT_BLUE	= 72;
 float EF_DIMLIGHT_RED	= 136;
 float NOT_EF_BLUE		= 16777151;
 float NOT_EF_RED		= 16777087;
+#else
+float EF_BLUE = 0;
 #endif
 
 
@@ -833,12 +835,17 @@ float PRINT_LOW		= 0;	// pickup messages
 float PRINT_MEDIUM	= 1;	// death messages
 float PRINT_HIGH	= 2;	// critical messages
 
-#ifndef QUAKE
+// multicast() did not exist in the original Quake, introduced in QW,
+// but is available in most modern engines.
+#ifndef VANILLA_QUAKE
 float MSG_MULTICAST = 4;	// for multicast() call
 
 // multicast sets
 float MULTICAST_PHS = 1;	// within hearing
 float MULTICAST_PVS = 2;	// within sight
+#else
+float MSG_MULTICAST = 0;
+float MULTICAST_PHS = 0;
 #endif
 
 float MAX_SKILL = 20;
@@ -1226,11 +1233,17 @@ string(string s) precache_sound2	= #76;		// registered version only
 												// values at level start
 												// for coop respawn
 
-#ifndef QUAKE
-string(entity e, string key) infokey = #80;	// get a key value (world = serverinfo)
-float(string s) stof = #81;	// convert string to float
-void(vector where, float set) multicast = #82;	// sends the temp message to a set
-								// of clients, possibly in 
+// These methods did not exist in the original Quake, introduced in QW,
+// but are available in most modern engines. Allow building for ancient
+// Quake by setting this macro, but will break certain things.
+#ifndef VANILLA_QUAKE
+string(entity e, string key) infokey    = #80;  // get a key value (world = serverinfo)
+float(string s) stof                    = #81;  // convert string to float
+void(vector where, float set) multicast = #82;  // sends message to a set of clients
+#else
+string(entity e, string key) infokey = { return ""; };
+float(string s) stof = { return 0; };
+void(vector where, float set) multicast = {};
 #endif
 
 void(entity client, float level, string s) sprint = #24;
@@ -1441,6 +1454,8 @@ entity first_marker;
 
 float takedamage_exists;
 
+entity first_tmp_marker;
+entity last_tmp_marker;
 .entity previous;
 .entity next;
 
@@ -1608,7 +1623,8 @@ float nextthink_;
 float marker_index;
 float item_marker_index;
 float que_size;
-float markers_loaded;
+float markers_ready;  // can start path calculations
+float paths_computed;  // path calculations done
 float no_change;
 //entity new_m_G;	// new marker Goal
 entity m, m_2;
@@ -1775,6 +1791,30 @@ float Z1_S_index, Z2_S_index, Z3_S_index, Z4_S_index, Z5_S_index, Z6_S_index, Z7
 float Z9_S_index, Z10_S_index, Z11_S_index, Z12_S_index, Z13_S_index, Z14_S_index, Z15_S_index, Z16_S_index;
 float Z17_S_index, Z18_S_index, Z19_S_index, Z20_S_index, Z21_S_index, Z22_S_index, Z23_S_index, Z24_S_index;
 
+void(entity marker) Z1;
+void(entity marker) Z2;
+void(entity marker) Z3;
+void(entity marker) Z4;
+void(entity marker) Z5;
+void(entity marker) Z6;
+void(entity marker) Z7;
+void(entity marker) Z8;
+void(entity marker) Z9;
+void(entity marker) Z10;
+void(entity marker) Z11;
+void(entity marker) Z12;
+void(entity marker) Z13;
+void(entity marker) Z14;
+void(entity marker) Z15;
+void(entity marker) Z16;
+void(entity marker) Z17;
+void(entity marker) Z18;
+void(entity marker) Z19;
+void(entity marker) Z20;
+void(entity marker) Z21;
+void(entity marker) Z22;
+void(entity marker) Z23;
+void(entity marker) Z24;
 
 //
 // sub-zones
@@ -2179,12 +2219,12 @@ float clientshirt;
 
 .float hit_z;
 
-float load_frogbots;
+float frogbot_loading;
 float frogbot_removetime;
 
 .float number_bots;
 
-float invalid_map;
+float map_lacks_waypoints;
 float frogbot_load_stage;
 
 #ifdef QUAKE
@@ -2307,6 +2347,39 @@ entity search_entity;
 float RA_time;
 float enemy_time_squared;
 .void end_remove_fieldnames_;
+
+//===========================================================================
+// Embedded waypoint data in BSPs  -- DrLex
+float has_embedded_wp;
+
+// world
+.string FrogBotWP;  // global indicator of waypoint presence
+.string FrB_door;   // maps to entity dm6_door
+.string FrB_doorD;  // maps to float door_open_dist
+.string FrB_doorZ;  // maps to float door_targetZ
+// markers
+.string FrB_ID;
+.string FrB_Z;
+.string FrB_g;  // lowercase to make it sort below ID in editors like TrenchBroom
+.string FrB_T;
+.string FrB_P0;
+.string FrB_P1;
+.string FrB_P2;
+.string FrB_P3;
+.string FrB_P4;
+.string FrB_P5;
+.string FrB_P6;
+.string FrB_P7;
+.string FrB_D0;
+.string FrB_D1;
+.string FrB_D2;
+.string FrB_D3;
+.string FrB_D4;
+.string FrB_D5;
+.string FrB_D6;
+.string FrB_D7;
+.string FrB_oZ;  // view_ofs_z
+//===========================================================================
 
 
 #ifdef MANUAL
