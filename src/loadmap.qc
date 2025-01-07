@@ -66,7 +66,6 @@ void() LoadMap =
 	{
 		ApplyFrB_props();
 		frogbot_loading = FALSE;
-		markers_ready = TRUE;
 	}
 
 	SetUpItems();

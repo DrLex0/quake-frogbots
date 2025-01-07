@@ -271,6 +271,8 @@ void() func_train_find =
 		return;
 	}
 
+	marker_load_state = marker_load_state - 1;
+
 	target_ = find(world, targetname, self.target);
 	while ((!target_.admin_code) && (target_.wait >= 0))
 	{
@@ -359,6 +361,7 @@ void() func_train =
 // a chance to spawn
 	self.nextthink = self.ltime + 0.001;
 	self.think = func_train_find;
+	marker_load_state = marker_load_state + 1;
 
 	self.targetname = "";
 };

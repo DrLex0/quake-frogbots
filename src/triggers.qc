@@ -448,6 +448,8 @@ void() GetSource =
 		return;
 	}
 
+	marker_load_state = marker_load_state - 1;
+
 #ifndef ARENA
 	if (find (world, target, self.targetname))
 	{
@@ -481,6 +483,7 @@ void() info_teleport_destination =
 
 	self.nextthink = 0.001;
 	self.think = GetSource;
+	marker_load_state = marker_load_state + 1;
 };
 
 /*QUAKED trigger_teleport (.5 .5 .5) ? PLAYER_ONLY SILENT

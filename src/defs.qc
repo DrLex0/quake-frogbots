@@ -1616,6 +1616,17 @@ float SHOT_FOR_LUCK			= 2;
 
 float nextthink_;
 
+// Cater for BecomeMarker being postponed for some entities.
+// 0: (undef) haven't started spawning anything yet.
+// 1: world has been spawned.
+// 2, 3, 4, ...: postponed markers are spawned: increment.
+// 3, 2, ...: their think executes: decrement.
+// Path calculations can begin when back at 1.
+// -1, -2: further FB init started.
+float marker_load_state;
+float paths_computed;  // path calculations done
+float no_change;
+
 //
 // SaveMarker variables
 //
@@ -1623,10 +1634,6 @@ float nextthink_;
 float marker_index;
 float item_marker_index;
 float que_size;
-float markers_ready;  // can start path calculations
-float paths_computed;  // path calculations done
-float no_change;
-//entity new_m_G;	// new marker Goal
 entity m, m_2;
 vector m_pos, m_2_pos;
 vector m_P_pos;

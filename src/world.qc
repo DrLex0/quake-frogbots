@@ -320,7 +320,7 @@ void() worldspawn =
 			dprint("Frogbot: using map embedded waypoints\n");
 		}
 	}
-	markers_ready = FALSE;
+	marker_load_state = 1;
 };
 
 /*
@@ -366,20 +366,32 @@ void() StartFrame =
 		}
 	}
 
-	// I had to add 1 frame extra delay here to avoid a runaway loop in e1m2.
-	// Must give everything enough time to load before starting to calculate
-	// bot routes, although this still feels like a pure duct tape fix for
-	// an underlying problem with the design.  -- DrLex
-	if (framecount <= 4)
+#ifndef QUAKE
+	if (framecount == 1)
 	{
-		if (framecount == 3)
+		// In QW this needs to happen in frame 1. Also, unlike in
+		// Quake, entity spawning may be postponed until frame 1.
+		InitParameters();
+	}
+#endif
+
+	/* Robust loading  -- DrLex
+	 * Frogbot init can only start when all entity markers are ready.
+	 * Some entities postpone their BecomeMarker until framecount >= 2.
+	 * Avoid counting frames altogether; just wait until all markers
+	 * are ready for sure. */
+	if(marker_load_state > -2)
+	{
+		if(marker_load_state == 1)
+		{
 			InitFrogbots1();
-		else if (framecount == 4)
+			marker_load_state = -1;
+		}
+		else if(marker_load_state == -1)
+		{
 			InitFrogbots2();
-	#ifndef QUAKE
-		else if (framecount == 1)
-			InitParameters();
-	#endif
+			marker_load_state = -2;
+		}
 	}
 
 	time_12 = time + 12;
