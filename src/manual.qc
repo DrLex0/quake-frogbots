@@ -355,10 +355,10 @@ float(entity marker_P, float marker_D) Display =
 void() MarkerDisplay =
 {
 	origin_ = self.origin;
-	if(mode & CLOSEST_MARKER) {
+	if (mode & CLOSEST_MARKER) {
 		// override touch_marker
 		closest_marker = ClosestMarker(origin_);
-		if(closest_marker != world) {
+		if (closest_marker) {
 			self.touch_marker = closest_marker;
 		}
 	}
@@ -514,7 +514,7 @@ void() MarkerDisplay =
 		{
 			active_marker.P7.display.angles_y = (active_marker.P7.display.angles_y + (frametime * 90));
 		}
-	
+
 	}
 };
 
@@ -746,11 +746,11 @@ void() Save_dm6_door =
 	// Doors are no longer specific to dm6, but keep the name to avoid having to change sources
 	bprint("dm6_door=m", ftos(m.index), ";");
 	// Ensure overrides of the defaults are preserved
-	if(door_open_dist != 67)
+	if (door_open_dist != 67)
 	{
 		bprint("door_open_dist=", ftos(door_open_dist), ";");
 	}
-	if(door_targetZ != 1)
+	if (door_targetZ != 1)
 	{
 		bprint("door_targetZ=", ftos(door_targetZ), ";");
 	}
@@ -955,7 +955,7 @@ void() DumpMarkerInfo =
 	count_ = 0;
 	while (m)
 	{
-		if((m.classname == "trigger_teleport") ||
+		if ((m.classname == "trigger_teleport") ||
 			(m.classname == "door") ||
 			(m.classname == "func_button"))
 		{
@@ -1101,7 +1101,7 @@ void() print_goal =
 	{
 		bprint("zone index = ", ftos(goal_index - NUMBER_GOALS));
 	}
-	
+
 	bprint("\n");
 };
 
@@ -1360,7 +1360,7 @@ Clean up after SpikeIt
 */
 void() SpikeItDone =
 {
-	if (self.previous != world)
+	if (self.previous)
 		remove(self.previous);
 	remove(self);
 }
@@ -1430,7 +1430,7 @@ void() PrintPathInfo =
 	local float p_count = 0;
 	m = active_marker;
 	bprint("m", ftos(m.index));
-	if(m.Z_) bprint(" (Z", ftos(m.Z_), ")");
+	if (m.Z_) bprint(" (Z", ftos(m.Z_), ")");
 	else bprint(" (no zone!)");
 	bprint(" paths\nout:");
 	if (m.P0) {
@@ -1781,36 +1781,86 @@ void() CycleDisplayMode =
 	}
 };
 
+/*
+============
+CheckAllZones
+
+If a marker lacks a zone, move towards it.
+When already on such marker, move to the next.
+Needs noclip to allow moving to obstructed markers.
+============
+*/
 void() CheckAllZones =
 {
+	local float exit_next = 0;
+	local entity first_bad = world;
+	local entity last_bad = world;
+
 	marker_ = first_marker;
 	while (marker_)
 	{
 		if (!marker_.Z_)
 		{
-			active_marker = marker_;
-			bprint("Zone missing\n");
-			setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
-			return;
+			if (! first_bad) first_bad = marker_;
+			last_bad = marker_;
+			if (exit_next) break;
+			if (self.origin == ((marker_.absmin + marker_.view_ofs) + '0 0 22') - self.view_ofs)
+				exit_next = 1;
 		}
 		marker_ = marker_.marker_link;
+	}
+
+	if (last_bad)
+	{
+		if (marker_)  // exited early
+			active_marker = last_bad;
+		else  // looped over all, on last marker or none
+			active_marker = first_bad;
+		bprint("Zone missing\n");
+		setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
+		return;
 	}
 	bprint("Zones completed\n");
 };
 
+/*
+============
+CheckAllGoals
+
+If an item marker lacks a goal, move towards it.
+When already on such marker, move to the next.
+Needs noclip to allow moving to obstructed markers.
+============
+*/
 void() CheckAllGoals =
 {
+	local float exit_next = 0;
+	local entity first_bad = world;
+	local entity last_bad = world;
+
 	marker_ = first_item;
 	while (marker_)
 	{
 		if (!marker_.G_)
 		{
-			active_marker = marker_;
-			bprint("Goal missing\n");
-			setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
-			return;
+			if (! first_bad) first_bad = marker_;
+			last_bad = marker_;
+			if (exit_next) break;
+			if (self.origin == ((marker_.absmin + marker_.view_ofs) + '0 0 22') - self.view_ofs)
+				exit_next = 1;
 		}
 		marker_ = marker_.next;
+	}
+
+	if (last_bad)
+	{
+		if (marker_)  // exited early
+			active_marker = last_bad;
+		else  // looped over all, on last marker or none
+			active_marker = first_bad;
+		bprint("Goal missing\n");
+		setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
+		return;
 	}
 	bprint("Goals completed\n");
 };
@@ -1820,11 +1870,11 @@ void() PrintDebugInfo =
 	bprint("pos ", vtos(self.origin));
 	if ((mode & STATIC_ACTIVE_MARKER) && active_marker)
 		bprint(" d ", ftos(vlen(self.origin - active_marker.origin)));
-	if (dm6_door != world)
+	if (dm6_door)
 		bprint("; dm6_door dist ", ftos(vlen(dm6_door.origin)));
 	bprint("\n");
-	if(has_embedded_wp) bprint("Embedded WP loaded\n");
-	else if(map_lacks_waypoints) bprint("No WP loaded\n");
+	if (has_embedded_wp) bprint("Embedded WP loaded\n");
+	else if (map_lacks_waypoints) bprint("No WP loaded\n");
 	else bprint("Compiled WP loaded\n");
 }
 
