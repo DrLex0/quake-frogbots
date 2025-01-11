@@ -12,6 +12,11 @@
 #include "maps/map_spinev2.qc"
 #include "maps/map_ultrav.qc"
 #include "maps/map_ztndm3.qc"
+#include "maps/drlex/map_hohoho2.qc"
+#include "maps/trinca/map_cmt4.qc"
+#include "maps/trinca/map_e1m6.qc"
+#include "maps/trinca/map_eodm3.qc"
+#include "maps/trinca/map_oktest1.qc"
 
 void() SprintMaps =
 {
@@ -19,6 +24,8 @@ void() SprintMaps =
 	sprint_fb(self, 2, "        dm4        dm6       e1m2\n");
 	sprint_fb(self, 2, "   frobodm2      pkeg1    povdmm4\n");
 	sprint_fb(self, 2, "    spinev2     ultrav     ztndm3\n");
+	sprint_fb(self, 2, "    hohoho2       cmt4       e1m6\n");
+	sprint_fb(self, 2, "      eodm3    oktest1\n");
 };
 
 float() LoadWaypoints =
@@ -83,6 +90,31 @@ float() LoadWaypoints =
 		map_ztndm3();
 		return TRUE;
 	}
+	if (mapname == "hohoho2")
+	{
+		map_hohoho2();
+		return TRUE;
+	}
+	if (mapname == "cmt4")
+	{
+		map_cmt4();
+		return TRUE;
+	}
+	if (mapname == "e1m6")
+	{
+		map_e1m6();
+		return TRUE;
+	}
+	if (mapname == "eodm3")
+	{
+		map_eodm3();
+		return TRUE;
+	}
+	if (mapname == "oktest1")
+	{
+		map_oktest1();
+		return TRUE;
+	}
 	return FALSE;
 };
 
@@ -112,5 +144,15 @@ string(string mname) MapHasWaypoints =
 		return "ultrav";
 	if (mname == "ztndm3")
 		return "ztndm3";
+	if (mname == "hohoho2")
+		return "hohoho2";
+	if (mname == "cmt4")
+		return "cmt4";
+	if (mname == "e1m6")
+		return "e1m6";
+	if (mname == "eodm3")
+		return "eodm3";
+	if (mname == "oktest1")
+		return "oktest1";
 	return "";
 };

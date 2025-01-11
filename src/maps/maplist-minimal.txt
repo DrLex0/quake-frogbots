@@ -10,8 +10,3 @@ map_povdmm4.qc
 map_spinev2.qc
 map_ultrav.qc
 map_ztndm3.qc
-drlex/map_hohoho2.qc
-trinca/map_cmt4.qc
-trinca/map_e1m6.qc
-trinca/map_eodm3.qc
-trinca/map_oktest1.qc

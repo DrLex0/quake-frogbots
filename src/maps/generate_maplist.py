@@ -18,10 +18,9 @@ COLUMNS = 3
 COL_WIDTH = 10
 
 
-def generate_listfile(args: argparse.Namespace):
-    """Writes a map sources list file named args.list_file."""
-    maps: list[str] = []
-    for map_file in sorted(glob.glob("map_*.qc")):
+def add_maps(maps: list[str], glob_pattern: str):
+    """Appends maps to the list, found according to the glob pattern."""
+    for map_file in sorted(glob.glob(glob_pattern)):
         bad = []
         if any(ord(char) > 127 for char in map_file):
             bad.append("non-ASCII characters")
@@ -37,6 +36,13 @@ def generate_listfile(args: argparse.Namespace):
             continue
         maps.append(map_file)
 
+
+def generate_listfile(args: argparse.Namespace):
+    """Writes a map sources list file named args.list_file."""
+    maps: list[str] = []
+    add_maps(maps, "map_*.qc")
+    for folder in args.folder or []:
+        add_maps(maps, os.path.join(folder, "map_*.qc"))
     with open(args.list_file, "w", encoding="ascii") as list_file:
         print("\n".join(maps), file=list_file)
     if args.verbose:
@@ -47,7 +53,7 @@ def generate_qc_source(args: argparse.Namespace):
     """Generates a QC source file ../{GENERATE_QC} for maps listed in args.list_file."""
     with open(args.list_file, encoding="ascii") as list_file:
         map_files = [line.strip() for line in list_file.readlines()]
-    map_names = [map_file[4:][:-3].lower() for map_file in map_files]
+    map_names = [os.path.basename(map_file)[4:][:-3].lower() for map_file in map_files]
     if args.verbose:
         print(f"Read {len(map_files)} entries from '{args.list_file}'")
 
@@ -101,9 +107,9 @@ def transform_qc_files(args: argparse.Namespace):
         with open(map_file, 'r+', encoding='iso8859_15') as qc_file:
             code_lines = qc_file.readlines()
             changed = False
-            for i in range(0, len(code_lines)):
-                new_line = re.sub(r"N\('(\S+) +(\S+) +(\S+)'\)", r"N(\1,\2,\3)", code_lines[i])
-                if new_line != code_lines[i]:
+            for (i, line) in enumerate(code_lines):
+                new_line = re.sub(r"N\('(\S+) +(\S+) +(\S+)'\)", r"N(\1,\2,\3)", line)
+                if new_line != line:
                     changed = True
                     code_lines[i] = new_line
             if changed:
@@ -131,6 +137,8 @@ def main():
                         help="convert map sources from old N('vector') to new N(x,y,z) format. Same remark about map list file as with -g.")
     parser.add_argument('-f','--list_file', type=str, default='maplist.txt',
                         help="use a custom file name instead of 'maplist.txt'.")
+    parser.add_argument('-d','--folder', type=str, nargs="+",
+                        help="also include maps in these subdirectories.")
     args = parser.parse_args()
 
     if args.verbose:

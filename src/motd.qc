@@ -19,7 +19,8 @@ void() PrintMOTD =
 		return;
 	}
 	if (self.attack_finished > time + 6) centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n");
-	else centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n\nRunning Ζβγα “®’“λτ final by ΠαςboiL\n\nbased on Λονβατ Τεανσ ”®”“\n");
+	else centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n\nRunning Ζςοηβοτ φ”β“ by ΔςΜεψ\n\nwith Ζβγα “®’“λτ final by ΠαςboiL\nbased on Λονβατ Τεανσ ”®”“\n");
+	// Running Frogbot v2b1 by DrLex\n\nwith Fbca 1.01kt final by ParboiL\nbased on Kombat Teams 2.21
 	self.nextthink = time + 0.7;
 };
 
