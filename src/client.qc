@@ -385,7 +385,6 @@ void() trigger_changelevel =
 	InitTrigger ();
 	self.nextthink = 0.001;
 	self.think = check_trigger;
-	SetFrB_Props(self);
 };
 
 

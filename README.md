@@ -8,7 +8,7 @@ Based on:
 
 ## What in Shub-Nigguraths name is a Frogbot?
 
-The Quake Frogbot allows to add computer-controlled players to the first _Quake_ game. (Not to be confused with some JFrog thing.). It was created by _Robert 'Frog' Field_ in 1997. The Frogbot is regarded as one of the better performing bots. With a properly crafted waypoint file, the bots simulate a real human opponent rather well, and are still impressive despite their age and the fact that it is all implemented in QuakeC.
+The Quake Frogbot allows to add computer-controlled players to the first _Quake_ game. (Not to be confused with some JFrog thing.) It was created by _Robert 'Frog' Field_ in 1997. The Frogbot is regarded as one of the better performing bots. With a properly crafted waypoint file, the bots simulate a real human opponent rather well, and are still impressive despite their age and the fact that it is all implemented in QuakeC.
 
 The bot relies on _waypoint files_ that have to be created for each map. In previous Frogbot incarnations, waypoints needed to be compiled into the _qwprogs.dat._ In the first decade of the 21st century, _Trinca_ did a gargantuan job of making and collecting waypoints for about 400 maps.
 
@@ -23,8 +23,8 @@ The old Frogbot had a few issues that lead to practically nobody creating new wa
 
 The goal: revive the Frogbots in a way that:
 - makes it easier to build the qwprogs.dat (with any recent version of fteqcc or maybe other compilers);
-- makes it possible to resume editing existing waypoint data;
 - makes it easier to create and edit waypoints;
+- makes it possible to resume editing existing waypoint data;
 - makes it possible to embed waypoint data in maps, to avoid the need to compile them into the qwprogs;
 - fixes some issues.
 
@@ -41,9 +41,12 @@ The goal: revive the Frogbots in a way that:
    - fixed various bugs, for instance the tool would often crash after deleting a marker.
 4. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors.
 5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this to the yellow armor zone of `e1m2`, it works really well.
+6. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
+   To override smartness, set `fb_smartness` to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
+7. Various smaller bug and robustness fixes.
 
 **Planned:**
-- Allow using waypoint data embedded in entity fields of maps, and provide a tool to inject marker data created with the waypoint tool into a `.map` file. This means no more need to recompile qwprogs to add bot support to a map for which the source is available!
+- Allow using waypoint data embedded in entity fields of maps, and provide a tool to inject marker data created with the waypoint tool into a `.map` file. This means no more need to recompile qwprogs to add bot support to a map for which the source is available! (Mechanism implemented, still need script to inject WP into map.)
 - Add Trinca's waypoints… and perhaps some new ones.
 - Something resembling documentation.
 - Improve upon Mick's waypoint guide. Figure out the more advanced things.
@@ -55,6 +58,7 @@ Not really planned, but who knows:
 - Make Frogbot work in non-Quakeworld engines. Currently it builds and runs, but _very weird things_ happen, it is not usable.
 
 Wild ideas:
+- Make shootable doors even more universal, bots should be able to open any door on the path it wants to follow, without having to tie it to specific goals/zones. Maybe even extend to also allow shooting switches to open doors.
 - Find a way to load waypoints from a separate file at runtime, but I'm not sure if possible at all.
 - Construct reasonable waypoints automatically with AI and evolutionary algorithms and blockchain and all other buzzwords we can throw against it.
 

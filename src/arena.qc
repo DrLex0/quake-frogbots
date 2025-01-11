@@ -811,18 +811,11 @@ float() loadbot_time_ =
 	return 0;
 };
 
-void(string s, float val) alias =
-{
-	stuffcmd("alias ");
-	stuffcmd(s);
-	stuffcmd(" impulse ");
-	stuffcmd_ftos(val);
-	stuffcmd("\n");
-};
-
 // We used to create aliases to maps here, and tied the maps to impulses.
 // This has become tedious and pointless when rebuilding Frogbot with different
 // map sets. Just load maps with the 'map' command and vote with 'cmd'.
+
+// FIXME: split these up between specific to ARENA and not, and do the non-specific ones in botimp.
 
 // stuff aliases
 void() aliases1 =

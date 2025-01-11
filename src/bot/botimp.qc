@@ -32,9 +32,11 @@ SetAttribs
 */
 void() SetAttribs =
 {
+	// DrLex: apparently the intention was to make smartness configurable, but this never happened
+	// and was hard-coded to 10, making bots do annoyingly advanced things even on lowest skill
+	// levels. Smartness now varies together with skill up to 10, but can be overridden by setting
+	// cvar 'fb_smartness' to nonzero. For dumbest possible bots, use negative value.
 	local float smartness;
-
-	smartness = 10;
 
 	skill_ = self.bot_skill;
 
@@ -46,11 +48,21 @@ void() SetAttribs =
 	}
 	if (skill_ > 10)
 	{
+		smartness = 10;
 		self.fast_aim = (skill_ - 10) * 0.1;	// 0.1 to 1
 		skill_ = 10;
 	}
 	else
+	{
 		self.fast_aim = 0;
+		smartness = 3 + 0.7 * skill_;
+	}
+	if (cvar("fb_smartness")) {
+		smartness = cvar("fb_smartness");
+		if (smartness < 0) smartness = 0;
+		if (smartness > 10) smartness = 10;
+	}
+	dprint("Frogbot smartness: ", ftos(smartness), "\n");
 
 	self.firing_reflex = 0.5 - (skill_ * 0.04);	// 0.5 to 0.1
 	self.accuracy = 45 - (skill_ * 2.25);	// 45 to 22.5
@@ -1330,6 +1342,15 @@ void() togglenoclip =
 	}
 };
 #endif
+
+void(string s, float val) alias =
+{
+	stuffcmd("alias ");
+	stuffcmd(s);
+	stuffcmd(" impulse ");
+	stuffcmd_ftos(val);
+	stuffcmd("\n");
+};
 
 /*
 ============
