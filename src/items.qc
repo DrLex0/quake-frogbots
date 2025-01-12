@@ -415,6 +415,9 @@ void() armor_touch =
 				if (other.movetarget.owner != other)	// no rocket active
 				if (!other.button0_)
 				{
+					// Deliberately damage onseself to be able to pick up the armor and deny
+					// it from other players. This is advanced behavior that should be disabled
+					// or made less common on lower smartness levels. TODO.
 					other.state = other.state | HURT_SELF;
 					other.linked_marker = self;
 					other.path_state = 0;

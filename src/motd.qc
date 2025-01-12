@@ -2,10 +2,12 @@
 	motd.qc
 
 	Copyright (C) 2000-2007 ParboiL
+	Changes by DrLex 2024-2025
 */
 
 #include "settings.h"
 
+#ifndef MANUAL
 void() PrintMOTD =
 {
 	local string s1, s2;
@@ -23,6 +25,17 @@ void() PrintMOTD =
 	// Running Frogbot v2b1 by DrLex\n\nwith Fbca 1.01kt final by ParboiL\nbased on Kombat Teams 2.21
 	self.nextthink = time + 0.7;
 };
+#else
+void() PrintMOTD =
+{
+	if (self.attack_finished < time) {
+		remove(self);
+		return;
+	}
+	centerprint(self.owner, "Frogbot Waypoint Tool φ”β“\nEnable ναξυαμ νοδε to start editing\n\n\n");
+	self.nextthink = time + 0.7;
+};
+#endif
 
 void() MakeMOTD =
 {

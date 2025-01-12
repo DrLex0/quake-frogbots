@@ -22,6 +22,15 @@ float(entity marker) changed_view_ofs_z;
 void() ZoneInfo;
 
 
+/*
+============
+CheckReachable
+
+Unsure what this is for. It is not related to UNREACHABLE marker mode.
+My best guess is to check whether the bot could get stuck on something
+in between 2 markers?
+============
+*/
 void(entity marker) CheckReachable =
 {
 	rel_pos = ((marker.absmin + marker.view_ofs) -
@@ -67,26 +76,27 @@ void(entity marker) CheckReachable =
 	self = test_enemy;
 };
 
+/*
+============
+manual_marker_touch
+
+Actions to perform when 'touching' a marker in manual mode.
+============
+*/
 void(entity marker) manual_marker_touch =
 {
 	if (mode & STATIC_ACTIVE_MARKER)
 	{
 		if (!active_marker)
-		{
 			return;
-		}
 		if (marker == active_marker)
-		{
 			return;
-		}
 		if (mode & CONNECT_MARKERS)
 		{
 			from_marker = active_marker;
 			to_marker = marker;
 			if (path_mode == DISCONNECT_MARKERS)
-			{
 				DisconnectMarker();
-			}
 			else
 			{
 				ConnectMarker();
@@ -145,9 +155,7 @@ void(entity marker) manual_marker_touch =
 	else
 	{
 		if (active_marker)
-		{
 			active_marker.display.frame = 12;
-		}
 		active_marker = marker;
 		active_marker.display.frame = 0;
 	}
@@ -166,37 +174,21 @@ void() RemoveActiveMarker =
 		while (m)
 		{
 			if (m.P0 == active_marker)
-			{
 				m.P0 = world;
-			}
 			if (m.P1 == active_marker)
-			{
 				m.P1 = world;
-			}
 			if (m.P2 == active_marker)
-			{
 				m.P2 = world;
-			}
 			if (m.P3 == active_marker)
-			{
 				m.P3 = world;
-			}
 			if (m.P4 == active_marker)
-			{
 				m.P4 = world;
-			}
 			if (m.P5 == active_marker)
-			{
 				m.P5 = world;
-			}
 			if (m.P6 == active_marker)
-			{
 				m.P6 = world;
-			}
 			if (m.P7 == active_marker)
-			{
 				m.P7 = world;
-			}
 			m = m.marker_link;
 		}
 		RemoveMarker(active_marker);
@@ -240,6 +232,13 @@ void() DisableActiveMarker =
 	}
 };
 
+/*
+============
+ClearActiveMarker
+
+Wipe all outgoing paths and their descriptions.
+============
+*/
 void() ClearActiveMarker =
 {
 	if (!active_marker)
@@ -330,28 +329,78 @@ entity(vector org) ClosestMarker =
 	return next_closest2;
 };
 
+/*
+============
+SpinMarkerDisplay
+
+Causes marker to spin around its axis
+============
+*/
+void(entity marker) SpinMarkerDisplay =
+{
+	marker.display.angles_y = (marker.display.angles_y + (frametime * 90));
+}
+
+/*
+============
+DisplayZone
+
+Show all markers of same zone as the selected marker
+============
+*/
 void() DisplayZone =
 {
 	marker_ = first_marker;
 	while (marker_)
 	{
 		if (marker_.Z_ == active_marker.Z_)
-		{
-			marker_.display.angles_y = marker_.display.angles_y + (frametime * 90);
-		}
+			SpinMarkerDisplay(marker_);
 		marker_ = marker_.marker_link;
 	}
 };
 
+/*
+============
+DisplayType
+
+Show all markers of the currently selected type
+============
+*/
+void() DisplayType =
+{
+	if (! type_mode)
+		return;
+	marker_ = first_marker;
+	while (marker_)
+	{
+		if (marker_.T & SAVED_T)
+		if ((marker_.T & type_mode) == type_mode)
+			SpinMarkerDisplay(marker_);
+		marker_ = marker_.marker_link;
+	}
+};
+
+/*
+============
+Display
+
+Whether to display this marker in path mode or not
+============
+*/
 float(entity marker_P, float marker_D) Display =
 {
 	if (!marker_P)
-	{
-		return (FALSE);
-	}
+		return FALSE;
 	return ((path_mode & marker_D) == path_mode);
 };
 
+/*
+============
+MarkerDisplay
+
+Update marker display in current frame
+============
+*/
 void() MarkerDisplay =
 {
 	origin_ = self.origin;
@@ -363,17 +412,13 @@ void() MarkerDisplay =
 		}
 	}
 	if (self.touch_marker)
-	{
 		manual_marker_touch(self.touch_marker);
-	}
 
 	marker_ = first_marker;
 	while (marker_)
 	{
 		if (marker_.classname == "marker")
-		{
 			display_origin = marker_.origin;
-		}
 		else
 		{
 			display_origin = marker_.absmin + marker_.view_ofs;
@@ -382,9 +427,7 @@ void() MarkerDisplay =
 		if (marker_.display)
 		{
 			if (vlen(display_origin - origin_) <= 750)
-			{
 				marker_.display.model = "/";
-			}
 			else
 			{
 				marker_.display.model = "";
@@ -395,15 +438,11 @@ void() MarkerDisplay =
 	if ((mode & CLOSEST_MARKER) && ! (mode & STATIC_ACTIVE_MARKER))
 	{
 		if (active_marker)
-		{
 			active_marker.display.frame = 12;
-		}
 		active_marker = closest_marker;
 	}
 	if (!active_marker)
-	{
 		return;
-	}
 	active_marker.display.frame = 0;
 	if (mode & DISPLAY_ZONE)
 	{
@@ -413,145 +452,75 @@ void() MarkerDisplay =
 
 	if (mode & DISPLAY_TYPE)
 	{
-		if (active_marker.T & SAVED_T)
-		{
-			if ((active_marker.T & type_mode) == type_mode)
-			{
-				active_marker.display.angles_y = (active_marker.display.angles_y + (frametime * 90));
-			}
-		}
+		DisplayType();
+		return;
 	}
-	else if (mode & DISPLAY_RUNAWAY)
+	if (mode & DISPLAY_RUNAWAY)
 	{
 		if (active_marker.RA0)
-		{
-			if (!active_marker.RA0_type)
-			{
-				active_marker.RA0.display.angles_y = (active_marker.RA0.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA0_type)
+			SpinMarkerDisplay(active_marker.RA0);
 		if (active_marker.RA1)
-		{
-			if (!active_marker.RA1_type)
-			{
-				active_marker.RA1.display.angles_y = (active_marker.RA1.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA1_type)
+			SpinMarkerDisplay(active_marker.RA1);
 		if (active_marker.RA2)
-		{
-			if (!active_marker.RA2_type)
-			{
-				active_marker.RA2.display.angles_y = (active_marker.RA2.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA2_type)
+			SpinMarkerDisplay(active_marker.RA2);
 		if (active_marker.RA3)
-		{
-			if (!active_marker.RA3_type)
-			{
-				active_marker.RA3.display.angles_y = (active_marker.RA3.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA3_type)
+			SpinMarkerDisplay(active_marker.RA3);
 		if (active_marker.RA4)
-		{
-			if (!active_marker.RA4_type)
-			{
-				active_marker.RA4.display.angles_y = (active_marker.RA4.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA4_type)
+			SpinMarkerDisplay(active_marker.RA4);
 		if (active_marker.RA5)
-		{
-			if (!active_marker.RA5_type)
-			{
-				active_marker.RA5.display.angles_y = (active_marker.RA5.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA5_type)
+			SpinMarkerDisplay(active_marker.RA5);
 		if (active_marker.RA6)
-		{
-			if (!active_marker.RA6_type)
-			{
-				active_marker.RA6.display.angles_y = (active_marker.RA6.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA6_type)
+			SpinMarkerDisplay(active_marker.RA6);
 		if (active_marker.RA7)
-		{
-			if (!active_marker.RA7_type)
-			{
-				active_marker.RA7.display.angles_y = (active_marker.RA7.display.angles_y + (frametime * 90));
-			}
-		}
+		if (!active_marker.RA7_type)
+			SpinMarkerDisplay(active_marker.RA7);
 	}
-	else
+	else  // default: show connected markers of current path type
 	{
 		if (Display(active_marker.P0, active_marker.D0))
-		{
-			active_marker.P0.display.angles_y = (active_marker.P0.display.angles_y + (frametime * 90));
-		}
+			SpinMarkerDisplay(active_marker.P0);
 		if (Display(active_marker.P1, active_marker.D1))
-		{
-			active_marker.P1.display.angles_y = (active_marker.P1.display.angles_y + (frametime * 90));
-		}
+			SpinMarkerDisplay(active_marker.P1);
 		if (Display(active_marker.P2, active_marker.D2))
-		{
-			active_marker.P2.display.angles_y = (active_marker.P2.display.angles_y + (frametime * 90));
-		}
+			SpinMarkerDisplay(active_marker.P2);
 		if (Display(active_marker.P3, active_marker.D3))
-		{
-			active_marker.P3.display.angles_y = (active_marker.P3.display.angles_y + (frametime * 90));
-		}
+			SpinMarkerDisplay(active_marker.P3);
 		if (Display(active_marker.P4, active_marker.D4))
-		{
-			active_marker.P4.display.angles_y = (active_marker.P4.display.angles_y + (frametime * 90));
-		}
+			SpinMarkerDisplay(active_marker.P4);
 		if (Display(active_marker.P5, active_marker.D5))
-		{
-			active_marker.P5.display.angles_y = (active_marker.P5.display.angles_y + (frametime * 90));
-		}
+			SpinMarkerDisplay(active_marker.P5);
 		if (Display(active_marker.P6, active_marker.D6))
-		{
-			active_marker.P6.display.angles_y = (active_marker.P6.display.angles_y + (frametime * 90));
-		}
+			SpinMarkerDisplay(active_marker.P6);
 		if (Display(active_marker.P7, active_marker.D7))
-		{
-			active_marker.P7.display.angles_y = (active_marker.P7.display.angles_y + (frametime * 90));
-		}
-
+			SpinMarkerDisplay(active_marker.P7);
 	}
 };
 
 void() ConnectMarker =
 {
 	if (from_marker.P0 == to_marker)
-	{
 		return;
-	}
 	if (from_marker.P1 == to_marker)
-	{
 		return;
-	}
 	if (from_marker.P2 == to_marker)
-	{
 		return;
-	}
 	if (from_marker.P3 == to_marker)
-	{
 		return;
-	}
 	if (from_marker.P4 == to_marker)
-	{
 		return;
-	}
 	if (from_marker.P5 == to_marker)
-	{
 		return;
-	}
 	if (from_marker.P6 == to_marker)
-	{
 		return;
-	}
 	if (from_marker.P7 == to_marker)
-	{
 		return;
-	}
 
 	if (!from_marker.P0)
 	{
@@ -711,6 +680,12 @@ void(string print_string) DescriptionMarker =
 	}
 };
 
+
+/*
+============
+Waypoint saving routines begin here
+============
+*/
 void(string field) Save_m_P =
 {
 	if (m_P)
@@ -747,13 +722,9 @@ void() Save_dm6_door =
 	bprint("dm6_door=m", ftos(m.index), ";");
 	// Ensure overrides of the defaults are preserved
 	if (door_open_dist != 67)
-	{
 		bprint("door_open_dist=", ftos(door_open_dist), ";");
-	}
 	if (door_targetZ != 1)
-	{
 		bprint("door_targetZ=", ftos(door_targetZ), ";");
-	}
 	count_ = 10;
 };
 
@@ -802,9 +773,7 @@ void() SaveCoords =
 		m = find(m, classname, "marker");
 	}
 	if (count_)
-	{
 		bprint("\n");
-	}
 	bprint("LSQ();\n");
 	m = first_marker;
 	self.think = SavePaths;
@@ -961,11 +930,15 @@ void() DumpMarkerInfo =
 		{
 			// See PrintGoal, take middle of bounding box to represent 'origin'
 			v_temp = (m.mins + m.maxs) * 0.5;
-			o_x = rint(v_temp_x);  o_y = rint(v_temp_y);  o_z = rint(v_temp_z);
+			o_x = rint(v_temp_x);
+			o_y = rint(v_temp_y);
+			o_z = rint(v_temp_z);
 		}
 		else
 		{
-			o_x = rint(m.origin_x);  o_y = rint(m.origin_y);  o_z = rint(m.origin_z);
+			o_x = rint(m.origin_x);
+			o_y = rint(m.origin_y);
+			o_z = rint(m.origin_z);
 		}
 		bprint("m", ftos(m.index), " ", m.classname, " ");
 		bprint(ftos(o_x), " ", ftos(o_y), " ", ftos(o_z));
@@ -985,6 +958,11 @@ void() DumpMarkerInfo =
 	m = first_marker;
 	remove_self();
 }
+/*
+============
+Waypoint saving routines end here
+============
+*/
 
 void() HideAllMarkers =
 {
@@ -992,13 +970,9 @@ void() HideAllMarkers =
 	while (marker_)
 	{
 		if (marker_.classname == "marker")
-		{
 			marker_.model = "";
-		}
 		else
-		{
 			remove(marker_.display);
-		}
 		marker_ = marker_.marker_link;
 	}
 };
@@ -1009,9 +983,7 @@ void() DisplayAllMarkers =
 	while (marker_)
 	{
 		if (marker_.classname == "marker")
-		{
 			marker_.model = "/";
-		}
 		else
 		{
 			virtual_marker = spawn();
@@ -1081,26 +1053,20 @@ float(entity marker) changed_view_ofs_z =
 	{
 		if (marker.view_ofs_z != marker.arrow)
 		{
-			return (TRUE);
+			return TRUE;
 		}
 	}
-	return (FALSE);
+	return FALSE;
 };
 
 void() print_goal =
 {
 	if (!goal_index)
-	{
 		bprint("clear goal");
-	}
 	else if (goal_index <= NUMBER_GOALS)
-	{
 		bprint("goal index = ", ftos(goal_index));
-	}
 	else
-	{
 		bprint("zone index = ", ftos(goal_index - NUMBER_GOALS));
-	}
 
 	bprint("\n");
 };
@@ -1109,9 +1075,7 @@ void() IncGoal =
 {
 	goal_index = goal_index + 1;
 	if (goal_index > (NUMBER_GOALS + NUMBER_ZONES))
-	{
 		goal_index = 0;
-	}
 	print_goal();
 };
 
@@ -1119,9 +1083,7 @@ void() DecGoal =
 {
 	goal_index = goal_index - 1;
 	if (goal_index < 0)
-	{
 		goal_index = NUMBER_GOALS + NUMBER_ZONES;
-	}
 	print_goal();
 };
 
@@ -1139,9 +1101,7 @@ void() GoalInfo =
 	while (marker)
 	{
 		if (marker.G_ == Z_index)
-		{
 			S_index = S_index + 1;
-		}
 		marker = marker.marker_link;
 	}
 };
@@ -1155,9 +1115,7 @@ void() ZoneInfo =
 	while (marker)
 	{
 		if (marker.Z_ == Z_index)
-		{
 			S_index = S_index + 1;
-		}
 		marker = marker.marker_link;
 	}
 };
@@ -1168,12 +1126,10 @@ float() IsItem =
 	while (marker_)
 	{
 		if (marker_ == active_marker)
-		{
-			return (TRUE);
-		}
+			return TRUE;
 		marker_ = marker_.next;
 	}
-	return (FALSE);
+	return FALSE;
 };
 
 void() SetGoal =
@@ -1236,13 +1192,9 @@ void() PrintGoal =
 	SetMarkerIndexes();
 	bprint("m", ftos(active_marker.index));
 	if (active_marker.Z_)
-	{
 		bprint(", Z", ftos(active_marker.Z_));
-	}
 	if (active_marker.G_)
-	{
 		bprint(", G", ftos(active_marker.G_));
-	}
 
 	if ((active_marker.classname == "trigger_teleport") ||
 	    (active_marker.classname == "door") ||
@@ -1271,71 +1223,39 @@ void() PrintGoal =
 
 
 	if (active_marker.RA0)
-	{
 		bprint(ftos(active_marker.RA0_time), " ");
-	}
 	if (active_marker.RA1)
-	{
 		bprint(ftos(active_marker.RA1_time), " ");
-	}
 	if (active_marker.RA2)
-	{
 		bprint(ftos(active_marker.RA2_time), " ");
-	}
 	if (active_marker.RA3)
-	{
 		bprint(ftos(active_marker.RA3_time), " ");
-	}
 	if (active_marker.RA4)
-	{
 		bprint(ftos(active_marker.RA4_time), " ");
-	}
 	if (active_marker.RA5)
-	{
 		bprint(ftos(active_marker.RA5_time), " ");
-	}
 	if (active_marker.RA6)
-	{
 		bprint(ftos(active_marker.RA6_time), " ");
-	}
 	if (active_marker.RA7)
-	{
 		bprint(ftos(active_marker.RA7_time));
-	}
 	bprint("\n");
 
 	if (active_marker.RA0)
-	{
 		bprint("  m", ftos(active_marker.RA0.index), " ");
-	}
 	if (active_marker.RA1)
-	{
 		bprint("  m", ftos(active_marker.RA1.index), " ");
-	}
 	if (active_marker.RA2)
-	{
 		bprint("  m", ftos(active_marker.RA2.index), " ");
-	}
 	if (active_marker.RA3)
-	{
 		bprint("  m", ftos(active_marker.RA3.index), " ");
-	}
 	if (active_marker.RA4)
-	{
 		bprint("  m", ftos(active_marker.RA4.index), " ");
-	}
 	if (active_marker.RA5)
-	{
 		bprint("  m", ftos(active_marker.RA5.index), " ");
-	}
 	if (active_marker.RA6)
-	{
 		bprint("  m", ftos(active_marker.RA6.index), " ");
-	}
 	if (active_marker.RA7)
-	{
 		bprint("  m", ftos(active_marker.RA7.index));
-	}
 	bprint("\n\n");
 };
 
@@ -1616,9 +1536,7 @@ void() ToggleConnectMarkersMode =
 	if (mode & DISPLAY_TYPE)
 	{
 		if (!active_marker)
-		{
 			return;
-		}
 		if (type_mode)
 		{
 			active_marker.T = (active_marker.T | type_mode);
@@ -1626,7 +1544,7 @@ void() ToggleConnectMarkersMode =
 		}
 		else
 		{
-			active_marker.T = SAVED_T;
+			active_marker.T = active_marker.T - (active_marker.T & SAVED_T);
 			bprint("active marker type CLEARED\n");
 		}
 		return;
@@ -1657,13 +1575,18 @@ void() CycleDescriptionMode =
 			type_mode = UNREACHABLE;
 			bprint("unreachable node ON\n");
 		}
-		else //if (type_mode == UNREACHABLE)
+		else
 		{
 			type_mode = 0;
 			bprint("type mode OFF\n");
 		}
 	}
 	else if (path_mode == 0)
+	{
+		path_mode = DISCONNECT_MARKERS;
+		bprint("disconnect mode ON\n");
+	}
+	else if (path_mode == DISCONNECT_MARKERS)
 	{
 		path_mode = JUMP_LEDGE;
 		bprint("jump ledge mode ON\n");
@@ -1675,10 +1598,15 @@ void() CycleDescriptionMode =
 	}
 	else if (path_mode == DM6_DOOR)
 	{
-		path_mode = DISCONNECT_MARKERS;
-		bprint("disconnect mode ON\n");
+		path_mode = ROCKET_JUMP;
+		bprint("rocket jump mode ON\n");
 	}
-	else if (path_mode == DISCONNECT_MARKERS)
+	else if (path_mode == ROCKET_JUMP)
+	{
+		path_mode = PRECISE_JUMP;
+		bprint("precise jump mode ON\n");
+	}
+	else if (path_mode == PRECISE_JUMP)
 	{
 		path_mode = REVERSIBLE;
 		bprint("reversible display mode ON\n");
@@ -1687,16 +1615,6 @@ void() CycleDescriptionMode =
 	{
 		path_mode = WATER_PATH;
 		bprint("water path display mode ON\n");
-	}
-	else if (path_mode == WATER_PATH)
-	{
-		path_mode = ROCKET_JUMP;
-		bprint("rocket jump mode ON\n");
-	}
-	else if (path_mode == ROCKET_JUMP)
-	{
-		path_mode = PRECISE_JUMP;
-		bprint("precise jump mode ON\n");
 	}
 	else
 	{
@@ -1730,6 +1648,8 @@ void() DefaultMarkerMode =
 		mode = CLOSEST_MARKER;
 	else
 		mode = 0;
+	// but, do reset next nearest
+	alt_marker_idx = 0;
 	bprint("default marker mode\n");
 };
 
@@ -1884,105 +1804,55 @@ void() PrintDebugInfo =
 void() ManualImpulseCommands =
 {
 	if (impulse_ == 132)
-	{
 		spawn_marker((self.origin - '0 0 22') + self.view_ofs);
-	}
 	else if (impulse_ == 133)
-	{
 		CheckAllGoals();
-	}
 	else if (impulse_ == 134)
-	{
 		CheckAllZones();
-	}
 	else if (impulse_ == 135)
-	{
 		ToggleActiveMarker();
-	}
 	else if (impulse_ == 136)
-	{
 		RemoveActiveMarker();
-	}
 	else if (impulse_ == 137)
-	{
 		DisableActiveMarker();
-	}
 	else if (impulse_ == 138)
-	{
 		ToggleOneWayMode();
-	}
 	else if (impulse_ == 139)
-	{
 		ToggleConnectMarkersMode();
-	}
 	else if (impulse_ == 142)
-	{
 		DefaultMarkerMode();
-	}
 	else if (impulse_ == 143)
-	{
 		SaveMarkers();
-	}
 	else if (impulse_ == 144)
-	{
 		ToggleClosestMarkerMode();
-	}
 	else if (impulse_ == 145)
-	{
 		ClearActiveMarker();
-	}
 	else if (impulse_ == 146)
-	{
 		MoveActiveMarker();
-	}
 	else if (impulse_ == 147)
-	{
 		VerMoveActiveMarker();
-	}
 	else if (impulse_ == 148)
-	{
 		IncGoal();
-	}
 	else if (impulse_ == 149)
-	{
 		DecGoal();
-	}
 	else if (impulse_ == 150)
-	{
 		SetGoal();
-	}
 	else if (impulse_ == 151)
-	{
 		PrintGoal();
-	}
 	else if (impulse_ == 152)
-	{
 		CycleDescriptionMode();
-	}
 	else if (impulse_ == 153)
-	{
 		DisplayTravelTime();
-	}
 	else if (impulse_ == 154)
-	{
 		CycleDisplayMode();
-	}
 	else if (impulse_ == 155)
-	{
 		DisplayReachable();
-	}
 	else if (impulse_ == 156)
-	{
 		CycleAltMarker();
-	}
 	else if (impulse_ == 157)
-	{
 		PrintPathInfo();
-	}
 	else if (impulse_ == 158)
-	{
 		PrintDebugInfo();
-	}
 };
 
 #endif

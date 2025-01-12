@@ -1871,11 +1871,11 @@ void() ClientConnect =
 		self.flags = self.flags | FL_QWPHYSICS;
 #endif
 
-#ifndef MANUAL
 // ParboiL
 	if (!game_arena) 
 		MakeMOTD();
 
+#ifndef MANUAL
 	if (!self.k_stuff)
 		AliasesTime();
 // ParboiL

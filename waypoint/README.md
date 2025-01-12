@@ -75,7 +75,6 @@ H		129	137	DISABLE ACTIVE MARKER
 J	6	130	138	TOGGLE ONEWAY-MODE
 MOUSE2	4	131	139	TOGGLE CONNECT-MARKERS-MODE
 G	9	132	142	DEFAULT MARKER-MODE
-F1		133	143	SAVE MARKERS
 F	5	135	144	TOGGLE CLOSEST-MARKER-MODE
 T		137	145	CLEAR ACTIVE MARKER
 Y		138	146	MOVE ACTIVE MARKER
@@ -99,6 +98,7 @@ Z		146	154	CYCLE DISPLAY-MODE
 X		147	155	DISPLAY REACHABLE
 L	0	none	156	CYCLE BETWEEN 3 CLOSEST MARKERS
 /		none	158	PRINT COORDINATES & EXTRA INFO
+F1		133	143	SAVE MARKERS
 F2		?	130	NOCLIP
 F3		?	50	DISABLE DAMAGE FLASH
 F5		-	-	CONDUMP COMMAND (dump console to file)
@@ -142,8 +142,8 @@ These steps do not need to be done in this exact order, but you will typically m
      * 22 `weapon_nailgun`
      * 23 `item_spikes`
      * 24 `item_shells`
-   - Clusters of the same ammo or health may be more worthwhile to take a detour than single scattered items, hence may get a lower goal number than isolated items of the same kind.
-   - It is possible and valid to assign _no goal at all_ to items. This will not make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a Quad or invisibility makes the bot an easy target.
+   - Clusters of the same ammo or health may be more worthwhile to take a detour than single scattered items, hence may deserve a lower goal number than isolated items of the same kind.
+   - It is possible and valid to assign _no goal at all_ to items. This will not make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a particular Quad or invisibility is too risky and makes the bot an easy target.
 5. Go to another zone and repeat steps 1 to 5.
 6. Use `N` and `M` to check whether you didn't forget to set zones and goals (enable NOCLIP for this, `F2`).
    - Using the `C` key on an active marker will show its zone and goal, and some more info.  
@@ -163,12 +163,13 @@ These steps do not need to be done in this exact order, but you will typically m
    - Now disable manual mode `O` to be actually teleported, then re-enable `O`.
    - Since you are now on top of the `destination`, it should be immediately connected.  
      (If the level designer stacked another marker on top, the wrong one might get selected. In that case, remove the connection, and try again after changing overlap preference with `L` or zero `0`. When designing your own levels, _avoid_ giving info entities the exact same location as others, nudge them around a bit.)
+   - If it is a 2-way teleporter, now do the same thing to connect its trigger to the destination at the other side.
    - It doesn't matter whether you assign a `trigger_teleport` the zone it is in, or its destination zone. (I stick with the zone it is in.)
-9. **Special path modes.** You can apply these while making the paths, or afterwards. Select mode with `V` before making the link (not all are path modes, some affect display mode). This requires _one-way mode_ to be enabled (`J` key).  
-   Same workflow as above, only now you also have to select the mode with `V` before making the connection. The modes for a marker's paths can be seen by pressing the `R` key.
+9. **Special path modes.** You can apply these while making the paths, or afterwards. The modes for a marker's paths can be seen by pressing the `R` key.  
+   Same workflow as above, only now you also have to select the mode with `V` before making the connection (not all are path modes, some affect display mode). Most of these require _one-way mode_ to be enabled (`J` key).
+   - **Disconnect mode**: removes a path, but even though this also works without enabling one-way mode, it will only disconnect the path from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.
    - **Jump ledge** (shown as ‘`J`’, number 1024 in code) is to make the bot jump _up onto_ or _down from_ ledges, or bridge gaps. You'll need this for anything that cannot be reached by merely running. The bot will refuse to take a downwards jump that may cause damage, _unless_ it has ledge mode. When unsure, it is better to assign ledge mode when unneeded than the other way round.
    - **Door mode** (shown as `‘D’`, number 256 in code) is for getting through doors like in _dm6_ that need to be shot/whacked to open. This is limited by certain constraints and requires extra configuration. More details in the advanced section below.
-   - **Disconnect mode**: removes the path, but only from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.
    - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time.
    - **Precision jump** (shown as `‘P’`, number 2048 in code) is _new_ compared to the older Frogbot, and allows to navigate small steps like the ones towards the yellow armour in _e1m2._ This must only be used when the bot can get within a distance of 48 units of the marker that has the `P` path flag. If not, the bot will get stuck. _Do not_ combine precision jump with any other path mode.  
      You may not need this mode often, but without it, getting onto certain small steps is often near impossible because the bots move too erratically when trying to use ledge mode.
@@ -180,9 +181,12 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - It helps to draw a floor plan of the map with zones, goals and paths, although the visualisation modes of the tool make it easy to spot mistakes. It also is interesting to walk around in existing maps and see how waypoints were added.
 - At any time when you are confused about what marker mode you're in, press `G` to reset. (The only thing this does not reset, is closest marker mode.)
 - Moving an existing marker is preferable over deleting it and making a new one. Static marker mode (`I` or `TAB`) is your friend here.
+- Paths through _push zones_ must be one-way. For simple pushes, one marker before the push brush and one at the exit may suffice. If there are corners and bends, an extra marker may be needed to guide the bot into the push.
 - It is possible to apply multiple modes to a path, but this should almost never be needed.
 - Vertically moving markers (`U`) can also be used on `func_button`, `teleport_trigger`, and `door` markers, but not on other non-manually created markers like weapons.
-- I don't really know the purpose of the ‘display reachable’ tool. It requires static active marker mode (`I` or `TAB`), and will try to trace a path towards the first marker you're ‘touching’ after activating this mode. It will fail if there is an obstacle, or the distance is “too far,” whatever that means.
+- I don't really know the purpose of the _‘display reachable’_ tool. It requires static active marker mode (`I` or `TAB`), and will try to trace a path towards the first marker you're ‘touching’ after activating this mode. It will fail if there is an obstacle, or the distance is “too far,” whatever that means.  
+  It has nothing to do with unreachable marker flag (see advanced section).
+- Same for the _runaway_ thing: I don't know what it's for. The information printed on the second and third lines when pressing `C` is related to this ‘runaway’ concept, and the markers shown in runaway mode are the same ones listed in those lines. As far as I know, this is low-level information one should generally not care about, but if someone knows what it means, please explain!
 
 
 ## Adding your waypoint data to Frogbots and/or waypoint build
@@ -226,6 +230,14 @@ Mind that when loading a map with existing waypoints in the waypoint tool, there
 
 
 ## Advanced
+
+### Unreachable markers
+
+This is optional, but can prevent the bot from doing certain dumb things. Markers can be flagged as being _unreachable,_ which means the bot should avoid getting near them. Bots will avoid making jumps that end up near an unreachable marker. The bot will also totally ignore items flagged as unreachable, no matter how juicy they may seem.
+
+To set a marker as unreachable: set display mode `Z` to “Display type,” and use `V` to select “unreachable node.” Then activate the marker and right-click (`MOUSE2`).
+
+If there are lava or slime pits, or deadly traps, it may be a good idea to place some unreachable markers in them. Look at `dm4` or `start` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.
 
 ### Setting up a shootable door
 This is for doors like the one in `dm6`. Originally, the Frogbot source had everything hard-coded for this level, it was the only door the bots could handle. This has been extended by _DrLex_ to allow other doors, also vertical ones like the bookcase in `hohoho2`. (For historical reasons, the `dm6_door` name was kept in the source code and the tool.)

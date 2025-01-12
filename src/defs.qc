@@ -1576,11 +1576,12 @@ float THROUGH_NODE	= 1;
 
 // T values for markers/type_mode
 float UNREACHABLE				= 1;
+// Bits to be saved in waypoint code: UNREACHABLE
+float SAVED_T				= 1;
 
+// auto set values
 float T_WATER				= 2;
 float T_NO_AIR				= 4;
-
-float SAVED_T				= 1;
 
 
 .entity near_teleport;
