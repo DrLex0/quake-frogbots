@@ -1160,6 +1160,7 @@ entity(vector org, float rad) findradius = #22;
 
 // 1 to 8 arguments, all strings, will be concatenated
 void (...) bprint					= #23;
+void(entity client, float level, string s) sprint = #24;
 void (...) dprint					= #25;
 string(float f) ftos				= #26;
 string(vector v) vtos				= #27;
@@ -1240,13 +1241,19 @@ string(string s) precache_sound2	= #76;		// registered version only
 string(entity e, string key) infokey    = #80;  // get a key value (world = serverinfo)
 float(string s) stof                    = #81;  // convert string to float
 void(vector where, float set) multicast = #82;  // sends message to a set of clients
+float(string s) checkextension          = #99;  // check if QSG extension is available
+string(string s) strzone                = #118; // requires FRIK_FILE or ZQ_QC_STRINGS
+void(string s) strunzone                = #119; // requires FRIK_FILE or ZQ_QC_STRINGS
 #else
 string(entity e, string key) infokey = { return ""; };
 float(string s) stof = { return 0; };
 void(vector where, float set) multicast = {};
+float(string s) checkextension = { return 0; };
+string(string s) strzone = { return ""; };
+void(string s) strunzone = {};
 #endif
 
-void(entity client, float level, string s) sprint = #24;
+float str_func_avail;
 
 float msg_level;
 #ifdef QUAKE
@@ -1420,6 +1427,23 @@ float JUMPSPEED = 270;
 float numberofbots;
 float numberofplayers;
 float numberofclients;
+
+string frobo_name1;
+string frobo_name2;
+string frobo_name3;
+string frobo_name4;
+string frobo_name5;
+string frobo_name6;
+string frobo_name7;
+string frobo_name8;
+string frobo_name9;
+string frobo_name10;
+string frobo_name11;
+string frobo_name12;
+string frobo_name13;
+string frobo_name14;
+string frobo_name15;
+string frobo_name16;
 
 .float index;
 

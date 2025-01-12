@@ -43,7 +43,8 @@ The goal: revive the Frogbots in a way that:
 5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this to the yellow armor zone of `e1m2`, it works really well.
 6. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
    To override smartness, set `fb_smartness` to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
-7. Various smaller bug and robustness fixes.
+7. Allow to set custom bot names through localinfo `frobo_name1` through `frobo_name16` variables.
+8. Various smaller bug and robustness fixes.
 
 **Planned:**
 - Allow using waypoint data embedded in entity fields of maps, and provide a tool to inject marker data created with the waypoint tool into a `.map` file. This means no more need to recompile qwprogs to add bot support to a map for which the source is available! (Mechanism implemented, still need script to inject WP into map.)

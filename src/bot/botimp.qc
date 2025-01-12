@@ -5,7 +5,7 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 1999-2000 Numb
 	Copyright (C) 2000-2007 ParboiL
-	Fixes by DrLex 2024
+	Fixes and enhancements by DrLex 2024
 */
 
 #include "../settings.h"
@@ -258,6 +258,11 @@ void() InitParameters =
 	sv_maxwaterspeed = sv_maxspeed * 0.7;
 	half_sv_maxspeed = sv_maxspeed * 0.5;
 	inv_sv_maxspeed = 1 / sv_maxspeed;
+
+	str_func_avail = 0;
+	if (cvar("pr_checkextension"))
+	if (checkextension("ZQ_QC_STRINGS") || checkextension("FRIK_FILE"))
+		str_func_avail = 1;
 };
 
 /*
@@ -655,24 +660,61 @@ void() SpawnHardBot =
 	else HCFrogbot(13, 16);
 };
 
+/*
+============
+PersistInfoString
+
+Ensures a string obtained from infokey will not
+randomly change as its buffer is being recycled.
+============
+*/
+string(string key, string s_global, string s_default) PersistInfoString =
+{
+	if (! str_func_avail)
+		return s_default;
+	local string s;
+	s = infokey(world, key);
+	if (s == "")
+		return s_default;
+	if (s_global != "")
+		strunzone(s_global);
+	s_global = strzone(s);
+	return s_global;
+}
+
 string() SetNetName =
 {
-	if (self.botnumber == 1) return "ÚaĞ";
-	else if (self.botnumber == 2) return "Bro";
-	else if (self.botnumber == 3) return "fÒAÇ…gÏd";
-	else if (self.botnumber == 4) return "äòáçî";
-	else if (self.botnumber == 5) return "Ôhresè";
-	else if (self.botnumber == 6) return "çïìäåîboy";
-	else if (self.botnumber == 7) return "Òåğtile";
-	else if (self.botnumber == 8) return "ÇÅÎÅÒÁÌ…fÁlUÒe";
-	else if (self.botnumber == 9) return "ùïäá";
-	else if (self.botnumber == 10) return "dude";	
-	else if (self.botnumber == 11) return "diÚÚy";
-	else if (self.botnumber == 12) return "Sõğåòíáî";
-	else if (self.botnumber == 13) return "girlie";
-	else if (self.botnumber == 14) return "…CòPóÅ…GòNä…";	
-	else if (self.botnumber == 15) return "ËÉÌÌÉÎÇ…ÍÁÃÈÉÎÅ";
-	else return "aÄdÉcÔeÄñõáëå";
+	if (self.botnumber == 1)
+		return PersistInfoString ("frobo_name1", frobo_name1, "ÚaĞ");
+	else if (self.botnumber == 2)
+		return PersistInfoString ("frobo_name2", frobo_name2, "Bro");
+	else if (self.botnumber == 3)
+		return PersistInfoString ("frobo_name3", frobo_name3, "fÒAÇ…gÏd");
+	else if (self.botnumber == 4)
+		return PersistInfoString ("frobo_name4", frobo_name4, "äòáçî");
+	else if (self.botnumber == 5)
+		return PersistInfoString ("frobo_name5", frobo_name5, "Ôhresè");
+	else if (self.botnumber == 6)
+		return PersistInfoString ("frobo_name6", frobo_name6, "çïìäåîboy");
+	else if (self.botnumber == 7)
+		return PersistInfoString ("frobo_name7", frobo_name7, "Òåğtile");
+	else if (self.botnumber == 8)
+		return PersistInfoString ("frobo_name8", frobo_name8, "ÇÅÎÅÒÁÌ…fÁlUÒe");
+	else if (self.botnumber == 9)
+		return PersistInfoString ("frobo_name9", frobo_name9, "ùïäá");
+	else if (self.botnumber == 10)
+		return PersistInfoString ("frobo_name10", frobo_name10, "dude");
+	else if (self.botnumber == 11)
+		return PersistInfoString ("frobo_name11", frobo_name11, "diÚÚy");
+	else if (self.botnumber == 12)
+		return PersistInfoString ("frobo_name12", frobo_name12, "Sõğåòíáî");
+	else if (self.botnumber == 13)
+		return PersistInfoString ("frobo_name13", frobo_name13, "girlie");
+	else if (self.botnumber == 14)
+		return PersistInfoString ("frobo_name14", frobo_name14, "…CòPóÅ…GòNä…");
+	else if (self.botnumber == 15)
+		return PersistInfoString ("frobo_name15", frobo_name15, "ËÉÌÌÉÎÇ…ÍÁÃÈÉÎÅ");
+	else return PersistInfoString ("frobo_name16", frobo_name16, "aÄdÉcÔeÄñõáëå");
 };
 
 /*

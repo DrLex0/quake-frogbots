@@ -15,7 +15,7 @@ The original UI source code is long lost or at least not easily found, hence it 
 Once waypoints have been created, there are 2 ways to allow Frogbots to use them:
 
 1. Recompile the Frogbot `qwprogs.dat` with the waypoint data included. This was the only way of doing it before DrLex implemented the next method in 2025 (hey, better late than never…)
-2. Embed the waypoint data in a map BSP file. The information is stored as fields attached to entities, these fields all have a `FrB_` prefix. A script is provided that currently only supports injecting the data into a `.map` file, which means this method requires access to the source of the map and a map building workflow. It might be possible to inject this info into a BSP file without rebuilding it, but that is perhaps for later.
+2. Embed the waypoint data in a map BSP file. The information is stored as fields attached to entities, these fields all have a `FrB_` prefix. A script ~~is~~ will be provided that currently only supports injecting the data into a `.map` file, which means this method requires access to the source of the map and a map building workflow. It might be possible to inject this info into a BSP file without rebuilding it, but that is perhaps for later.
 
 Whatever method is used, the most practical way of producing waypoint data is with this waypoint tool.  
 (One could manually set up the `FrB_` fields in an editor like TrenchBroom, but that would be very time-consuming and error-prone. It would only be OK for making simple changes.)
