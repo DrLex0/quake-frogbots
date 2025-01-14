@@ -42,6 +42,7 @@ void(entity marker) CheckReachable =
 	self = spawn();
 	self.classname = "fb_disposable";
 	self.model = "/";
+	self.frame = 31;
 	self.modelindex = modelindex_player;
 	setsize(self, VEC_HULL_MIN, VEC_HULL_MAX);
 	setorigin(self, (active_marker.absmin + active_marker.view_ofs));
@@ -1650,6 +1651,7 @@ void() DefaultMarkerMode =
 		mode = 0;
 	// but, do reset next nearest
 	alt_marker_idx = 0;
+	CleanUpTemporaries();
 	bprint("default marker mode\n");
 };
 

@@ -20,10 +20,11 @@ Once waypoints have been created, there are 2 ways to allow Frogbots to use them
 Whatever method is used, the most practical way of producing waypoint data is with this waypoint tool.  
 (One could manually set up the `FrB_` fields in an editor like TrenchBroom, but that would be very time-consuming and error-prone. It would only be OK for making simple changes.)
 
-## Deploying or Building
+## Deploying and Building
 
 In this directory you will find a prebuilt `progs.dat`, and an `autoexec.cfg` that sets up similar key bindings as used in Mick's guide. Put both inside a `waypoint` subdirectory of your favourite Quake engine. I use _vkQuake,_ but any engine that can run the single player campaign should work.
 
+If you're going to make new waypoints for Quake maps, it will be essential to rebuild the waypoint tool with your work-in-progress waypoint data included, as explained below.  
 The waypoint tool is built from the same source code as the regular Frogbot, by enabling different options. To rebuild it with _fteqcc:_
 ```bash
 fteqcc.bin -DWAYPOINT_BUILD=1 -O3 -srcfile progs-waypoint.src
@@ -39,8 +40,8 @@ Saving work-in-progress, testing it with bots, and then continuing to edit, is t
 
 Again, one can use the same 2 methods to resume editing waypoints already available for a map:
 
-1. Rebuild the waypoint tool with the latest waypoints added to the `maps` directory. This is by far the easiest way for work-in-progress.
-2. Inject the waypoints into the `.map` file and rebuild the map. In practice this should only be done when the waypoints are considered ready for release.
+1. Rebuild the waypoint tool with your latest waypoint code added to the `maps` directory. This is by far the easiest way for work-in-progress.
+2. Inject the waypoints into the `.map` file and rebuild the map. In practice this should only be done when both the map and the waypoints are considered ready for release.
 
 
 # Waypoint Creating and Editing Guide

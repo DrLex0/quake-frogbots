@@ -67,12 +67,13 @@ void(vector org) spawn_marker =
 	setmodel(marker_, "progs/player.mdl");
 	marker_.frame = 12;
 	marker_.model = "";
-	if (goal_index > NUMBER_GOALS)
+	if (goal_index > NUMBER_GOALS)  // assign zone to new marker
 	{
 		local entity last_active = active_marker;
 		active_marker = marker_;
 		SetGoal();
 		if(mode & STATIC_ACTIVE_MARKER) active_marker = last_active;
+		else if (last_active) last_active.display.frame = 12;
 	}
 #endif
 
