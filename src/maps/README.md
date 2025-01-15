@@ -3,7 +3,9 @@
 Compiling waypoints for a certain map into the Frogbot `qwprogs.dat`, allows playing against bots on that map.  
 Similarly, compiling waypoints into the waypoint tool `progs.dat`, allows to view and edit those waypoints in the tool by loading the map in it.
 
-Managing waypoint files should be done through the `generate_maplist.py` Python script. It can generate and use text files with lists of map files, and then use those files to generate the QuakeC code that is used by the Frogbot and waypoint tool builds. One can manually edit the list files to add or remove specific maps.
+It will soon also be possible to inject waypoint data into a `.map` file to build the map with embedded waypoints, or into an `.ent` file to allow loading the map with waypoints, without having to recompile anything.
+
+Managing waypoint files for compiling them into the Frogbot `qwprogs.dat`, or the waypoint tool `progs.dat`, should be done through the `generate_maplist.py` Python script. It can generate and use text files with lists of map files, and then use those files to generate the QuakeC code that is used by the Frogbot and waypoint tool builds. One can manually edit the list files to add or remove specific maps.
 
 Using the script is straightforward, usage instructions are shown by running with `-h` or `--help` argument. The script has no dependencies and should run in any recent Python3 environment.
 

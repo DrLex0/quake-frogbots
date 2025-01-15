@@ -15,7 +15,7 @@ The original UI source code is long lost or at least not easily found, hence it 
 Once waypoints have been created, there are 2 ways to allow Frogbots to use them:
 
 1. Recompile the Frogbot `qwprogs.dat` with the waypoint data included. This was the only way of doing it before DrLex implemented the next method in 2025 (hey, better late than never…)
-2. Embed the waypoint data in a map BSP file. The information is stored as fields attached to entities, these fields all have a `FrB_` prefix. A script ~~is~~ will be provided that currently only supports injecting the data into a `.map` file, which means this method requires access to the source of the map and a map building workflow. It might be possible to inject this info into a BSP file without rebuilding it, but that is perhaps for later.
+2. Embed the waypoint data in a map BSP file. The information is stored as fields attached to entities, these fields all have a `FrB_` prefix. A script ~~is~~ will be provided that supports injecting the data into a `.map` or `.ent` file. This means this method can be used to build a BSP file with built-in waypoints, or provide them as a separate file for engines that support `.ent` files.
 
 Whatever method is used, the most practical way of producing waypoint data is with this waypoint tool.  
 (One could manually set up the `FrB_` fields in an editor like TrenchBroom, but that would be very time-consuming and error-prone. It would only be OK for making simple changes.)
@@ -38,17 +38,20 @@ One of the motivations for resurrecting the source code of the waypoint tool, is
 
 Saving work-in-progress, testing it with bots, and then continuing to edit, is the **only** sane workflow to make good waypoints for any map larger than a trivial 1-on-1. Making good waypoints for a larger map can take _days._ Trying to do it in a single session and hoping nothing crashes, and hoping it will be perfect from the first time, is _insane._
 
-Again, one can use the same 2 methods to resume editing waypoints already available for a map:
+One can use the same 2 methods as described above to resume editing existing waypoints for a map:
 
-1. Rebuild the waypoint tool with your latest waypoint code added to the `maps` directory. This is by far the easiest way for work-in-progress.
-2. Inject the waypoints into the `.map` file and rebuild the map. In practice this should only be done when both the map and the waypoints are considered ready for release.
+1. Rebuild the waypoint tool with your latest waypoint code added to the `maps` directory.
+2. Inject the waypoints into the `.map` file and rebuild the BSP, or, if the Quake engine you're using supports `.ent` files, inject the waypoints into such file.
+
+Recompiling the tool or using an `.ent` file are the easiest methods. Building waypoints into a BSP should be kept as final step when both the map and waypoints are ready for release.
 
 
 # Waypoint Creating and Editing Guide
 
 This is an evolved version of Mick's guide, which should now be considered obsolete, although it was a great starting point without which all this stuff would never have existed.
 
-If you want to create waypoints for a map, I advise to first get familiar with that map. Ideally, play the map with human opponents, although you can also learn a lot by observing it being played.
+If you want to create waypoints for a map, I advise to first get familiar with that map. Ideally, play the map with human opponents, although you can also learn a lot by observing it being played.  
+The nice thing about the waypoint tool though, is that _it runs inside Quake,_ and one can also explore maps in it, and try out jumps and such.
 
 ## How the Frogbot works, in a nutshell
 
@@ -224,6 +227,8 @@ If you want to include waypoints for a certain map in this repository, create a 
 …
 
 Once you have imported waypoint annotations into a `.map` file, you can safely edit the map because the annotations rely on IDs attached to entities. Only when you delete an entity, you will need to remove the `FrB_P*` annotations from other entities that referred to the deleted ID. (TODO: allow doing this automatically with the script.) The map can then be rebuilt and the BSP can be loaded in the waypoint tool, allowing to add zones, goals and paths to any newly added entities. In general however, it is recommended to wait with embedding waypoints in the map until it is considered final.
+
+Converting embedded waypoints back to QuakeC code format is simple: load the map in the waypoint tool, and dump the code with `F1` as usual.
 
 ### Remarks
 
