@@ -89,13 +89,13 @@ ENTER	Q	142	150	SET GOAL/ZONE
 C	8	143	151	PRINT GOAL
 R		none	157	PRINT PATHS
 V	7	144	152	CYCLE PATH-MODES
+				- disconnect-mode
 				- jump ledge-mode
 				- dm6 door-mode
-				- disconnect-mode
-				- reversible display-mode
-				- water path display-mode
 				- rocket jump mode
 			(new!)	- precision jump mode
+				- reversible display-mode
+				- water path display-mode
 				- path mode OFF
 B		145	153	DISPLAY TRAVELTIME
 Z		146	154	CYCLE DISPLAY-MODE
@@ -159,6 +159,7 @@ These steps do not need to be done in this exact order, but you will typically m
    - Move to marker _y_. If you didn't disable CMM, the link will be made instantly. Otherwise you again need to `MOUSE2`.
    - Once a path has been added, Connect Mode disables itself, but marker _x_ remains set as static active marker. You can then either make another path from _x_ to a different marker by moving to it and again using `MOUSE2`; or you can deselect _x_ by pressing `TAB` or `G`.
    - Avoid making paths _towards_ spawn points or teleport destinations, use one-way mode to only go away from them, _because telefrag._
+   - Ensure every marker that can be reached in any way (even if only by being flung around by an explosion), has at least one outgoing path, otherwise the bot may get stuck on it.
    - If you added a path by mistake, you can remove it with _disconnect mode,_ see below.
 8. Connecting **teleporters** is like creating any one-way path, but with something extra.
    - You must connect each `trigger_teleport` to the `info_teleport_destination` it connects to. To do so easily, it is _essential_ to first enable both NOCLIP with `F2` and closest-marker mode with `F`.
@@ -174,7 +175,7 @@ These steps do not need to be done in this exact order, but you will typically m
    - **Disconnect mode**: removes a path, but even though this also works without enabling one-way mode, it will only disconnect the path from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.
    - **Jump ledge** (shown as ‘`J`’, number 1024 in code) is to make the bot jump _up onto_ or _down from_ ledges, or bridge gaps. You'll need this for anything that cannot be reached by merely running. The bot will refuse to take a downwards jump that may cause damage, _unless_ it has ledge mode. When unsure, it is better to assign ledge mode when unneeded than the other way round.
    - **Door mode** (shown as `‘D’`, number 256 in code) is for getting through doors like in _dm6_ that need to be shot/whacked to open. This is limited by certain constraints and requires extra configuration. More details in the advanced section below.
-   - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time.
+   - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time. See the advanced section below for some tips.
    - **Precision jump** (shown as `‘P’`, number 2048 in code) is _new_ compared to the older Frogbot, and allows to navigate small steps like the ones towards the yellow armour in _e1m2._ This must only be used when the bot can get within a distance of 48 units of the marker that has the `P` path flag. If not, the bot will get stuck. _Do not_ combine precision jump with any other path mode.  
      You may not need this mode often, but without it, getting onto certain small steps is often near impossible because the bots move too erratically when trying to use ledge mode.
 
@@ -189,7 +190,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - It is possible to apply multiple modes to a path, but this should almost never be needed.
 - Vertically moving markers (`U`) can also be used on `func_button`, `teleport_trigger`, and `door` markers, but not on other non-manually created markers like weapons.
 - I don't really know the purpose of the _‘display reachable’_ tool. It requires static active marker mode (`I` or `TAB`), and will try to trace a path towards the first marker you're ‘touching’ after activating this mode. It will fail if there is an obstacle, or the distance is “too far,” whatever that means.  
-  It has nothing to do with unreachable marker flag (see advanced section).
+  It has nothing to do with unreachable marker flag (see advanced section).  
 - Same for the _runaway_ thing: I don't know what it's for. The information printed on the second and third lines when pressing `C` is related to this ‘runaway’ concept, and the markers shown in runaway mode are the same ones listed in those lines. As far as I know, this is low-level information one should generally not care about, but if someone knows what it means, please explain!
 
 
@@ -199,7 +200,7 @@ Again, use `F1` to dump the waypoint code to the console, and unless you launche
 
 As stated above, you do not need to wait until the whole map is done. You can already test your first zones, although you may need to keep spawning new bots while others get stuck in unfinished areas.
 
-The code that is spammed to the console when pressing `F1`, is actual QuakeC code that either needs to be added to the Frogbot source and then compiled, or converted into entity fields injected into a `.map` file to embed the waypoint data in it.
+The code that is spammed to the console when pressing `F1`, is actual QuakeC code that either needs to be added to the Frogbot source and then compiled, or converted into entity fields injected into a `.map` oor `.ent` file to embed the waypoint data in it.
 
 Find your console dump file (often called `condump.txt`) and extract the entire `void() map_mapname {…};` function from the end. Save this to a file called `map_mapname.qc`. The `mapname` must be all lowercase and correspond exactly to the actual map name that is also used for the `map` command.
 
@@ -212,7 +213,7 @@ You _can_ manually edit the waypoint code, like adding a goal or path mode you f
 
 ### Method 1: build waypoints into Frogbot progs
 
-This is the classic method and is required for maps you cannot rebuild yourself.
+This is the classic method and is required for maps you cannot rebuild yourself (actually not, it will also be possible to use an `.ent` file when embedded waypoints are fully implemented—TODO).
 
 Add the `map_mapname.qc` file to the `maps` folder of the Frogbot source code, then run the `generate_maplist.py` script with arguments `-vlg` to update the `maplist.txt` file and routines in the source code. Then build the Frogbot `qwprogs.dat`, deploy it, and you can test your waypoints in a QW supporting engine like ezQuake.
 
@@ -220,13 +221,15 @@ To resume editing your waypoints, rebuild the waypoint tool `progs.dat` and depl
 
 If you want to include waypoints for a certain map in this repository, create a pull request.
 
-### Method 2: embed waypoints into a `.map` file
+### Method 2: embed waypoints into a `.map` or `.ent` file
 
 **TODO.**
 
 …
 
 Once you have imported waypoint annotations into a `.map` file, you can safely edit the map because the annotations rely on IDs attached to entities. Only when you delete an entity, you will need to remove the `FrB_P*` annotations from other entities that referred to the deleted ID. (TODO: allow doing this automatically with the script.) The map can then be rebuilt and the BSP can be loaded in the waypoint tool, allowing to add zones, goals and paths to any newly added entities. In general however, it is recommended to wait with embedding waypoints in the map until it is considered final.
+
+…
 
 Converting embedded waypoints back to QuakeC code format is simple: load the map in the waypoint tool, and dump the code with `F1` as usual.
 
@@ -243,13 +246,19 @@ This is optional, but can prevent the bot from doing certain dumb things. Marker
 
 To set a marker as unreachable: set display mode `Z` to “Display type,” and use `V` to select “unreachable node.” Then activate the marker and right-click (`MOUSE2`).
 
-If there are lava or slime pits, or deadly traps, it may be a good idea to place some unreachable markers in them. Look at `dm4` or `start` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.
+If there are lava or slime pits, or deadly traps, it may be a good idea to place some unreachable markers in them. Look at `dm4`, `start`, or `tox` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.
+
+### Reliable rocket jumps
+
+Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a one-way path to the actual marker on the ledge.
+
+Also, bots will only really RJ when the path is worth following and there is no quicker, easier path to the same destination.
 
 ### Setting up a shootable door
 This is for doors like the one in `dm6`. Originally, the Frogbot source had everything hard-coded for this level, it was the only door the bots could handle. This has been extended by _DrLex_ to allow other doors, also vertical ones like the bookcase in `hohoho2`. (For historical reasons, the `dm6_door` name was kept in the source code and the tool.)
 
 This only works under certain conditions:
-- Bots can only handle _one such door per map._ If a map has multiple, you will have to pick the most desirable one. Do not create paths through other doors, or the bot will get stuck.
+- Bots can only handle _one such door per map._ If a map has multiple, you will have to pick the most desirable one. Do not create paths through other doors that do not automatically open when approached, or the bot will get stuck.
 - The bot will only want to open the door if there is something desirable behind it. This also means the bot can only go through the door in that direction.
 - The marker in front of the door and the desirable item _must_ be in a different zone. (If you have not yet created zones, assign _zone 1_ behind the door, it makes things easier.)
 
@@ -277,6 +286,6 @@ You should then see something like “`dm6_door dist 48.7`.” Round down the nu
    door_open_dist=48;
    ```
 
-As you can see, pretty complicated, but having bots open these doors and obtain the precious item behind it, makes them more realistic and challenging.
+As you can see, pretty complicated, but having bots open these doors and obtain the precious item behind it, makes them more realistic and challenging. Look at `hohoho2` for a full example of all the above.
 
 (Nerdy detail: the lower the zone number you use for the thing behind the door (ideally 1), the more efficient the program will run. But unless you want to run the bots on an ancient machine, this doesn't matter at all of course.)

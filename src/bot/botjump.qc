@@ -33,46 +33,35 @@ float() right_direction =
 	right_dir = min_one;
 	if (min_two < right_dir)
 		right_dir = min_two;
-	return (right_dir <= 90);
+	return (right_dir <= 75);
 };
 
 // enough health & items to rocket-jump
 float() able_rj =
 {
 	local float health_after;
-	if (self.items & (IT_INVULNERABILITY_QUAD | IT_INVULNERABILITY))
+	if (! (self.items & IT_ROCKET_LAUNCHER))
+		return 0;
+	if (! self.ammo_rockets)
+		return 0;
+	if (self.items & IT_INVULNERABILITY)
 		return 1;
+	if (self.items & IT_QUAD)
+		return 0;  // let's not gib ourselves
+	if (self.ammo_rockets < 3)
+		return 0;
+
 	health_after = ceil(self.armortype * 50);
 	if (health_after > self.armorvalue)
 		health_after = self.armorvalue;
 	health_after = self.health - ceil(50 - health_after);
-
 	if ((health_after > 50) || (teamplay == 1) || (teamplay == 5))
-	if (self.items & IT_ROCKET_LAUNCHER)
-	if (self.ammo_rockets > 2)
 #ifdef ARENA
 	if ((!game_arena) || (arenastate == A_PLAYING))
 #endif
 	if (!beQuiet)
-	if (random() > 0.5)
+	if (random() > 0.33)
 		return 1;
-	return 0;
-};
-
-// called in EvalPath
-float() a_evalpath =
-{
-	if (test_marker.classname == "door")
-	if (test_marker.state != STATE_BOTTOM)
-		return 1;
-	
-	if (description & ROCKET_JUMP)
-	if (able_rj())
-	{
-		m_pos = touch_marker_.absmin + touch_marker_.view_ofs;
-		m_P_pos = test_marker.absmin + test_marker.view_ofs;
-		path_time = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
-	}
 	return 0;
 };
 
@@ -83,7 +72,7 @@ float() checkboven =
 	return (trace_fraction == 1);
 };
 
-float() checkground = 
+float() checkground =
 {
 	makevectors(self.v_angle);
 	v_forward_z = 0;
@@ -92,11 +81,16 @@ float() checkground =
 	return (trace_fraction != 1);
 };
 
-// called every frame
-void() lava_jump = 
+// try to escape death with a RJ
+void() lava_jump =
 {
 	local entity e, pt;
 	local float bdist, byaw;
+
+	if (!(self.items & IT_ROCKET_LAUNCHER))
+		return;
+	if (!self.ammo_rockets)
+		return;
 
 	bdist = 1001;
 	pt = self;
@@ -143,7 +137,7 @@ void() lava_jump =
 				self.swim_arrow = DOWN;
 				VelocityForArrow();
 			}
-		} 
+		}
 	}
 };
 
@@ -155,23 +149,19 @@ void() a_rocketjump =
 		return;
 	if (! self.touch_marker)
 		return;
-	if (!self.ammo_rockets)
-		return;
-	if (!(self.items & IT_ROCKET_LAUNCHER))
-		return;
 	if (self.waterlevel > 1)
-		if (pointcontents(self.origin + '0 0 -24') == CONTENT_LAVA)
-		if (checkboven()) 
+	{
+		local float pc = pointcontents(self.origin + '0 0 -24');
+		if (pc == CONTENT_LAVA || pc == CONTENT_SLIME)
+		if (checkboven())
 		{
-			lava_jump(); 
+			lava_jump();
 			return;
 		}
-	if (!able_rj())
+	}
+	if (! (self.path_state & ROCKET_JUMP))
 		return;
-	if (self.items & IT_QUAD)
-		if (!(self.items & IT_INVULNERABILITY))
-			return;
-	if (!(self.path_state & ROCKET_JUMP))
+	if (! able_rj())
 		return;
 	// Even when we're at the destination marker that has no outgoing paths with RJ flag,
 	// path_state will still have the flag (which is arguably a bug), ignore this
@@ -195,7 +185,7 @@ void() a_rocketjump =
 		return;
 	if (vlen(self.origin - self.touch_marker.origin) > 100)
 		return;
-	if (!checkboven()) 
+	if (!checkboven())
 		return;
 	if (!checkground())
 		return;
@@ -260,10 +250,10 @@ void() PreciseJump =
 void() CheckCombatJump =
 {
 #ifdef ARENA
-	if (game_botjump) 
+	if (game_botjump)
 #endif
 	if (self.frogbot)
-	{ 
+	{
 		if (!self.waterlevel)
 		if (self.allowedMakeNoise)
 		if (self.flags & FL_ONGROUND)
@@ -274,7 +264,7 @@ void() CheckCombatJump =
 		{
 			self.button2_ = 1;
 		}
-	} 
+	}
 };
 
 void() BotInLava =

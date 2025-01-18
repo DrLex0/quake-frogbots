@@ -9,6 +9,8 @@
 
 #include "../settings.h"
 
+void() RJumpTravelAdj;
+
 /*
 ============
 ResetGoalEntity
@@ -88,6 +90,7 @@ void() EvalGoal =
 		to_marker = goal_entity.touch_marker;
 		to_marker.zone_marker();
 		to_marker.sub_arrival_time();
+		RJumpTravelAdj();
 		goal_time = traveltime;
 
 		if (enemy_repel)
@@ -95,6 +98,7 @@ void() EvalGoal =
 			from_marker = enemy_touch_marker;
 			to_marker.zone_marker();
 			to_marker.sub_arrival_time();
+			RJumpTravelAdj();
 			if (traveltime <= (goal_time - 1.25))
 			{
 				goal_desire = goal_desire + enemy_repel;
@@ -166,6 +170,7 @@ void() EvalGoal =
 				from_marker = enemy_touch_marker;
 				to_marker.zone_marker();
 				to_marker.sub_arrival_time();
+				RJumpTravelAdj();
 				goal_entity.saved_enemy_time_squared = traveltime * traveltime;
 			}
 			if ((enemy_time_squared + (goal_time * goal_time)) >= goal_entity.saved_enemy_time_squared)
@@ -210,6 +215,7 @@ void() EvalGoal2 =
 			from_marker = goal_marker2;
 			best_goal_marker.zone_marker();
 			best_goal_marker.sub_arrival_time();
+			RJumpTravelAdj();
 			traveltime2 = goal_time2 + traveltime;
 			if (traveltime2 < best_respawn_time)
 				traveltime2 = best_respawn_time;
@@ -234,6 +240,7 @@ void() EvalGoal2 =
 			from_marker = best_goal_marker;
 			goal_marker2.zone_marker();
 			goal_marker2.sub_arrival_time();
+			RJumpTravelAdj();
 			traveltime2 = best_goal_time + traveltime;
 			if (traveltime2 < goal_entity.saved_respawn_time)
 				traveltime2 = goal_entity.saved_respawn_time;
@@ -314,6 +321,7 @@ void() UpdateGoal =
 			from_marker = touch_marker_;
 			enemy_touch_marker.zone_marker();
 			enemy_touch_marker.sub_arrival_time();
+			RJumpTravelAdj();
 
 			enemy_.saved_respawn_time = 0;
 			enemy_.saved_goal_time = traveltime;
@@ -431,6 +439,7 @@ void() UpdateGoal =
 				from_marker = goal_marker2;
 				best_goal_marker.zone_marker();
 				best_goal_marker.sub_arrival_time();
+				RJumpTravelAdj();
 				traveltime2 = goal_time2 + traveltime;
 				if (traveltime2 < best_respawn_time)
 					traveltime2 = best_respawn_time;
@@ -451,6 +460,7 @@ void() UpdateGoal =
 				from_marker = best_goal_marker;
 				goal_marker2.zone_marker();
 				goal_marker2.sub_arrival_time();
+				RJumpTravelAdj();
 				traveltime2 = best_goal_time + traveltime;
 				if (traveltime2 < enemy_.saved_respawn_time)
 					traveltime2 = enemy_.saved_respawn_time;

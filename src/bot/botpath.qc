@@ -5,10 +5,32 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2001 DMSouL
 	Copyright (C) 2000-2007 ParboiL
-	Universal doors by DrLex 2024/12
+	Improvements by DrLex 2024-2025
 */
 
 #include "../settings.h"
+
+float() able_rj;
+
+/*
+============
+RJumpTravelAdj
+
+Restore traveltime for RJ paths if the bot can rocket-jump.
+See TravelTime() for more information.
+============
+*/
+void() RJumpTravelAdj =
+{
+	if (traveltime < 1000) return;
+	if (traveltime >= 3000) return;
+	if (! able_rj()) return;
+	// Not sure if this function will ever be invoked to evaluate
+	// routes across multiple markers. In case it is, allow to
+	// plan for 2 RJs, but with an extra penalty.
+	if (traveltime < 2000) traveltime = traveltime - 1000;
+	else traveltime = traveltime - 1998;
+}
 
 /*
 ============
@@ -22,9 +44,6 @@ void() EvalPath =
 	if (test_marker.state != STATE_BOTTOM)
 		return;
 
-	if (a_evalpath())
-		return;
-	
 	if (!path_normal)
 	{
 		if (!(description & REVERSIBLE))
@@ -42,9 +61,6 @@ void() EvalPath =
 		if (vlen(dm6_door.origin) < door_open_dist)
 			return;	// door not open enough
 	}
-	if (description & ROCKET_JUMP)
-	if (!able_rj())
-		return; // SOUL
 
 	same_dir = self_dir * normalize(marker_pos - origin_);
 	path_score = same_dir + random();
@@ -87,9 +103,15 @@ void() EvalPath =
 		if (goalentity_marker)
 		{
 			from_marker = test_marker;
-				path_normal = self.path_normal_;
+			path_normal = self.path_normal_;
 			goalentity_marker.zone_marker();
 			goalentity_marker.sub_arrival_time();
+			RJumpTravelAdj();
+			// Adjust path_time as well
+			if (description & ROCKET_JUMP)
+			if (able_rj())
+			if (path_time >= 1000)
+				path_time = path_time - 1000;
 			total_goal_time = path_time + traveltime;
 			if (total_goal_time > goal_late_time)
 			{
@@ -138,11 +160,13 @@ void() EvalCloseRunAway =
 	from_marker = enemy_touch_marker;
 	to_marker.zone_marker();
 	to_marker.sub_arrival_time();
+	RJumpTravelAdj();
 	traveltime2 = traveltime;
 
 	from_marker = touch_marker_;
 	to_marker.zone_marker();
 	to_marker.sub_arrival_time();
+	RJumpTravelAdj();
 
 	if (look_traveltime)
 		test_away_score = random() * RA_time * ((traveltime2 * traveltime2) - (look_traveltime_squared + (traveltime * traveltime))) / (look_traveltime * traveltime);
@@ -395,6 +419,7 @@ void() frogbot_marker_touch =
 		path_normal = self.path_normal_;
 		goalentity_marker.zone_marker();
 		goalentity_marker.sub_arrival_time();
+		RJumpTravelAdj();
 		current_goal_time = traveltime;
 		current_goal_time_125 = current_goal_time + 1.25;
 		if (current_goal_time < 2.5)
@@ -717,6 +742,7 @@ void() frogbot_marker_touch =
 				path_normal = TRUE;
 				look_marker.zone_marker();
 				look_marker.sub_arrival_time();
+				RJumpTravelAdj();
 				look_traveltime = traveltime;
 			}
 			else
@@ -730,6 +756,7 @@ void() frogbot_marker_touch =
 				path_normal = TRUE;
 				to_marker.zone_marker();
 				to_marker.sub_arrival_time();
+				RJumpTravelAdj();
 
 				if (look_traveltime < traveltime)
 				{

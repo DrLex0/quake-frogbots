@@ -4,7 +4,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
-	Universal doors by DrLex 2024/12
+	Improvements by DrLex 2024-2025
 */
 
 #include "settings.h"
@@ -198,11 +198,6 @@ TravelTime
 
 void() TravelTime =
 {
-	if (m_D & ROCKET_JUMP)
-	{
-		traveltime = 100000;
-		return;
-	}
 	if (m_D & JUMP_LEDGE)
 		m_D = m_D | NO_DODGE;
 
@@ -210,17 +205,26 @@ void() TravelTime =
 	{
 		m_P.near_teleport = m;
 		traveltime = 0;	// destination is only path
+		return;
+	}
+	m_P_pos = m_P.absmin + m_P.view_ofs;
+	if ((m.T & T_WATER) || (m_P.T & T_WATER))
+	{
+		m_D = m_D | WATER_PATH;
+		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxwaterspeed));
 	}
 	else
+		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
+
+	if (m_D & ROCKET_JUMP)
 	{
-		m_P_pos = m_P.absmin + m_P.view_ofs;
-		if ((m.T & T_WATER) || (m_P.T & T_WATER))
-		{
-			m_D = m_D | WATER_PATH;
-			traveltime = ((vlen(m_P_pos - m_pos) / sv_maxwaterspeed));
-		}
-		else
-			traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
+		/* Rocket jump path calculation hocus pocus -- DrLex
+		 * Add excessive time 1000 to RJ paths. (FTR, normal times
+		 * are between 0 and 1.5.) When a bot can RJ, we can subtract
+		 * (multiples of) 1000 to obtain true times.
+		 * This is all very Daedalian, but that's what's needed
+		 * in a language with no arrays or dictionaries. */
+		traveltime = traveltime + 1000;
 	}
 };
 

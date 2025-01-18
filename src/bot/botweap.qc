@@ -273,6 +273,10 @@ void() SetFireButton =
 									path_normal = TRUE;	// FIXME: AI set this
 									look_object_.zone_marker();
 									look_object_.sub_arrival_time();
+									// remove RJ path penalty, not relevant here
+									if (traveltime >= 1000)
+									if (traveltime < 2000)
+										traveltime = traveltime - 1000;
 									predict_dist = (traveltime * sv_maxspeed) + vlen(testplace - rocket_endpos);
 								}
 							}
