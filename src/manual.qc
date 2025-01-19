@@ -21,6 +21,16 @@ void() DumpMarkerInfo;
 float(entity marker) changed_view_ofs_z;
 void() ZoneInfo;
 
+/*
+============
+Select/Deselect
+
+Selected: Quake guy with axe
+Deselected: Quake guy with shotgun
+============
+*/
+void(entity marker) Select = { marker.display.frame = 0; }
+void(entity marker) Deselect = { if (marker) marker.display.frame = 12; }
 
 /*
 ============
@@ -155,10 +165,9 @@ void(entity marker) manual_marker_touch =
 	}
 	else
 	{
-		if (active_marker)
-			active_marker.display.frame = 12;
+		Deselect(active_marker);
 		active_marker = marker;
-		active_marker.display.frame = 0;
+		Select(active_marker);
 	}
 };
 
@@ -224,7 +233,7 @@ void() DisableActiveMarker =
 	}
 	CleanUpTemporaries();
 	bprint("active marker disabled\n");
-	active_marker.display.frame = 12;
+	Deselect(active_marker);
 	active_marker = world;
 	if (!(mode & STATIC_ACTIVE_MARKER))
 	{
@@ -438,13 +447,12 @@ void() MarkerDisplay =
 	}
 	if ((mode & CLOSEST_MARKER) && ! (mode & STATIC_ACTIVE_MARKER))
 	{
-		if (active_marker)
-			active_marker.display.frame = 12;
+		Deselect(active_marker);
 		active_marker = closest_marker;
 	}
 	if (!active_marker)
 		return;
-	active_marker.display.frame = 0;
+	Select(active_marker);
 	if (mode & DISPLAY_ZONE)
 	{
 		DisplayZone();
@@ -1734,6 +1742,7 @@ void() CheckAllZones =
 
 	if (last_bad)
 	{
+		Deselect(active_marker);
 		if (marker_)  // exited early
 			active_marker = last_bad;
 		else  // looped over all, on last marker or none
@@ -1776,6 +1785,7 @@ void() CheckAllGoals =
 
 	if (last_bad)
 	{
+		Deselect(active_marker);
 		if (marker_)  // exited early
 			active_marker = last_bad;
 		else  // looped over all, on last marker or none
