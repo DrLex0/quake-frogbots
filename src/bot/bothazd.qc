@@ -161,26 +161,65 @@ void() AvoidHazards =
 				}
 
 				if (try_jump_ledge)
-				if (rel_pos_z > 18)
 				{
-					hor_normal_vec_x = 0 - rel_pos_y;
-					hor_normal_vec_y = rel_pos_x;
-					hor_normal_vec = normalize(hor_normal_vec);
-
-					jumpspeed = new_velocity_z + JUMPSPEED;
-
-					if ((jumpspeed * jumpspeed * 0.000625) >= rel_pos_z)	// 0.000625 = 0.5 / sv_gravity
+					if (rel_pos_z > 18)
 					{
-						self.button2_ = TRUE;
-						self.path_state = self.path_state | WAIT_GROUND;
-						self.ledge_backup_time = 0;
-						return;
+						self.stuck_time = 0;
+						hor_normal_vec_x = 0 - rel_pos_y;
+						hor_normal_vec_y = rel_pos_x;
+						hor_normal_vec = normalize(hor_normal_vec);
+	
+						jumpspeed = new_velocity_z + JUMPSPEED;
+	
+						if ((jumpspeed * jumpspeed * 0.000625) >= rel_pos_z)	// 0.000625 = 0.5 / sv_gravity
+						{
+							self.button2_ = TRUE;
+							self.path_state = self.path_state | WAIT_GROUND;
+							self.ledge_backup_time = 0;
+							return;
+						}
+					}
+					else if (rel_pos_z < -100)
+					{
+						// Prevent getting stuck on trying to run into the floor when
+						// destination is deep down. (May be avoided altogether with
+						// an extra marker at or slightly beyond the ledge edge.)
+						if (! self.stuck_time)
+							self.stuck_time = time;
+						else if(time - self.stuck_time > 0.5)
+						{
+							dir_move = rel_pos;
+							dir_move_z = 0.05;
+							dir_move = normalize(dir_move);
+							NewVelocityForArrow();
+							self.stuck_time = 0;
+							// The jump usually helps a lot to get out of this situation,
+							// but if the bot is not allowed to make noise, too bad
+							if (self.allowedMakeNoise)
+							{
+								self.ledge_backup_time = 0;
+								self.velocity = 150 * normalize(self.velocity);
+								self.button2_ = TRUE;
+								self.path_state = self.path_state | WAIT_GROUND;
+								return;
+							}
+						}
+					}
+					else
+					{
+						self.stuck_time = 0;
 					}
 				}
 
 				if (being_blocked)
 				if (time > self.arrow_time)
 				{
+					if (random() < 0.05)
+					if (self.allowedMakeNoise)
+					{
+						self.button2_ = TRUE;
+						return;
+					}
 					if (self.ledge_backup_time)
 					{
 						if (time >= self.ledge_backup_time)
@@ -267,6 +306,25 @@ void() AvoidHazards =
 
 		new_velocity = new_velocity - (self.obstruction_normal * (self.obstruction_normal * new_velocity));
 	}
+	else if (vlen(self.origin - self.prev_origin) < 4)
+	{
+		// Sometimes the bot becomes immobile on unusual geometry or
+		// other weirdness. Give a little random nudge if this happens.
+		if (! self.stuck_time)
+			self.stuck_time = time + random();
+		else if(time - self.stuck_time > 2.5)
+		{
+			dir_move_x = random() - 0.5;
+			dir_move_y = random() - 0.5;
+			dir_move = normalize(dir_move);
+			NewVelocityForArrow();
+		}
+	}
+	else
+	{
+		self.stuck_time = 0;
+	}
+	self.prev_origin = self.origin;
 
 	hor_velocity = new_velocity;
 	hor_velocity_z = 0;

@@ -1411,6 +1411,9 @@ float damage_radius;
 float inflictor_dist;
 entity self_sound;
 
+.vector prev_origin;
+.float stuck_time;
+
 float FORWARD		= 1;
 float BACK			= 2;
 float LEFT			= 4;
