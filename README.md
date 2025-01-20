@@ -64,7 +64,7 @@ However, while working on the tool and testing newly created waypoints, I also n
 7. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
    To override smartness, set the `fb_smartness` cvar to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
 8. Allow to set custom bot names through localinfo `frobo_name1` through `frobo_name16` variables.
-9. Various smaller bug and robustness fixes, like reduced risk of bots getting stuck.
+9. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
 10. Created waypoints for some newer maps. Already available: `hohoho2` and `tox`. Try them, they're fun.
 
 ### Planned

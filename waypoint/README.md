@@ -62,7 +62,7 @@ Markers are automatically generated for several entities in a map:
 - weapons, ammo, health packs, armour, etc.;
 - teleport triggers and destinations, doors, and platforms.
 
-However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up will be given **goal** numbers to indicate preference. Last but not least, **connections** will be created between markers to tell the bot what paths can be followed, optionally with special descriptions for some of those connections.
+However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up must be given **goal** numbers to indicate preference. Last but not least, **connections** must be created between markers to tell the bot what paths can be followed, optionally with special descriptions for some of those connections.
 
 ## Key bindings
 
@@ -248,11 +248,18 @@ To set a marker as unreachable: set display mode `Z` to “Display type,” and 
 
 If there are lava or slime pits, or deadly traps, it may be a good idea to place some unreachable markers in them. Look at `dm4`, `start`, or `tox` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.
 
+
 ### Reliable rocket jumps
 
 Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a one-way path to the actual marker on the ledge.
 
 Also, bots will only really RJ when the path is worth following and there is no quicker, easier path to the same destination.
+
+
+### Ladders
+
+Some maps simulate _ladders_ by means of what is basically the steepest possible staircase in a Quake map, with extremely thin steps, typically only 1 unit deep. The old Frogbot was unable to ascend these, but this has been fixed in v2. It should suffice to place one marker at the bottom of the ‘ladder’, one at the top, connect them, and the bot will climb up the ladder like a human player. (This may still fail if the map does not adhere to the best practice of using integer coordinates for all vertices.)
+
 
 ### Setting up a shootable door
 This is for doors like the one in `dm6`. Originally, the Frogbot source had everything hard-coded for this level, it was the only door the bots could handle. This has been extended by _DrLex_ to allow other doors, also vertical ones like the bookcase in `hohoho2`. (For historical reasons, the `dm6_door` name was kept in the source code and the tool.)

@@ -663,7 +663,11 @@ void() FrogbotPostPhysics1 =
 				dist = ((new_velocity * frametime) - (self.origin - self.oldorigin)) * self.obstruction_normal;
 				oldflags = self.flags;
 				self.flags = self.flags | FL_ONGROUND_PARTIALGROUND;
-				if (walkmove(yaw, dist))
+				local float moved_ok = walkmove(yaw, dist);
+				// DrLex: fix ascending very steep stairs (fake ladders)
+				if (! moved_ok)
+					moved_ok = walkmove(yaw, 0.95);  // rounding error paranoia
+				if (moved_ok)
 				{
 					self.velocity = new_velocity;
 					self.velocity_z = 0;
