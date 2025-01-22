@@ -82,6 +82,17 @@ void() VelocityForArrow =
 {
 	turning_speed = 0;
 
+	if(self.t_velocity_override)
+	{
+		if(time < self.t_velocity_override)
+		{
+			self.velocity = self.velocity_override;
+			return;
+		}
+		self.t_velocity_override = 0;
+		self.ledge_stuck_time = 0;
+	}
+
 #ifdef QUAKE
 	if (time >= self.teleport_time)
 	{
@@ -660,6 +671,10 @@ void() FrogbotPostPhysics1 =
 			{
 				new_velocity = self.velocity + self.velocity_normal;
 				yaw = vectoyaw(self.obstruction_normal);
+				// Normally, movement is handled by the engine applying self.velocity, but
+				// cannot cope with any kind of obstruction, not even a 1 unit tall step.
+				// The following tries to walkmove across the remainder of the distance
+				// we expected to move before being obstructed.
 				dist = ((new_velocity * frametime) - (self.origin - self.oldorigin)) * self.obstruction_normal;
 				oldflags = self.flags;
 				self.flags = self.flags | FL_ONGROUND_PARTIALGROUND;

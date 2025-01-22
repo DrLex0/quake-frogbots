@@ -1411,8 +1411,12 @@ float damage_radius;
 float inflictor_dist;
 entity self_sound;
 
+// get-unstuck mechanisms
 .vector prev_origin;
 .float stuck_time;
+.float ledge_stuck_time;
+.vector velocity_override;
+.float t_velocity_override;
 
 float FORWARD		= 1;
 float BACK			= 2;

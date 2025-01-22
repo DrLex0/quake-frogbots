@@ -164,7 +164,7 @@ void() AvoidHazards =
 				{
 					if (rel_pos_z > 18)
 					{
-						self.stuck_time = 0;
+						self.ledge_stuck_time = 0;
 						hor_normal_vec_x = 0 - rel_pos_y;
 						hor_normal_vec_y = rel_pos_x;
 						hor_normal_vec = normalize(hor_normal_vec);
@@ -179,35 +179,26 @@ void() AvoidHazards =
 							return;
 						}
 					}
-					else if (rel_pos_z < -100)
+					else if (rel_pos_z < -72)
 					{
-						// Prevent getting stuck on trying to run into the floor when
-						// destination is deep down. (May be avoided altogether with
-						// an extra marker at or slightly beyond the ledge edge.)
-						if (! self.stuck_time)
-							self.stuck_time = time;
-						else if(time - self.stuck_time > 0.5)
+						// Totally over-engineered solution to fix bots getting stuck on trying
+						// to run into the floor when destination is deep down. (May be avoided
+						// altogether with an extra marker at or slightly beyond the ledge edge.)
+						if (! self.ledge_stuck_time)
+							self.ledge_stuck_time = time;
+						else if(time - self.ledge_stuck_time > 1)
 						{
-							dir_move = rel_pos;
-							dir_move_z = 0.05;
-							dir_move = normalize(dir_move);
-							NewVelocityForArrow();
-							self.stuck_time = 0;
-							// The jump usually helps a lot to get out of this situation,
-							// but if the bot is not allowed to make noise, too bad
-							if (self.allowedMakeNoise)
-							{
-								self.ledge_backup_time = 0;
-								self.velocity = 150 * normalize(self.velocity);
-								self.button2_ = TRUE;
-								self.path_state = self.path_state | WAIT_GROUND;
-								return;
-							}
+							self.velocity = rel_pos;
+							self.velocity_z = 0;
+							self.velocity = normalize(self.velocity) * sv_maxspeed;
+							self.velocity_override = self.velocity;
+							self.t_velocity_override = time + 0.2;
+							self.ledge_stuck_time = 0;
 						}
 					}
 					else
 					{
-						self.stuck_time = 0;
+						self.ledge_stuck_time = 0;
 					}
 				}
 
