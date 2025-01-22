@@ -18,6 +18,7 @@
 #include "maps/trinca/map_e1m6.qc"
 #include "maps/trinca/map_eodm3.qc"
 #include "maps/trinca/map_oktest1.qc"
+#include "maps/trinca/map_utressor.qc"
 
 void() SprintMaps =
 {
@@ -27,6 +28,7 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    spinev2     ultrav     ztndm3\n");
 	sprint_fb(self, 2, "    hohoho2        tox       cmt4\n");
 	sprint_fb(self, 2, "       e1m6      eodm3    oktest1\n");
+	sprint_fb(self, 2, "   utressor\n");
 };
 
 float() LoadWaypoints =
@@ -121,6 +123,11 @@ float() LoadWaypoints =
 		map_oktest1();
 		return TRUE;
 	}
+	if (mapname == "utressor")
+	{
+		map_utressor();
+		return TRUE;
+	}
 	return FALSE;
 };
 
@@ -162,5 +169,7 @@ string(string mname) MapHasWaypoints =
 		return "eodm3";
 	if (mname == "oktest1")
 		return "oktest1";
+	if (mname == "utressor")
+		return "utressor";
 	return "";
 };
