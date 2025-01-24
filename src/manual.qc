@@ -1797,6 +1797,16 @@ void() CheckAllGoals =
 	bprint("Goals completed\n");
 };
 
+void() MoveToActiveMarker =
+{
+	if (!active_marker)
+	{
+		bprint("No active marker\n");
+		return;
+	}
+	setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
+}
+
 void() PrintDebugInfo =
 {
 	bprint("pos ", vtos(self.origin));
@@ -1865,6 +1875,8 @@ void() ManualImpulseCommands =
 		PrintPathInfo();
 	else if (impulse_ == 158)
 		PrintDebugInfo();
+	else if (impulse_ == 159)
+		MoveToActiveMarker();
 };
 
 #endif
