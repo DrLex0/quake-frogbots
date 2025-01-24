@@ -1413,7 +1413,7 @@ entity self_sound;
 
 // get-unstuck mechanisms
 .vector prev_origin;
-.float stuck_time;
+.float stuck_deadline;
 .float ledge_stuck_time;
 .vector velocity_override;
 .float t_velocity_override;

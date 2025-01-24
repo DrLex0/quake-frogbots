@@ -297,25 +297,59 @@ void() AvoidHazards =
 
 		new_velocity = new_velocity - (self.obstruction_normal * (self.obstruction_normal * new_velocity));
 	}
-	else if (vlen(self.origin - self.prev_origin) < 4)
+	else if (vlen(self.origin - self.prev_origin) < 5)
 	{
-		// Sometimes the bot becomes immobile on unusual geometry or
-		// other weirdness. Give a little random nudge if this happens.
-		if (! self.stuck_time)
-			self.stuck_time = time + random();
-		else if(time - self.stuck_time > 2.5)
+		// Sometimes the bot becomes immobile. Apply another over-engineered
+		// algorithm to give a random nudge when this happens.
+		if (self.stuck_deadline <= 0)
 		{
-			dir_move_x = random() - 0.5;
-			dir_move_y = random() - 0.5;
-			dir_move = normalize(dir_move);
-			NewVelocityForArrow();
+			if (! self.stuck_deadline)
+				self.stuck_deadline = -3;  // start the detection process, let velocity settle
+			else if(self.stuck_deadline < -1)
+				self.stuck_deadline = self.stuck_deadline + 1;
+			else
+			{
+				if (self.velocity == '0 0 0')
+				{
+					// The bot may decide there is nothing to do and stops moving.
+					// Not a problematic situation, but by moving occasionally,
+					// it acts more natural.
+					self.stuck_deadline = time + 3 + 2 * random();
+				}
+				else
+				{
+					// We're supposed to be moving, but aren't. May be caused by unusual
+					// geometry or other weirdness. Get out of this state quickly.
+					self.stuck_deadline = time + 0.25 + random();
+				}
+			}
+		}
+		else if(time > self.stuck_deadline)
+		{
+			if (self.velocity == '0 0 0')
+			{
+				dir_move_x = random() - 0.5;
+				dir_move_y = random() - 0.5;
+				dir_move_z = 0;
+			}
+			else
+			{
+				// Running in-place, ensure random movement away from obstacle
+				makevectors(vectoangles(self.velocity));
+				dir_move = ((-0.1 - random()) * v_forward) + (((2 * random()) - 1) * v_right);
+			}
+			self.velocity = normalize(dir_move) * sv_maxspeed;
+			self.velocity_override = self.velocity;
+			self.t_velocity_override = time + 0.05;
+			self.stuck_deadline = 0;
+			self.prev_origin = self.origin + '1000 0 0';
 		}
 	}
 	else
 	{
-		self.stuck_time = 0;
+		self.stuck_deadline = 0;
+		self.prev_origin = self.origin;
 	}
-	self.prev_origin = self.origin;
 
 	hor_velocity = new_velocity;
 	hor_velocity_z = 0;
