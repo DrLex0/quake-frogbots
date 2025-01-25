@@ -81,12 +81,11 @@ However, while working on the tool and testing newly created waypoints, I also n
 No promises about dates or reaching these goals whatsoever. It is done when it's done. Obviously, if you want to jump in and help: fork and branch this repository, do your thing, and create a pull request.
 
 ### Not really planned, but who knows
-- Make Frogbot work in non-Quakeworld engines. We want to see a Frogbot in the primordial Quake. Currently it builds and runs, but _very weird things_ happen, it is not usable.
-- Make the bots detect when they're stuck on some piece of geometry (doing the typical running-in-place NPC thing), make them perform random movements to get them out of it.
+- Make shootable doors even more universal, bots should be able to open any door on the path it wants to follow, without having to tie it to specific goals/zones. Maybe even extend to also allow shooting switches to open doors.
+- Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, but some things are broken. If you want to try this: remember to start a network game, or very weird things will happen when attempting to add a bot.
 - Maybe try to keep the bots from wallhacking on skill levels up to 10. At the lower levels, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner.
 
 ### Wild ideas
-- Make shootable doors even more universal, bots should be able to open any door on the path it wants to follow, without having to tie it to specific goals/zones. Maybe even extend to also allow shooting switches to open doors.
 - Construct reasonable waypoints automatically with AI and evolutionary algorithms and blockchain and all other buzzwords we can throw against it. Yet, manual editing may always be needed for the best results.
 
 ## License

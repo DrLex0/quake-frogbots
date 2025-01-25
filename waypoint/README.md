@@ -262,6 +262,13 @@ Also, bots will only really RJ when the path is worth following and there is no 
 Some maps simulate _ladders_ by means of what is basically the steepest possible staircase in a Quake map, with extremely thin steps, typically only 1 unit deep. The old Frogbot was unable to ascend these, but this has been fixed in v2. It should suffice to place one marker at the bottom of the ‘ladder’, one at the top, connect them, and the bot will climb up the ladder like a human player. (This may still fail if the map does not adhere to the best practice of using integer coordinates for all vertices.)
 
 
+### Dealing with overlapping markers
+
+Some maps have markers at the exact same coordinates. I consider this _bad practice_ (even though one of the most iconic Quake maps suffers from this) and it should be avoided, but how to deal with it when it's in an existing map?
+- By enabling closest-marker-mode, you can select between overlapping markers with the `L` or `0` (zero) key to cycle between the 3 most nearby markers. Print marker info with `C` to see what marker you have actually selected.
+- In general, _you should not make a path between overlapping markers._ Connecting the markers may cause the bot to get temporarily stuck in some cases. It makes no sense anyway, there is no path to follow between things at the same coordinates. Just connect both markers to neighbouring markers in the same way (unless one is a spawn, then it should only have outgoing paths).
+
+
 ### Setting up a shootable door
 This is for doors like the one in `dm6`. Originally, the Frogbot source had everything hard-coded for this level, it was the only door the bots could handle. This has been extended by _DrLex_ to allow other doors, also vertical ones like the bookcase in `hohoho2`. (For historical reasons, the `dm6_door` name was kept in the source code and the tool.)
 
