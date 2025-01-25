@@ -160,9 +160,9 @@ void() AvoidHazards =
 					being_blocked = ((self.obstruction_normal * rel_hor_dir) > 0.5);
 				}
 
-				if (try_jump_ledge)
+				if (rel_pos_z > 18)
 				{
-					if (rel_pos_z > 18)
+					if (try_jump_ledge)
 					{
 						self.ledge_stuck_time = 0;
 						hor_normal_vec_x = 0 - rel_pos_y;
@@ -179,27 +179,27 @@ void() AvoidHazards =
 							return;
 						}
 					}
-					else if (rel_pos_z < -72)
+				}
+				else if (rel_pos_z < -80)
+				{
+					// Totally over-engineered solution to fix bots getting stuck on trying
+					// to run into the floor when destination is deep down. (May be avoided
+					// altogether with extra marker at or slightly beyond the ledge edge.)
+					if (! self.ledge_stuck_time)
+						self.ledge_stuck_time = time;
+					else if(time - self.ledge_stuck_time > 1)
 					{
-						// Totally over-engineered solution to fix bots getting stuck on trying
-						// to run into the floor when destination is deep down. (May be avoided
-						// altogether with an extra marker at or slightly beyond the ledge edge.)
-						if (! self.ledge_stuck_time)
-							self.ledge_stuck_time = time;
-						else if(time - self.ledge_stuck_time > 1)
-						{
-							self.velocity = rel_pos;
-							self.velocity_z = 0;
-							self.velocity = normalize(self.velocity) * sv_maxspeed;
-							self.velocity_override = self.velocity;
-							self.t_velocity_override = time + 0.2;
-							self.ledge_stuck_time = 0;
-						}
-					}
-					else
-					{
+						self.velocity = rel_pos;
+						self.velocity_z = 0;
+						self.velocity = normalize(self.velocity) * sv_maxspeed;
+						self.velocity_override = self.velocity;
+						self.t_velocity_override = time + 0.2;
 						self.ledge_stuck_time = 0;
 					}
+				}
+				else
+				{
+					self.ledge_stuck_time = 0;
 				}
 
 				if (being_blocked)
@@ -347,6 +347,14 @@ void() AvoidHazards =
 	}
 	else
 	{
+		// When stuck on a ledge, the bot will often dither between the marker it is currently
+		// touching and the one on the way out. Do not reset the timer when this happens.
+		// This seems a bug that needs to be fixed; when the bot has already picked up the
+		// item on the ledge, it makes no sense to keep picking that marker as linked marker.
+		if(self.touch_marker != linked_marker_)
+		{
+			self.ledge_stuck_time = 0;
+		}
 		self.stuck_deadline = 0;
 		self.prev_origin = self.origin;
 	}
