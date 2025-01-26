@@ -13,17 +13,17 @@ void() VelocityForArrow;
 void() BestArrowForDirection;
 float(entity me) near_teammate;
 
-// moving in right direction to rocket-jump
+// Moving in right direction to rocket-jump or precise jump?
+// If not, dir_move can be used to adjust direction.
 float() right_direction =
 {
-	local vector test_dir;
 	local float current_dir, wish_dir, right_dir;
 	local float min_one, min_two;
 
-	test_dir = normalize(self.oldvelocity); // before physics
-	current_dir = vectoyaw(test_dir);
-	test_dir = normalize(self.linked_marker.origin - self.origin);
-	wish_dir = vectoyaw(test_dir);
+	dir_move = normalize(self.oldvelocity);  // before physics
+	current_dir = vectoyaw(dir_move);
+	dir_move = normalize(self.linked_marker.origin - self.origin);
+	wish_dir = vectoyaw(dir_move);
 	min_one = fabs(wish_dir - current_dir);
 	if (wish_dir >= 180)
 		wish_dir = wish_dir - 360;
@@ -33,7 +33,7 @@ float() right_direction =
 	right_dir = min_one;
 	if (min_two < right_dir)
 		right_dir = min_two;
-	return (right_dir <= 75);
+	return (right_dir <= 72);
 };
 
 // enough health & items to rocket-jump
@@ -190,7 +190,11 @@ void() a_rocketjump =
 	if (!checkground())
 		return;
 	if (!right_direction())
+	{
+		BestArrowForDirection();
+		VelocityForArrow();
 		return;
+	}
 	BestArrowForDirection();
 	VelocityForArrow();
 	new_pitch = 78.75;
@@ -237,12 +241,15 @@ void() PreciseJump =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
-	BestArrowForDirection();
+	if (!right_direction())
+	{
+		BestArrowForDirection();
+		VelocityForArrow();
+		return;
+	}
 	VelocityForArrow();
 	// Only jump when close enough
 	if (touch_dist > 48)
-		return;
-	if (!right_direction())
 		return;
 	self.button2_ = 1;
 };
