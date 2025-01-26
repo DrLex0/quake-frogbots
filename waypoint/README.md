@@ -171,6 +171,8 @@ These steps do not need to be done in this exact order, but you will typically m
      (If the level designer stacked another marker on top, the wrong one might get selected. In that case, remove the connection, and try again after changing overlap preference with `L` or zero `0`. When designing your own levels, _avoid_ giving info entities the exact same location as others, nudge them around a bit.)
    - If it is a 2-way teleporter, now do the same thing to connect its trigger to the destination at the other side.
    - It doesn't matter whether you assign a `trigger_teleport` the zone it is in, or its destination zone. (I stick with the zone it is in.)
+   - A teleport trigger must only have incoming paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).  
+     A teleport destination should only have outgoing paths besides its single incoming trigger path _(again… telefrag)._
 9. **Special path modes.** You can apply these while making the paths, or afterwards. The modes for a marker's paths can be seen by pressing the `R` key.  
    Same workflow as above, only now you also have to select the mode with `V` before making the connection (not all are path modes, some affect display mode). Most of these require _one-way mode_ to be enabled (`J` key).
    - **Disconnect mode**: removes a path, but even though this also works without enabling one-way mode, it will only disconnect the path from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.
@@ -252,9 +254,11 @@ If there are lava or slime pits, or deadly traps, it may be a good idea to place
 
 ### Reliable rocket jumps
 
-Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a one-way path to the actual marker on the ledge.
+Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a one-way path to the actual destination on the ledge.
 
-Also, bots will only really RJ when the path is worth following and there is no quicker, easier path to the same destination.
+When possible, try to provide only 1 incoming path into the marker from where the RJ should happen, in more or less the correct direction for the jump. This is not essential, but can help with accuracy and reliability of the jumps.
+
+Also, bots will only really RJ when that path is worth following and there is no quicker, easier path to the same destination.
 
 
 ### Ladders

@@ -774,7 +774,7 @@ void() SaveCoords =
 	{
 		bprint("N(", ftos(m.origin_x), ",", ftos(m.origin_y), ",", ftos(m.origin_z), ");");
 		count_ = count_ + 1;
-		if (count_ >= 5)
+		if (count_ >= 4)
 		{
 			bprint("\n");
 			return;

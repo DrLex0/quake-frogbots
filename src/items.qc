@@ -1759,20 +1759,23 @@ Player takes no damage from water or slime for 30 seconds
 */
 void() item_artifact_envirosuit =
 {
-	self.touch = powerup_touch;
-
-#ifndef ARENA
-	precache_model ("progs/suit.mdl");
-	precache_sound ("items/suit.wav");
-	precache_sound ("items/suit2.wav");
-#endif
-	self.noise = "items/suit.wav";
-	setmodel (self, "progs/suit.mdl");
-	self.netname = "Biosuit";
-	self.items = IT_SUIT;
-	self.aflag = 60;
-	self.desire = goal_NULL;
-	self.pickup = pickup_true;
+	if (!game_disable_powerups)
+	{
+		self.touch = powerup_touch;
+	
+	#ifndef ARENA
+		precache_model ("progs/suit.mdl");
+		precache_sound ("items/suit.wav");
+		precache_sound ("items/suit2.wav");
+	#endif
+		self.noise = "items/suit.wav";
+		setmodel (self, "progs/suit.mdl");
+		self.netname = "Biosuit";
+		self.items = IT_SUIT;
+		self.aflag = 60;
+		self.desire = goal_NULL;
+		self.pickup = pickup_true;
+	}
 	setsize (self, '-16 -16 -24', '16 16 32');
 	StartItem ();
 };
