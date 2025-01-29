@@ -335,7 +335,9 @@ CheckWaterColumn
 */
 void() CheckWaterColumn =
 {
-	m.T = m.T | T_WATER;
+	m.T = m.T | T_LIQUID;
+	if (content == CONTENT_SLIME)
+		m.T = m.T | T_BIOHZD;
 
 	testplace = m_pos;
 	while (TRUE)

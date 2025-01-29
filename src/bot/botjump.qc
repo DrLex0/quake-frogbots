@@ -60,7 +60,9 @@ float() able_rj =
 	if ((!game_arena) || (arenastate == A_PLAYING))
 #endif
 	if (!beQuiet)
+#ifndef MANUAL
 	if (random() > 0.33)
+#endif
 		return 1;
 	return 0;
 };
@@ -118,8 +120,7 @@ void() lava_jump =
 		self.arrow = BACK;
 		VelocityForArrow();
 	}
-
-	if (self.waterlevel == 2) {
+	else if (self.waterlevel == 2) {
 		if (self.arrow == BACK) {
 			self.real_pitch = 78.75;
 			new_pitch = 78.75;
@@ -147,18 +148,32 @@ void() a_rocketjump =
 
 	if (pre_game && counting_down)
 		return;
-	if (! self.touch_marker)
-		return;
 	if (self.waterlevel > 1)
 	{
 		local float pc = pointcontents(self.origin + '0 0 -24');
-		if (pc == CONTENT_LAVA || pc == CONTENT_SLIME)
-		if (checkboven())
+		if (pc == CONTENT_LAVA)
 		{
-			lava_jump();
-			return;
+			// Don't bother checking health, we'll die soon anyway
+			if (! (self.items & IT_INVULNERABILITY))
+			if (checkboven())
+			{
+				lava_jump();
+				return;
+			}
+		}
+		else if (pc == CONTENT_SLIME)
+		{
+			if (! (self.items & IT_SLIME_PROOF))
+			if (self.health > 75)
+			if (checkboven())
+			{
+				lava_jump();
+				return;
+			}
 		}
 	}
+	if (! self.touch_marker)
+		return;
 	if (! (self.path_state & ROCKET_JUMP))
 		return;
 	if (! able_rj())

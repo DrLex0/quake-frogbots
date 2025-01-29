@@ -699,6 +699,7 @@ float	IT_QUAD				= 4194304;
 float	IT_INVULNERABILITY_QUAD		= 5242880;
 float IT_POWERUP				= 7864320;
 float IT_ARMOR3_INVULNERABILITY	= 1081344;
+float IT_SLIME_PROOF			= 3145728;  // SUIT | INVULN
 
 float	IT_NOT_INVISIBILITY		= 16252927;
 float IT_NOT_INVULNERABILITY		= 15728639;
@@ -1611,9 +1612,14 @@ float UNREACHABLE				= 1;
 float SAVED_T				= 1;
 
 // auto set values
-float T_WATER				= 2;
+float T_LIQUID				= 2;
 float T_NO_AIR				= 4;
+float T_BIOHZD				= 8;
 
+// Whether map provides biosuit or invulnerability (regardless of powerups disabled).
+// Used to decide whether to avoid paths in slime or not. Waypoints for a map
+// without protective items should never have (long) paths in slime.
+float bio_protection;
 
 .entity near_teleport;
 

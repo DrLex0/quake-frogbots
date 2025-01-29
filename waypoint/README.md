@@ -258,7 +258,19 @@ Rocket jumps can be tricky, especially when the destination is a ledge that stic
 
 When possible, try to provide only 1 incoming path into the marker from where the RJ should happen, in more or less the correct direction for the jump. This is not essential, but can help with accuracy and reliability of the jumps.
 
-Also, bots will only really RJ when that path is worth following and there is no quicker, easier path to the same destination.
+Also, bots will only actively plan an RJ when that path is worth following to reach a goal, and there is no alternative path that does not require RJ, even if much longer. In the latter case they might still randomly decide to take an RJ shortcut when happening to pass across the marker, but they will not actively seek out that path.
+
+
+### Slime
+
+With the old Frogbot, making paths through _slime_ was a no-go. Unaware of the danger, the bots would happily swim in the slime and get killed. The v2 Frogbot is smarter and will avoid paths through slime, but _only_ if the map contains a biosuit or invulnerability power-up. If it then picks up one of those items, the slime paths will be treated like normal paths and the bot may traverse the slime to reach something worthwhile.  
+Therefore:
+- in maps with a biosuit and/or pentagram of protection, it is OK to create paths through slime if it makes any sense;
+- in maps that do not have those items, do not create paths through slime unless they're very short.
+
+There is no particular logic to encourage the bot to seek a biosuit to be able to obtain a desirable item in slime. If the bot does not seem to want to pick up the suit often enough, or it doesn't go for the slimed item, try tweaking goal numbers.
+
+And, never make any paths going into _lava,_ even though theoretically they could be traversed with invulnerability. The extra complexity required to also implement this, was not deemed worth it. Maps where it would be useful are scarce, and the consequences of the power-up expiring while still in lava are usually _lethal._ Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
 
 
 ### Ladders

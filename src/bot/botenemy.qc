@@ -6,7 +6,7 @@
 
 #include "../settings.h"
 
-void() RJumpTravelAdj;
+void() AdjustTravelPenalties;
 
 /* 
 ============
@@ -152,7 +152,7 @@ void() BestEnemy_apply =
 		look_marker.zone_marker();
 		look_marker.sub_arrival_time();
 		// Not sure how useful/wise it is to RJ when hunting an enemy, but why not.
-		RJumpTravelAdj();
+		AdjustTravelPenalties();
 		enemy_score = traveltime + random();
 	}
 	else

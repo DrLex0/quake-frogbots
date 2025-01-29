@@ -1731,6 +1731,7 @@ void() item_artifact_invulnerability =
 		self.desire = goal_artifact_invulnerability;
 		self.pickup = pickup_true;
 	}
+	bio_protection = 1;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	StartItem ();
 };
@@ -1776,6 +1777,7 @@ void() item_artifact_envirosuit =
 		self.desire = goal_NULL;
 		self.pickup = pickup_true;
 	}
+	bio_protection = 1;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	StartItem ();
 };

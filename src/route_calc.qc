@@ -208,10 +208,17 @@ void() TravelTime =
 		return;
 	}
 	m_P_pos = m_P.absmin + m_P.view_ofs;
-	if ((m.T & T_WATER) || (m_P.T & T_WATER))
+	if ((m.T & T_LIQUID) || (m_P.T & T_LIQUID))
 	{
 		m_D = m_D | WATER_PATH;
 		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxwaterspeed));
+		if (bio_protection)
+		if ((m.T & T_BIOHZD) || (m_P.T & T_BIOHZD))
+		{
+			// Similar hocus pocus as for rocket jumps, see below,
+			// but mark these times with a different offset value.
+			traveltime = traveltime + 10000;
+		}
 	}
 	else
 		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));

@@ -14,22 +14,93 @@ float() able_rj;
 
 /*
 ============
-RJumpTravelAdj
+AdjustTravelPenalties
 
-Restore traveltime for RJ paths if the bot can rocket-jump.
+Dynamic path cost hocus-pocus. Restore traveltime for paths if:
+- path has RJ flag and the bot can rocket-jump,
+- path goes through slime and the bot has protection.
+Basically this must be invoked after every .sub_arrival_time() call.
 See TravelTime() for more information.
 ============
 */
-void() RJumpTravelAdj =
+void() AdjustTravelPenalties =
 {
 	if (traveltime < 1000) return;
+	if (traveltime >= 320000) return;
+
+	// Slime. Long paths allowed: up to 31 segments (probably overkill, but why not).
+	// I'm not going to add more of this voodoo for lava + invuln, because it is
+	// rarely useful, and consequences of the powerup expiring are much worse.
+	if (traveltime >= 10000)
+	{
+		if ((self.invincible_finished - time > 5) ||
+			(self.radsuit_finished - time > 5))
+		{
+			// Don't jump into slime, or GTFO when only 5s of protection remain
+			if (traveltime >= 160000) traveltime = traveltime - 160000;
+			if (traveltime >= 80000) traveltime = traveltime - 80000;
+			if (traveltime >= 40000) traveltime = traveltime - 40000;
+			if (traveltime >= 20000) traveltime = traveltime - 20000;
+			if (traveltime >= 10000) traveltime = traveltime - 10000;
+		}
+		else return;
+	}
+
+	// RJ. Allow planning for up to 2 RJs, but add small penalty in that case.
+	if (traveltime >= 1000)
+	if (traveltime < 3000)
+	if (able_rj())
+	{
+		if (traveltime < 2000) traveltime = traveltime - 1000;
+		else traveltime = traveltime - 1998;
+	}
+}
+
+/*
+============
+AdjustPathTimePenalty
+
+Like AdjustTravelPenalties, but for a single segment's path_time.
+============
+*/
+void() AdjustPathTimePenalty
+{
+	if (path_time < 1000) return;
+	if (path_time >= 20000) return;
+
+	if (path_time >= 10000)
+	{
+		if ((self.invincible_finished - time > 5) ||
+			(self.radsuit_finished - time > 5))
+			path_time = path_time - 10000;
+		else return;
+	}
+
+	if (path_time >= 1000)
+	if (path_time < 2000)
+	if (able_rj())
+		path_time = path_time - 1000;
+}
+
+/*
+============
+DropTravelPenalties
+
+To obtain true path times regardless of bot state.
+============
+*/
+void() DropTravelPenalties =
+{
+	if (traveltime < 1000) return;
+	if (traveltime >= 320000) return;
+	if (traveltime >= 160000) traveltime = traveltime - 160000;
+	if (traveltime >= 80000) traveltime = traveltime - 80000;
+	if (traveltime >= 40000) traveltime = traveltime - 40000;
+	if (traveltime >= 20000) traveltime = traveltime - 20000;
+	if (traveltime >= 10000) traveltime = traveltime - 10000;
 	if (traveltime >= 3000) return;
-	if (! able_rj()) return;
-	// Not sure if this function will ever be invoked to evaluate
-	// routes across multiple markers. In case it is, allow to
-	// plan for 2 RJs, but with an extra penalty.
 	if (traveltime < 2000) traveltime = traveltime - 1000;
-	else traveltime = traveltime - 1998;
+	else traveltime = traveltime - 2000;
 }
 
 /*
@@ -94,6 +165,7 @@ void() EvalPath =
 			path_score = path_score - 2.5;
 	}
 
+	AdjustPathTimePenalty();
 	if (avoid)
 	{
 		path_score = path_score - 2.5;
@@ -106,12 +178,7 @@ void() EvalPath =
 			path_normal = self.path_normal_;
 			goalentity_marker.zone_marker();
 			goalentity_marker.sub_arrival_time();
-			RJumpTravelAdj();
-			// Adjust path_time as well
-			if (description & ROCKET_JUMP)
-			if (able_rj())
-			if (path_time >= 1000)
-				path_time = path_time - 1000;
+			AdjustTravelPenalties();
 			total_goal_time = path_time + traveltime;
 			if (total_goal_time > goal_late_time)
 			{
@@ -123,12 +190,16 @@ void() EvalPath =
 		}
 	}
 
-	if (path_score > best_score)
-	{
-		best_score = path_score;
-		linked_marker_ = test_marker;
-		new_path_state = description;
-	}
+	if (path_score <= best_score)
+		return;
+	// Do not pick path going into slime without protection, but OK if we're already in slime
+	if (path_time >= 10000)
+	if (! (touch_marker_.T & T_BIOHZD))
+		return;
+
+	best_score = path_score;
+	linked_marker_ = test_marker;
+	new_path_state = description;
 };
 
 /*
@@ -160,13 +231,13 @@ void() EvalCloseRunAway =
 	from_marker = enemy_touch_marker;
 	to_marker.zone_marker();
 	to_marker.sub_arrival_time();
-	RJumpTravelAdj();
+	AdjustTravelPenalties();
 	traveltime2 = traveltime;
 
 	from_marker = touch_marker_;
 	to_marker.zone_marker();
 	to_marker.sub_arrival_time();
-	RJumpTravelAdj();
+	AdjustTravelPenalties();
 
 	if (look_traveltime)
 		test_away_score = random() * RA_time * ((traveltime2 * traveltime2) - (look_traveltime_squared + (traveltime * traveltime))) / (look_traveltime * traveltime);
@@ -419,7 +490,7 @@ void() frogbot_marker_touch =
 		path_normal = self.path_normal_;
 		goalentity_marker.zone_marker();
 		goalentity_marker.sub_arrival_time();
-		RJumpTravelAdj();
+		AdjustTravelPenalties();
 		current_goal_time = traveltime;
 		current_goal_time_125 = current_goal_time + 1.25;
 		if (current_goal_time < 2.5)
@@ -742,7 +813,7 @@ void() frogbot_marker_touch =
 				path_normal = TRUE;
 				look_marker.zone_marker();
 				look_marker.sub_arrival_time();
-				RJumpTravelAdj();
+				AdjustTravelPenalties();
 				look_traveltime = traveltime;
 			}
 			else
@@ -756,7 +827,7 @@ void() frogbot_marker_touch =
 				path_normal = TRUE;
 				to_marker.zone_marker();
 				to_marker.sub_arrival_time();
-				RJumpTravelAdj();
+				AdjustTravelPenalties();
 
 				if (look_traveltime < traveltime)
 				{
