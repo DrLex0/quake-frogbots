@@ -20,6 +20,7 @@ void() SavePaths;
 void() DumpMarkerInfo;
 float(entity marker) changed_view_ofs_z;
 void() ZoneInfo;
+void() AdjustTravelPenalties;
 
 /*
 ============
@@ -135,13 +136,23 @@ void(entity marker) manual_marker_touch =
 		{
 			path_normal = TRUE;
 			from_marker = active_marker;
-			marker.zone_marker();
-			marker.sub_arrival_time();
-			bprint("time from active marker = ", ftos(traveltime), "\n");
+			if(marker.zone_marker)
+			{
+				marker.zone_marker();
+				marker.sub_arrival_time();
+				AdjustTravelPenalties();
+				bprint("time from active marker = ", ftos(traveltime), "\n");
+			}
+			else bprint("paths not yet calculated\n");
 			from_marker = marker;
-			active_marker.zone_marker();
-			active_marker.sub_arrival_time();
-			bprint("time to active marker = ", ftos(traveltime), "\n");
+			if(active_marker.zone_marker)
+			{
+				active_marker.zone_marker();
+				active_marker.sub_arrival_time();
+				AdjustTravelPenalties();
+				bprint("time to active marker = ", ftos(traveltime), "\n");
+			}
+			else bprint("paths not yet calculated\n");
 			mode = mode - DISPLAY_TRAVEL_TIME;
 		}
 		if (mode & DISPLAY_REACHABLE)
