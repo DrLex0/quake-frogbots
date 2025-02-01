@@ -62,7 +62,7 @@ Markers are automatically generated for several entities in a map:
 - weapons, ammo, health packs, armour, etc.;
 - teleport triggers and destinations, doors, and platforms.
 
-However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up must be given **goal** numbers to indicate preference. Last but not least, **connections** must be created between markers to tell the bot what paths can be followed, optionally with special descriptions for some of those connections.
+However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up must be given **goal** numbers to indicate (weak) preference. Last but not least, **connections** must be created between markers to tell the bot what paths can be followed, optionally with special descriptions for some of those connections.
 
 ## Key bindings
 
@@ -138,17 +138,18 @@ These steps do not need to be done in this exact order, but you will typically m
 3. Add extra markers where needed for constructing paths such that bots won't get stuck on geometry: move to the spot and `MOUSE1`. Do not overdo this, but don't leave huge gaps between markers either.  
    Remember to also assign a zone to the new markers. If a zone number is currently selected, new markers automatically get this zone.
 4. Assign **GOALS** to items: things the bot will want to fetch: weapons, ammo, health, powerups. Use `,.` or scroll to select GOAL number and again use `ENTER` or `Q` on the marker.
-   - The **lower** the goal number, the **more likely** the bot will want to pick it up. Goal numbers are more like _suggestions_ than hard commands. The bot has its own logic for preferring items, but this logic can be influenced by goals. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up yellow or even green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. For Mega Health, if not easily accessible, you may need to give it a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
-   - Mick recommends **not to reuse the lowest goal numbers,** and I can confirm that using the same goal number for 2 different nearby items is problematic, and may cause the bot to ignore one of them. It should be OK to use a low goal number for items in different zones, but I tend to avoid this and try to keep the lowest numbers unique.
-   - You will notice that the following items are given high default goals because they are considered less desirable, but of course you can give particular instances of these items a different goal if you want:
+   - The goal logic is horribly complicated and hard to understand; what follows is what I have learnt from experiments, Mick's guide, and digging in the source code. If someone has better insights, please update this guide.
+   - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
+   - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and absolutely not when they are directly linked. It _should_ be OK to give the same weapon the same goal across different zones, but I am not sure about this.
+   - If health or same ammo items are clustered together with direct paths between each other, then **do** give them the same goal number. Also, the larger the cluster of same ammo or health, the more worthwhile it may be, hence may deserve a lower goal number than isolated items of the same kind (but again, goal number preference is weak anyway).
+   - You will notice that the following items are given high default goals because they are considered less desirable, but of course you can give particular instances of these items (especially the weapons) a different goal if you want:
      * 19 `item_cells`
      * 20 `weapon_supernailgun`
      * 21 `weapon_supershotgun`
      * 22 `weapon_nailgun`
      * 23 `item_spikes`
      * 24 `item_shells`
-   - Clusters of the same ammo or health may be more worthwhile to take a detour than single scattered items, hence may deserve a lower goal number than isolated items of the same kind.
-   - It is possible and valid to assign _no goal at all_ to items. This will not make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a particular Quad or invisibility is too risky and makes the bot an easy target.
+   - It is possible and valid to assign _no goal at all_ to items. This will _not_ make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a particular Quad or invisibility is too risky and makes the bot an easy target.
 5. Go to another zone and repeat steps 1 to 5.
 6. Use `N` and `M` to check whether you didn't forget to set zones and goals (enable NOCLIP for this, `F2`).
    - Using the `C` key on an active marker will show its zone and goal, and some more info.  

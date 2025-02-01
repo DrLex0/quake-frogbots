@@ -347,6 +347,9 @@ void() UpdateGoal =
 	else
 		virtual_enemy = dropper;
 
+	// This seems to be the only place where I see any preference for lower goal
+	// numbers, but it is very weak. Only if G1 scores the same in EvalGoal* as
+	// for instance G7, and none scores better, then G1 will win from G7  -- DrLex
 	goal_entity = touch_marker_.G1_.virtual_goal;
 	EvalGoal();
 	goal_entity = touch_marker_.G2_.virtual_goal;
