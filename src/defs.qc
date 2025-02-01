@@ -1607,14 +1607,15 @@ float THROUGH_NODE	= 1;
 .float T;	// marker type
 
 // T values for markers/type_mode
-float UNREACHABLE				= 1;
-// Bits to be saved in waypoint code: UNREACHABLE
-float SAVED_T				= 1;
+float T_UNREACHABLE			= 1;
+float T_FORCESLIME			= 2;
+// Bits to be saved in waypoint code: T_UNREACHABLE | T_FORCESLIME
+float SAVED_T				= 3;
 
 // auto set values
-float T_LIQUID				= 2;
-float T_NO_AIR				= 4;
-float T_BIOHZD				= 8;
+float T_LIQUID				= 4;
+float T_NO_AIR				= 8;
+float T_BIOHZD				= 16;
 
 // Whether map provides biosuit or invulnerability (regardless of powerups disabled).
 // Used to decide whether to avoid paths in slime or not. Waypoints for a map

@@ -57,7 +57,6 @@ void() AddToQue;
 void() AddToTmpQue;
 void(entity marker) BecomeMarker;
 void(entity mk) SetFrB_Props;
-void() FrogTreadWater;
 void() FrogWaterMove;
 void() BotWaterJumpFix;
 void() a_rocketjump;
@@ -953,9 +952,8 @@ void() PlayerPreThink_apply =
 	{
 		if (k_standby) return;
 
-		if (self.waterlevel != 3)
+		if (self.waterlevel != 3)  // not totally submerged
 		{
-			BotWaterJumpFix();
 			if (self.air_finished < time + 9)
 			{
 				msg_entity = self;
@@ -967,15 +965,18 @@ void() PlayerPreThink_apply =
 			self.air_finished = time_12;
 			self.dmg = 2;
 
+			if (self.waterlevel == 1)  // only legs in liquid -- don't care unless hazardous
+			if (self.watertype <= CONTENT_SLIME)
+				BotWaterJumpFix();
+
 		#ifndef QUAKE
 			if (!self.player)
 		#endif
-			if (self.waterlevel == 2)
+			if (self.waterlevel == 2)  // swimming but with head above liquid
 			{
 			//
 			// CheckWaterJump
-			//
-				FrogTreadWater();
+				BotWaterJumpFix();
 
 			// check for a jump-out-of-water
 				makevectors (self.v_angle);
@@ -1776,7 +1777,7 @@ void() ClientConnect_apply =
 	else
 		self.desire = goal_client6;
 
-	self.T = UNREACHABLE;	// don't jump onto/at other clients
+	self.T = T_UNREACHABLE;	// don't jump onto/at other clients
 
 // a client connecting during an intermission can cause problems
 	if (intermission_running)

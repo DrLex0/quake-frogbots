@@ -498,6 +498,7 @@ void() frogbot_marker_touch =
 		else
 			goal_late_time = (self.goal_respawn_time - (random() * 10))- time;
 
+		// The idea here seems to also evaluate just staying in place as an option.
 		test_marker = touch_marker_;
 		if (test_marker)
 		{

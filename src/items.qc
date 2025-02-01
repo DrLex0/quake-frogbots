@@ -1994,7 +1994,7 @@ void() LocateDynamicItem =
 		content = pointcontents(self.origin);
 
 		self.touch_marker = LocateMarker(self.absmin + self.view_ofs);
-		if ((self.touch_marker.T & UNREACHABLE) || (content == CONTENT_LAVA))
+		if ((self.touch_marker.T & T_UNREACHABLE) || (content == CONTENT_LAVA))
 			self.touch_marker = world;
 
 		if (self.touch_marker)

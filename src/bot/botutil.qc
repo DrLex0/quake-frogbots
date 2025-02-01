@@ -479,7 +479,7 @@ void() CanJumpOver =
 					test_enemy = findradius(testplace, 84);
 					while (test_enemy)
 					{
-						if (test_enemy.T & UNREACHABLE)	// includes clients and self
+						if (test_enemy.T & T_UNREACHABLE)	// includes clients and self
 						{
 							test_enemy = world;	// exit loop
 							do_jump = FALSE;

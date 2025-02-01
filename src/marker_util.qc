@@ -205,6 +205,7 @@ entity(vector org) LocateMarker =
 		marker_ = marker_.chain;
 	}
 
+	distance = shortest_distance;  // allow checking sanity of the "closest" marker
 	return closest_marker;
 };
 
@@ -213,6 +214,9 @@ entity(vector org) LocateMarker =
 ============
 AssignVirtualGoal
 
+If marker_ has nonzero goal, then set .virtual_goal to the marker itself,
+unless its item is not available and we can find an available item on one
+of the outgoing paths with same goal number.
 ============
 */
 void() AssignVirtualGoal_apply =
@@ -221,7 +225,7 @@ void() AssignVirtualGoal_apply =
 	if (goal_number)
 	{
 		test_goal = marker_;
-		if (test_goal.nextthink)
+		if (test_goal.nextthink)  // something is pending for the item, likely waiting to respawn
 		{
 			test_goal = marker_.P0;
 			if ((test_goal.G_ != goal_number) || (test_goal.nextthink))

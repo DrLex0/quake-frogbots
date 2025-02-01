@@ -20,50 +20,71 @@ float() JumpInWater =
 	return (pointcontents(self.origin + '0 0 -64') == CONTENT_WATER);
 };
 
+/*
+Seek way out when in liquid for too long.
+This logic is dodgy and has risk of the bot getting forever stuck if
+the only way out requires diving. I guess this only exists because we
+cannot trust waypoint makers to provide enough paths out from liquids.
+Added some extra checks to reduce risk, but it still exists. -- DrLex
+*/
 void() BotWaterJumpFix = 
 {
-	if (self.frogbot)
+	if (! self.frogbot) return;
+	if (self.watertype > CONTENT_LAVA)
+	if (self.items & IT_SLIME_PROOF) // no point in trying to get out
+		return;
+
+	// FIXME: nobody should rely on counting to measure time in the 21st century
+	self.tread_water_count = self.tread_water_count + 1;
+	if (self.tread_water_count > 75)
 	{
-		self.tread_water_count = self.tread_water_count + 1;
-		if (self.tread_water_count > 60)
+		self.tread_water_count = 0;
+		local entity nearest = LocateMarker(self.origin + '0 0 32');
+		if (distance < 1000)  // Do not consider markers behind obstacles
+		if (nearest.absmin_z + nearest.view_ofs_z - self.origin_z < 128)  // or too high up
 		{
-			self.tread_water_count = 0;
 			self.old_linked_marker = world;
-			self.linked_marker = LocateMarker(self.origin);
+			self.linked_marker = nearest;
 			self.path_state = 0;
 			self.linked_marker_time = time + 5;
 		}
 	}
 };
 
+// This is way too simplistic. If the bot's origin is just 1u behind a corner, this fails.
+// FIXME: make a unified thing that sends traces from each corner of the player model,
+// and sets arrow keys depending on which trace(s) succeed and which don't.
 float() BotCanReachMarker = 
 {
 	local vector spot1, spot2;
-
-	spot2 = self.linked_marker.origin;
+	
+	// Note: NEVER use marker.origin unless it is certain to be a point entity.
+	// Teleport triggers have '0 0 0' as origin, causing this calculation to return junk.
+	spot2 = self.linked_marker.absmin + self.linked_marker.view_ofs;
 	spot1 = self.origin + self.view_ofs;
 
 	traceline (spot1,spot2,TRUE,self);
 	return (trace_fraction == 1); 
-
 };
 
 float() BotSwimDown =
 {
-	return (self.linked_marker.origin_z < self.origin_z);
+	return ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) < self.origin_z);
 };
 
 float() BotSwimUp =
 {
-	return (self.linked_marker.origin_z >= self.origin_z);
+	return ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) >= self.origin_z);
 };
 
 float() BotGoUpForAir =
 {
+	if (self.items & IT_SLIME_PROOF)
+		return FALSE;
 	if (time > (self.air_finished - 2))
 	{
 		traceline (self.origin, self.origin + '0 0 64', TRUE, self);
-		if (trace_fraction == 1) //
+		if (trace_fraction == 1)
 			return (self.swim_arrow = UP);	
 		else
 		{
@@ -77,29 +98,14 @@ float() BotGoUpForAir =
 		if (time > self.air_finished)
 		{	
 			// time's up!
-			traceline (self.origin, self.origin + '0 0 32', TRUE, self);
+			// Origin is 32 units below top, hence we only have a chance
+			// to find air if at least 33 units of room.
+			traceline (self.origin, self.origin + '0 0 33', TRUE, self);
 			if (trace_fraction != 1)
 				return (self.swim_arrow = UP);
 		}
 	}
 	return FALSE;	
-};
-
-void() FrogTreadWater =
-{
-	if (self.frogbot)
-	{	
-		self.tread_water_count = self.tread_water_count + 1;
-
-		// treading water too long
-		if (self.tread_water_count > 75)
-		{
-			self.old_linked_marker = world;
-			self.linked_marker = LocateMarker(self.origin);
-			self.path_state = 0;
-			self.linked_marker_time = time + 5;	
-		}
-	}
 };
 
 void() SwimAwayFromWall =
@@ -135,7 +141,7 @@ void() FrogWaterMove =
 		if (time < self.frogwatermove_time)
 			return;
 		self.frogwatermove_time = self.frogbot_nextthink + 0.1;
-		
+
 		if (self.obstruction_normal != '0 0 0')
 			SwimAwayFromWall();
 

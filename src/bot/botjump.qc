@@ -148,30 +148,16 @@ void() a_rocketjump =
 
 	if (pre_game && counting_down)
 		return;
+
 	if (self.waterlevel > 1)
+	if (pointcontents(self.origin + '0 0 -24') == CONTENT_LAVA)
+	if (! (self.items & IT_INVULNERABILITY))
+	if (checkboven())
 	{
-		local float pc = pointcontents(self.origin + '0 0 -24');
-		if (pc == CONTENT_LAVA)
-		{
-			// Don't bother checking health, we'll die soon anyway
-			if (! (self.items & IT_INVULNERABILITY))
-			if (checkboven())
-			{
-				lava_jump();
-				return;
-			}
-		}
-		else if (pc == CONTENT_SLIME)
-		{
-			if (! (self.items & IT_SLIME_PROOF))
-			if (self.health > 75)
-			if (checkboven())
-			{
-				lava_jump();
-				return;
-			}
-		}
+		lava_jump();
+		return;
 	}
+
 	if (! self.touch_marker)
 		return;
 	if (! (self.path_state & ROCKET_JUMP))

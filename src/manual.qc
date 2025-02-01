@@ -37,7 +37,7 @@ void(entity marker) Deselect = { if (marker) marker.display.frame = 12; }
 ============
 CheckReachable
 
-Unsure what this is for. It is not related to UNREACHABLE marker mode.
+Unsure what this is for. It is not related to T_UNREACHABLE marker mode.
 My best guess is to check whether the bot could get stuck on something
 in between 2 markers?
 ============
@@ -1592,8 +1592,13 @@ void() CycleDescriptionMode =
 	{
 		if (type_mode == 0)
 		{
-			type_mode = UNREACHABLE;
+			type_mode = T_UNREACHABLE;
 			bprint("unreachable node ON\n");
+		}
+		else if (type_mode == T_UNREACHABLE)
+		{
+			type_mode = T_FORCESLIME;
+			bprint("slime island node ON\n");
 		}
 		else
 		{
