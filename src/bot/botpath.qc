@@ -136,21 +136,22 @@ void() EvalPath =
 	same_dir = self_dir * normalize(marker_pos - origin_);
 	path_score = same_dir + random();
 
+	avoid = FALSE;
 	if (time < test_marker.arrow_time)
+	if (self != test_marker.arrow_client)
 	{
+		// Avoid teleport triggers recently approached by _other_ clients
 		avoid = TRUE;
 	}
-	else
+
+	if (! avoid)
+	if (rocket_alert)
 	{
-		avoid = FALSE;
-		if (rocket_alert)
+		if (vlen(marker_pos - rocket_endpos) < 200)
 		{
-			if (vlen(marker_pos - rocket_endpos) < 200)
-			{
-				traceline(rocket_endpos, marker_pos, TRUE, self);
-				if (trace_fraction == 1)
-					avoid = TRUE;
-			}
+			traceline(rocket_endpos, marker_pos, TRUE, self);
+			if (trace_fraction == 1)
+				avoid = TRUE;
 		}
 	}
 

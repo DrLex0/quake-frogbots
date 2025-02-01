@@ -15,12 +15,17 @@ void() BestArrowForDirection;
 ============
 HazardTeleport
 
+This is actually almost a cheat to chase bots away from this teleport
+trigger when a player or other bot is approaching it or has just gone through it
 ============
 */
 void() HazardTeleport =
 {
 	if (self.arrow_time < time + 0.5)
+	{
 		self.arrow_time = time + 0.5;	// avoid telefrag
+		self.arrow_client = other;
+	}
 
 	test_enemy = first_client;
 	while (test_enemy)

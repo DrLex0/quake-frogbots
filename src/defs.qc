@@ -1381,6 +1381,7 @@ void() bf;
 .float button0_;
 .float button2_;
 .float arrow_time;
+.entity arrow_client;  // who set .arrow_time
 .float arrow_time2;
 .float enemy_time;
 float enemy_visible;

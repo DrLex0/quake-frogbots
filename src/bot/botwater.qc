@@ -151,6 +151,14 @@ void() FrogWaterMove =
 			return;
 		}
 
+		if (touch_marker_)
+		if (touch_marker_.classname == "trigger_teleport")
+		if (self.linked_marker.classname == "info_teleport_destination")
+		{
+			VelocityForArrow();
+			return;
+		}
+
 		if (BotCanReachMarker())
 		{
 			if (BotSwimDown()) 
