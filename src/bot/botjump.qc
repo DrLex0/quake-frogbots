@@ -5,6 +5,7 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2001 Justice
 	Copyright (C) 2000-2007 ParboiL
+	Improvements by DrLex 2025/01-02
 */
 
 #include "../settings.h"

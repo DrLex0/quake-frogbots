@@ -2,6 +2,7 @@
 	bot/botwater.qc
 
 	Copyright (C) 1999-2000 Numb
+	Improvements by DrLex 2025/02
 */
 
 #include "../settings.h"
@@ -57,15 +58,36 @@ void() BotWaterJumpFix =
 float() BotCanReachMarker = 
 {
 	local vector spot1, spot2;
-	
+
 	// Note: NEVER use marker.origin unless it is certain to be a point entity.
 	// Teleport triggers have '0 0 0' as origin, causing this calculation to return junk.
 	spot2 = self.linked_marker.absmin + self.linked_marker.view_ofs;
 	spot1 = self.origin + self.view_ofs;
 
 	traceline (spot1,spot2,TRUE,self);
-	return (trace_fraction == 1); 
+	return (trace_fraction == 1);
 };
+
+// Check if we can move forward horizontally and will then be able to see linked_marker.
+// If yes, dir_move is the vector to follow.
+float() ForwardProbeMarker =
+{
+	local vector spot1, spot2;
+
+	spot1 = self.origin + self.view_ofs;
+	spot2 = '0 0 0';
+	spot2_y = self.v_angle_y;
+	makevectors(spot2);
+	dir_move = v_forward;
+
+	spot2 = spot1 + dir_move * 64;
+	traceline(spot1, spot2, TRUE, self);
+	if (trace_fraction < 1)  // cannot move horizontally
+		return FALSE;
+	spot1 = self.linked_marker.absmin + self.linked_marker.view_ofs;
+	traceline(spot2, spot1, TRUE, self);
+	return (trace_fraction == 1);
+}
 
 float() BotSwimDown =
 {
@@ -170,9 +192,16 @@ void() FrogWaterMove =
 				self.swim_arrow = UP;
 			}
 		}
+		else if (ForwardProbeMarker())
+		{
+			// Marker is just behind a corner: force move forward
+			self.velocity = dir_move * sv_maxwaterspeed;
+			self.velocity_override = self.velocity;
+			self.t_velocity_override = time + (64 / sv_maxwaterspeed);
+		}
 		else
 		{
-			traceline (self.origin,self.origin + '0 0 32', TRUE, self); 
+			traceline (self.origin,self.origin + '0 0 33', TRUE, self);
 			if (trace_fraction == 1) 
 			{
 				self.swim_arrow = UP;

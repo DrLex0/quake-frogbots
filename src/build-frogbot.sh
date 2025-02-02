@@ -1,4 +1,3 @@
 #!/bin/bash -xe
 
-fteqcc.bin -O3
-
+fteqcc.bin -O3 "$@"
