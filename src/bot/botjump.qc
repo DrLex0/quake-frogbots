@@ -42,15 +42,23 @@ float() able_rj =
 {
 	local float health_after;
 	if (! (self.items & IT_ROCKET_LAUNCHER))
-		return 0;
+		return FALSE;
 	if (! self.ammo_rockets)
-		return 0;
+		return FALSE;
 	if (self.items & IT_INVULNERABILITY)
-		return 1;
+	{
+		// If Quad + Pentagram, sort of a hack is needed to make RJs reliable.
+		// Hacky things should only happen on higher skill levels; don't even
+		// try RJ on lower levels because it will almost always fail.
+		if (self.items & IT_QUAD)
+		if (self.bot_skill < 10)
+			return FALSE;
+		return TRUE;
+	}
 	if (self.items & IT_QUAD)
-		return 0;  // let's not gib ourselves
+		return FALSE;  // let's not gib ourselves
 	if (self.ammo_rockets < 3)
-		return 0;
+		return FALSE;
 
 	health_after = ceil(self.armortype * 50);
 	if (health_after > self.armorvalue)
@@ -64,8 +72,8 @@ float() able_rj =
 #ifndef MANUAL
 	if (random() > 0.33)
 #endif
-		return 1;
-	return 0;
+		return TRUE;
+	return FALSE;
 };
 
 // boven = Dutch for above ;)
@@ -199,8 +207,26 @@ void() a_rocketjump =
 	}
 	BestArrowForDirection();
 	VelocityForArrow();
-	new_pitch = 78.75;
-	self.real_pitch = 78.75;
+	if (self.items & IT_QUAD)
+	{
+		// Regular RJ logic would totally fail with Quad power, cheat a bit.
+		// Could consider using this same system for regular RJs as well on
+		// highest skill levels where the bot is expected to cheat.
+		local vector dest_angles = vectoangles(dir_move);
+		new_pitch = dest_angles_x + 12;  // aim a bit higher to help with (l)edges
+		if (new_pitch > 78.75)
+			new_pitch = 78.75;
+		self.real_yaw = 180 + dest_angles_y;
+		if (self.real_yaw > 180)
+			self.real_yaw = self.real_yaw - 360;
+		self.yawaccel = 0;
+		self.yawspeed = 0;
+	}
+	else
+	{
+		new_pitch = 78.75;
+	}
+	self.real_pitch = new_pitch;
 	self.pitchspeed = 0;
 	self.pitchaccel = 0;
 	self.rocketjumping = 1;
