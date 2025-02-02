@@ -249,8 +249,9 @@ void() PreciseJump =
 		return;
 	}
 	VelocityForArrow();
-	// Only jump when close enough
-	if (touch_dist > 48)
+	if (touch_dist > 48)  // Only jump when close enough
+		return;
+	if (vlen(self.velocity) > 140)  // and not moving too fast
 		return;
 	self.button2_ = 1;
 };
