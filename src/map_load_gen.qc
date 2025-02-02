@@ -16,6 +16,7 @@
 #include "maps/drlex/map_tox.qc"
 #include "maps/trinca/map_cmt4.qc"
 #include "maps/trinca/map_e1m6.qc"
+#include "maps/trinca/map_efdm13.qc"
 #include "maps/trinca/map_eodm3.qc"
 #include "maps/trinca/map_oktest1.qc"
 #include "maps/trinca/map_utressor.qc"
@@ -27,8 +28,8 @@ void() SprintMaps =
 	sprint_fb(self, 2, "   frobodm2      pkeg1    povdmm4\n");
 	sprint_fb(self, 2, "    spinev2     ultrav     ztndm3\n");
 	sprint_fb(self, 2, "    hohoho2        tox       cmt4\n");
-	sprint_fb(self, 2, "       e1m6      eodm3    oktest1\n");
-	sprint_fb(self, 2, "   utressor\n");
+	sprint_fb(self, 2, "       e1m6     efdm13      eodm3\n");
+	sprint_fb(self, 2, "    oktest1   utressor\n");
 };
 
 float() LoadWaypoints =
@@ -113,6 +114,11 @@ float() LoadWaypoints =
 		map_e1m6();
 		return TRUE;
 	}
+	if (mapname == "efdm13")
+	{
+		map_efdm13();
+		return TRUE;
+	}
 	if (mapname == "eodm3")
 	{
 		map_eodm3();
@@ -165,6 +171,8 @@ string(string mname) MapHasWaypoints =
 		return "cmt4";
 	if (mname == "e1m6")
 		return "e1m6";
+	if (mname == "efdm13")
+		return "efdm13";
 	if (mname == "eodm3")
 		return "eodm3";
 	if (mname == "oktest1")
