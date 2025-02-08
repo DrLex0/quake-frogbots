@@ -3,6 +3,7 @@
 
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
+	Improvements by DrLex 2025/02
 */
 
 #include "settings.h"
@@ -102,21 +103,49 @@ check_marker
 */
 void() check_marker =
 {
-	if (random() < 0.25)
+#ifdef MANUAL
+	if (!manual_mode)
+#endif
+	if (self.T & T_EXCLUSIVE)
+	if (! (other.path_state & EXCLUSIVE_PATH))
+	{
+		// Ignore exclusive marker unless EXCLUSIVE_DOOR links to an open door
+		if (! self.exclu_door_ent)
+			return;
+		// and bot is not in cooldown period
+		if (time < other.exclu_door_cooldown)
+			return;
+		if (vlen(self.exclu_door_ent.origin - self.exclu_door_ent.pos2) > 10)
+			return;
+	}
+
+	if (random() < 0.25)  // what is this for?!
 	{
 		self.touchPlayer = other;
 		self.touchPlayerTime = time + 2.5;
 	}
 
+	// only consider truly touched when within .touch_distance
 	distance = vlen(self.absmin + self.view_ofs - other.origin);
-	if (distance < other.touch_distance)
-	if (self.absmin_z - 20 < other.absmin_z)
+	if (distance >= other.touch_distance)
+		return;
+	if (self.absmin_z - 20 >= other.absmin_z)
+		return;
+
+	if (other.path_state & EXCLUSIVE_PATH)
 	{
-		other.touch_distance = distance;
-		other.touch_marker = self;
-		other.Z_ = self.Z_;
-		other.touch_marker_time = time + 5;
+		if (other.linked_marker != self)
+		{
+			if (time < other.exclusive_deadline)
+				return;  // ignore all but exclusive destination marker
+			other.path_state = other.path_state - EXCLUSIVE_PATH;
+		}
 	}
+
+	other.touch_distance = distance;
+	other.touch_marker = self;
+	other.Z_ = self.Z_;
+	other.touch_marker_time = time + 5;
 };
 
 /*
@@ -327,6 +356,11 @@ float() ExistsPath =
 	{
 		new_path_state = from_marker.D7;
 		return TRUE;
+	}
+	if (from_marker == to_marker)
+	{
+		new_path_state = 0;
+		return TRUE;  // obviously
 	}
 	return FALSE;
 };

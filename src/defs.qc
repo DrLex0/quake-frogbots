@@ -1552,19 +1552,21 @@ float new_path_state;
 
 // map set values
 float WATERJUMP_			= 2;
+float EXCLUSIVE_DOOR	= 128;
 float DM6_DOOR			= 256;
 float ROCKET_JUMP		= 512;
 float JUMP_LEDGE			= 1024;
 float PRECISE_JUMP		= 2048;
-// Bits to be saved in waypoint code: DM6_DOOR | ROCKET_JUMP | JUMP_LEDGE | PRECISE_JUMP
-float SAVED_DESCRIPTION	= 3840;
+// Bits to be saved in waypoint code:
+// EXCLUSIVE_DOOR | DM6_DOOR | ROCKET_JUMP | JUMP_LEDGE | PRECISE_JUMP
+float SAVED_DESCRIPTION	= 3968;
 
 // auto set values
 float REVERSIBLE			= 16384;
 float WATER_PATH			= 32768;
-//float THROUGH_PATH		= 65536;
 
 // dynamic values
+float EXCLUSIVE_PATH		= 65536;
 float DELIBERATE_AIR		= 131072;  // only used together with WAIT_GROUND
 float WAIT_GROUND			= 262144;
 float STUCK_PATH			= 524288;
@@ -1577,6 +1579,8 @@ float DISCONNECT_MARKERS	= 1048576;	// a path_mode not a path_state
 float NOT_JUMP_LEDGE			= 16776191;
 float DELIBERATE_AIR_WAIT_GROUND	= 393216;
 
+.entity exclu_door_ent;  // marker property set by EXCLUSIVE_DOOR path mode
+.float exclu_door_cooldown;  // bot property to prevent it from yo-yoing
 
 // runaway markers
 .entity RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7;
@@ -1603,19 +1607,21 @@ float THROUGH_NODE	= 1;
 // T values for markers/type_mode
 float T_UNREACHABLE			= 1;
 float T_FORCESLIME			= 2;
-// Bits to be saved in waypoint code: T_UNREACHABLE | T_FORCESLIME
-float SAVED_T				= 3;
+float T_EXCLUSIVE			= 4;
+// Bits to be saved in waypoint code: T_UNREACHABLE | T_FORCESLIME | T_EXCLUSIVE
+float SAVED_T				= 7;
 
 // auto set values
-float T_LIQUID				= 4;
-float T_NO_AIR				= 8;
-float T_BIOHZD				= 16;
+float T_LIQUID				= 128;
+float T_NO_AIR				= 256;
+float T_BIOHZD				= 512;
 
 // Whether map provides biosuit or invulnerability (regardless of powerups disabled).
 // Used to decide whether to avoid paths in slime or not. Waypoints for a map
 // without protective items should never have (long) paths in slime.
 float bio_protection;
 
+.float exclusive_deadline;
 .entity near_teleport;
 
 entity dm6_door;

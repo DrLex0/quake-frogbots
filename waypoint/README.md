@@ -182,6 +182,7 @@ These steps do not need to be done in this exact order, but you will typically m
    - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time. See the advanced section below for some tips.
    - **Precision jump** (shown as `‘P’`, number 2048 in code) is _new_ compared to the older Frogbot, and allows to navigate small steps like the ones towards the yellow armour in _e1m2._ The bot will slow down as it approaches the marker from which this `P` path starts, and will only jump towards the destination when it is within a distance of _48 units_ of this marker. This means you must place such markers close enough to the ledge on which the bot needs to jump, otherwise it will never jump and get stuck. In general it makes no sense to combine precision jump with any other path mode, although it could be combined with a downward ledge jump to make the bot jump less far.  
      You may not need this mode often, but without it, getting onto certain small steps is often near impossible because the bots move too erratically when trying to use ledge mode.
+   - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door. See the advanced section for more info.
 
 At regular moments, and especially when you're done, use `F1` to dump the waypoint code to console. If you didn't run with `-condebug`, you must then use `condump` to write the console log to a file. The `autoexec` binds this to `F5` (think QuickSave).
 
@@ -249,14 +250,42 @@ Mind that when loading a map with existing waypoints in the waypoint tool, there
 
 This is optional, but can prevent the bot from doing certain dumb things. Markers can be flagged as being _unreachable,_ which means the bot should avoid getting near them. Bots will avoid making jumps that end up near an unreachable marker. The bot will also totally ignore items flagged as unreachable, no matter how juicy they may seem.
 
-To set a marker as unreachable: set display mode `Z` to “Display type,” and use `V` to select “unreachable node.” Then activate the marker and right-click (`MOUSE2`).
+To set a marker as unreachable: set display mode `Z` to “Display type,” and use `V` to select `unreachable node`. Then activate the marker and right-click (`MOUSE2`).
 
 If there are lava or slime pits, or deadly traps, it may be a good idea to place some unreachable markers in them. Look at `dm4`, `start`, or `tox` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.
 
 
+### Switches, Exclusive markers and doors
+
+There may be situations where you want the bot to focus on exclusively following a specific path. For instance, after touching a _switch_ to open a door, the bot has to run from the switch to the door while ignoring any markers not part of this path. The bot must also not react to touching any marker on this path towards the door _unless_ when coming from the switch.  
+An essential part of making the bot push the switch to open the door, is ensuring that the only path going to the door is a _one-way path_ via the switch. If the path from the switch to the door is well-separated from other paths, this is all that is required.
+
+(TODO: an image will really say more than a 1000 words here)
+
+In a map like `dm5` however, this does not suffice because the paths going to and coming from the switch share the same narrow bridge. Normal bot behaviour is to re-evaluate paths each time a marker is touched. When running towards the switch and touching a marker on the return path, the only allowed path is back and vice versa. In other words, the bot will keep yo-yoing between markers from both paths, and go nowhere.  
+Also, if the door is already open, we don't want the bot to make the detour via the switch.
+
+The v2 Frogbot offers a solution for this scenario, consisting of 2 parts:
+1. **Exclusive node** marker type.  
+   Set this on the markers of the one-way path going from the switch to the door. As with the other node types, set display mode `Z` to “Display type,” and use `V` to select `exclusive node`. Then activate the marker and right-click (`MOUSE2`).
+2. **Exclusive door** pseudo-path mode.  
+   Connect an `exclusive door` path between the exclusive markers nearest to the door, towards (one of) the door's marker(s). As often, `NOCLIP` and closest marker mode are your friends here. Only do this for the exclusive markers closest to the door—if the bot is near the switch, it is better to again push it.
+
+This works as follows. The bot will:
+- ignore touching an `exclusive node` marker, unless:
+  - when following a path from another marker that has this node as its destination;
+  - when this node has an `exclusive door` pseudo-path towards a door marker, and that door is currently open;
+- ignore all other markers except the `exclusive node` as soon as it starts following a path towards this node. Because of risk of forever getting stuck, there is a deadline of _2.5 seconds_ to reach the exclusive node, the bot will resume its usual business if this deadline expires.
+
+(When the bot exits the last node in an exclusive path, the `exclusive door` mechanism is disabled for 4 seconds, to allow the bot to exit through the same door without being forced back in.)
+
+If you look at the `dm5` waypoints, you will notice that 2 extra exclusive markers with paths towards the door have been placed to make bots coming from other directions immediately go through the door when someone else has opened it for them.  
+This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it.
+
+
 ### Reliable rocket jumps
 
-Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a one-way path to the actual destination on the ledge.
+Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker, or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a one-way path to the actual destination on the ledge.
 
 When possible, try to provide only 1 incoming path into the marker from where the RJ should happen, in more or less the correct direction for the jump. This is not essential, but can help with accuracy and reliability of the jumps.
 
@@ -265,7 +294,7 @@ Also, bots will only actively plan an RJ when that path is worth following to re
 
 ### Water
 
-The Frogbot uses different logic to navigate underwater due to the ability to move in 3 dimensions. There are additional checks on reachability of destinations. Make sure that connected markers are within visible range and are not obscured by corners or other obstacles.
+The Frogbot uses different logic to navigate underwater due to the ability to move in 3 dimensions. There are additional checks on reachability of destinations. Make sure that connected markers are within visible range and are not obscured by corners or other obstacles. There is robustness against minor obstacles, but don't expect the bot to find its way through a maze with sparsely provided waypoints.
 
 
 ### Slime

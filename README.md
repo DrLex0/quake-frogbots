@@ -61,11 +61,15 @@ However, while working on the tool and testing newly created waypoints, I also n
 4. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors, of various sizes. (Still only 1 door per map though.)
 5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this for instance to the yellow armor zone of `e1m2`, it works really well.
 6. Fixed the pretty much broken _rocket jump_ system. Bots will now rocket-jump much more often, and plan paths that include RJs, if of course the conditions for a RJ are satisfied.
-7. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
+7. Waypoints through **slime** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up one of those items.
+8. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_bot, it was surprisingly bad at swimming). Bots are now more robust against less-than-ideally-placed underwater markers, and will no longer get stuck on the water surface for no good reason.
+9. Added _exclusive paths_ that allow to make the bot do seemingly smart things by being forced to follow a specific path after touching specific markers, or depending on whether a door is open.
+10. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
    To override smartness, set the `fb_smartness` cvar to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
-8. Allow to set custom bot names through localinfo `frobo_name1` through `frobo_name16` variables.
-9. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
-10. Created waypoints for some newer maps. Already available: `hohoho2` and `tox`. Try them, they're fun.
+11. Allow to set custom bot names through localinfo `frobo_name1` through `frobo_name16` variables.
+12. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
+13. Created waypoints for some newer maps. Already available: `hohoho2` and `tox`. Try them, they're fun.  
+Also tweaked existing waypoints, for instance `efdm13` is now a whole lot more challenging.
 
 ### Planned
 

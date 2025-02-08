@@ -254,11 +254,37 @@ void() EvalCloseRunAway =
 
 /*
 ============
-frogbot_marker_touch
+SetExclusive
 
+Initiates normal exclusive path mode if linked_marker_ is exclusive node,
+or else, extends it for a short while if touch_marker was exclusive.
+The latter is to give priority to the last exclusive marker's chosen path,
+instead of letting some other nearby marker steal its touch.
 ============
 */
+void() SetExclusive =
+{
+	if (linked_marker_.T & T_EXCLUSIVE)
+	{
+		self.exclusive_deadline = time + 2.5;
+		self.path_state = (self.path_state | EXCLUSIVE_PATH);
+	}
+	else if (touch_marker_.T & T_EXCLUSIVE)  // Leaving exclusive path
+	{
+		self.exclusive_deadline = time + 0.25;
+		// Prevent yo-yoing on exclusive door paths while door is still open
+		self.exclu_door_cooldown = time + 4;
+		self.path_state = (self.path_state | EXCLUSIVE_PATH);
+	}
+};
 
+/*
+============
+frogbot_marker_touch
+
+The ginormous bot decision logic when touching a new marker.
+============
+*/
 void() frogbot_marker_touch =
 {
 	if (self.path_state & WAIT_GROUND)
@@ -269,6 +295,9 @@ void() frogbot_marker_touch =
 
 	if (self.state & RUNAWAY)	// FIXME: consider goals
 		goalentity_marker = world;
+
+	if (self.path_state & EXCLUSIVE_PATH)
+		self.path_state = self.path_state - EXCLUSIVE_PATH;
 
 	if (linked_marker_ == touch_marker_)
 	{
@@ -285,6 +314,7 @@ void() frogbot_marker_touch =
 				if (IsVisible(goalentity_))
 				{ 
 					linked_marker_ = self.linked_marker = goalentity_;
+					SetExclusive();
 					self.linked_marker_time = time + 5;
 					self.old_linked_marker = touch_marker_;
 					return;
@@ -590,6 +620,7 @@ void() frogbot_marker_touch =
 			if (self.absmax_y <= touch_marker_.absmax_y)
 			{
 				linked_marker_ = self.linked_marker = touch_marker_;
+				SetExclusive();
 				self.path_state = 0;
 				self.linked_marker_time = time + 5;
 				self.old_linked_marker = world;
@@ -690,6 +721,7 @@ void() frogbot_marker_touch =
 
 	self.linked_marker = linked_marker_;
 	self.path_state = new_path_state;
+	SetExclusive();
 
 	if (touch_marker_ == linked_marker_)
 		self.linked_marker_time = time + 0.3;

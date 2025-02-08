@@ -194,10 +194,11 @@ void() Calc_G_time_1 =
 ============
 TravelTime
 
+Returns FALSE if pseudo-path mode (path should be ignored)
 ============
 */
 
-void() TravelTime =
+float() TravelTime =
 {
 	if (m_D & JUMP_LEDGE)
 		m_D = m_D | NO_DODGE;
@@ -206,8 +207,24 @@ void() TravelTime =
 	{
 		m_P.near_teleport = m;
 		traveltime = 0;	// destination is only path
-		return;
+		return TRUE;
 	}
+	if (m_D & EXCLUSIVE_DOOR)
+	{
+		// Not a real path, to be combined with exclusive nodes.
+		// m_D must be a door; if it is open then this marker will
+		// allow a touch even when the bot is not on an exclusive path.
+		m.exclu_door_ent = m_P;
+#ifdef MANUAL
+		// Do not wipe the path in waypoint tool because it must be saved again.
+		// Give 'infinite' time to prevent from interfering with testing as a bot.
+		traveltime = 1000000;
+		return TRUE;
+#else
+		return FALSE;
+#endif
+	}
+
 	m_P_pos = m_P.absmin + m_P.view_ofs;
 	if ((m.T & T_LIQUID) || (m_P.T & T_LIQUID))
 	{
@@ -234,6 +251,7 @@ void() TravelTime =
 		 * in a language with no arrays or dictionaries. */
 		traveltime = traveltime + 1000;
 	}
+	return TRUE;
 };
 
 /*
@@ -258,9 +276,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D0;
-			TravelTime();
-			m.P0_time = traveltime;
-			m.D0 = m_D;
+			if (TravelTime())
+			{
+				m.P0_time = traveltime;
+				m.D0 = m_D;
+			}
+			else
+				m.P0 = world;
 		}
 		else
 			m.P0 = world;
@@ -269,9 +291,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D1;
-			TravelTime();
-			m.P1_time = traveltime;
-			m.D1 = m_D;
+			if (TravelTime())
+			{
+				m.P1_time = traveltime;
+				m.D1 = m_D;
+			}
+			else
+				m.P1 = world;
 		}
 		else
 			m.P1 = world;
@@ -280,9 +306,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D2;
-			TravelTime();
-			m.P2_time = traveltime;
-			m.D2 = m_D;
+			if (TravelTime())
+			{
+				m.P2_time = traveltime;
+				m.D2 = m_D;
+			}
+			else
+				m.P2 = world;
 		}
 		else
 			m.P2 = world;
@@ -291,9 +321,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D3;
-			TravelTime();
-			m.P3_time = traveltime;
-			m.D3 = m_D;
+			if (TravelTime())
+			{
+				m.P3_time = traveltime;
+				m.D3 = m_D;
+			}
+			else
+				m.P3 = world;
 		}
 		else
 			m.P3 = world;
@@ -302,9 +336,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D4;
-			TravelTime();
-			m.P4_time = traveltime;
-			m.D4 = m_D;
+			if (TravelTime())
+			{
+				m.P4_time = traveltime;
+				m.D4 = m_D;
+			}
+			else
+				m.P4 = world;
 		}
 		else
 			m.P4 = world;
@@ -313,9 +351,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D5;
-			TravelTime();
-			m.P5_time = traveltime;
-			m.D5 = m_D;
+			if (TravelTime())
+			{
+				m.P5_time = traveltime;
+				m.D5 = m_D;
+			}
+			else
+				m.P5 = world;
 		}
 		else
 			m.P5 = world;
@@ -324,9 +366,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D6;
-			TravelTime();
-			m.P6_time = traveltime;
-			m.D6 = m_D;
+			if (TravelTime())
+			{
+				m.P6_time = traveltime;
+				m.D6 = m_D;
+			}
+			else
+				m.P6 = world;
 		}
 		else
 			m.P6 = world;
@@ -335,9 +381,13 @@ void() Calc_G_time_2 =
 		if (m_P.fl_marker)
 		{
 			m_D = m.D7;
-			TravelTime();
-			m.P7_time = traveltime;
-			m.D7 = m_D;
+			if (TravelTime())
+			{
+				m.P7_time = traveltime;
+				m.D7 = m_D;
+			}
+			else
+				m.P7 = world;
 		}
 		else
 			m.P7 = world;

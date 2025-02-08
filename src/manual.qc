@@ -122,6 +122,8 @@ void(entity marker) manual_marker_touch =
 					DescriptionMarker("rocket jump");
 					description = PRECISE_JUMP;
 					DescriptionMarker("precise jump");
+					description = EXCLUSIVE_DOOR;
+					DescriptionMarker("exclusive door");
 				}
 				else
 				{
@@ -1289,6 +1291,8 @@ void(float descbits) PrintDLabel =
 		bprint("\xD2");  // R
 	if (descbits & PRECISE_JUMP)
 		bprint("\xD0");  // P
+	if (descbits & EXCLUSIVE_DOOR)
+		bprint("\xC5");  // E
 }
 
 /*
@@ -1600,6 +1604,11 @@ void() CycleDescriptionMode =
 			type_mode = T_FORCESLIME;
 			bprint("slime island node ON\n");
 		}
+		else if (type_mode == T_FORCESLIME)
+		{
+			type_mode = T_EXCLUSIVE;
+			bprint("exclusive node ON\n");
+		}
 		else
 		{
 			type_mode = 0;
@@ -1632,6 +1641,11 @@ void() CycleDescriptionMode =
 		bprint("precise jump mode ON\n");
 	}
 	else if (path_mode == PRECISE_JUMP)
+	{
+		path_mode = EXCLUSIVE_DOOR;
+		bprint("exclusive door mode ON\n");
+	}
+	else if (path_mode == EXCLUSIVE_DOOR)
 	{
 		path_mode = REVERSIBLE;
 		bprint("reversible display mode ON\n");
