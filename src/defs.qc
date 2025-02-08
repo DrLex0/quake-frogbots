@@ -1413,13 +1413,6 @@ float damage_radius;
 float inflictor_dist;
 entity self_sound;
 
-// get-unstuck mechanisms
-.vector prev_origin;
-.float stuck_deadline;
-.float ledge_stuck_time;
-.vector velocity_override;
-.float t_velocity_override;
-
 float FORWARD		= 1;
 float BACK			= 2;
 float LEFT			= 4;
@@ -1572,7 +1565,7 @@ float WATER_PATH			= 32768;
 //float THROUGH_PATH		= 65536;
 
 // dynamic values
-float DELIBERATE_AIR		= 131072;
+float DELIBERATE_AIR		= 131072;  // only used together with WAIT_GROUND
 float WAIT_GROUND			= 262144;
 float STUCK_PATH			= 524288;
 float AIR_ACCELERATION		= 1048576;
@@ -2344,7 +2337,13 @@ float check_parm_time;
 // unstick AI
 float unstick_time;
 float no_bots_stuck;
-.float tread_water_count;
+
+.vector prev_origin;
+.float stuck_deadline;
+.float water_unstuck_retry;
+.float ledge_stuck_time;
+.vector velocity_override;
+.float t_velocity_override;
 
 // hit wall in flight prediction AI
 float first_trace_fraction;

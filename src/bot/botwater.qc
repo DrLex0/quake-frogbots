@@ -2,12 +2,13 @@
 	bot/botwater.qc
 
 	Copyright (C) 1999-2000 Numb
-	Improvements by DrLex 2025/02
+	Redesign by DrLex 2025/02
 */
 
 #include "../settings.h"
 
 void() VelocityForArrow;
+
 
 float() WaterCombat =
 {
@@ -22,83 +23,89 @@ float() JumpInWater =
 };
 
 /*
-Seek way out when in liquid for too long.
-This logic is dodgy and has risk of the bot getting forever stuck if
-the only way out requires diving. I guess this only exists because we
-cannot trust waypoint makers to provide enough paths out from liquids.
-Added some extra checks to reduce risk, but it still exists. -- DrLex
+============
+CheckWaterPathState
+
+Clear path states that make no sense while swimming
+============
 */
-void() BotWaterJumpFix = 
+void() CheckWaterPathState =
 {
-	if (! self.frogbot) return;
-	if (self.watertype > CONTENT_LAVA)
-	if (self.items & IT_SLIME_PROOF) // no point in trying to get out
+	if (self.waterlevel < 2)
 		return;
-
-	// FIXME: nobody should rely on counting to measure time in the 21st century
-	self.tread_water_count = self.tread_water_count + 1;
-	if (self.tread_water_count > 75)
+	if (self.path_state & WAIT_GROUND)
 	{
-		self.tread_water_count = 0;
-		local entity nearest = LocateMarker(self.origin + '0 0 32');
-		if (distance < 1000)  // Do not consider markers behind obstacles
-		if (nearest.absmin_z + nearest.view_ofs_z - self.origin_z < 128)  // or too high up
-		{
-			self.old_linked_marker = world;
-			self.linked_marker = nearest;
-			self.path_state = 0;
-			self.linked_marker_time = time + 5;
-		}
+		if (self.path_state & DELIBERATE_AIR)
+			self.path_state = self.path_state - DELIBERATE_AIR_WAIT_GROUND;
+		else
+			self.path_state = self.path_state - WAIT_GROUND;
 	}
-};
-
-// This is way too simplistic. If the bot's origin is just 1u behind a corner, this fails.
-// FIXME: make a unified thing that sends traces from each corner of the player model,
-// and sets arrow keys depending on which trace(s) succeed and which don't.
-float() BotCanReachMarker = 
-{
-	local vector spot1, spot2;
-
-	// Note: NEVER use marker.origin unless it is certain to be a point entity.
-	// Teleport triggers have '0 0 0' as origin, causing this calculation to return junk.
-	spot2 = self.linked_marker.absmin + self.linked_marker.view_ofs;
-	spot1 = self.origin + self.view_ofs;
-
-	traceline (spot1,spot2,TRUE,self);
-	return (trace_fraction == 1);
-};
-
-// Check if we can move forward horizontally and will then be able to see linked_marker.
-// If yes, dir_move is the vector to follow.
-float() ForwardProbeMarker =
-{
-	local vector spot1, spot2;
-
-	spot1 = self.origin + self.view_ofs;
-	spot2 = '0 0 0';
-	spot2_y = self.v_angle_y;
-	makevectors(spot2);
-	dir_move = v_forward;
-
-	spot2 = spot1 + dir_move * 64;
-	traceline(spot1, spot2, TRUE, self);
-	if (trace_fraction < 1)  // cannot move horizontally
-		return FALSE;
-	spot1 = self.linked_marker.absmin + self.linked_marker.view_ofs;
-	traceline(spot2, spot1, TRUE, self);
-	return (trace_fraction == 1);
 }
 
-float() BotSwimDown =
+/*
+============
+CheckBotStuckInWater
+
+Use a different strategy when we can't seem to reach the target marker
+in water than on land. When this happens, it may be because the bot
+briefly touched a marker on a ledge and fell back in water, or drifted
+away while trying to reach a marker. Try to fix by finding a nearby
+accessible marker and resetting path state.
+============
+*/
+void() CheckBotStuckInWater = 
 {
-	return ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) < self.origin_z);
+	if (! self.frogbot) return;
+
+	if (time < self.water_unstuck_retry) return;
+
+	// Use stricter deadline, so we are are ahead of the regular expiry mechanism
+	if (time < self.linked_marker_time - 2.5)
+	{
+		self.water_unstuck_retry = 0;
+		return;
+	}
+
+	local entity nearest = LocateMarker(self.origin + '0 0 32');
+	if (distance >= 1000)
+		return;  // Do not consider markers behind obstacles
+	if (nearest.absmin_z + nearest.view_ofs_z - self.origin_z > 96)
+		return;  // or too high up
+	self.old_linked_marker = world;
+	self.linked_marker = nearest;
+	self.path_state = 0;
+	self.linked_marker_time = time + 5;
+	self.water_unstuck_retry = time + 3;
 };
 
-float() BotSwimUp =
-{
-	return ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) >= self.origin_z);
-};
+/*
+============
+BotVerticalSwim
 
+Swim up or down depending on target marker position
+============
+*/
+void() BotVerticalSwim
+{
+	if (! self.linked_marker) return;
+	if ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) < self.origin_z) 
+	{
+		self.swim_arrow = DOWN;
+	}
+	else if ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) >= self.origin_z) 
+	{
+		self.swim_arrow = UP;
+	}
+	VelocityForArrow();
+}
+
+/*
+============
+BotGoUpForAir
+
+Try not to drown.
+============
+*/
 float() BotGoUpForAir =
 {
 	if (self.items & IT_SLIME_PROOF)
@@ -107,28 +114,76 @@ float() BotGoUpForAir =
 	{
 		traceline (self.origin, self.origin + '0 0 64', TRUE, self);
 		if (trace_fraction == 1)
-			return (self.swim_arrow = UP);	
-		else
 		{
-			new_velocity 	= self.velocity;
-			dir_move 	= normalize(dir_move);
-			dir_move 	= dir_move + normalize(new_velocity);
-			dir_move_z 	= 0;
-			NewVelocityForArrow();
-		}	
+			self.swim_arrow = UP;
+			return TRUE;
+		}
+		new_velocity 	= self.velocity;
+		dir_move 	= normalize(dir_move);
+		dir_move 	= dir_move + normalize(new_velocity);
+		dir_move_z 	= 0;
+		NewVelocityForArrow();
 	
 		if (time > self.air_finished)
-		{	
+		{
 			// time's up!
-			// Origin is 32 units below top, hence we only have a chance
-			// to find air if at least 33 units of room.
+			// Origin is 32 units below top, we only have a chance
+			// to find air if we can move up at least 1u
 			traceline (self.origin, self.origin + '0 0 33', TRUE, self);
-			if (trace_fraction != 1)
-				return (self.swim_arrow = UP);
+			if (trace_fraction == 1)
+			{
+				self.swim_arrow = UP;
+				return TRUE;
+			}
 		}
 	}
-	return FALSE;	
+	return FALSE;
 };
+
+/*
+============
+OffsetProbeMarker
+
+Traces a line towards linked_marker from self.origin plus
+X, Z offsets in plane defined by v_right and v_up unit vectors.
+Returns 1 if no obstacle encountered, 0 otherwise
+============
+*/
+float(float x_ofs, float z_ofs) OffsetProbeMarker =
+{
+	local vector spot1, spot2;
+
+	spot1 = self.origin + (x_ofs * v_right) + (z_ofs * v_up);
+	spot2 = self.linked_marker.absmin + self.linked_marker.view_ofs;
+	traceline (spot1, spot2, TRUE, self);
+	// marker for switch, platform, etc may be inside its brush
+	if (trace_ent == self.linked_marker) return 1;
+	if (trace_fraction == 1) return 1;
+	return 0;
+};
+
+/*
+============
+ForwardProbeMarker
+
+Check if bot can move across f_dist * v_forward
+and will then be able to see linked_marker
+============
+*/
+float(float f_dist) ForwardProbeMarker =
+{
+	local vector spot1, spot2;
+
+	spot1 = self.origin + '0 0 4';  // centre of player model
+	spot2 = spot1 + (v_forward * f_dist);
+	traceline(spot1, spot2, TRUE, self);
+	if (trace_fraction < 1) return FALSE;
+
+	spot1 = self.linked_marker.absmin + self.linked_marker.view_ofs;
+	traceline(spot2, spot1, TRUE, self);
+	if (trace_ent == self.linked_marker) return TRUE;
+	return (trace_fraction == 1);
+}
 
 void() SwimAwayFromWall =
 {
@@ -152,75 +207,209 @@ void() SwimAwayFromWall =
 	}
 
 	NewVelocityForArrow();
-	
 };
-	
-void() FrogWaterMove = 
+
+/*
+============
+BotSubmarineLogic
+
+This implements movement logic similar to a submarine with 4 sonars arranged in a rectangle.
+If A = topLeft, B = topRight, C = bottomLeft, D = bottomRight, and 0 means obstruction,
+and we treat ABCD as a binary number, then we get as lookup table for desired movement:
+0	0000  cannot see marker from any corner
+1	0001  RIGHT DOWN
+2	0010  LEFT DOWN
+3	0011  DOWN
+4	0100  RIGHT UP
+5	0101  RIGHT
+6	0110  either LEFT UP or RIGHT DOWN
+7	0111  RIGHT DOWN
+8	1000  LEFT UP
+9	1001  either RIGHT UP or LEFT DOWN
+10	1010  LEFT
+11	1011  LEFT DOWN
+12	1100  UP
+13	1101  RIGHT UP
+14	1110  LEFT UP
+15	1111  all corners OK
+Return value:
+  0 if bot is good to go
+  1 if movement keys have been set
+  2 if marker not visible at all
+============
+*/
+float(float lookup) BotSubmarineLogic =
 {
-	if (self.frogbot)
-	if (self.waterlevel > 2)
+	// Test most likely cases first
+	if (lookup == 15)  // all OK: go for it
+		return 0;
+
+	if (lookup > 8)
 	{
-		if (time < self.frogwatermove_time)
-			return;
-		self.frogwatermove_time = self.frogbot_nextthink + 0.1;
-
-		if (self.obstruction_normal != '0 0 0')
-			SwimAwayFromWall();
-
-		if (BotGoUpForAir())
+		if (lookup == 12)  // obstruction bottom
 		{
-			VelocityForArrow();
-			return;
+			self.swim_arrow = UP;
+			return 1;
 		}
-
-		if (touch_marker_)
-		if (touch_marker_.classname == "trigger_teleport")
-		if (self.linked_marker.classname == "info_teleport_destination")
+		if (lookup == 10)  // obstruction right
 		{
-			VelocityForArrow();
-			return;
+			self.arrow = LEFT;
+			return 1;
 		}
-
-		if (BotCanReachMarker())
+		if (lookup == 7)  // obstruction top left
 		{
-			if (BotSwimDown()) 
-			{
-				self.swim_arrow = DOWN;
-			}
-			else if (BotSwimUp()) 
-			{
-				self.swim_arrow = UP;
-			}
+			self.arrow = RIGHT;
+			self.swim_arrow = DOWN;
+			return 1;
 		}
-		else if (ForwardProbeMarker())
+		if (lookup == 11)  // obstruction top right
 		{
-			// Marker is just behind a corner: force move forward
-			self.velocity = dir_move * sv_maxwaterspeed;
-			self.velocity_override = self.velocity;
-			self.t_velocity_override = time + (64 / sv_maxwaterspeed);
+			self.arrow = LEFT;
+			self.swim_arrow = DOWN;
+			return 1;
+		}
+		if (lookup == 13)  // obstruction bottom left
+		{
+			self.arrow = RIGHT;
+			self.swim_arrow = UP;
+			return 1;
+		}
+		// 14: obstruction bottom right, 8: visible top left, 9: obstruction diagonal /
+		// For case 9, could do random LU or RD, but would require extra to stick to choice;
+		// should be very rare anyway, prefer upward move and hope for the best.
+		self.arrow = LEFT;
+		self.swim_arrow = UP;
+		return 1;
+	}
+	// lookup < 9
+	if (lookup == 0)  // not visible from any corner
+	{
+		return 2;
+	}
+	if (lookup == 3)  // obstruction top
+	{
+		self.swim_arrow = DOWN;
+		return 1;
+	}
+	if (lookup == 5)  // obstruction left
+	{
+		self.arrow = RIGHT;
+		return 1;
+	}
+	if (lookup == 1)  // visible bottom right
+	{
+		self.arrow = RIGHT;
+		self.swim_arrow = DOWN;
+		return 1;
+	}
+	if (lookup == 2)  // visible bottom left
+	{
+		self.arrow = LEFT;
+		self.swim_arrow = DOWN;
+		return 1;
+	}
+	// 4: visible top right; 6: obstruction diagonal \ (same remark as above)
+	self.arrow = RIGHT;
+	self.swim_arrow = UP;
+	return 1;
+};
+
+void() FrogWaterMove =
+{
+	if (! self.frogbot)
+		return;
+	if (self.waterlevel < 3)
+	{
+		if (self.waterlevel == 2)
+			BotVerticalSwim();
+		return;
+	}
+	if (time < self.frogwatermove_time)
+		return;
+	self.frogwatermove_time = self.frogbot_nextthink + 0.1;
+
+	if (BotGoUpForAir())
+	{
+		VelocityForArrow();
+		return;
+	}
+	if (self.obstruction_normal != '0 0 0')
+	{
+		SwimAwayFromWall();
+		return;
+	}
+
+	if (touch_marker_)
+	if (touch_marker_.classname == "trigger_teleport")
+	if (self.linked_marker.classname == "info_teleport_destination")
+	{
+		VelocityForArrow();
+		return;
+	}
+
+	// Turn the bot into a sonar-equipped submarine.
+	// And of course implement this as if it still needs to run on a Pentium II.
+	local float tl, tr, bl, br, go_state;
+	local vector facing = '0 0 0';
+	facing_y = self.v_angle_y;
+	// v_right, v_up, v_forward will be used by OffsetProbeMarker & ForwardProbeMarker
+	makevectors(facing);
+	// Don't take exact corners, avoid risk of starting traces inside solids
+	tl = OffsetProbeMarker(-15.9, 31.9);
+	tr = OffsetProbeMarker(15.9, 31.9);
+	bl = OffsetProbeMarker(-15.9, -23.9);
+	br = OffsetProbeMarker(15.9, -23.9);
+	go_state = BotSubmarineLogic((8 * tl) + (4 * tr) + (2 * bl) + br);
+
+	if (go_state == 0)  // keep moving, adjust vertical position
+	{
+		BotVerticalSwim();
+		return;
+	}
+
+	if (go_state == 1)  // keys set, execute them
+	{
+		VelocityForArrow();
+		return;
+	}
+
+	if (go_state == 2)  // marker invisible, try a forward probe
+	if (ForwardProbeMarker(64))
+	{
+		// marker is just behind a corner: force move forward
+		self.velocity = v_forward * sv_maxwaterspeed;
+		self.velocity_override = self.velocity;
+		self.t_velocity_override = time + (64 / sv_maxwaterspeed);
+		VelocityForArrow();
+		return;
+	}
+
+	// Don't know what to do, try random stuff
+	if (random() > 0.5)
+	{
+		traceline (self.origin,self.origin + '0 0 33', TRUE, self);
+		if (trace_fraction == 1) 
+		{
+			self.swim_arrow = UP;
 		}
 		else
 		{
-			traceline (self.origin,self.origin + '0 0 33', TRUE, self);
-			if (trace_fraction == 1) 
-			{
-				self.swim_arrow = UP;
-			}
-			else 
-			{
-				traceline (self.origin,self.origin + '0 0 -32', TRUE, self); 
-				if (trace_fraction == 1) 
-				{
-					self.swim_arrow = DOWN;
-				}
-				else
-				{
-					self.swim_arrow = UP;
-				}
-			}
+			self.swim_arrow = DOWN;
 		}
-		VelocityForArrow();
 	}
+	else 
+	{
+		traceline (self.origin,self.origin + '0 0 -32', TRUE, self); 
+		if (trace_fraction == 1) 
+		{
+			self.swim_arrow = DOWN;
+		}
+		else
+		{
+			self.swim_arrow = UP;
+		}
+	}
+	VelocityForArrow();
 };
 
 float () BotShouldDischarge =

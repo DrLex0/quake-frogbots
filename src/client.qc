@@ -58,7 +58,8 @@ void() AddToTmpQue;
 void(entity marker) BecomeMarker;
 void(entity mk) SetFrB_Props;
 void() FrogWaterMove;
-void() BotWaterJumpFix;
+void() CheckWaterPathState;
+void() CheckBotStuckInWater;
 void() a_rocketjump;
 void() PreciseJump;
 
@@ -951,6 +952,7 @@ void() PlayerPreThink_apply =
 	if (self.waterlevel)
 	{
 		if (k_standby) return;
+		CheckWaterPathState();
 
 		if (self.waterlevel != 3)  // not totally submerged
 		{
@@ -965,18 +967,12 @@ void() PlayerPreThink_apply =
 			self.air_finished = time_12;
 			self.dmg = 2;
 
-			if (self.waterlevel == 1)  // only legs in liquid -- don't care unless hazardous
-			if (self.watertype <= CONTENT_SLIME)
-				BotWaterJumpFix();
-
 		#ifndef QUAKE
 			if (!self.player)
 		#endif
 			if (self.waterlevel == 2)  // swimming but with head above liquid
 			{
-			//
-			// CheckWaterJump
-				BotWaterJumpFix();
+				CheckBotStuckInWater();
 
 			// check for a jump-out-of-water
 				makevectors (self.v_angle);
@@ -1019,7 +1015,7 @@ void() PlayerPreThink_apply =
 					return;
 			}
 		}
-		FrogWaterMove (); 
+		FrogWaterMove(); 
 		if (self.dmgtime < time)
 		{
 			if (self.watertype == CONTENT_LAVA)

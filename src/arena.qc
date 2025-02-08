@@ -255,7 +255,8 @@ void() weapon_touch;
 void() ammo_touch;
 void() powerup_touch;
 void() SUB_regen;
-void() BotWaterJumpFix;
+void() CheckWaterPathState;
+void() CheckBotStuckInWater;
 #ifndef QUAKE
 void(float to, entity client) SetColorName;
 #endif
@@ -2311,12 +2312,13 @@ float() a_prethink =
 	}
 	if (self.waterlevel)
 	{
+		CheckWaterPathState();
 	#ifndef QUAKE
 		if (!(self.player))
 	#endif
 		if (self.waterlevel == 2)
 		{
-			BotWaterJumpFix();
+			CheckBotStuckInWater();
 			makevectors (self.v_angle);
 			start = self.origin;
 			start_z = start_z + 8; 
