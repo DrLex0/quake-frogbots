@@ -77,7 +77,11 @@ void() button_touch =
 
 	if (other.client_)
 	{
-		if (marker_time)
+		// When button activates, ignore marker_time clock and immediately
+		// send event, because timing is often essential when pushing switches
+		if (self.state != STATE_UP)
+			check_marker();
+		else if (marker_time)
 			check_marker();
 
 		self.enemy = other;
