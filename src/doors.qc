@@ -18,6 +18,7 @@ float DOOR_SILVER_GOLD_KEY = 24;
 float DOOR_TOGGLE = 32;
 
 void() AddToQue;
+void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
 void(entity mk) SetFrB_Props;
 

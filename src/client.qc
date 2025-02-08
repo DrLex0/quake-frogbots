@@ -43,7 +43,6 @@ entity(entity first_in_list) RemoveFromList;
 void() LoadPlayer;
 void() PlayerPain;
 void() set_suicide_frame;
-void() adjust_view_ofs_z;
 void() ResetGoalEntity;
 void() ResetEnemy;
 void() PredictSpot;
@@ -776,7 +775,6 @@ void() info_player_deathmatch =
 	setsize (self, '-65 -65 -24', '65 65 32');
 	self.view_ofs = '80 80 24';
 	self.pickup = pickup_true;
-	adjust_view_ofs_z();
 
 	if (game_enable_runes)
 	{

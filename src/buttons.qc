@@ -15,6 +15,7 @@ void() button_wait;
 void() button_return;
 
 void() AddToQue;
+void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
 void(entity mk) SetFrB_Props;
 

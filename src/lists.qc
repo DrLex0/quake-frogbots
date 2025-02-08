@@ -10,6 +10,7 @@
 void() thud_touch;
 void() FrogbotPrePhysics2;
 void() FrogbotPostPhysics;
+void() adjust_view_ofs_z;
 void() LoadMap;
 
 entity(entity first_in_list) AddToList =

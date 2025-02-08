@@ -19,6 +19,7 @@ void() plat_crush;
 float PLAT_LOW_TRIGGER = 1;
 
 void() AddToQue;
+void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
 void(entity mk) SetFrB_Props;
 

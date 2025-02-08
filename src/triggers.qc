@@ -16,6 +16,7 @@ void() HazardTeleport;
 float	SPAWNFLAG_NOTOUCH = 1;
 
 void() AddToQue;
+void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
 void(entity mk) SetFrB_Props;
 
