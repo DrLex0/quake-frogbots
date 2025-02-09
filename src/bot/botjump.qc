@@ -11,7 +11,7 @@
 #include "../settings.h"
 
 void() VelocityForArrow;
-void() BestArrowForDirection;
+void() NewVelocityForArrow;
 float(entity me) near_teammate;
 
 // Moving in right direction to rocket-jump or precise jump?
@@ -201,12 +201,10 @@ void() a_rocketjump =
 		return;
 	if (!right_direction())
 	{
-		BestArrowForDirection();
-		VelocityForArrow();
+		NewVelocityForArrow();
 		return;
 	}
-	BestArrowForDirection();
-	VelocityForArrow();
+	NewVelocityForArrow();
 	if (self.items & IT_QUAD)
 	{
 		// Regular RJ logic would totally fail with Quad power, cheat a bit.
@@ -271,8 +269,7 @@ void() PreciseJump =
 		return;
 	if (!right_direction())
 	{
-		BestArrowForDirection();
-		VelocityForArrow();
+		NewVelocityForArrow();
 		return;
 	}
 	VelocityForArrow();
@@ -315,8 +312,7 @@ void() BotInLava =
 		if (!enemy_shaft_attack())
 		if (!self.rocketjumping)
 		{
-			BestArrowForDirection();
-			VelocityForArrow();
+			NewVelocityForArrow();
 			self.button2_ = 1;
 		}
 	}

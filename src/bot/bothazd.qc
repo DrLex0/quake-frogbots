@@ -9,8 +9,7 @@
 
 #include "../settings.h"
 
-void() VelocityForArrow;
-void() BestArrowForDirection;
+void() NewVelocityForArrow;
 
 /*
 ============
@@ -117,26 +116,6 @@ void() RocketAlert =
 
 /*
 ============
-NewVelocityForArrow
-
-============
-*/
-void() NewVelocityForArrow =
-{
-	BestArrowForDirection();
-
-	if (self.arrow != best_arrow)
-	{
-		self.dir_move_ = dir_move;
-		self.arrow = best_arrow;
-		self.arrow_time = time + 0.15;
-		self.velocity = oldvelocity_;
-		VelocityForArrow();
-	}
-};
-
-/*
-============
 AvoidHazards
 
 ============
@@ -166,15 +145,13 @@ void() AvoidHazards =
 					being_blocked = ((self.obstruction_normal * rel_hor_dir) > 0.5);
 				}
 
+				// TODO: try to improve accuracy of the jumps. The bot now basically jumps like
+				// a madman whenever it is vaguely near the path it is supposed to follow.
 				if (rel_pos_z > 18)
 				{
 					if (try_jump_ledge)
 					{
 						self.ledge_stuck_time = 0;
-						hor_normal_vec_x = 0 - rel_pos_y;
-						hor_normal_vec_y = rel_pos_x;
-						hor_normal_vec = normalize(hor_normal_vec);
-	
 						jumpspeed = new_velocity_z + JUMPSPEED;
 	
 						if ((jumpspeed * jumpspeed * 0.000625) >= rel_pos_z)	// 0.000625 = 0.5 / sv_gravity

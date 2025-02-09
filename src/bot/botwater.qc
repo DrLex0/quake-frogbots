@@ -318,6 +318,9 @@ void() FrogWaterMove =
 {
 	if (! self.frogbot)
 		return;
+	if (self.flags & FL_WATERJUMP)
+		return;
+
 	if (self.waterlevel < 3)
 	{
 		if (self.waterlevel == 2)

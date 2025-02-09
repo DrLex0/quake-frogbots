@@ -7,6 +7,7 @@
 #include "../settings.h"
 
 float() JumpInWater;
+void() VelocityForArrow;
 
 
 /*
@@ -77,6 +78,28 @@ void() BestArrowForDirection =
 		best_arrow = BACK_RIGHT;
 	}
 };
+
+/*
+============
+NewVelocityForArrow
+
+Adjusts self.arrow according to dir_move and if changed, updates velocity
+============
+*/
+void() NewVelocityForArrow =
+{
+	BestArrowForDirection();
+
+	if (self.arrow != best_arrow)
+	{
+		self.dir_move_ = dir_move;
+		self.arrow = best_arrow;
+		self.arrow_time = time + 0.15;
+		self.velocity = oldvelocity_;
+		VelocityForArrow();
+	}
+};
+
 
 /*
 ============
