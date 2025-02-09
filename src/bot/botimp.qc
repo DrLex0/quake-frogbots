@@ -63,6 +63,7 @@ void() SetAttribs =
 		if (smartness > 10) smartness = 10;
 	}
 	dprint("Frogbot smartness: ", ftos(smartness), "\n");
+	self.bot_smartness = smartness;
 
 	self.firing_reflex = 0.5 - (skill_ * 0.04);	// 0.5 to 0.1
 	self.accuracy = 45 - (skill_ * 2.25);	// 45 to 22.5

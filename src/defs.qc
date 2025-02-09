@@ -1608,8 +1608,9 @@ float THROUGH_NODE	= 1;
 float T_UNREACHABLE			= 1;
 float T_FORCESLIME			= 2;
 float T_EXCLUSIVE			= 4;
-// Bits to be saved in waypoint code: T_UNREACHABLE | T_FORCESLIME | T_EXCLUSIVE
-float SAVED_T				= 7;
+float T_WANTSUIT			= 8;
+// Bits to be saved in waypoint code: T_UNREACHABLE | T_FORCESLIME | T_EXCLUSIVE | T_WANTSUIT
+float SAVED_T				= 15;
 
 // auto set values
 float T_LIQUID				= 128;
@@ -1620,6 +1621,8 @@ float T_BIOHZD				= 512;
 // Used to decide whether to avoid paths in slime or not. Waypoints for a map
 // without protective items should never have (long) paths in slime.
 float bio_protection;
+// property set to "y" on markers of T_WANTSUIT type
+.string want_suit;
 
 .float exclusive_deadline;
 .entity near_teleport;
@@ -2006,7 +2009,8 @@ entity touch_marker_;
 
 .float color_;
 .float teamcolor;
-.float bot_skill;
+.float bot_skill;  // from 0 to 20, bots should try to remain human-like below 10
+.float bot_smartness; // from 0 to 10
 .float admin_code;
 .float lines;
 .float input_time;

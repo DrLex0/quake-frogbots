@@ -166,6 +166,7 @@ void() Calc_G_time_1 =
 		m.touch_marker = m;
 
 		if (m.T & T_FORCESLIME) m.T = m.T | T_BIOHZD;
+		if (m.T & T_WANTSUIT) m.want_suit = "y";
 		content = pointcontents(m_pos + '0 0 4');
 		if (content >= CONTENT_LAVA)
 		if (content <= CONTENT_WATER)

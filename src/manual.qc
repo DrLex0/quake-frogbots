@@ -1606,6 +1606,11 @@ void() CycleDescriptionMode =
 		}
 		else if (type_mode == T_FORCESLIME)
 		{
+			type_mode = T_WANTSUIT;
+			bprint("want biosuit node ON\n");
+		}
+		else if (type_mode == T_WANTSUIT)
+		{
 			type_mode = T_EXCLUSIVE;
 			bprint("exclusive node ON\n");
 		}

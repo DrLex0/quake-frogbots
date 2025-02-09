@@ -307,11 +307,11 @@ Therefore:
 - in maps with a biosuit and/or pentagram of protection, it is OK to create paths through slime if it makes any sense;
 - in maps that do not have those items, do not create paths through slime unless they're very short.
 
-There is no particular logic to encourage the bot to seek a biosuit to be able to obtain a desirable item in slime. If the bot does not seem to want to pick up the suit often enough, or it doesn't go for the slimed item, try tweaking goal numbers.
+There are 2 new marker types related to this feature, that can be assigned by changing display mode to `type` with the `Z` key, then selecting the mode with the `V` key, and right-clicking the marker:
+1. **slime island:** if you want to add markers on dry zones or islands that can only be _exited_ through slime, it is important to set this type on them. This will allow the bot to consider jumping into the slime even when its protection has run out; otherwise it would become a sitting duck on the island.
+2. **want biosuit:** this should be set on every worthwhile item that requires the biosuit to be safely reached. This will make the suit as desirable to the bot as the most desirable item marked as such. If there is no marker of this type, the suit will have zero desirability and the bot will only pick it up by chance.
 
-If you want to add markers on dry zones or islands that can only be exited through slime, it is important to set the _‘slime island’_ type on them (change display mode to `type` with the `Z` key, then select _slime island node_ with `V` and right-click the marker). This will allow the bot to consider jumping into the slime even when its protection has run out; otherwise it would become a sitting duck on the island.
-
-And, never make any paths going into _lava,_ even though theoretically they could be traversed with invulnerability. The extra complexity required to also implement this, was not deemed worth it. Maps where it would be useful are scarce, and the consequences of the power-up expiring while still in lava are usually _lethal._ Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
+Never make any paths going into _lava,_ even though theoretically they could be traversed with invulnerability. The extra complexity required to also implement this, was not deemed worth it. Maps where it would be useful are scarce, and the consequences of the power-up expiring while still in lava are usually _lethal._ Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
 
 
 ### Ladders

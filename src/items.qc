@@ -1755,6 +1755,28 @@ void() lose_artifact_invulnerability =
 #endif
 };
 
+/* Make envirosuit as desirable as most desirable item marked
+as T_WANTSUIT, that is available or about to respawn. */
+void() desire_envirosuit =
+{
+	local entity suit_ent = world;
+	local float best_desire = 0;
+
+	suit_ent = find(world, want_suit, "y");
+	while (suit_ent) {
+		if (suit_ent.think == SUB_regen)
+		if (suit_ent.nextthink - time > 0.5 * self.bot_smartness)
+		{
+			suit_ent = find(suit_ent, want_suit, "y");
+			continue;
+		}
+		suit_ent.desire();
+		if(goal_desire > best_desire) best_desire = goal_desire;
+		suit_ent = find(suit_ent, want_suit, "y");
+	}
+	goal_desire = best_desire;
+};
+
 /*QUAKED item_artifact_envirosuit (0 .5 .8) (-16 -16 -24) (16 16 32)
 Player takes no damage from water or slime for 30 seconds
 */
@@ -1774,7 +1796,7 @@ void() item_artifact_envirosuit =
 		self.netname = "Biosuit";
 		self.items = IT_SUIT;
 		self.aflag = 60;
-		self.desire = goal_NULL;
+		self.desire = desire_envirosuit;
 		self.pickup = pickup_true;
 	}
 	bio_protection = 1;

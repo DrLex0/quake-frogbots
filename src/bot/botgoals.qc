@@ -227,7 +227,8 @@ void() EvalGoal2 =
 			}
 			if (traveltime2 < lookahead_time_)
 			{
-				goal_score2 = (goal_desire * (lookahead_time_ - goal_time2) / (goal_time2 + 5))	+ (best_goal_desire * (lookahead_time_ - traveltime2) / (traveltime2 + 5));
+				goal_score2 = (goal_desire * (lookahead_time_ - goal_time2) / (goal_time2 + 5))
+					+ (best_goal_desire * (lookahead_time_ - traveltime2) / (traveltime2 + 5));
 				if (goal_score2 > best_score2)
 				{
 					best_score2 = goal_score2;
