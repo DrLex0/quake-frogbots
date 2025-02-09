@@ -64,6 +64,8 @@ Markers are automatically generated for several entities in a map:
 
 However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up must be given **goal** numbers to indicate (weak) preference. Last but not least, **connections** must be created between markers to tell the bot what paths can be followed, optionally with special descriptions for some of those connections.
 
+A marker will be _touched_ when the bot comes sufficiently near it, and even if the bot did not plan to reach that marker, it will re-evaluate its trajectory whenever it touches any marker (unless in exclusive mode, as explained in the advanced section). This is important to remember: don't just assume bots will only run between markers that have connections between them.
+
 ## Key bindings
 
 These are the bindings provided by the `autoexec.cfg`. Of course you are free to modify them. Unless your memory is flawless, you will want to print out this list, or have it on a second monitor while running the waypoint tool.
@@ -172,8 +174,9 @@ These steps do not need to be done in this exact order, but you will typically m
      (If the level designer stacked another marker on top, the wrong one might get selected. In that case, remove the connection, and try again after changing overlap preference with `L` or zero `0`. When designing your own levels, _avoid_ giving info entities the exact same location as others, nudge them around a bit.)
    - If it is a 2-way teleporter, now do the same thing to connect its trigger to the destination at the other side.
    - It doesn't matter whether you assign a `trigger_teleport` the zone it is in, or its destination zone. (I stick with the zone it is in.)
-   - A teleport trigger must only have incoming paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).  
-     A teleport destination should only have outgoing paths besides its single incoming trigger path _(again… telefrag)._
+   - A `trigger_teleport` must only have _incoming_ paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).  
+     An `info_teleport_destination` of a _1-way teleporter_ must only have _outgoing_ paths besides its single incoming trigger path _(again… telefrag)._  
+     For a _2-way teleporter_ however, the destination markers must also have a path going back to the teleport trigger at that end, because the bot will have to cross that marker to reach the teleport.
 9. **Special path modes.** You can apply these while making the paths, or afterwards. The modes for a marker's paths can be seen by pressing the `R` key.  
    Same workflow as above, only now you also have to select the mode with `V` before making the connection (not all are path modes, some affect display mode). Most of these require _one-way mode_ to be enabled (`J` key).
    - **Disconnect mode**: removes a path, but even though this also works without enabling one-way mode, it will only disconnect the path from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.

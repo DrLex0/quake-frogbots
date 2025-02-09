@@ -1,3 +1,6 @@
+// This map does not work well with the bots due to doors that open and close with switches.
+// Exclusive paths could be used, but additional logic would be needed to only touch the switch when door is closed.
+// I doubt this is a popular net map anyway, so motivation to work on this is low -- DrLex 2025/02
 void() map_e1m6 = //10.06.04
 {
 N(-111,837,-232);N(15,830,-232);N(-235,830,-72);N(-97,1177,216);N(-736,522,24);N(-770,319,24);N(-484,426,24);N(-384,373,32);N(-273,346,32);N(-25,310,24);
