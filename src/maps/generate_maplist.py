@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Generate the maplist and/or QuakeC code for FrogBot.
-2024-12, Alexander Thomas aka DrLex.
+"""Generate the maplist and/or QuakeC code for v2 FrogBot.
+Also acts as a conversion tool for old waypoint files.
+2024-12/2025-02, Alexander Thomas aka DrLex.
 
 Released under GPL license."""
 
+import argparse
 import glob
 import os
 import re
 import sys
-import argparse
-
+from typing import Tuple
 
 GENERATE_QC = "map_load_gen.qc"
 
@@ -18,7 +19,7 @@ COLUMNS = 3
 COL_WIDTH = 10
 
 
-def add_maps(maps: list[str], glob_pattern: str):
+def add_maps(maps: list[str], glob_pattern: str) -> None:
     """Appends maps to the list, found according to the glob pattern."""
     for map_file in sorted(glob.glob(glob_pattern)):
         bad = []
@@ -37,7 +38,7 @@ def add_maps(maps: list[str], glob_pattern: str):
         maps.append(map_file)
 
 
-def generate_listfile(args: argparse.Namespace):
+def generate_listfile(args: argparse.Namespace) -> None:
     """Writes a map sources list file named args.list_file."""
     maps: list[str] = []
     add_maps(maps, "map_*.qc")
@@ -49,7 +50,7 @@ def generate_listfile(args: argparse.Namespace):
         print(f"Written '{args.list_file}' with {len(maps)} entries")
 
 
-def generate_qc_source(args: argparse.Namespace):
+def generate_qc_source(args: argparse.Namespace) -> None:
     """Generates a QC source file ../{GENERATE_QC} for maps listed in args.list_file."""
     with open(args.list_file, encoding="ascii") as list_file:
         map_files = [line.strip() for line in list_file.readlines()]
@@ -96,7 +97,33 @@ def generate_qc_source(args: argparse.Namespace):
             print(f"Written '{qc_file.name}' with {len(map_files)} entries")
 
 
-def transform_qc_files(args: argparse.Namespace):
+def wipe_obsolete_descriptions(line: str) -> Tuple[bool, str]:
+    """Removes path description numbers below 256, because those may occur in
+    older waypoint files where they meant something else than their new values.
+    Returns tuple (changed, new_line)"""
+    chunks = line.split(";")
+    new_chunks = []
+    changed = False
+    for chunk in chunks:
+        parts = re.match(r"\s*(m\d+)\.D(\d)=(\d+)\s*", chunk)
+        if not parts:
+            new_chunks.append(chunk)
+            continue
+        old_bits = int(parts.group(3))
+        # Clear all bits below 256. In theory we could preserve value 2
+        # because it still represents a forced water jump, but in practice
+        # I have found no waypoint files using this value.
+        new_bits = old_bits & ~0xFF
+        if old_bits == new_bits:
+            new_chunks.append(chunk)
+        else:
+            changed = True
+            if new_bits:
+                new_chunks.append(f"{parts.group(1)}.D{parts.group(2)}={new_bits}")
+    return (changed, ";".join(new_chunks))
+
+
+def transform_qc_files(args: argparse.Namespace) -> None:
     """Transforms waypoint source files listed in args.list_file, replacing the old N('x y z')
     invocations with new N(x,y,z) format."""
     with open(args.list_file, encoding="ascii") as list_file:
@@ -106,9 +133,16 @@ def transform_qc_files(args: argparse.Namespace):
         # that allows pretty much any byte value
         with open(map_file, 'r+', encoding='iso8859_15') as qc_file:
             code_lines = qc_file.readlines()
+            old_format = False
             changed = False
+            desc_changed = False
             for (i, line) in enumerate(code_lines):
                 new_line = re.sub(r"N\('(\S+) +(\S+) +(\S+)'\)", r"N(\1,\2,\3)", line)
+                if new_line != line:
+                    old_format = True
+                elif old_format:
+                    d_change, new_line = wipe_obsolete_descriptions(line)
+                    desc_changed = desc_changed or d_change
                 if new_line != line:
                     changed = True
                     code_lines[i] = new_line
@@ -118,7 +152,10 @@ def transform_qc_files(args: argparse.Namespace):
                 qc_file.truncate()
             if args.verbose:
                 print(f"File {map_file} " +
-                      ("has been transformed" if changed else "does not need transforming"))
+                      ("has been transformed!" if changed else "does not need transforming"))
+            if desc_changed:
+                print(f"WARNING: obsolete path descriptions have been removed from {map_file}",
+                      file=sys.stderr)
 
 
 def main():

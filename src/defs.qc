@@ -1552,14 +1552,14 @@ float new_path_state;
 
 // map set values
 float WATERJUMP_			= 2;
-float EXCLUSIVE_DOOR	= 128;
+float EXCLUSIVE_DOOR	= 4;
 float DM6_DOOR			= 256;
 float ROCKET_JUMP		= 512;
 float JUMP_LEDGE			= 1024;
 float PRECISE_JUMP		= 2048;
 // Bits to be saved in waypoint code:
 // EXCLUSIVE_DOOR | DM6_DOOR | ROCKET_JUMP | JUMP_LEDGE | PRECISE_JUMP
-float SAVED_DESCRIPTION	= 3968;
+float SAVED_DESCRIPTION	= 3846;
 
 // auto set values
 float REVERSIBLE			= 16384;
