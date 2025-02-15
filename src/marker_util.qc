@@ -125,11 +125,20 @@ void() check_marker =
 		self.touchPlayerTime = time + 2.5;
 	}
 
-	// only consider truly touched when within .touch_distance
+	// Take the nearest touching marker (except see below)
 	distance = vlen(self.absmin + self.view_ofs - other.origin);
-	if (distance >= other.touch_distance)
+	if (distance > other.touch_distance)
 		return;
 	if (self.absmin_z - 20 >= other.absmin_z)
+		return;
+
+	// Give priority to the path destination if it (nearly) overlaps with
+	// the current marker. Otherwise bots may get stuck waiting on a touch
+	// that keeps being obscured by a nearby marker. However, don't do this
+	// for accurate path mode, it could mess up accuracy.
+	if (other.touch_marker == other.linked_marker)
+	if (other.touch_distance - distance < 20)
+	if (! (other.path_state & ACCURATE_PATH))
 		return;
 
 	if (other.path_state & EXCLUSIVE_PATH)
