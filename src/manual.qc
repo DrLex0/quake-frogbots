@@ -14,6 +14,7 @@
 
 void() ConnectMarker;
 void() DisconnectMarker;
+void() ClearPathModes;
 void(string print_string) DescriptionMarker;
 void() SaveCoords;
 void() SavePaths;
@@ -109,6 +110,8 @@ void(entity marker) manual_marker_touch =
 			to_marker = marker;
 			if (path_mode == DISCONNECT_MARKERS)
 				DisconnectMarker();
+			else if (path_mode == CLEAR_PATH_MODES)
+				ClearPathModes();
 			else
 			{
 				ConnectMarker();
@@ -650,6 +653,54 @@ void() DisconnectMarker =
 		from_marker.P7 = world;
 		from_marker.D7 = 0;
 	}
+	else
+		bprint("marker was not connected\n");
+};
+
+void() ClearPathModes =
+{
+	if ((from_marker.D0 & SAVED_DESCRIPTION) && (from_marker.P0 == to_marker))
+	{
+		bprint("path mode cleared on path 0\n");
+		from_marker.D0 = from_marker.D0 - (from_marker.D0 & SAVED_DESCRIPTION);
+	}
+	else if ((from_marker.D1 & SAVED_DESCRIPTION) && from_marker.P1 == to_marker)
+	{
+		bprint("path mode cleared on path 1\n");
+		from_marker.D1 = from_marker.D1 - (from_marker.D1 & SAVED_DESCRIPTION);
+	}
+	else if ((from_marker.D2 & SAVED_DESCRIPTION) && from_marker.P2 == to_marker)
+	{
+		bprint("path mode cleared on path 2\n");
+		from_marker.D2 = from_marker.D2 - (from_marker.D2 & SAVED_DESCRIPTION);
+	}
+	else if ((from_marker.D3 & SAVED_DESCRIPTION) && from_marker.P3 == to_marker)
+	{
+		bprint("path mode cleared on path 3\n");
+		from_marker.D3 = from_marker.D3 - (from_marker.D3 & SAVED_DESCRIPTION);
+	}
+	else if ((from_marker.D4 & SAVED_DESCRIPTION) && from_marker.P4 == to_marker)
+	{
+		bprint("path mode cleared on path 4\n");
+		from_marker.D4 = from_marker.D4 - (from_marker.D4 & SAVED_DESCRIPTION);
+	}
+	else if ((from_marker.D5 & SAVED_DESCRIPTION) && from_marker.P5 == to_marker)
+	{
+		bprint("path mode cleared on path 5\n");
+		from_marker.D5 = from_marker.D5 - (from_marker.D5 & SAVED_DESCRIPTION);
+	}
+	else if ((from_marker.D6 & SAVED_DESCRIPTION) && from_marker.P6 == to_marker)
+	{
+		bprint("path mode cleared on path 6\n");
+		from_marker.D6 = from_marker.D6 - (from_marker.D6 & SAVED_DESCRIPTION);
+	}
+	else if ((from_marker.D7 & SAVED_DESCRIPTION) && from_marker.P7 == to_marker)
+	{
+		bprint("path mode cleared on path 7\n");
+		from_marker.D7 = from_marker.D7 - (from_marker.D7 & SAVED_DESCRIPTION);
+	}
+	else
+		bprint("no path modes to be cleared\n");
 };
 
 void(string print_string, float path_number) PrintDescription =
@@ -1673,6 +1724,11 @@ void() CycleDescriptionMode =
 	{
 		path_mode = WATER_PATH;
 		bprint("water path display mode ON\n");
+	}
+	else if (path_mode == WATER_PATH)
+	{
+		path_mode = CLEAR_PATH_MODES;
+		bprint("clear all assigned path modes ON\n");
 	}
 	else
 	{

@@ -1576,7 +1576,9 @@ float STUCK_PATH		= 524288;
 float AIR_ACCELERATION		= 1048576;
 float NO_DODGE			= 2097152;
 
-float DISCONNECT_MARKERS	= 1048576;	// a path_mode not a path_state
+// editing modes used in waypoint tool
+float DISCONNECT_MARKERS	= 1048576;
+float CLEAR_PATH_MODES		= 2097152;
 
 // combinations/inverted for convenience & efficiency
 float NOT_JUMP_LEDGE			= 16776191;
