@@ -174,6 +174,22 @@ void() SetUpItems =
 
 /*
 ============
+ItemMarkerTouch
+
+Item markers must only be considered touched if:
+- the item can be picked up and the client truly picks up the item, should
+  directly invoke check_marker;
+- the client cannot pick up the item and regular marker touch logic applies.
+============
+*/
+void() ItemMarkerTouch =
+{
+	if (marker_time)
+		check_marker();
+}
+
+/*
+============
 NoItemTouch
 
 ============
@@ -299,25 +315,22 @@ void() health_touch =
 {
 	if (other.client_)
 	{
-		if (marker_time)
-			check_marker();
-
 	#ifdef MANUAL
 		if (manual_mode)
-			return;
+			return ItemMarkerTouch();
 	#endif
 
 		if (self.nextthink)
-			return;
+			return ItemMarkerTouch();
 		if (other.takedamage)
 		{
 			// Megahealth = rot down the player's super health
 			if (self.healtype == 2) // Megahealth
 			{
 				if (other.health >= 250)
-					return;
+					return ItemMarkerTouch();
 				if (NoItemTouch())
-					return;
+					return;  // marker not touched until item truly picked up
 				if (other.health < 150)
 					other.health = other.health + 100;
 				else
@@ -334,15 +347,16 @@ void() health_touch =
 			else
 			{
 				if (other.health >= 100)
-					return;
+					return ItemMarkerTouch();
 				if (NoItemTouch())
-					return;
+					return;  // marker not touched until item truly picked up
 				other.health = other.health + self.healamount;
 				if (other.health > 100)
 					other.health = 100;
 
 				self.nextthink = self.goal_respawn_time = time + 20;
 			}
+			check_marker();
 			AssignVirtualGoal();
 
 			msg_entity = other;
@@ -361,6 +375,7 @@ void() health_touch =
 			UpdateTotalDamage(other);
 			UpdateGoalEntity();
 		}
+		else ItemMarkerTouch();
 	}
 };	
 
@@ -395,16 +410,13 @@ void() armor_touch =
 {
 	if (other.client_)
 	{
-		if (marker_time)
-			check_marker();
-
 	#ifdef MANUAL
 		if (manual_mode)
-			return;
+			return ItemMarkerTouch();
 	#endif
 
 		if (self.nextthink)
-			return;
+			return ItemMarkerTouch();
 		if (other.takedamage)
 		{
 			if (other.total_armor >= self.total_armor)
@@ -424,11 +436,12 @@ void() armor_touch =
 					other.linked_marker_time = time + 0.5;
 					other.goal_refresh_time = time + 2 + random();
 				}
-				return;
+				return ItemMarkerTouch();
 			}
 
 			if (NoItemTouch())
-				return;
+				return;  // marker not touched until item truly picked up
+			check_marker();
 			other.armortype = self.armortype;
 			other.armorvalue = self.armorvalue;
 			other.items = (other.items & IT_NOT_ARMOR) + self.items;
@@ -468,6 +481,7 @@ void() armor_touch =
 			UpdateTotalDamage(other);
 			UpdateGoalEntity();
 		}
+		else ItemMarkerTouch();
 	}
 };
 
@@ -697,26 +711,24 @@ void() weapon_touch =
 {
 	if (other.client_)
 	{
-		if (marker_time)
-			check_marker();
-
 	#ifdef MANUAL
 		if (manual_mode)
-			return;
+			return ItemMarkerTouch();
 	#endif
 
 		if (self.nextthink)
-			return;
+			return ItemMarkerTouch();
 		if (other.takedamage)
 		{
 			if (leave)
 			{
 				if (other.items & self.weapon)
-					return;
+					return ItemMarkerTouch();
 			}
 
 			if (NoItemTouch())
-				return;
+				return;  // marker not touched until item truly picked up
+			check_marker();
 			if (self.weapon == IT_NAILGUN)
 				other.ammo_nails = other.ammo_nails + 30;
 			else if (self.weapon == IT_SUPER_NAILGUN)
@@ -789,6 +801,7 @@ void() weapon_touch =
 			self = other;
 			W_SetCurrentAmmo();
 		}
+		else ItemMarkerTouch();
 	}
 };
 
@@ -1106,25 +1119,22 @@ void() ammo_touch =
 {
 	if (other.client_)
 	{
-		if (marker_time)
-			check_marker();
-
 	#ifdef MANUAL
 		if (manual_mode)
-			return;
+			return ItemMarkerTouch();
 	#endif
 
 		if (self.nextthink)
-			return;
+			return ItemMarkerTouch();
 		if (other.takedamage)
 		{
 		// shotgun
 			if (self.weapon == 1)
 			{
 				if (other.ammo_shells >= 100)
-					return;
+					return ItemMarkerTouch();
 				if (NoItemTouch())
-					return;
+					return;  // marker not touched until item truly picked up
 				other.ammo_shells = other.ammo_shells + self.aflag;
 			}
 
@@ -1132,7 +1142,7 @@ void() ammo_touch =
 			else if (self.weapon == 2)
 			{
 				if (other.ammo_nails >= 200)
-					return;
+					return ItemMarkerTouch();
 				if (NoItemTouch())
 					return;
 				other.ammo_nails = other.ammo_nails + self.aflag;
@@ -1142,7 +1152,7 @@ void() ammo_touch =
 			else if (self.weapon == 3)
 			{
 				if (other.ammo_rockets >= 100)
-					return;
+					return ItemMarkerTouch();
 				if (NoItemTouch())
 					return;
 				other.ammo_rockets = other.ammo_rockets + self.aflag;
@@ -1152,12 +1162,13 @@ void() ammo_touch =
 			else if (self.weapon == 4)
 			{
 				if (other.ammo_cells >= 100)
-					return;
+					return ItemMarkerTouch();
 				if (NoItemTouch())
 					return;
 				other.ammo_cells = other.ammo_cells + self.aflag;
 			}
 
+			check_marker();
 			other.weapon_refresh_time = 0;
 
 			bound_ammo ();
@@ -1188,6 +1199,7 @@ void() ammo_touch =
 			self = other;
 			W_SetCurrentAmmo();
 		}
+		else ItemMarkerTouch();
 	}
 };
 
@@ -1640,20 +1652,18 @@ void() powerup_touch =
 {
 	if (other.client_)
 	{
-		if (marker_time)
-			check_marker();
-
 	#ifdef MANUAL
 		if (manual_mode)
-			return;
+			return ItemMarkerTouch();
 	#endif
 
 		if (self.nextthink)
-			return;
+			return ItemMarkerTouch();
 		if (other.takedamage)
 		{
 			if (NoItemTouch())
-				return;
+				return;  // marker not touched until item truly picked up
+			check_marker();
 			self.nextthink = self.goal_respawn_time = time + self.aflag;
 			AssignVirtualGoal();
 
@@ -1667,6 +1677,7 @@ void() powerup_touch =
 			sprint_fb(other, 0, self.netname);
 			sprint_fb(other, 0, "\n");
 		}
+		else ItemMarkerTouch();
 	}
 };
 
