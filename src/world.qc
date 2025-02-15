@@ -399,7 +399,7 @@ void() StartFrame =
 	if (time >= check_parm_time)
 		CheckParameters();
 
-	if (time >= next_marker_time)
+	if (time >= next_marker_time)  // check markers 10 times/s
 	{
 		next_marker_time = next_marker_time + 0.1;
 		if (next_marker_time <= time)
@@ -409,7 +409,7 @@ void() StartFrame =
 	else
 		marker_time = FALSE;
 
-	if (time >= next_hazard_time)
+	if (time >= next_hazard_time)  // check hazards 40 times/s
 	{
 		next_hazard_time = next_hazard_time + 0.025;
 		if (next_hazard_time <= time)
@@ -418,6 +418,16 @@ void() StartFrame =
 	}
 	else
 		hazard_time = FALSE;
+
+	if (time >= next_special_moves)  // check special moves 64 times/s
+	{
+		next_special_moves = next_special_moves + 0.015625;
+		if (next_special_moves <= time)
+			next_special_moves = time + 0.015625;
+		special_moves_clock = TRUE;
+	}
+	else
+		special_moves_clock = FALSE;
 
 #ifndef QUAKE
 	frametime = real_frametime;

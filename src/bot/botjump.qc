@@ -16,7 +16,8 @@ float(entity me) near_teammate;
 
 // Moving in right direction to rocket-jump or precise jump?
 // If not, dir_move can be used to adjust direction.
-float() right_direction =
+// Argument is maximum allowed deviation angle.
+float(float max_angle) right_direction =
 {
 	local float current_dir, wish_dir, right_dir;
 	local float min_one, min_two;
@@ -34,7 +35,7 @@ float() right_direction =
 	right_dir = min_one;
 	if (min_two < right_dir)
 		right_dir = min_two;
-	return (right_dir <= 72);
+	return (right_dir <= max_angle);
 };
 
 // enough health & items to rocket-jump
@@ -167,25 +168,15 @@ void() a_rocketjump =
 		return;
 	}
 
-	if (! self.touch_marker)
+	if (! self.path_from_marker)
 		return;
 	if (! (self.path_state & ROCKET_JUMP))
 		return;
-	if (! able_rj())
-		return;
-	// Even when we're at the destination marker that has no outgoing paths with RJ flag,
-	// path_state will still have the flag (which is arguably a bug), ignore this
-	if (! (ROCKET_JUMP & (
-		(self.touch_marker.D0 | self.touch_marker.D1 |
-		 self.touch_marker.D2 | self.touch_marker.D3 |
-		 self.touch_marker.D4 | self.touch_marker.D5 |
-		 self.touch_marker.D6 | self.touch_marker.D7))))
-	{
-		return;
-	}
 	if (self.button0_)
 		return;
 	if (self.button2_)
+		return;
+	if (! able_rj())
 		return;
 	if (near_teammate(self))
 		return;
@@ -193,13 +184,13 @@ void() a_rocketjump =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
-	if (vlen(self.origin - self.touch_marker.origin) > 100)
+	if (vlen(self.origin - self.path_from_marker.origin) > 100)
 		return;
 	if (!checkboven())
 		return;
 	if (!checkground())
 		return;
-	if (!right_direction())
+	if (!right_direction(72))
 	{
 		NewVelocityForArrow();
 		return;
@@ -234,48 +225,59 @@ void() a_rocketjump =
 	self.button2_ = 1;
 };
 
-// DrLex: more reliable jumping onto small steps.
-// Requires the bot to be able to come within 48 units of the marker from where to jump.
-void() PreciseJump =
+// Accurate jumps and/or slow moves  -- DrLex
+void() SpecialAccurateMoves =
 {
 	self.precise_speed = 0;
-	if (! self.touch_marker)
+	if (! self.path_from_marker)
 		return;
 	if (self.waterlevel > 1)
 		return;
+	// This auto path mode is set on each path with PRECISE_JUMP or SLOW_DOWN,
+	// and each path leading to a marker that has any such outgoing path.
+	if (!(self.path_state & ACCURATE_PATH))
+		return;
 	if (self.rocketjumping)
 		return;
-	if (!(self.path_state & PRECISE_JUMP))
-		return;
-	// Even when we're at the destination marker that has no outgoing paths with PJ flag,
-	// path_state will still have the flag (which is arguably a bug), ignore this
-	if (! (PRECISE_JUMP & (
-		(self.touch_marker.D0 | self.touch_marker.D1 |
-		 self.touch_marker.D2 | self.touch_marker.D3 |
-		 self.touch_marker.D4 | self.touch_marker.D5 |
-		 self.touch_marker.D6 | self.touch_marker.D7))))
-	{
-		return;
-	}
-	local float touch_dist = vlen(self.origin - self.touch_marker.origin);
-	// slow down as target is approached
-	if (touch_dist < 80)
-		self.precise_speed = 100;
-	else if (touch_dist < 140)
-		self.precise_speed = 180;
 	if (self.button2_)
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
-	if (!right_direction())
+	local float touch_dist = vlen(self.origin - self.path_from_marker.origin);
+
+	// right_direction() sets the ideal direction vector dir_move,
+	// NewVelocityForArrow() will try to better match this direction
+	if (self.path_state & SLOW_DOWN)
+	{
+		// slow down near path start
+		if (touch_dist < 80)
+			self.precise_speed = 120;
+		else if (touch_dist < 140)
+			self.precise_speed = 200;
+		// don't need to be as accurate while moving slowly as at full speed
+		if (!right_direction(50))
+		{
+			NewVelocityForArrow();
+			return;
+		}
+	}
+	else if (!right_direction(30))
 	{
 		NewVelocityForArrow();
 		return;
 	}
-	VelocityForArrow();
+	NewVelocityForArrow();
+	if (!(self.path_state & PRECISE_JUMP))
+		return;	
+
 	if (touch_dist > 48)  // Only jump when close enough
 		return;
-	if (vlen(self.velocity) > 140)  // and not moving too fast
+	if (self.path_state & SLOW_DOWN)
+	{
+		if (vlen(self.velocity) > 150)  // and not moving too fast
+			return;
+	}
+	else if(vlen(self.velocity) < 260)  // or too slow
 		return;
 	self.button2_ = 1;
 };

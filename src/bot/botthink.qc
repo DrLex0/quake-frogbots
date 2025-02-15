@@ -172,6 +172,7 @@ void() ThinkTime =
 						if (random() < 0.5)
 						{
 							linked_marker_ = self.old_linked_marker = self.linked_marker = touch_marker_;
+							self.path_from_marker = world;
 							self.path_state = 0;
 							self.linked_marker_time = time + 0.3;
 						}

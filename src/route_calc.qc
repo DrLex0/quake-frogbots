@@ -195,6 +195,7 @@ void() Calc_G_time_1 =
 ============
 TravelTime
 
+Calculates traveltime for path m to m_P, and updates m_D according to path properties.
 Returns FALSE if pseudo-path mode (path should be ignored)
 ============
 */
@@ -252,6 +253,15 @@ float() TravelTime =
 		 * in a language with no arrays or dictionaries. */
 		traveltime = traveltime + 1000;
 	}
+
+	// We want the bot to accurately aim both for the destination
+	// of a PRECISE_JUMP or SLOW path, as well as its starting point.
+	if (m_D & SLOW_PRECISE)
+		m_D = m_D | ACCURATE_PATH;
+	else if(SLOW_PRECISE & 
+		(m_P.D0 | m_P.D1 | m_P.D2 | m_P.D3 | m_P.D4 | m_P.D5 | m_P.D6 | m_P.D7))
+		m_D = m_D | ACCURATE_PATH;
+
 	return TRUE;
 };
 

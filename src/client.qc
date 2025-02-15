@@ -60,7 +60,7 @@ void() FrogWaterMove;
 void() CheckWaterPathState;
 void() CheckBotStuckInWater;
 void() a_rocketjump;
-void() PreciseJump;
+void() SpecialAccurateMoves;
 
 
 #ifdef QUAKE
@@ -1527,8 +1527,12 @@ void() PlayerPostThink_apply =
 		new_pitch = (rint(real_pitch_ / 1.40625)) * 1.40625;
 		self.real_pitch = real_pitch_;
 
-		a_rocketjump();
-		PreciseJump();
+		if (special_moves_clock)
+		{
+			// Need to do this here because alters new_pitch when engaged
+			a_rocketjump();
+			SpecialAccurateMoves();
+		}
 
 	// yaw
 		yawspeed_ = self.yawspeed + self.yawaccel * frametime;

@@ -122,6 +122,8 @@ void(entity marker) manual_marker_touch =
 					DescriptionMarker("rocket jump");
 					description = PRECISE_JUMP;
 					DescriptionMarker("precise jump");
+					description = SLOW_DOWN;
+					DescriptionMarker("slow down");
 					description = EXCLUSIVE_DOOR;
 					DescriptionMarker("exclusive door");
 				}
@@ -1291,6 +1293,8 @@ void(float descbits) PrintDLabel =
 		bprint("\xD2");  // R
 	if (descbits & PRECISE_JUMP)
 		bprint("\xD0");  // P
+	if (descbits & SLOW_DOWN)
+		bprint("\xD3");  // S
 	if (descbits & EXCLUSIVE_DOOR)
 		bprint("\xC5");  // E
 }
@@ -1642,10 +1646,20 @@ void() CycleDescriptionMode =
 	}
 	else if (path_mode == ROCKET_JUMP)
 	{
+		path_mode = SLOW_PRECISE;
+		bprint("slow precise jump mode ON\n");
+	}
+	else if (path_mode == SLOW_PRECISE)
+	{
 		path_mode = PRECISE_JUMP;
 		bprint("precise jump mode ON\n");
 	}
 	else if (path_mode == PRECISE_JUMP)
+	{
+		path_mode = SLOW_DOWN;
+		bprint("slow down mode ON\n");
+	}
+	else if (path_mode == SLOW_DOWN)
 	{
 		path_mode = EXCLUSIVE_DOOR;
 		bprint("exclusive door mode ON\n");

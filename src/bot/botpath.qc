@@ -314,6 +314,7 @@ void() frogbot_marker_touch =
 				if (IsVisible(goalentity_))
 				{ 
 					linked_marker_ = self.linked_marker = goalentity_;
+					self.path_from_marker = touch_marker_;
 					SetExclusive();
 					self.linked_marker_time = time + 5;
 					self.old_linked_marker = touch_marker_;
@@ -333,6 +334,7 @@ void() frogbot_marker_touch =
 			if (ExistsPath())
 			{
 				self.path_state = new_path_state;
+				self.path_from_marker = touch_marker_;
 				return;	// intermediate marker
 			}
 		}
@@ -620,6 +622,7 @@ void() frogbot_marker_touch =
 			if (self.absmax_y <= touch_marker_.absmax_y)
 			{
 				linked_marker_ = self.linked_marker = touch_marker_;
+				self.path_from_marker = touch_marker_;
 				SetExclusive();
 				self.path_state = 0;
 				self.linked_marker_time = time + 5;
@@ -720,6 +723,7 @@ void() frogbot_marker_touch =
 	}
 
 	self.linked_marker = linked_marker_;
+	self.path_from_marker = touch_marker_;
 	self.path_state = new_path_state;
 	SetExclusive();
 
@@ -796,10 +800,10 @@ void() frogbot_marker_touch =
 	if (self.flags & FL_ONGROUND && self.wasinwater)
 	{
 		self.wasinwater = FALSE;
-		self.path_state = self.path_state - (self.path_state & WATERJUMP_);
+		self.path_state = self.path_state - (self.path_state & WATERJUMP);
 		self.state = self.state & NOT_NOTARGET_ENEMY;	
 	}
-	if (self.path_state & WATERJUMP_)
+	if (self.path_state & WATERJUMP)
 	{
 		self.wasinwater = TRUE;
 		self.state = self.state | NOTARGET_ENEMY;

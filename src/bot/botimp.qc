@@ -1098,6 +1098,7 @@ void() BecomePlayer =
 		self.arrow = 0;
 		ClearLookObject(self);
 		self.linked_marker = self.old_linked_marker = world;
+		self.path_from_marker = world;
 	}
 };
 

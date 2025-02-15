@@ -531,6 +531,8 @@ float marker_time;
 float next_marker_time;
 float hazard_time;
 float next_hazard_time;
+float special_moves_clock;
+float next_special_moves;
 
 // spawnflags values for players
 float START_SKILL			= 1;
@@ -1551,33 +1553,35 @@ float new_path_state;
 //
 
 // map set values
-float WATERJUMP_			= 2;
-float EXCLUSIVE_DOOR	= 4;
+float WATERJUMP			= 2;
+float EXCLUSIVE_DOOR		= 4;
+float PRECISE_JUMP		= 128;
 float DM6_DOOR			= 256;
 float ROCKET_JUMP		= 512;
-float JUMP_LEDGE			= 1024;
-float PRECISE_JUMP		= 2048;
-// Bits to be saved in waypoint code:
-// EXCLUSIVE_DOOR | DM6_DOOR | ROCKET_JUMP | JUMP_LEDGE | PRECISE_JUMP
-float SAVED_DESCRIPTION	= 3846;
+float JUMP_LEDGE		= 1024;
+float SLOW_DOWN			= 2048;
+// Bits to be saved in waypoint code: all the above path modes together
+float SAVED_DESCRIPTION		= 3974;
 
 // auto set values
-float REVERSIBLE			= 16384;
-float WATER_PATH			= 32768;
+float REVERSIBLE		= 16384;
+float WATER_PATH		= 32768;
+float ACCURATE_PATH		= 4194304;
 
 // dynamic values
 float EXCLUSIVE_PATH		= 65536;
 float DELIBERATE_AIR		= 131072;  // only used together with WAIT_GROUND
-float WAIT_GROUND			= 262144;
-float STUCK_PATH			= 524288;
+float WAIT_GROUND		= 262144;
+float STUCK_PATH		= 524288;
 float AIR_ACCELERATION		= 1048576;
 float NO_DODGE			= 2097152;
 
-
 float DISCONNECT_MARKERS	= 1048576;	// a path_mode not a path_state
 
+// combinations/inverted for convenience & efficiency
 float NOT_JUMP_LEDGE			= 16776191;
 float DELIBERATE_AIR_WAIT_GROUND	= 393216;
+float SLOW_PRECISE			= 2176;
 
 .entity exclu_door_ent;  // marker property set by EXCLUSIVE_DOOR path mode
 .float exclu_door_cooldown;  // bot property to prevent it from yo-yoing
@@ -2002,10 +2006,16 @@ float score_pos_;
 .float spawn_skin;
 #endif
 
+// Most recently detected touched marker, updated at marker_time clock (about 10/s)
+// Use this when it is important to know the bot's most recent position.
 .entity touch_marker;
 .float touch_distance;
-
 entity touch_marker_;
+
+// Touched marker at the moment the bot planned its current path, updated at
+// .frogbot_nextthink clock, together with .linked_marker. Use this when it is
+// important to know the parameters for the current bot path state actions.
+.entity path_from_marker;
 
 .float color_;
 .float teamcolor;
