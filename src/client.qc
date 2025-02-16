@@ -1598,19 +1598,22 @@ void() PlayerPostThink_apply =
 	#endif
 #else
 	#ifdef QUAKE
-		if (self.player)
+		if (self.player)  // player became frogbot
 		{
 			self.angles_z = 0;	// stop incorrect roll
-
-			self.stored_angle = self.v_angle;	// used for frogbots
 
 			self.angles_x = FixedAngle(new_pitch);
 			self.angles_y = FixedAngle(self.v_angle_y);
 			self.fixangle = TRUE;
+
+			self.stored_angle = self.v_angle;	// used for frogbots
+			self.stored_angle_x = self.angles_x;
 		}
-		else
+		else  // pure frogbot
 		{
-			self.angles_x = new_pitch / -3;
+			self.v_angle_x = FixedAngle(new_pitch);
+			self.angles = self.v_angle;
+			self.stored_angle = self.angles;
 		}
 	#else
 		self.angles_x = new_pitch / -3;
