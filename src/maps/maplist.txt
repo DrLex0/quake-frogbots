@@ -17,5 +17,6 @@ trinca/map_dm5.qc
 trinca/map_e1m6.qc
 trinca/map_efdm13.qc
 trinca/map_eodm3.qc
+trinca/map_exdm3.qc
 trinca/map_oktest1.qc
 trinca/map_utressor.qc
