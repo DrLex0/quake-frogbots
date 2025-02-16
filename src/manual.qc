@@ -703,6 +703,34 @@ void() ClearPathModes =
 		bprint("no path modes to be cleared\n");
 };
 
+/*
+============
+TeleportAutoConnect
+
+Connects a trigger_teleport to its destination marker,
+after removing any extraneous outgoing paths.
+============
+*/
+void() TeleportAutoConnect =
+{
+	if (!active_marker)
+		return;
+	if (active_marker.classname != "trigger_teleport")
+	{
+		bprint("active marker is not a trigger_teleport\n");
+		return;
+	}
+	if (!active_marker.enemy)
+	{
+		bprint("teleport trigger m", active_marker.index, " has no destination\n");
+		return;
+	}
+	ClearActiveMarker();
+	active_marker.P0 = active_marker.enemy;
+	bprint("trigger_teleport m", ftos(active_marker.index), " connected to destination m", ftos(active_marker.enemy.index), "\n");
+};
+
+
 void(string print_string, float path_number) PrintDescription =
 {
 	bprint("marker ", print_string, " on path ", ftos(path_number), "\n");
@@ -1656,6 +1684,11 @@ void() CycleDescriptionMode =
 		}
 		else if (type_mode == T_UNREACHABLE)
 		{
+			type_mode = T_EXCLUSIVE;
+			bprint("exclusive node ON\n");
+		}
+		else if (type_mode == T_EXCLUSIVE)
+		{
 			type_mode = T_FORCESLIME;
 			bprint("slime island node ON\n");
 		}
@@ -1663,11 +1696,6 @@ void() CycleDescriptionMode =
 		{
 			type_mode = T_WANTSUIT;
 			bprint("want biosuit node ON\n");
-		}
-		else if (type_mode == T_WANTSUIT)
-		{
-			type_mode = T_EXCLUSIVE;
-			bprint("exclusive node ON\n");
 		}
 		else
 		{
@@ -1930,58 +1958,61 @@ void() PrintDebugInfo =
 // Skip over 140 and 141 because tied to f_jump and r_jump in botimp.qc.
 void() ManualImpulseCommands =
 {
-	if (impulse_ == 132)
+	// toggle manual mode is impulse 131, `O` or `3`
+	if (impulse_ == 132)  // MOUSE1 or `3`
 		spawn_marker((self.origin - '0 0 22') + self.view_ofs);
-	else if (impulse_ == 133)
+	else if (impulse_ == 133)  // `N`
 		CheckAllGoals();
-	else if (impulse_ == 134)
+	else if (impulse_ == 134)  // `M`
 		CheckAllZones();
-	else if (impulse_ == 135)
+	else if (impulse_ == 135)  // TAB or `I`
 		ToggleActiveMarker();
-	else if (impulse_ == 136)
+	else if (impulse_ == 136)  // `P`
 		RemoveActiveMarker();
-	else if (impulse_ == 137)
+	else if (impulse_ == 137)  // `H`
 		DisableActiveMarker();
-	else if (impulse_ == 138)
+	else if (impulse_ == 138)  // `J` or `6`
 		ToggleOneWayMode();
-	else if (impulse_ == 139)
+	else if (impulse_ == 139)  // MOUSE2 or `4`
 		ToggleConnectMarkersMode();
-	else if (impulse_ == 142)
+	else if (impulse_ == 142)  // `G` or `9`
 		DefaultMarkerMode();
-	else if (impulse_ == 143)
+	else if (impulse_ == 143)  // F1
 		SaveMarkers();
-	else if (impulse_ == 144)
+	else if (impulse_ == 144)  // `F` or `5`
 		ToggleClosestMarkerMode();
-	else if (impulse_ == 145)
+	else if (impulse_ == 145)  // `T`
 		ClearActiveMarker();
-	else if (impulse_ == 146)
+	else if (impulse_ == 146)  // `Y`
 		MoveActiveMarker();
-	else if (impulse_ == 147)
+	else if (impulse_ == 147)  // `U`
 		VerMoveActiveMarker();
-	else if (impulse_ == 148)
+	else if (impulse_ == 148)  // MWHEELUP or `.` or `2`
 		IncGoal();
-	else if (impulse_ == 149)
+	else if (impulse_ == 149)  // MWHEELDOWN or `,` or `1`
 		DecGoal();
-	else if (impulse_ == 150)
+	else if (impulse_ == 150)  // ENTER or `Q`
 		SetGoal();
-	else if (impulse_ == 151)
+	else if (impulse_ == 151)  // `C` or `8`
 		PrintGoal();
-	else if (impulse_ == 152)
+	else if (impulse_ == 152)  // `V` or `7`
 		CycleDescriptionMode();
-	else if (impulse_ == 153)
+	else if (impulse_ == 153)  // `B`
 		DisplayTravelTime();
-	else if (impulse_ == 154)
+	else if (impulse_ == 154)  // `Z`
 		CycleDisplayMode();
-	else if (impulse_ == 155)
+	else if (impulse_ == 155)  // `X`
 		DisplayReachable();
-	else if (impulse_ == 156)
+	else if (impulse_ == 156)  // `L` or `0`
 		CycleAltMarker();
-	else if (impulse_ == 157)
+	else if (impulse_ == 157)  // `R`
 		PrintPathInfo();
-	else if (impulse_ == 158)
+	else if (impulse_ == 158)  // `/`
 		PrintDebugInfo();
-	else if (impulse_ == 159)
+	else if (impulse_ == 159)  // `E`
 		MoveToActiveMarker();
+	else if (impulse_ == 160)  // `K`
+		TeleportAutoConnect();
 };
 
 #endif

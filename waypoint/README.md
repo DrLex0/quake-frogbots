@@ -99,11 +99,12 @@ V	7	144	152	CYCLE PATH-MODES
 				- reversible display-mode
 				- water path display-mode
 				- path mode OFF
+K		none	160	AUTO CONNECT trigger_teleport
 B		145	153	DISPLAY TRAVELTIME
 Z		146	154	CYCLE DISPLAY-MODE
 X		147	155	DISPLAY REACHABLE
 L	0	none	156	CYCLE BETWEEN 3 CLOSEST MARKERS
-K		none	159	MOVE TO ACTIVE MARKER
+E		none	159	MOVE TO ACTIVE MARKER
 /		none	158	PRINT COORDINATES & EXTRA INFO
 F1		133	143	SAVE MARKERS
 F2		?	130	NOCLIP
@@ -162,21 +163,19 @@ These steps do not need to be done in this exact order, but you will typically m
    - The next marker you touch will be linked. If there is any risk of activating the wrong marker on the way, first press `MOUSE2` again to temporarily disable CMM.
    - Move to marker _y_. If you didn't disable CMM, the link will be made instantly. Otherwise you again need to `MOUSE2`.
    - Once a path has been added, Connect Mode disables itself, but marker _x_ remains set as static active marker. You can then either make another path from _x_ to a different marker by moving to it and again using `MOUSE2`; or you can deselect _x_ by pressing `TAB` or `G`.
-   - Avoid making paths _towards_ spawn points or teleport destinations, use one-way mode to only go away from them, _because telefrag._
+   - Avoid making paths _towards_ spawn points or one-way teleport destinations, use one-way mode to only go away from them, _because telefrag._
    - Ensure every marker that can be reached in any way (even if only by being flung around by an explosion), has at least one outgoing path, otherwise the bot may get stuck on it.
    - If you added a path by mistake, you can remove it with _disconnect mode,_ see below.
-8. Connecting **teleporters** is like creating any one-way path, but with something extra.
-   - You must connect each `trigger_teleport` to the `info_teleport_destination` it connects to. To do so easily, it is _essential_ to first enable both NOCLIP with `F2` and closest-marker mode with `F`.
-   - Then move into the teleport trigger zone, and ensure the `trigger_teleport` marker is selected.
-   - Enable one-way mode `J`, then `MOUSE2` to start connecting.
-   - Now disable manual mode `O` to be actually teleported, then re-enable `O`.
-   - Since you are now on top of the `destination`, it should be immediately connected.  
-     (If the level designer stacked another marker on top, the wrong one might get selected. In that case, remove the connection, and try again after changing overlap preference with `L` or zero `0`. When designing your own levels, _avoid_ giving info entities the exact same location as others, nudge them around a bit.)
-   - If it is a 2-way teleporter, now do the same thing to connect its trigger to the destination at the other side.
+8. **Teleports:** you must make a one-way connection from each `trigger_teleport` to its corresponding `info_teleport_destination`. (This has become a lot easier in the v2 tool.)
+   - It is _essential_ to first enable both NOCLIP with `F2` and closest-marker mode with `F`.
+   - Then move into the teleport trigger zone, and ensure with `C` that the `trigger_teleport` marker is selected.
+   - Hit `K`. The trigger is now connected to its destination (and _only_ it destination, as it should be).
+   - If it is a 2-way teleporter, now do the same thing at the other side to connect its trigger to the destination.
+   - Teleports are disabled in manual mode, hence toggle with `O` to get teleported to the other side.
    - It doesn't matter whether you assign a `trigger_teleport` the zone it is in, or its destination zone. (I stick with the zone it is in.)
    - A `trigger_teleport` must only have _incoming_ paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).  
      An `info_teleport_destination` of a _1-way teleporter_ must only have _outgoing_ paths besides its single incoming trigger path _(again… telefrag)._  
-     For a _2-way teleporter_ however, the destination markers must also have a path going back to the teleport trigger at that end, because the bot will have to cross that marker to reach the teleport.
+     For a _2-way teleporter_ however, if the destination marker(s) need to be traversed and will be touched when trying to reach the trigger at that end, then the destination marker must also have a path back to that trigger. But, never use destination markers as regular path markers if they are high up in the air and cannot be (easily) touched. Those must only have outgoing paths.
 9. **Special path modes.** You can apply these while making the paths, or afterwards. The modes for a marker's paths can be seen by pressing the `R` key.  
    Same workflow as above, only now you also have to select the mode with `V` before making the connection (not all are path modes, some affect display mode). Most of these require _one-way mode_ to be enabled (`J` key).
    - **Disconnect mode**: removes a path, but even though this also works without enabling one-way mode, it will only disconnect the path from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.
@@ -266,27 +265,27 @@ If there are lava or slime pits, or deadly traps, it may be a good idea to place
 There may be situations where you want the bot to focus on exclusively following a specific path. For instance, after touching a _switch_ to open a door, the bot has to run from the switch to the door while ignoring any markers not part of this path. The bot must also not react to touching any marker on this path towards the door _unless_ when coming from the switch.  
 An essential part of making the bot push the switch to open the door, is ensuring that the only path going to the door is a _one-way path_ via the switch. If the path from the switch to the door is well-separated from other paths, this is all that is required.
 
-(TODO: an image will really say more than a 1000 words here)
-
-In a map like `dm5` however, this does not suffice because the paths going to and coming from the switch share the same narrow bridge. Normal bot behaviour is to re-evaluate paths each time a marker is touched. When running towards the switch and touching a marker on the return path, the only allowed path is back and vice versa. In other words, the bot will keep yo-yoing between markers from both paths, and go nowhere.  
+In a map like `dm5` however, this does not suffice because the paths going to and coming from the switch share the same narrow bridge. Normal bot behaviour is to re-evaluate paths each time a marker is touched. If we would simply create a loop with 2 one-way paths, then when running towards the switch and touching a marker on the return path, the only allowed path is back and vice versa. In other words, the bot would keep yo-yoing between markers from both paths, and go nowhere.  
 Also, if the door is already open, we don't want the bot to make the detour via the switch.
+
+(TODO: an image will really say more than a 1000 words here)
 
 The v2 Frogbot offers a solution for this scenario, consisting of 2 parts:
 1. **Exclusive node** marker type.  
    Set this on the markers of the one-way path going from the switch to the door. As with the other node types, set display mode `Z` to “Display type,” and use `V` to select `exclusive node`. Then activate the marker and right-click (`MOUSE2`).
 2. **Exclusive door** pseudo-path mode.  
-   Connect an `exclusive door` path between the exclusive markers nearest to the door, towards (one of) the door's marker(s). As often, `NOCLIP` and closest marker mode are your friends here. Only do this for the exclusive markers closest to the door—if the bot is near the switch, it is better to again push it.
+   Connect an `exclusive door` path between the exclusive markers nearest to the door, towards (one of) the door's marker(s). As often, `NOCLIP` and closest marker mode are your friends here. Only do this for the exclusive markers closest to the door—if the bot is near the switch anyway, it is better to again push it.
 
 This works as follows. The bot will:
 - ignore touching an `exclusive node` marker, unless:
-  - when following a path from another marker that has this node as its destination;
+  - when coming from another marker, following a path that has this exclusive node as its destination;
   - when this node has an `exclusive door` pseudo-path towards a door marker, and that door is currently open;
-- ignore all other markers except the `exclusive node` as soon as it starts following a path towards this node. Because of risk of forever getting stuck, there is a deadline of _2.5 seconds_ to reach the exclusive node, the bot will resume its usual business if this deadline expires.
+- ignore _all_ other markers except the `exclusive node` as soon as it starts following a path towards this node. Because of risk of forever getting stuck, there is a deadline of _2.5 seconds_ to reach the exclusive node, the bot will resume its usual business if this deadline expires.
 
-(When the bot exits the last node in an exclusive path, the `exclusive door` mechanism is disabled for 4 seconds, to allow the bot to exit through the same door without being forced back in.)
+When the bot exits an exclusive path, in other words when it decides to move from an exclusive marker towards a non-exclusive marker, the `exclusive door` mechanism is instantly suppressed for 4 seconds, to allow the bot to exit through the same door without being forced back in.
 
-If you look at the `dm5` waypoints, you will notice that 2 extra exclusive markers with paths towards the door have been placed to make bots coming from other directions immediately go through the door when someone else has opened it for them.  
-This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it.
+If you look at the `dm5` waypoints, you will notice that 2 extra exclusive markers with paths towards the door have been placed to make bots coming from other directions immediately go through the door when someone else has opened it for them. Same for `ultrav`.  
+This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it. It helps a lot to draw a diagram of the markers and how they must be set up, as in the example above (which I need to add, TODO).
 
 
 ### Reliable rocket jumps
