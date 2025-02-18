@@ -234,6 +234,14 @@ void() ThinkTime =
 
 					if (self.waterlevel <= 1)
 						dir_move_z = 0;
+					// If the vector towards linked_marker goes downward steeply, squashing
+					// the Z component will remove most of its magnitude and we're left 
+					// with a tiny horizontal vector. This may lead to typical cases of
+					// the bot barely moving or zig-zagging in place. JUST_GO path mode is
+					// intended to fix cases of the bot not going forward, hence normalize
+					// the vector in that case, to really make the bot GO.
+					if (self.path_state & JUST_GO)
+						normalize(dir_move);
 					BestArrowForDirection();
 					self.dir_move_ = dir_move;
 					self.arrow = best_arrow;

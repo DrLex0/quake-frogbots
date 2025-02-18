@@ -24,7 +24,7 @@ float(float max_angle) right_direction =
 
 	dir_move = normalize(self.oldvelocity);  // before physics
 	current_dir = vectoyaw(dir_move);
-	dir_move = normalize(self.linked_marker.origin - self.origin);
+	dir_move = normalize(self.linked_marker.absmin + self.linked_marker.view_ofs - self.origin);
 	wish_dir = vectoyaw(dir_move);
 	min_one = fabs(wish_dir - current_dir);
 	if (wish_dir >= 180)
@@ -184,7 +184,7 @@ void() a_rocketjump =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
-	if (vlen(self.origin - self.path_from_marker.origin) > 100)
+	if (vlen(self.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs)) > 100)
 		return;
 	if (!checkboven())
 		return;
@@ -243,7 +243,7 @@ void() SpecialAccurateMoves =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
-	local float touch_dist = vlen(self.origin - self.path_from_marker.origin);
+	local float touch_dist = vlen(self.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs));
 
 	// right_direction() sets the ideal direction vector dir_move,
 	// NewVelocityForArrow() will try to better match this direction

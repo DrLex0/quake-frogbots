@@ -113,6 +113,70 @@ void() RocketAlert =
 	ExplodeAlert(trace_endpos);
 };
 
+/*
+============
+BotAntiFreeze
+
+Sometimes the bot becomes immobile. Apply an over-engineered
+algorithm to give a random nudge when this happens.
+Return value is TRUE if the bot has moved suspiciously little
+since last time, or when the anti-freeze engages.
+============
+*/
+float() BotAntiFreeze =
+{
+	if (vlen(self.origin - self.prev_origin) > 5)
+	{
+		self.stuck_deadline = 0;
+		self.prev_origin = self.origin;
+		return FALSE;
+	}
+	if (self.stuck_deadline <= 0)
+	{
+		if (! self.stuck_deadline)
+			self.stuck_deadline = -3;  // start the detection process, let velocity settle
+		else if(self.stuck_deadline < -1)
+			self.stuck_deadline = self.stuck_deadline + 1;
+		else
+		{
+			if (self.velocity == '0 0 0')
+			{
+				// The bot may decide there is nothing to do and stops moving.
+				// Not a problematic situation, but by moving occasionally,
+				// it acts more natural.
+				self.stuck_deadline = time + 3 + 2 * random();
+			}
+			else
+			{
+				// We're supposed to be moving, but aren't. May be caused by unusual
+				// geometry or other weirdness. Get out of this state quickly.
+				self.stuck_deadline = time + 0.25 + random();
+			}
+		}
+	}
+	else if(time > self.stuck_deadline)
+	{
+		if (self.velocity == '0 0 0')
+		{
+			dir_move_x = random() - 0.5;
+			dir_move_y = random() - 0.5;
+			dir_move_z = 0;
+		}
+		else
+		{
+			// Running in-place, ensure random movement away from obstacle
+			makevectors(vectoangles(self.velocity));
+			dir_move = ((-0.1 - random()) * v_forward) + (((2 * random()) - 1) * v_right);
+		}
+		self.velocity = normalize(dir_move) * sv_maxspeed;
+		self.velocity_override = self.velocity;
+		self.t_velocity_override = time + 0.05;
+		self.stuck_deadline = 0;
+		self.prev_origin = self.origin + '1000 0 0';
+	}
+	return TRUE;
+};
+
 
 /*
 ============
@@ -122,6 +186,13 @@ AvoidHazards
 */
 void() AvoidHazards =
 {
+	if (self.path_state & JUST_GO)  // skip all safety nets, just go wild
+	{
+		// Only do immobility mitigation
+		BotAntiFreeze();
+		return;
+	}
+
 	new_velocity = self.velocity;
 	linked_marker_ = self.linked_marker;
 
@@ -151,7 +222,6 @@ void() AvoidHazards =
 				{
 					if (try_jump_ledge)
 					{
-						self.ledge_stuck_time = 0;
 						jumpspeed = new_velocity_z + JUMPSPEED;
 	
 						if ((jumpspeed * jumpspeed * 0.000625) >= rel_pos_z)	// 0.000625 = 0.5 / sv_gravity
@@ -162,27 +232,6 @@ void() AvoidHazards =
 							return;
 						}
 					}
-				}
-				else if (rel_pos_z < -80)
-				{
-					// Totally over-engineered solution to fix bots getting stuck on trying
-					// to run into the floor when destination is deep down. (May be avoided
-					// altogether with extra marker at or slightly beyond the ledge edge.)
-					if (! self.ledge_stuck_time)
-						self.ledge_stuck_time = time;
-					else if(time - self.ledge_stuck_time > 1)
-					{
-						self.velocity = rel_pos;
-						self.velocity_z = 0;
-						self.velocity = normalize(self.velocity) * sv_maxspeed;
-						self.velocity_override = self.velocity;
-						self.t_velocity_override = time + 0.2;
-						self.ledge_stuck_time = 0;
-					}
-				}
-				else
-				{
-					self.ledge_stuck_time = 0;
 				}
 
 				if (being_blocked)
@@ -280,66 +329,9 @@ void() AvoidHazards =
 
 		new_velocity = new_velocity - (self.obstruction_normal * (self.obstruction_normal * new_velocity));
 	}
-	else if (vlen(self.origin - self.prev_origin) < 5)
-	{
-		// Sometimes the bot becomes immobile. Apply another over-engineered
-		// algorithm to give a random nudge when this happens.
-		if (self.stuck_deadline <= 0)
-		{
-			if (! self.stuck_deadline)
-				self.stuck_deadline = -3;  // start the detection process, let velocity settle
-			else if(self.stuck_deadline < -1)
-				self.stuck_deadline = self.stuck_deadline + 1;
-			else
-			{
-				if (self.velocity == '0 0 0')
-				{
-					// The bot may decide there is nothing to do and stops moving.
-					// Not a problematic situation, but by moving occasionally,
-					// it acts more natural.
-					self.stuck_deadline = time + 3 + 2 * random();
-				}
-				else
-				{
-					// We're supposed to be moving, but aren't. May be caused by unusual
-					// geometry or other weirdness. Get out of this state quickly.
-					self.stuck_deadline = time + 0.25 + random();
-				}
-			}
-		}
-		else if(time > self.stuck_deadline)
-		{
-			if (self.velocity == '0 0 0')
-			{
-				dir_move_x = random() - 0.5;
-				dir_move_y = random() - 0.5;
-				dir_move_z = 0;
-			}
-			else
-			{
-				// Running in-place, ensure random movement away from obstacle
-				makevectors(vectoangles(self.velocity));
-				dir_move = ((-0.1 - random()) * v_forward) + (((2 * random()) - 1) * v_right);
-			}
-			self.velocity = normalize(dir_move) * sv_maxspeed;
-			self.velocity_override = self.velocity;
-			self.t_velocity_override = time + 0.05;
-			self.stuck_deadline = 0;
-			self.prev_origin = self.origin + '1000 0 0';
-		}
-	}
 	else
 	{
-		// When stuck on a ledge, the bot will often dither between the marker it is currently
-		// touching and the one on the way out. Do not reset the timer when this happens.
-		// This seems a bug that needs to be fixed; when the bot has already picked up the
-		// item on the ledge, it makes no sense to keep picking that marker as linked marker.
-		if(self.touch_marker != linked_marker_)
-		{
-			self.ledge_stuck_time = 0;
-		}
-		self.stuck_deadline = 0;
-		self.prev_origin = self.origin;
+		BotAntiFreeze();
 	}
 
 	hor_velocity = new_velocity;
@@ -586,6 +578,8 @@ AvoidEdge
 */
 void() AvoidEdge =
 {
+	if (self.path_state & JUST_GO)
+		return;
 	dir_forward = oldvelocity_;
 	dir_forward_z = 0;
 

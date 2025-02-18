@@ -64,7 +64,7 @@ Markers are automatically generated for several entities in a map:
 
 However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up must be given **goal** numbers to indicate (weak) preference. Last but not least, **connections** must be created between markers to tell the bot what paths can be followed, optionally with special descriptions for some of those connections.
 
-A marker will be _touched_ when the bot comes sufficiently near it, and even if the bot did not plan to reach that marker, it will re-evaluate its trajectory whenever it touches any marker (unless in exclusive mode, as explained in the advanced section). This is important to remember: don't just assume bots will only run between markers that have connections between them.
+A marker will be _touched_ when the bot comes sufficiently near it, and even if the bot did not plan to reach that marker, it will re-evaluate its trajectory whenever it touches any marker (unless in exclusive mode, as explained in the advanced section). This is important to remember: don't just assume bots will only run between markers that have connections between them. More details in the advanced section.
 
 ## Key bindings
 
@@ -179,29 +179,33 @@ These steps do not need to be done in this exact order, but you will typically m
 9. **Special path modes.** You can apply these while making the paths, or afterwards. The modes for a marker's paths can be seen by pressing the `R` key.  
    Same workflow as above, only now you also have to select the mode with `V` before making the connection (not all are path modes, some affect display mode). Most of these require _one-way mode_ to be enabled (`J` key).
    - **Disconnect mode**: removes a path, but even though this also works without enabling one-way mode, it will only disconnect the path from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.
-   - **Jump ledge** (shown as ‘`J`’, number 1024 in code) is to make the bot jump _up onto_ or _down from_ ledges. Paths going up a step taller than 18 units, must be marked with this mode to ensure the bot will jump onto the step. The bot will also normally refuse to take a downwards jump that may cause damage, _unless_ it has ledge mode. When unsure, it is better to assign ledge mode when unneeded than the other way round.
+   - **Jump ledge** (shown as ‘`J`’, number 1024 in code) is to make the bot jump _up onto_ or _down from_ ledges. Paths going up a step taller than 18 units, must be marked with this mode to ensure the bot will jump onto the step. Mind that _slow precise jump_ mode may be more appropriate to get onto small ledges, and _just GO mode_ may be more appropriate for a downward path.
    - **Door mode** (shown as `‘D’`, number 256 in code) is for getting through doors like in _dm6_ that need to be shot/whacked to open. This is limited by certain constraints and requires extra configuration. More details in the advanced section below.
    - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time. See the advanced section below for some tips.
    - **Slow precise jump mode** (shown as `‘PS’`, number 2176 in code) is actually a combination of the next 2 modes, provided for convenience because most often you will need them together. This combined mode allows to _navigate small steps_ like the ones towards the yellow armour in `e1m2`. The bot must be within a distance of _48 units_ of the marker from which this `PS` path starts to start jumping towards the destination. This means you must place such markers close enough to the ledge on which the bot needs to jump, otherwise it will never jump and get stuck.  
      You may not need this often, but without it, getting onto certain small steps is often near impossible because the bot moves too erratically when trying to use ledge jump mode.
    - **Precise jump mode** (shown as `‘P’`, number 128 in code) will make the bot do extra effort to jump closer to the location of the marker where this path starts, and also to better aim for direction of the destination marker. This can be used for tricky jumps that require accuracy, because normal bot movement is rather _sloppy._  
      Again, the bot will only jump within a distance of 48 units of the start marker. To make this work well, provide a single path towards the jump spot in such a way that the bot is already mostly moving roughly in the right direction when it reaches the marker from where to jump.
-   - **Slow down mode** (shown as `‘S’`, number 2048 in code) will make the bot slow down while near the marker from which this path starts. It is mostly useful to combine with precise jump, but can also be used alone or in combination with ledge jump, to avoid that the bot overshoots its target when making a deep downwards jump.
+   - **Slow down mode** (shown as `‘S’`, number 2048 in code) will make the bot slow down while near the marker from which this path starts. It is mostly useful to combine with precise jump, but can also be used alone or in combination with ledge jump, to avoid that the bot overshoots its target when making a deep downward jump.
+   - **Just GO mode** (shown as `'!'`, number 1 in code) does what it says: it disables all safety checks in the bot for that path, and just makes it go. The most common use case is to override the bot's fall-from-edges mechanism, which sometimes engages inadvertently and prevents the bot from jumping off a ledge. If you see the bot zig-zagging across an edge while it should just jump down, try adding this path mode. A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to. In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
    - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door. See the advanced section for more info.
 
 At regular moments, and especially when you're done, use `F1` to dump the waypoint code to console. If you didn't run with `-condebug`, you must then use `condump` to write the console log to a file. The `autoexec` binds this to `F5` (think QuickSave).
 
 ### General Remarks
+- Remember that bots will react to _any_ marker they ‘touch,’ not only the next one on their path (unless they are in exclusive mode).  
+  Also, the touch mechanism is pretty _coarse,_ and may already trigger when the bot is still quite far away. The bot will then stop moving towards that marker and change its direction towards the next planned marker. This can make it seem as if the bot is cutting corners on paths with sharp angles. If it is important for the bot to follow a specific curve, you may need to place extra markers, or move markers farther away to keep the bot from bumping into obstacles.
 - You can ‘lock’ the active marker in Static Marker mode with `I` or `TAB`, allowing to move to other markers without activating them. It is also useful to watch the paths animation (`R`) from a distance, or check how far you are from the marker with the `/` key.
 - It helps to draw a floor plan of the map with zones, goals and paths, although the visualisation modes of the tool make it easy to spot mistakes. It also is interesting to walk around in existing maps and see how waypoints were added.
 - At any time when you are confused about what marker mode you're in, press `G` to reset. (The only thing this does not reset, is closest marker mode.)
 - Moving an existing marker is preferable over deleting it and making a new one. Static marker mode (`I` or `TAB`) is your friend here.
 - Paths through _push zones_ must be one-way. For simple pushes, one marker before the push brush and one at the exit may suffice. If there are corners and bends, an extra marker may be needed to guide the bot into the push.
-- It is possible to apply multiple modes to a path, but this should almost never be needed.
+- It is possible to apply multiple modes to a path, but some combinations make no sense.
 - Vertically moving markers (`U`) can also be used on `func_button`, `teleport_trigger`, and `door` markers, but not on other non-manually created markers like weapons.
 - The Frogbot can exploit Quake engine tricks like real players (strafe + turn) to change direction while in the air. This means you may create jumps that rely on such tricks, but make sure to verify they work with an acceptable success rate.
 - I don't really know the purpose of the _‘display reachable’_ tool. It requires static active marker mode (`I` or `TAB`), and will try to trace a path towards the first marker you're ‘touching’ after activating this mode. It will fail if there is an obstacle, or the distance is “too far,” whatever that means.  
   It has nothing to do with unreachable marker flag (see advanced section).  
+  Although markers can be placed further apart than what this tool considers too far, it is still a good guideline for maximum marker distance.
 - Same for the _runaway_ thing: I don't know what it's for. The information printed on the second and third lines when pressing `C` is related to this ‘runaway’ concept, and the markers shown in runaway mode are the same ones listed in those lines. This appears to be an unfinished feature, there is some logic in the code to do something special when the bot is in `RUNAWAY` state, but _nothing_ in the code sets this state. I might look into this someday… If anyone knows more about it, please explain!
 
 
@@ -326,7 +330,7 @@ If the bot can approach the ladder from its sides, you may need to place extra m
 ### Dealing with overlapping markers
 
 Some maps have markers at the exact same coordinates. I consider this _bad practice_ (even though one of the most iconic Quake maps suffers from this) and it should be avoided, but how to deal with it when it's in an existing map?
-- By enabling closest-marker-mode, you can select between overlapping markers with the `L` or `0` (zero) key to cycle between the 3 most nearby markers. Print marker info with `C` to see what marker you have actually selected.
+- By enabling closest-marker-mode (`F`), you can select between overlapping markers with the `L` or `0` (zero) key to cycle between the 3 most nearby markers. Print marker info with `C` to see what marker you have actually selected.
 - In general, _you should not make a path between overlapping markers._ Although the v2 Frogbot has some protections against this, connecting such markers may cause the bot to get temporarily stuck. It makes no sense anyway, there is no path to follow between things at the same coordinates. Just connect both markers to neighbouring markers in the same way (unless one is a spawn, then it should only have outgoing paths).
 - The same goes for markers that do not exactly overlap, but are still very close to each other. If you notice bots getting stuck or yo-yoing between such markers, try removing the connections between them and give them the same incoming and outgoing paths.
 
@@ -342,7 +346,7 @@ This only works under certain conditions:
 This may require loading at least partial waypoint data into the waypoint tool, because if the door is too different from the one in `dm6`, you will need to manually add some values to your waypoint code and then rebuild the tool.
 
 #### Workflow
-1. Assign door mode to the path that goes from outside to beyond the door. Enable _one-way mode,_ and select `dm6 door mode` with `V`. There must be no path in the other direction. You may now want to dump the code with `F1`.
+1. Assign dm6 door mode to the path that goes from outside to beyond the door. Enable _one-way mode,_ and select `dm6 door mode` with `V`. There must be no path in the other direction. You may now want to dump the code with `F1`.
 
 2. Find the **entity** of the door. It will have a marker standing _on top_ of it, which means that for vertical doors, it will likely be inside a wall. (In that case it may be good to use `U` to move the marker to the middle of the door, although it will usually work as-is.)  
    Enable NOCLIP (`F2`) and closest-marker (`F`) to easily select the marker. Then, use `C` to print the marker number. In this example, assume it is `m42`. Then, add at the end of the dumped waypoint code, before the closing `};`:

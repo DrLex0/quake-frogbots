@@ -127,6 +127,8 @@ void(entity marker) manual_marker_touch =
 					DescriptionMarker("precise jump");
 					description = SLOW_DOWN;
 					DescriptionMarker("slow down");
+					description = JUST_GO;
+					DescriptionMarker("just GO");
 					description = EXCLUSIVE_DOOR;
 					DescriptionMarker("exclusive door");
 				}
@@ -1374,6 +1376,8 @@ void(float descbits) PrintDLabel =
 		bprint("\xD0");  // P
 	if (descbits & SLOW_DOWN)
 		bprint("\xD3");  // S
+	if (descbits & JUST_GO)
+		bprint("\xA1");  // !
 	if (descbits & EXCLUSIVE_DOOR)
 		bprint("\xC5");  // E
 }
@@ -1739,6 +1743,11 @@ void() CycleDescriptionMode =
 		bprint("slow down mode ON\n");
 	}
 	else if (path_mode == SLOW_DOWN)
+	{
+		path_mode = JUST_GO;
+		bprint("just GO mode ON\n");
+	}
+	else if (path_mode == JUST_GO)
 	{
 		path_mode = EXCLUSIVE_DOOR;
 		bprint("exclusive door mode ON\n");

@@ -1553,6 +1553,7 @@ float new_path_state;
 //
 
 // map set values
+float JUST_GO			= 1;
 float WATERJUMP			= 2;
 float EXCLUSIVE_DOOR		= 4;
 float PRECISE_JUMP		= 128;
@@ -1561,7 +1562,7 @@ float ROCKET_JUMP		= 512;
 float JUMP_LEDGE		= 1024;
 float SLOW_DOWN			= 2048;
 // Bits to be saved in waypoint code: all the above path modes together
-float SAVED_DESCRIPTION		= 3974;
+float SAVED_DESCRIPTION		= 3975;
 
 // auto set values
 float REVERSIBLE		= 16384;
@@ -2363,7 +2364,6 @@ float no_bots_stuck;
 .vector prev_origin;
 .float stuck_deadline;
 .float water_unstuck_retry;
-.float ledge_stuck_time;
 .vector velocity_override;
 .float t_velocity_override;
 

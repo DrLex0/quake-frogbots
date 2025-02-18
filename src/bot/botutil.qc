@@ -445,12 +445,13 @@ void() CanJumpOver =
 	{
 		testplace = last_clear_point + (last_clear_velocity * (32 / last_clear_hor_speed));
 
-/*
+// Try this, it's pretty cool (but may kill your Quake engine)
+#ifdef DEBUG_JUMPS
 		local entity marker;
 		marker = spawn();
 		setmodel (marker, "progs/player.mdl");
 		setorigin(marker, testplace);
-*/
+#endif
 
 		FallSpotAir();
 

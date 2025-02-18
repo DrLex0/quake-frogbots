@@ -91,7 +91,6 @@ void() VelocityForArrow =
 			return;
 		}
 		self.t_velocity_override = 0;
-		self.ledge_stuck_time = 0;
 	}
 
 #ifdef QUAKE
