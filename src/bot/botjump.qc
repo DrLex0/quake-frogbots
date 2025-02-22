@@ -152,6 +152,35 @@ void() lava_jump =
 	}
 };
 
+// Accurate rocket jump. The bot will home in on the marker and set its view angles,
+// and launch when everything is close enough to the ideal values.
+void() AccurateRJump =
+{
+	self.precise_speed = 0;
+	rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - self.origin;
+	rel_dist = vlen(rel_pos);
+	if (rel_dist < 2.5 + 12 * self.bot_inaccuracy)
+	{
+		if (fabs(angle_error_x) < 1.5 + 12 * self.bot_inaccuracy)
+		if (fabs(angle_error_y) < 1.5 + 12 * self.bot_inaccuracy)
+		{
+			self.velocity = '0 0 0';
+			self.rocketjumping = 1;
+			self.botchose = 1;
+			self.impulse = 7;
+			self.button0_ = 1;
+			self.button2_ = 1;
+			return;
+		}
+		self.arrow = 0;
+		self.velocity = '0 0 0';
+		return;
+	}
+	self.precise_speed = 10 + 5 * rel_dist;
+	dir_move = normalize(rel_pos);
+	NewVelocityForArrow();
+};
+
 void() a_rocketjump =
 {
 	self.rocketjumping = 0;
@@ -184,13 +213,18 @@ void() a_rocketjump =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
+	if (self.path_from_marker.look_here)
+	{
+		AccurateRJump();
+		return;
+	}
 	if (vlen(self.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs)) > 100)
 		return;
 	if (!checkboven())
 		return;
 	if (!checkground())
 		return;
-	if (!right_direction(72))
+	if (!right_direction(60 + 30 * self.bot_inaccuracy))
 	{
 		NewVelocityForArrow();
 		return;
@@ -237,6 +271,8 @@ void() SpecialAccurateMoves =
 	// and each path leading to a marker that has any such outgoing path.
 	if (!(self.path_state & ACCURATE_PATH))
 		return;
+	if (self.path_state & ROCKET_JUMP)
+		return;  // accurate RJ combo is handled in a_rocketjump
 	if (self.rocketjumping)
 		return;
 	if (self.button2_)
@@ -261,7 +297,7 @@ void() SpecialAccurateMoves =
 			return;
 		}
 	}
-	else if (!right_direction(30))
+	else if (!right_direction(20 + 20 * self.bot_inaccuracy))
 	{
 		NewVelocityForArrow();
 		return;

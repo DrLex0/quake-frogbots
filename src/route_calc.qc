@@ -193,13 +193,35 @@ void() Calc_G_time_1 =
 
 /*
 ============
+SetupRJLook
+
+Create dummy object for the bot to set its aim for an accurate RJ.
+============
+*/
+void() SetupRJLook =
+{
+	if (m.look_here)
+	{
+		// Too exotic case to warrant the required complexity
+		dprint("FrogBot WARNING: m", ftos(m.index), " can only have a single .look_here\n");
+		return;
+	}
+	m.look_here = spawn();
+	m.look_here.solid = SOLID_NOT;
+	setsize (m.look_here, '0 0 0', '0 0 0');
+	// TODO may need to compensate pitch for long horizontal distances
+	setorigin (m.look_here, m.absmin + m.view_ofs + 
+	           48 * normalize((m.absmin + m.view_ofs) - (m_P.absmin + m_P.view_ofs + '0 0 24')));
+}
+
+/*
+============
 TravelTime
 
 Calculates traveltime for path m to m_P, and updates m_D according to path properties.
 Returns FALSE if pseudo-path mode (path should be ignored)
 ============
 */
-
 float() TravelTime =
 {
 	if (m_D & JUMP_LEDGE)
@@ -252,6 +274,8 @@ float() TravelTime =
 		 * This is all very Daedalian, but that's what's needed
 		 * in a language with no arrays or dictionaries. */
 		traveltime = traveltime + 1000;
+		if (m_D & SLOW_PRECISE)
+			SetupRJLook();
 	}
 
 	// We want the bot to accurately aim both for the destination

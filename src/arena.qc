@@ -236,6 +236,7 @@ void() aliases3;
 void(string s, float value) alias;
 
 // other functions used
+float(float a) anglemod2;
 void() obstruction;
 void() PrintRules;
 void() SetGame;
@@ -467,17 +468,6 @@ void() power_ =
 	sprint_fb(self, 2, " = ");
 	sprint_ftos(self, 2, c);
 	sprint_fb(self, 2, "\n");
-};
-
-// for player v_angle and angles
-float(float a) anglemod2 =
-{
-	while (a >= 180)
-		a = a - 360; // a < 180
-	while (a < -180)
-		a = a + 360; // a >= -180
-	a = rint(a / 1.40625) * 1.40625; // 256 yaws, not 360
-	return a;
 };
 
 // use instead of fixangle

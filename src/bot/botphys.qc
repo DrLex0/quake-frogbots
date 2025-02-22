@@ -81,6 +81,14 @@ Sets self.velocity according to current state and the value of self.arrow.
 */
 void() VelocityForArrow =
 {
+	if (self.path_state & ROCKET_JUMP)
+	if (self.path_from_marker.look_here)
+	if (self.rocketjumping || ! (self.flags & FL_ONGROUND))
+	{
+		// Accurate RJ in progress, don't try to move, or it will be messed up
+		return;
+	}
+
 	turning_speed = 0;
 
 	if(self.t_velocity_override)

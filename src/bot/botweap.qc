@@ -43,7 +43,7 @@ void() AttackRespawns =
 				self.old_linked_marker = world;
 				local	float	ang1, ang2;
 				ang2 = vectoyaw(resp.origin - self.origin);
-				ang1 = anglemod(self.angles_y - ang2);
+				ang1 = anglemod360(self.angles_y - ang2);
 				if (ang1 < 20 || ang1 > 340)
 					self.button0_ = TRUE;
 				return;				

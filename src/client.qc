@@ -59,26 +59,12 @@ void(entity mk) SetFrB_Props;
 void() FrogWaterMove;
 void() CheckWaterPathState;
 void() CheckBotStuckInWater;
-void() a_rocketjump;
-void() SpecialAccurateMoves;
+void() SetFrogbotAngles;
 
 
 #ifdef QUAKE
 void() obstruction;
 entity(entity start_entity, float index_) EntityAt;
-
-float(float v) FixedAngle =
-{
-	v = (v + 1.40625);
-	if ((v >= 0))
-	{
-		return (ceil(v));
-	}
-	else
-	{
-		return (floor(v));
-	}
-};
 #endif
 
 /*
@@ -1486,139 +1472,7 @@ void() PlayerPostThink_apply =
 
 	if (self.frogbot)
 	{
-	// pitch
-		pitchspeed_ = self.pitchspeed + self.pitchaccel * frametime;
-		if (pitchspeed_ > 0)
-		{
-			pitchspeed_ = pitchspeed_ - mouse_friction;
-			if (pitchspeed_ < 0)
-				pitchspeed_ = 0;
-		}
-		else
-		{
-			pitchspeed_ = pitchspeed_ + mouse_friction;
-			if (pitchspeed_ > 0)
-				pitchspeed_ = 0;
-		}
-
-		total_pitchspeed = pitchspeed_ + self.track_pitchspeed;
-		if (total_pitchspeed > 450)
-		{
-			total_pitchspeed = 450;
-			if (pitchspeed_ > 450)
-				pitchspeed_ = 450;
-		}
-		else if (total_pitchspeed < -450)
-		{
-			total_pitchspeed = -450;
-			if (pitchspeed_ < -450)
-				pitchspeed_ = -450;
-		}
-
-		self.pitchspeed = pitchspeed_;
-
-		real_pitch_ = self.real_pitch + total_pitchspeed * frametime;
-
-		if (real_pitch_ > 78.75)
-			real_pitch_ = 78.75;
-		else if (real_pitch_ < -71.71875)
-			real_pitch_ = -71.71875;
-
-		new_pitch = (rint(real_pitch_ / 1.40625)) * 1.40625;
-		self.real_pitch = real_pitch_;
-
-		if (special_moves_clock)
-		{
-			// Need to do this here because alters new_pitch when engaged
-			a_rocketjump();
-			SpecialAccurateMoves();
-		}
-
-	// yaw
-		yawspeed_ = self.yawspeed + self.yawaccel * frametime;
-		if (yawspeed_ > 0)
-		{
-			yawspeed_ = yawspeed_ - mouse_friction;
-			if (yawspeed_ < 0)
-				yawspeed_ = 0;
-		}
-		else
-		{
-			yawspeed_ = yawspeed_ + mouse_friction;
-			if (yawspeed_ > 0)
-				yawspeed_ = 0;
-		}
-
-		total_yawspeed = yawspeed_ + self.track_yawspeed;
-		if (fabs(total_yawspeed) > self.stop_turn_speed)
-		{
-			self.arrow = 0;
-			self.arrow_time = time + frametime;
-			if (total_yawspeed > 540)
-			{
-				total_yawspeed = 540;
-				if (yawspeed_ > 540)
-					yawspeed_ = 540;
-			}
-			else if (total_yawspeed < -540)
-			{
-				total_yawspeed = -540;
-				if (yawspeed_ < -540)
-					yawspeed_ = -540;
-			}
-		}
-
-		self.yawspeed = yawspeed_;
-
-		real_yaw_ = self.real_yaw + total_yawspeed * frametime;
-
-		if (real_yaw_ >= 180)
-			real_yaw_ = real_yaw_ - 360;
-		else if (real_yaw_ < -180)
-			real_yaw_ = real_yaw_ + 360;
-		self.v_angle_y = self.angles_y = (rint(real_yaw_ / 1.40625)) * 1.40625;
-		self.real_yaw = real_yaw_;
-
-
-	// self.angles holds crosshair position
-		if (new_pitch < 0)
-		{
-			if (new_pitch < -2.8125)
-				new_pitch = new_pitch + 2.8125;	// crosshair
-			else
-				new_pitch = 0;
-		}
-
-#ifdef ARENA
-		self.v_angle_x = new_pitch * -1;
-		SetViewAngle(self, self.v_angle);
-	#ifdef QUAKE
-		if (self.player)
-			self.stored_angle = self.v_angle;
-	#endif
-#else
-	#ifdef QUAKE
-		if (self.player)  // player became frogbot
-		{
-			self.angles_z = 0;	// stop incorrect roll
-
-			self.angles_x = FixedAngle(new_pitch);
-			self.angles_y = FixedAngle(self.v_angle_y);
-			self.fixangle = TRUE;
-
-			self.stored_angle = self.v_angle;	// used for frogbots
-			self.stored_angle_x = self.angles_x;
-		}
-		else  // pure frogbot
-		{
-			self.v_angle_x = FixedAngle(new_pitch);
-			self.angles = self.v_angle;
-			self.stored_angle = self.angles;
-		}
-	#else
-		self.angles_x = new_pitch / -3;
-	#endif
-#endif
+		SetFrogbotAngles();
 	}
 };
 

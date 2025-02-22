@@ -294,9 +294,13 @@ This is a complicated thing to set up, and it must be double-checked and tested 
 
 ### Reliable rocket jumps
 
-Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker, or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a one-way path to the actual destination on the ledge.
+The bot has 2 rocket jump modes:
+1. The **regular** RJ mode is to run towards the launch spot and shoot a rocket at its feet while jumping, when sufficiently close to the spot and more or less heading in the right direction. This is not very accurate, but it is fast. Usually the bot is able to correct for errors through air turning tricks, but it will occasionally fail, which makes it all the more realistic.
+2. When combining an RJ path with either precision jump or slow path mode, the bot will follow a slower but much more **accurate** procedure. It will only launch itself when both at near-ideal position and angles, and will not try to correct mid-air. This mode does not allow to go as far as the regular jumps, but can be required for really tricky jumps where accuracy is essential. Bots at higher levels will be quicker and more accurate while preparing the jump.
 
-When possible, try to provide only 1 incoming path into the marker from where the RJ should happen, in more or less the correct direction for the jump. This is not essential, but can help with accuracy and reliability of the jumps.
+Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker, or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a path to the actual destination on the ledge.
+
+When possible, try to provide only 1 incoming path into the marker from where a regular RJ should happen, in more or less the correct direction for the jump. This is not essential, but can help with accuracy and reliability of the jumps.
 
 Also, bots will only actively plan an RJ when that path is worth following to reach a goal, and there is no alternative path that does not require RJ, even if much longer. In the latter case they might still randomly decide to take an RJ shortcut when happening to pass across the marker, but they will not actively seek out that path.
 

@@ -1501,6 +1501,8 @@ float FALL_DEATH				= 3;
 entity dropper;
 float fallheight;
 
+// Actual accurate angles. These should be rounded to 8-bit accuracy before
+// being set on .v_angle or .angles (smallest step = 360/256 = 1.40625)
 .float real_pitch;
 .float real_yaw;
 .float pitchspeed;
@@ -2023,7 +2025,8 @@ entity touch_marker_;
 .float color_;
 .float teamcolor;
 .float bot_skill;  // from 0 to 20, bots should try to remain human-like below 10
-.float bot_smartness; // from 0 to 10
+.float bot_smartness;  // from 0 to 10
+.float bot_inaccuracy;  // from 0 to 1
 .float admin_code;
 .float lines;
 .float input_time;
@@ -2352,6 +2355,9 @@ float check_parm_time;
 .vector v_forward_;
 .vector v_right_;
 
+// If set on marker, bot will match its view angles to vector between
+// marker and this entity's origin (if not targeting enemy)
+.entity look_here;
 
 // sharing AI
 .entity touchPlayer;

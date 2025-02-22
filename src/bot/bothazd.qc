@@ -125,6 +125,10 @@ since last time, or when the anti-freeze engages.
 */
 float() BotAntiFreeze =
 {
+	if (self.path_state & ROCKET_JUMP)
+	if (self.path_from_marker.look_here)
+		return FALSE;  // converging on the launch point may take time, don't mess it up
+
 	if (vlen(self.origin - self.prev_origin) > 5)
 	{
 		self.stuck_deadline = 0;

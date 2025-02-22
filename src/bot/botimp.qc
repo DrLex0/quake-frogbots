@@ -38,7 +38,9 @@ void() SetAttribs =
 	// cvar 'fb_smartness' to nonzero. For dumbest possible bots, use negative value.
 	local float smartness;
 
-	skill_ = self.bot_skill;
+	skill_ = self.bot_skill;  // 0 to 20
+	self.bot_inaccuracy = 0.05 * (20 - skill_);
+	self.bot_inaccuracy = self.bot_inaccuracy * self.bot_inaccuracy;  // 0 to 1
 
 	if (game_show_rules)
 	{
