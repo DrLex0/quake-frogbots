@@ -624,6 +624,9 @@ float IMP_RL_PREF		= 67;
 float IMP_LG_PREF		= 68;
 float IMP_RUNE_RJ		= 69;
 float IMP_NOSKINS		= 70;
+float IMP_SKILLDOWN	= 114;
+float IMP_SKILLUP		= 115;
+float IMP_TOGGLEFROG	= 123;
 //---------------------------
 #ifdef NOCLIP
 float IMP_NOCLIP		= 130;

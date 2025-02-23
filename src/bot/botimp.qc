@@ -1543,6 +1543,15 @@ void() ImpulseCommands =
 			PlayerReady();
 		else if (impulse_ == IMP_WHO)
 			PlayerStatus();
+		else if (impulse_ == IMP_SKILLDOWN)
+			SkillDown();
+		else if (impulse_ == IMP_SKILLUP)
+			SkillUp();
+	#ifdef QUAKE
+		else if (impulse_ == IMP_TOGGLEFROG)
+			ToggleFrogbot();
+	#endif
+	// TODO: move all impulses not specific to ARENA outside this ifdef, and make aliases work
 	#ifdef ARENA
 		else if (impulse_ == IMP_ABOUT)
 			SprintVersion();
@@ -1558,10 +1567,6 @@ void() ImpulseCommands =
 			FragsDown();
 		else if (impulse_ == IMP_FRAGSUP)
 			FragsUp();
-		else if (impulse_ == IMP_SKILLDOWN)
-			SkillDown();
-		else if (impulse_ == IMP_SKILLUP)
-			SkillUp();
 		else if (impulse_ == IMP_CHDM)
 			ChangeDM();
 		else if (impulse_ == IMP_NO_LG)
