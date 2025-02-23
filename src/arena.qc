@@ -258,6 +258,7 @@ void() powerup_touch;
 void() SUB_regen;
 void() CheckWaterPathState;
 void() CheckBotStuckInWater;
+void() CheckWaterJump;
 #ifndef QUAKE
 void(float to, entity client) SetColorName;
 #endif
@@ -2309,26 +2310,7 @@ float() a_prethink =
 		if (self.waterlevel == 2)
 		{
 			CheckBotStuckInWater();
-			makevectors (self.v_angle);
-			start = self.origin;
-			start_z = start_z + 8; 
-			v_forward_z = 0;
-			v_forward = normalize(v_forward) * 24;
-			end = start + v_forward;
-			traceline (start, end, TRUE, self);
-			if (trace_fraction < 1)
-			{
-				start_z = self.origin_z + self.maxs_z;
-				end = start + v_forward;
-				self.movedir = trace_plane_normal * -50;
-				traceline (start, end, TRUE, self);
-				if (trace_fraction == 1)
-				{
-					self.flags = (self.flags | FL_WATERJUMP) & FL_NOT_JUMPRELEASED;
-					self.velocity_z = 225;
-					self.teleport_time = time + 2;
-				}
-			}
+			CheckWaterJump();
 		}
 	#ifndef QUAKE
 		if (!(self.player))

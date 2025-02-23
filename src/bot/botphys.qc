@@ -396,22 +396,60 @@ void() ApplyFriction =
 #endif
 
 	if (self.flags & FL_WATERJUMP)
+		return;
+	if (self.waterlevel <= 1)
+		DoFriction();
+	else	// do water friction
+		self.velocity = self.velocity * inv_sv_friction_frametime;
+};
+
+/*
+============
+ApplyWaterJump
+
+Apply forward push for bots or QUAKE clients until jump has succeeded.
+Mimic the QW implementation as much as possible.
+============
+*/
+void() ApplyWaterJump =
+{
+	if (self.flags & FL_WATERJUMPING)
 	{
 		self.velocity_x = self.movedir_x;
 		self.velocity_y = self.movedir_y;
 
-		if ((!self.waterlevel) || (time >= self.teleport_time))
+		// Keep applying push until timeout, or going down, or on solid ground
+		if (time >= self.waterjump_time)
 		{
-			self.flags = self.flags - FL_WATERJUMP;
-			self.teleport_time = 0;
+			self.flags = self.flags - (self.flags & FL_WATERJUMPING);
+			self.waterjump_time = 0;
 		}
-	}
-	else
-	{
-		if (self.waterlevel <= 1)
-			DoFriction();
-		else	// do water friction
-			self.velocity = self.velocity * inv_sv_friction_frametime;
+		else if(self.velocity_z <= 0)
+		{
+			self.flags = self.flags - (self.flags & FL_WATERJUMPING);
+			self.waterjump_time = 0;
+		}
+		else if (!self.waterlevel)
+		{
+		#ifndef QUAKE
+			// Quake engine clears FL_WATERJUMP when exiting water, QW doesn't.
+			// Must clear it, or bot will try to reach for outer space.
+			if (self.flags & FL_WATERJUMP)
+				self.flags = self.flags - FL_WATERJUMP;
+		#endif
+			// Extra test also present in QW: check whether origin is above
+			// something solid, although in practice the velocity test always
+			// triggers before this one
+			start = self.origin;
+			end = self.origin;
+			end_z = end_z + self.mins_z - 1;
+			traceline (self.origin, end, TRUE, self);
+			if (trace_fraction != 1)
+			{
+				self.flags = self.flags - (self.flags & FL_WATERJUMPING);
+				self.waterjump_time = 0;
+			}
+		}
 	}
 };
 
@@ -508,6 +546,8 @@ void() FrogbotPrePhysics1 =
 				self.v_angle_y = self.v_angle_y + 0.703125;
 		}
 	#endif
+
+		ApplyWaterJump();
 
 		self = self.next;
 	}

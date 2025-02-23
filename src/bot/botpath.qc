@@ -797,21 +797,11 @@ void() frogbot_marker_touch =
 	}
 
 	self.state = self.state & NOT_NOTARGET_ENEMY;
-	if (self.flags & FL_ONGROUND && self.wasinwater)
+	if (self.flags & FL_ONGROUND)
+	if (self.wasinwater)
 	{
 		self.wasinwater = FALSE;
-		self.path_state = self.path_state - (self.path_state & WATERJUMP);
 		self.state = self.state & NOT_NOTARGET_ENEMY;	
-	}
-	if (self.path_state & WATERJUMP)
-	{
-		self.wasinwater = TRUE;
-		self.state = self.state | NOTARGET_ENEMY;
-		look_object_ = self.linked_marker;
-		self.look_object = look_object_;
-		if (random() < 0.003)
-			self.button2_ = TRUE;
-		return;
 	}
 	if (self.path_state & DM6_DOOR)
 	{

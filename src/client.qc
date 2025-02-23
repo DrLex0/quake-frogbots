@@ -918,6 +918,42 @@ void() PlayerDeathThink =
 
 /*
 ================
+CheckWaterJump
+
+Check for a jump-out-of-water.
+(A similar routine _is_ in original QW QuakeC code, but commented out.)
+================
+*/
+void() CheckWaterJump =
+{
+	// Only jump out when going up
+	if (self.velocity_z < 0)
+		return;
+	makevectors (self.v_angle);
+	start = self.origin;
+	start_z = start_z + 8; 
+	v_forward_z = 0;
+	v_forward = normalize(v_forward) * 24;
+	end = start + v_forward;
+	traceline (start, end, TRUE, self);
+	if (trace_fraction < 1)
+	{	// solid at waist
+		start_z = self.origin_z + self.maxs_z;
+		end = start + v_forward;
+		self.movedir = trace_plane_normal * -50;
+		traceline (start, end, TRUE, self);
+		if (trace_fraction == 1)
+		{	// open at eye level
+			self.flags = (self.flags | FL_WATERJUMP | FL_WATERJUMPED) & FL_NOT_JUMPRELEASED;
+			// Unused QW implementation used 225, use same value as QW C code for consistency
+			self.velocity_z = 310;
+			self.waterjump_time = time + 2;	// safety net
+		}
+	}
+}
+
+/*
+================
 PlayerPreThink
 
 Called every frame before physics are run
@@ -951,34 +987,18 @@ void() PlayerPreThink_apply =
 			self.air_finished = time_12;
 			self.dmg = 2;
 
+		// Water jump logic is hard-coded in QuakeWorld for regular players.
+		// We must provide our own implementation for QUAKE and for bots.
 		#ifndef QUAKE
 			if (!self.player)
+		#endif
+		#ifdef MANUAL
+			if !(manual_mode)
 		#endif
 			if (self.waterlevel == 2)  // swimming but with head above liquid
 			{
 				CheckBotStuckInWater();
-
-			// check for a jump-out-of-water
-				makevectors (self.v_angle);
-				start = self.origin;
-				start_z = start_z + 8; 
-				v_forward_z = 0;
-				v_forward = normalize(v_forward) * 24;
-				end = start + v_forward;
-				traceline (start, end, TRUE, self);
-				if (trace_fraction < 1)
-				{	// solid at waist
-					start_z = self.origin_z + self.maxs_z;
-					end = start + v_forward;
-					self.movedir = trace_plane_normal * -50;
-					traceline (start, end, TRUE, self);
-					if (trace_fraction == 1)
-					{	// open at eye level
-						self.flags = (self.flags | FL_WATERJUMP) & FL_NOT_JUMPRELEASED;
-						self.velocity_z = 225;
-						self.teleport_time = time + 2;	// safety net
-					}
-				}
+				CheckWaterJump();
 			}
 		}
 		else if (self.air_finished < time)

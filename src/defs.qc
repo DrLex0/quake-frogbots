@@ -499,8 +499,14 @@ float	FL_ONGROUND				= 512;	// standing on something
 float	FL_PARTIALGROUND			= 1024;	// not all corners are valid
 float	FL_WATERJUMP			= 2048;	// player jumping out of water
 float	FL_JUMPRELEASED			= 4096;	// for jump debouncing
-float FL_BODYQUE				= 262144;
+float	FL_BODYQUE			= 262144;
 
+// We need an extra flag because FL_WATERJUMP is cleared by hard-coded Quake logic
+// as soon as the player exits water, but this does not mean the jump is finished.
+// Need a custom timer as well, because we cannot (ab)use teleport_time like the
+// half-baked Quake implementation, it also clears it.
+float	FL_WATERJUMPED		= 16384;	// jumping out of water but not yet on ledge
+.float	waterjump_time;
 
 #ifdef QUAKE
 float FL_QWPHYSICS			= 1048576;
@@ -514,6 +520,7 @@ float FL_CAMERA_QWPHYSICS	= 13631488;
 // 8388607;
 
 float FL_ONGROUND_PARTIALGROUND	= 1536;
+float FL_WATERJUMPING			= 18432;  // FL_WATERJUMP + FL_WATERJUMPED
 float FL_NOT_JUMPRELEASED		= 16773119;
 float FL_NOT_ONGROUND			= 16776703;
 
@@ -1556,7 +1563,8 @@ float new_path_state;
 
 // map set values
 float JUST_GO			= 1;
-float WATERJUMP			= 2;
+// Obsolete, even more so now that waterjumping has been fixed. Up for recycling.
+//float WATERJUMP_			= 2;
 float EXCLUSIVE_DOOR		= 4;
 float PRECISE_JUMP		= 128;
 float DM6_DOOR			= 256;
