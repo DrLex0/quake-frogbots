@@ -26,14 +26,14 @@
 
 void() SprintMaps =
 {
-	sprint_fb(self, 2, "   aerowalk     amphi2        dm3\n");
-	sprint_fb(self, 2, "        dm4        dm6       e1m2\n");
-	sprint_fb(self, 2, "   frobodm2      pkeg1    povdmm4\n");
-	sprint_fb(self, 2, "    spinev2     ultrav     ztndm3\n");
-	sprint_fb(self, 2, "    hohoho2        tox       cmt4\n");
-	sprint_fb(self, 2, "        dm5       e1m6     efdm13\n");
-	sprint_fb(self, 2, "      eodm3      exdm3     lilith\n");
-	sprint_fb(self, 2, "    oktest1   utressor\n");
+	sprint_fb(self, 2, "   aerowalk     amphi2       cmt4\n");
+	sprint_fb(self, 2, "        dm3        dm4        dm5\n");
+	sprint_fb(self, 2, "        dm6       e1m2       e1m6\n");
+	sprint_fb(self, 2, "     efdm13      eodm3      exdm3\n");
+	sprint_fb(self, 2, "   frobodm2    hohoho2     lilith\n");
+	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
+	sprint_fb(self, 2, "    spinev2        tox     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3\n");
 };
 
 float() LoadWaypoints =

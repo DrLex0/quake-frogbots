@@ -66,8 +66,9 @@ def generate_qc_source(args: argparse.Namespace) -> None:
         print("", file=qc_file)
 
         print("void() SprintMaps =\n{", file=qc_file)
-        for i in range(0, len(map_names), COLUMNS):
-            row = map_names[i:i+COLUMNS]
+        map_names_sorted = sorted(map_names, key=os.path.basename)
+        for i in range(0, len(map_names_sorted), COLUMNS):
+            row = map_names_sorted[i:i+COLUMNS]
             row_text = " ".join(f"{m_name:>{COL_WIDTH}}" for m_name in row)
             # Fudge it if map names are long
             while (len(row_text) > COLUMNS * (COL_WIDTH + 1) - 1) and "  " in row_text:
