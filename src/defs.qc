@@ -1486,8 +1486,12 @@ entity first_ent;
 entity first_teleport;
 entity first_takedamage;
 
+// Linked list from last to first
+entity last_marker;
+.entity marker_linkrev;
+// Linked list from first to last, only used for waypoint tool
 entity first_marker;
-.entity marker_link;
+.entity marker_linkfwd;
 .float fl_marker;
 
 float takedamage_exists;
@@ -1694,7 +1698,10 @@ float no_change;
 //
 
 float marker_index;
+// informational; highest index before start of custom markers;
+// not necessarily same as first_item.index
 float item_marker_index;
+entity first_extra_marker;  // world if no extra markers yet
 float que_size;
 entity m, m_2;
 vector m_pos, m_2_pos;

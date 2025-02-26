@@ -126,7 +126,7 @@ After loading the map, it looks like you're in a regular Quake game with no oppo
 By default, the tool will activate markers in the same way as in the game, i.e., when you're close enough to pick up something or trigger an action. Usually, you will want to enable the tool's custom **Closest-Marker-Mode** with `F`. CMM makes it generally easier to select markers. When markers are really close to each other or overlap, CMM also allows to cycle between the 3 nearest with the `L` or `0` (zero) key.
 
 ### Useful keys for displaying info
-- `Z` changes the display mode, which is useful to verify things. For instance path display mode will make all other markers spin that are part of the active marker's outgoing paths.
+- `Z` changes the display mode, which is useful to verify things. For instance path display mode (the default) will make all other markers spin that are part of the active marker's outgoing paths.
 - `C` prints information about the active marker, like its number, zone, goal, and coordinates.
 - `R` prints outgoing and incoming paths for the active marker, and visualises them through flying spikes.
 
@@ -182,12 +182,12 @@ These steps do not need to be done in this exact order, but you will typically m
    - **Jump ledge** (shown as ‘`J`’, number 1024 in code) is to make the bot jump _up onto_ or _down from_ ledges. Paths going up a step taller than 18 units, must be marked with this mode to ensure the bot will jump onto the step. Mind that _slow precise jump_ mode may be more appropriate to get onto small ledges, and _just GO mode_ may be more appropriate for a downward path.
    - **Door mode** (shown as `‘D’`, number 256 in code) is for getting through doors like in _dm6_ that need to be shot/whacked to open. This is limited by certain constraints and requires extra configuration. More details in the advanced section below.
    - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time. See the advanced section below for some tips.
-   - **Slow precise jump mode** (shown as `‘PS’`, number 2176 in code) is actually a combination of the next 2 modes, provided for convenience because most often you will need them together. This combined mode allows to _navigate small steps_ like the ones towards the yellow armour in `e1m2`. The bot must be within a distance of _48 units_ of the marker from which this `PS` path starts to start jumping towards the destination. This means you must place such markers close enough to the ledge on which the bot needs to jump, otherwise it will never jump and get stuck.  
+   - **Slow precise jump mode** (shown as `‘PS’`, number 2176 in code) is actually a combination of the next 2 modes, provided for convenience because most often you will need them together. This combined mode allows to _navigate small steps_ like the ones towards the yellow armour in `e1m2`. The bot _will not jump_ until it is within a distance of _48 units_ of the marker from which this `PS` path originates. This means you must place such markers close enough to the ledge on which the bot needs to jump, otherwise it will never jump and get stuck.  
      You may not need this often, but without it, getting onto certain small steps is often near impossible because the bot moves too erratically when trying to use ledge jump mode.
-   - **Precise jump mode** (shown as `‘P’`, number 128 in code) will make the bot do extra effort to jump closer to the location of the marker where this path starts, and also to better aim for direction of the destination marker. This can be used for tricky jumps that require accuracy, because normal bot movement is rather _sloppy._  
-     Again, the bot will only jump within a distance of 48 units of the start marker. To make this work well, provide a single path towards the jump spot in such a way that the bot is already mostly moving roughly in the right direction when it reaches the marker from where to jump.
-   - **Slow down mode** (shown as `‘S’`, number 2048 in code) will make the bot slow down while near the marker from which this path starts. It is mostly useful to combine with precise jump, but can also be used alone or in combination with ledge jump, to avoid that the bot overshoots its target when making a deep downward jump.
-   - **Just GO mode** (shown as `'!'`, number 1 in code) does what it says: it disables all safety checks in the bot for that path, and just makes it go. The most common use case is to override the bot's fall-from-edges mechanism, which sometimes engages inadvertently and prevents the bot from jumping off a ledge. If you see the bot zig-zagging across an edge while it should just jump down, try adding this path mode. A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to. In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
+   - **Precise jump mode** (shown as `‘P’`, number 128 in code) will make the bot do extra effort to initiate a jump closer from the location of the marker where this path originates, and also to better aim in the direction of the destination marker. This can be used for tricky jumps that require accuracy, because normal bot movement is rather _sloppy._  
+     Again, the bot will only jump within a distance of 48 units of the start marker. To make this work well, provide a single path towards the jump spot in such a way that the bot is already moving roughly in the right direction when it reaches the marker from where to jump.
+   - **Slow down mode** (shown as `‘S’`, number 2048 in code) will make the bot slow down while near the marker from which this path starts. It is mostly useful to combine with precise jump, but can also be used alone or in combination with just GO mode, to avoid that the bot overshoots its target when making a deep downward jump.
+   - **Just GO mode** (shown as `'!'`, number 1 in code) does what it says: it disables all safety checks in the bot for that path, and just makes it _go._ The most common use case is to override the bot's fall-from-edges mechanism, which sometimes engages inadvertently and prevents the bot from jumping off a ledge. If you see the bot zig-zagging across an edge while it should just jump down, try adding this path mode. A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to. In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
    - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door. See the advanced section for more info.
 
 At regular moments, and especially when you're done, use `F1` to dump the waypoint code to console. If you didn't run with `-condebug`, you must then use `condump` to write the console log to a file. The `autoexec` binds this to `F5` (think QuickSave).
@@ -196,7 +196,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - Remember that bots will react to _any_ marker they ‘touch,’ not only the next one on their path (unless they are in exclusive mode).  
   Also, the touch mechanism is pretty _coarse,_ and may already trigger when the bot is still quite far away. The bot will then stop moving towards that marker and change its direction towards the next planned marker. This can make it seem as if the bot is cutting corners on paths with sharp angles. If it is important for the bot to follow a specific curve, you may need to place extra markers, or move markers farther away to keep the bot from bumping into obstacles.
 - You can ‘lock’ the active marker in Static Marker mode with `I` or `TAB`, allowing to move to other markers without activating them. It is also useful to watch the paths animation (`R`) from a distance, or check how far you are from the marker with the `/` key.
-- It helps to draw a floor plan of the map with zones, goals and paths, although the visualisation modes of the tool make it easy to spot mistakes. It also is interesting to walk around in existing maps and see how waypoints were added.
+- It helps to draw a floor plan of the map with zones, goals and paths, especially for complicated cases like exclusive paths, although the visualisation modes of the tool make it easy to spot mistakes. It also is interesting to walk around in existing maps and see how waypoints were added.
 - At any time when you are confused about what marker mode you're in, press `G` to reset. (The only thing this does not reset, is closest marker mode.)
 - Moving an existing marker is preferable over deleting it and making a new one. Static marker mode (`I` or `TAB`) is your friend here.
 - Paths through _push zones_ must be one-way. For simple pushes, one marker before the push brush and one at the exit may suffice. If there are corners and bends, an extra marker may be needed to guide the bot into the push.
@@ -207,6 +207,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
   It has nothing to do with unreachable marker flag (see advanced section).  
   Although markers can be placed further apart than what this tool considers too far, it is still a good guideline for maximum marker distance.
 - Same for the _runaway_ thing: I don't know what it's for. The information printed on the second and third lines when pressing `C` is related to this ‘runaway’ concept, and the markers shown in runaway mode are the same ones listed in those lines. This appears to be an unfinished feature, there is some logic in the code to do something special when the bot is in `RUNAWAY` state, but _nothing_ in the code sets this state. I might look into this someday… If anyone knows more about it, please explain!
+- Markers have an _index:_ the index for `m123` is 123. Lower indices are used by map entities. In previous editions of the Frogbot, indices for custom markers could change when loading existing waypoints and then saving them, even when making no changes at all. The v2 waypoint tool has a deterministic way of saving waypoint data and will not only preserve existing indices, it also saves waypoint code in a standard ordering to make it much easier to track changes. (When importing waypoints from an older version, data will be reordered, but indices will stay the same.)
 
 
 ## Adding your waypoint data to Frogbots and/or waypoint build
@@ -224,7 +225,7 @@ For the shell freaks, this bit of magic will extract the last waypoint code from
 awk '/void\(\) map_.* =/ {found=NR} END {if (found) for (i=found; i<=NR; i++) print lines[i]} {lines[NR]=$0}' condump.txt
 ```
 Ensure no unwanted newlines are introduced in the code: lines must _only_ be split after a `;`.  
-You _can_ manually edit the waypoint code, like adding a goal or path mode you forgot, removing unwanted paths or path modes, or fixing other things. The format is straightforward. Don't waste time on reordering things, because if you compile the waypoints into the tool and then resume editing from it, your neat sorting will be screwed up anyway.
+You _can_ manually edit the waypoint code, like adding a goal or path mode you forgot, removing unwanted paths or path modes, or fixing other things. The format is straightforward.
 
 ### Method 1: build waypoints into Frogbot progs
 
@@ -247,10 +248,6 @@ Once you have imported waypoint annotations into a `.map` file, you can safely e
 …
 
 Converting embedded waypoints back to QuakeC code format is simple: load the map in the waypoint tool, and dump the code with `F1` as usual.
-
-### Remarks
-
-Mind that when loading a map with existing waypoints in the waypoint tool, there is _no guarantee_ that all markers will have the same numbers as in the waypoint code, i.e., as last time you edited the waypoints. I expect it to be more stable in this new version than the old, but still I cannot guarantee anything.
 
 
 ## Advanced
@@ -296,7 +293,7 @@ This is a complicated thing to set up, and it must be double-checked and tested 
 
 The bot has 2 rocket jump modes:
 1. The **regular** RJ mode is to run towards the launch spot and shoot a rocket at its feet while jumping, when sufficiently close to the spot and more or less heading in the right direction. This is not very accurate, but it is fast. Usually the bot is able to correct for errors through air turning tricks, but it will occasionally fail, which makes it all the more realistic.
-2. When combining an RJ path with either precision jump or slow path mode, the bot will follow a slower but much more **accurate** procedure. It will only launch itself when both at near-ideal position and angles, and will not try to correct mid-air. This mode does not allow to go as far as the regular jumps, but can be required for really tricky jumps where accuracy is essential. Bots at higher levels will be quicker and more accurate while preparing the jump.
+2. When combining an RJ path with either precision jump or slow path mode, the bot will follow a slower but much more **accurate** procedure. It will only launch itself when both at near-ideal position and angles, and will not try to correct mid-air. The line between the 2 markers acts as the ideal trajectory, hence correct marker placement is crucial for this mode. It does not allow to go as far as the regular jumps, but can be required for really tricky jumps where accuracy is essential. Bots at higher levels will be quicker and more accurate while preparing the jump.
 
 Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker, or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a path to the actual destination on the ledge.
 
@@ -320,6 +317,8 @@ Therefore:
 There are 2 new marker types related to this feature, that can be assigned by changing display mode to `type` with the `Z` key, then selecting the mode with the `V` key, and right-clicking the marker:
 1. **slime island:** if you want to add markers on dry zones or islands that can only be _exited_ through slime, it is important to set this type on them. This will allow the bot to consider jumping into the slime even when its protection has run out; otherwise it would become a sitting duck on the island.
 2. **want biosuit:** this should be set on every worthwhile item that requires the biosuit to be safely reached. This will make the suit as desirable to the bot as the most desirable item marked as such. If there is no marker of this type, the suit will have zero desirability and the bot will only pick it up by chance.
+
+Look at `efdm13` for an example.
 
 Never make any paths going into _lava,_ even though theoretically they could be traversed with invulnerability. The extra complexity required to also implement this, was not deemed worth it. Maps where it would be useful are scarce, and the consequences of the power-up expiring while still in lava are usually _lethal._ Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
 

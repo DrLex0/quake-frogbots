@@ -191,6 +191,13 @@ void(entity marker) manual_marker_touch =
 	}
 };
 
+void() SpawnNewMarker =
+{
+	spawn_marker((self.origin - '0 0 22') + self.view_ofs);
+	marker_index = marker_index + 1;
+	marker_.index = marker_index;
+}
+
 void() RemoveActiveMarker =
 {
 	if (!active_marker)
@@ -198,39 +205,41 @@ void() RemoveActiveMarker =
 		bprint("no active marker\n");
 		return;
 	}
-	if (active_marker.classname == "marker")
-	{
-		m = first_marker;
-		while (m)
-		{
-			if (m.P0 == active_marker)
-				m.P0 = world;
-			if (m.P1 == active_marker)
-				m.P1 = world;
-			if (m.P2 == active_marker)
-				m.P2 = world;
-			if (m.P3 == active_marker)
-				m.P3 = world;
-			if (m.P4 == active_marker)
-				m.P4 = world;
-			if (m.P5 == active_marker)
-				m.P5 = world;
-			if (m.P6 == active_marker)
-				m.P6 = world;
-			if (m.P7 == active_marker)
-				m.P7 = world;
-			m = m.marker_link;
-		}
-		RemoveMarker(active_marker);
-		remove(active_marker);
-		bprint("active marker removed\n");
-		active_marker = world;
-		self.touch_marker = world;
-	}
-	else
+	if (active_marker.classname != "marker")
 	{
 		bprint("Active marker cannot be removed\n");
+		return;
 	}
+
+	m = last_marker;
+	while (m)
+	{
+		if (m.index > active_marker.index)
+			m.index = m.index - 1;
+		if (m.P0 == active_marker)
+			m.P0 = world;
+		if (m.P1 == active_marker)
+			m.P1 = world;
+		if (m.P2 == active_marker)
+			m.P2 = world;
+		if (m.P3 == active_marker)
+			m.P3 = world;
+		if (m.P4 == active_marker)
+			m.P4 = world;
+		if (m.P5 == active_marker)
+			m.P5 = world;
+		if (m.P6 == active_marker)
+			m.P6 = world;
+		if (m.P7 == active_marker)
+			m.P7 = world;
+		m = m.marker_linkrev;
+	}
+	RemoveMarker(active_marker);
+	remove(active_marker);
+	bprint("active marker removed\n");
+	active_marker = world;
+	self.touch_marker = world;
+	marker_index = marker_index - 1;
 };
 
 void() CleanUpTemporaries =
@@ -380,12 +389,12 @@ Show all markers of same zone as the selected marker
 */
 void() DisplayZone =
 {
-	marker_ = first_marker;
+	marker_ = last_marker;
 	while (marker_)
 	{
 		if (marker_.Z_ == active_marker.Z_)
 			SpinMarkerDisplay(marker_);
-		marker_ = marker_.marker_link;
+		marker_ = marker_.marker_linkrev;
 	}
 };
 
@@ -400,13 +409,13 @@ void() DisplayType =
 {
 	if (! type_mode)
 		return;
-	marker_ = first_marker;
+	marker_ = last_marker;
 	while (marker_)
 	{
 		if (marker_.T & SAVED_T)
 		if ((marker_.T & type_mode) == type_mode)
 			SpinMarkerDisplay(marker_);
-		marker_ = marker_.marker_link;
+		marker_ = marker_.marker_linkrev;
 	}
 };
 
@@ -444,7 +453,7 @@ void() MarkerDisplay =
 	if (self.touch_marker)
 		manual_marker_touch(self.touch_marker);
 
-	marker_ = first_marker;
+	marker_ = last_marker;
 	while (marker_)
 	{
 		if (marker_.classname == "marker")
@@ -463,7 +472,7 @@ void() MarkerDisplay =
 				marker_.display.model = "";
 			}
 		}
-		marker_ = marker_.marker_link;
+		marker_ = marker_.marker_linkrev;
 	}
 	if ((mode & CLOSEST_MARKER) && ! (mode & STATIC_ACTIVE_MARKER))
 	{
@@ -791,6 +800,42 @@ void(string print_string) DescriptionMarker =
 Waypoint saving routines begin here
 ============
 */
+void() SaveMarkers =
+{
+	if (paths_computed || map_lacks_waypoints)
+	{
+		save_state = 0;
+		bprint("\nvoid() map_", mapname, " =\n{\n");
+		bprint("// custom markers start at m", ftos(1 + item_marker_index), "\n");
+		m = first_extra_marker;
+		save_position = spawn();
+		save_position.nextthink = 0.001;
+		save_position.think = SaveCoords;
+	}
+};
+
+void() SaveCoords =
+{
+	self.nextthink = 0.001;
+	count_ = 0;
+	while (m)
+	{
+		bprint("N(", ftos(m.origin_x), ",", ftos(m.origin_y), ",", ftos(m.origin_z), ");");
+		count_ = count_ + 1;
+		m = m.marker_linkfwd;
+		if (count_ >= 4)
+		{
+			bprint("\n");
+			return;
+		}
+	}
+	if (count_)
+		bprint("\n");
+	bprint("LSQ();\n");
+	m = first_marker;
+	self.think = SavePaths;
+};
+
 void(string field) Save_m_P =
 {
 	if (m_P)
@@ -831,57 +876,6 @@ void() Save_dm6_door =
 	if (door_targetZ != 1)
 		bprint("door_targetZ=", ftos(door_targetZ), ";");
 	count_ = 10;
-};
-
-void() SetMarkerIndexes =
-{
-	marker_index = item_marker_index;
-	marker_ = world;
-	marker_ = find(marker_, classname, "marker");
-	while (marker_)
-	{
-		marker_index = marker_index + 1;
-		marker_.index = marker_index;
-		marker_ = find(marker_, classname, "marker");
-	}
-};
-
-void() SaveMarkers =
-{
-	if (paths_computed || map_lacks_waypoints)
-	{
-		SetMarkerIndexes();
-		save_state = 0;
-		bprint("\nvoid() map_", mapname, " =\n{\n");
-		bprint("// custom markers start at m", ftos(1 + item_marker_index), "\n");
-		m = world;
-		save_position = spawn();
-		save_position.nextthink = 0.001;
-		save_position.think = SaveCoords;
-	}
-};
-
-void() SaveCoords =
-{
-	self.nextthink = 0.001;
-	count_ = 0;
-	m = find(m, classname, "marker");
-	while (m)
-	{
-		bprint("N(", ftos(m.origin_x), ",", ftos(m.origin_y), ",", ftos(m.origin_z), ");");
-		count_ = count_ + 1;
-		if (count_ >= 4)
-		{
-			bprint("\n");
-			return;
-		}
-		m = find(m, classname, "marker");
-	}
-	if (count_)
-		bprint("\n");
-	bprint("LSQ();\n");
-	m = first_marker;
-	self.think = SavePaths;
 };
 
 void() SavePaths =
@@ -984,7 +978,7 @@ void() SavePaths =
 			}
 		}
 
-		m = m.marker_link;
+		m = m.marker_linkfwd;
 		if (count_ >= 8)
 		{
 			if (save_state < 4 || save_state > 5)
@@ -1052,7 +1046,7 @@ void() DumpMarkerInfo =
 			bprint(" \"", m.FrB_ID, "\"");
 		bprint(";\n");
 		count_ = count_ + 1;
-		m = m.marker_link;
+		m = m.marker_linkfwd;
 		if (count_ >= 10)
 		{
 			return;
@@ -1060,8 +1054,8 @@ void() DumpMarkerInfo =
 	}
 
 	bprint("*/\n\n");
-	m = first_marker;
-	remove_self();
+	m = last_marker;
+	remove_self();  // removes save_position
 }
 /*
 ============
@@ -1071,20 +1065,20 @@ Waypoint saving routines end here
 
 void() HideAllMarkers =
 {
-	marker_ = first_marker;
+	marker_ = last_marker;
 	while (marker_)
 	{
 		if (marker_.classname == "marker")
 			marker_.model = "";
 		else
 			remove(marker_.display);
-		marker_ = marker_.marker_link;
+		marker_ = marker_.marker_linkrev;
 	}
 };
 
 void() DisplayAllMarkers =
 {
-	marker_ = first_marker;
+	marker_ = last_marker;
 	while (marker_)
 	{
 		if (marker_.classname == "marker")
@@ -1096,7 +1090,7 @@ void() DisplayAllMarkers =
 			setmodel(virtual_marker, "progs/player.mdl");
 		}
 		marker_.display.frame = 12;
-		marker_ = marker_.marker_link;
+		marker_ = marker_.marker_linkrev;
 	}
 };
 
@@ -1202,12 +1196,12 @@ void() GoalInfo =
 	local entity marker;
 
 	S_index = 1;
-	marker = first_marker;
+	marker = last_marker;
 	while (marker)
 	{
 		if (marker.G_ == Z_index)
 			S_index = S_index + 1;
-		marker = marker.marker_link;
+		marker = marker.marker_linkrev;
 	}
 };
 
@@ -1216,12 +1210,12 @@ void() ZoneInfo =
 	local entity marker;
 
 	S_index = 1;
-	marker = first_marker;
+	marker = last_marker;
 	while (marker)
 	{
 		if (marker.Z_ == Z_index)
 			S_index = S_index + 1;
-		marker = marker.marker_link;
+		marker = marker.marker_linkrev;
 	}
 };
 
@@ -1294,7 +1288,6 @@ void() PrintGoal =
 		bprint("no active marker\n");
 		return;
 	}
-	SetMarkerIndexes();
 	bprint("m", ftos(active_marker.index));
 	if (active_marker.Z_)
 		bprint(", Z", ftos(active_marker.Z_));
@@ -1457,7 +1450,6 @@ void() PrintPathInfo =
 		bprint("no active marker\n");
 		return;
 	}
-	SetMarkerIndexes();
 	local float p_count = 0;
 	m = active_marker;
 	bprint("m", ftos(m.index));
@@ -1575,7 +1567,7 @@ void() PrintPathInfo =
 			p_count = p_count + 1;
 			SpikeItDelayed(m, active_marker, 1);
 		}
-		m = m.marker_link;
+		m = m.marker_linkfwd;
 	}
 	if (! p_count) bprint(" none\n\n");
 	else bprint(" [", ftos(p_count), "]\n\n");
@@ -1868,7 +1860,7 @@ void() CheckAllZones =
 	local entity first_bad = world;
 	local entity last_bad = world;
 
-	marker_ = first_marker;
+	marker_ = last_marker;
 	while (marker_)
 	{
 		if (!marker_.Z_)
@@ -1879,7 +1871,7 @@ void() CheckAllZones =
 			if (self.origin == ((marker_.absmin + marker_.view_ofs) + '0 0 22') - self.view_ofs)
 				exit_next = 1;
 		}
-		marker_ = marker_.marker_link;
+		marker_ = marker_.marker_linkrev;
 	}
 
 	if (last_bad)
@@ -1969,7 +1961,7 @@ void() ManualImpulseCommands =
 {
 	// toggle manual mode is impulse 131, `O` or `3`
 	if (impulse_ == 132)  // MOUSE1 or `3`
-		spawn_marker((self.origin - '0 0 22') + self.view_ofs);
+		SpawnNewMarker();
 	else if (impulse_ == 133)  // `N`
 		CheckAllGoals();
 	else if (impulse_ == 134)  // `M`

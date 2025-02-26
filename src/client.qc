@@ -355,6 +355,8 @@ void() check_trigger =
 		{
 			first_teleport = RemoveFromList(first_teleport);
 			SUB_DelayRemove();
+			// I have no idea why this is invoked here, it makes no sense,
+			// we're going to exit the map anyway  -- DrLex
 			RemoveMarker(self);
 		}
 

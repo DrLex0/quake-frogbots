@@ -157,7 +157,7 @@ void() LSQ =
 		AddToQue_apply();
 
 	no_change = TRUE;
-	m = m_2 = first_marker;
+	m = m_2 = last_marker;
 	m_zone = zone_stack_head;
 	path_normal = TRUE;
 
@@ -289,7 +289,7 @@ void() ApplyFrB_props =
 	LSQ();
 
 	// Maybe this should split up with think to avoid a DoS on the engine?
-	mk = first_marker;
+	mk = last_marker;
 	while(mk)
 	{
 		if (mk.FrB_P0 != "") { found = FindFrB_ID(world, mk.FrB_P0); if(found) mk.P0 = found; }
@@ -310,7 +310,7 @@ void() ApplyFrB_props =
 		if (mk.FrB_D7 != "") mk.D7 = stof(mk.FrB_D7);
 		if (mk.FrB_oZ != "") mk.view_ofs_z = stof(mk.FrB_oZ);
 		if (mk.FrB_T != "") mk.T = stof(mk.FrB_T);
-		mk = mk.marker_link;
+		mk = mk.marker_linkrev;
 	}
 
 	if (world.FrB_door != "" ) {

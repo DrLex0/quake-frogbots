@@ -108,11 +108,11 @@ void() Calc_G_time_path =
 
 		count_ = count_ - 1;
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
-			m = first_marker;
+			m = last_marker;
 
 			if (no_change)
 			{
@@ -146,7 +146,7 @@ void() Calc_G_time_path =
 Calc_G_time_1
 
 Start of path calculations.
-m and m_2 must point to first_marker
+m and m_2 must point to last_marker
 before invoking this for the first time!
 ============
 */
@@ -178,7 +178,7 @@ void() Calc_G_time_1 =
 			count_ = count_ - 1;
 		}
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
@@ -528,11 +528,11 @@ void() Calc_G_time_2 =
 
 		count_ = count_ - 1;
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
-			m = first_marker;
+			m = last_marker;
 
 			dropper.use = Calc_G_time_3_path;
 			dropper.think = Calc_G_time_path;
@@ -879,11 +879,11 @@ void() Calc_G_time_7 =
 
 		count_ = count_ - 1;
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
-			m = first_marker;
+			m = last_marker;
 
 			dropper.use = Calc_G_time_8_path;
 			dropper.think = Calc_G_time_path;
@@ -1030,17 +1030,17 @@ void() Calc_G_time_9 =
 
 		count_ = count_ - 1;
 
-		m_2 = m_2.marker_link;
+		m_2 = m_2.marker_linkrev;
 
 		if (!m_2)
 		{
-			m_2 = first_marker;
+			m_2 = last_marker;
 
-			m = m.marker_link;
+			m = m.marker_linkrev;
 
 			if (!m)
 			{
-				m = first_marker;
+				m = last_marker;
 
 				dropper.use = Calc_G_time_10_path;
 				dropper.think = Calc_G_time_path;
@@ -1371,11 +1371,11 @@ void() Calc_G_time_11 =
 
 		count_ = count_ - 1;
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
-			m = first_marker;
+			m = last_marker;
 
 			if (path_normal)
 				path_normal = FALSE;
@@ -1448,11 +1448,11 @@ void() Calc_G_time_12 =
 
 		count_ = count_ - 1;
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
-			m = first_marker;
+			m = last_marker;
 
 			dropper.think = Calc_G_time_13;
 			set_load();
@@ -1622,11 +1622,11 @@ void() Calc_G_time_13 =
 
 		count_ = count_ - 1;
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
-			m = first_marker;
+			m = last_marker;
 
 			dropper.think = Calc_G_time_14;
 			set_load();
@@ -1687,11 +1687,11 @@ void() Calc_G_time_14 =
 
 		count_ = count_ - 1;
 
-		m = m.marker_link;
+		m = m.marker_linkrev;
 
 		if (!m)
 		{
-			m = first_marker;
+			m = last_marker;
 
 			if (path_normal)
 				path_normal = FALSE;

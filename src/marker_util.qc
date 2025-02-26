@@ -21,28 +21,50 @@ BecomeMarker
 void(entity marker) BecomeMarker =
 {
 	marker.fl_marker = TRUE;
-	marker.marker_link = first_marker;
-	first_marker = marker;
-	dropper.marker_link = first_marker;
+	// backwards linked list
+	marker.marker_linkrev = last_marker;
+	last_marker = marker;
+	dropper.marker_linkrev = last_marker;
+	// forwards linked list
+	if (! first_marker)
+		first_marker = marker;
+	else
+		marker.marker_linkrev.marker_linkfwd = marker;
 };
 
 /*
 ============
 RemoveMarker
 
+Updates linked lists to cater for removal of this marker, entity itself will
+not yet be removed.
+This will _not_ ensure continuity of .index properties of other markers;
+that should be done when it matters. (In theory it should only matter for the
+waypoint tool. There is one other place that removes a marker, but I think it
+makes no sense anyway.  --DrLex)
 ============
 */
 void(entity marker) RemoveMarker =
 {
-	local entity e;
-
 	marker.fl_marker = FALSE;
-	e = dropper;
-	while (e.marker_link != marker)
-		e = e.marker_link;
-	e.marker_link = marker.marker_link;
-	if(e == dropper)
-		first_marker = e.marker_link;
+	if (marker.marker_linkfwd)
+		marker.marker_linkfwd.marker_linkrev = marker.marker_linkrev;
+	else
+	{
+		dropper.marker_linkrev = marker.marker_linkrev;
+		last_marker = marker.marker_linkrev;
+	}
+	if (marker.marker_linkrev)
+		marker.marker_linkrev.marker_linkfwd = marker.marker_linkfwd;
+	else
+	{
+		// Technically this can never happen, but let's be complete anyway
+		first_marker = marker.marker_linkfwd;
+	}
+	if (marker == first_extra_marker)
+	{
+		first_extra_marker = marker.marker_linkfwd;
+	}
 };
 
 /*
@@ -64,6 +86,8 @@ void(vector org) spawn_marker =
 	marker_.touch = marker_touch;
 	marker_.view_ofs = '80 80 24';
 #ifdef MANUAL
+	if (! first_extra_marker)
+		first_extra_marker = marker_;
 	marker_.display = marker_;
 	setmodel(marker_, "progs/player.mdl");
 	marker_.frame = 12;
