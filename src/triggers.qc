@@ -469,7 +469,6 @@ void() GetSource =
 		setsize (self, '-65 -65 -24', '65 65 32');
 		self.view_ofs = '80 80 24';
 		self.pickup = pickup_true;
-		adjust_view_ofs_z();
 #ifndef ARENA
 	}
 	else
