@@ -22,7 +22,7 @@ GENERAL ITEM NOTES
 
 */
 void() W_SetCurrentAmmo;
-void() check_marker;
+void(float prioritize) check_marker;
 void() AddToQue;
 void() UpdateGoalEntity;
 entity(vector org) LocateMarker;
@@ -185,7 +185,7 @@ Item markers must only be considered touched if:
 void() ItemMarkerTouch =
 {
 	if (marker_time)
-		check_marker();
+		check_marker(FALSE);
 }
 
 /*
@@ -356,7 +356,7 @@ void() health_touch =
 
 				self.nextthink = self.goal_respawn_time = time + 20;
 			}
-			check_marker();
+			check_marker(FALSE);
 			AssignVirtualGoal();
 
 			msg_entity = other;
@@ -441,7 +441,7 @@ void() armor_touch =
 
 			if (NoItemTouch())
 				return;  // marker not touched until item truly picked up
-			check_marker();
+			check_marker(FALSE);
 			other.armortype = self.armortype;
 			other.armorvalue = self.armorvalue;
 			other.items = (other.items & IT_NOT_ARMOR) + self.items;
@@ -728,7 +728,7 @@ void() weapon_touch =
 
 			if (NoItemTouch())
 				return;  // marker not touched until item truly picked up
-			check_marker();
+			check_marker(FALSE);
 			if (self.weapon == IT_NAILGUN)
 				other.ammo_nails = other.ammo_nails + 30;
 			else if (self.weapon == IT_SUPER_NAILGUN)
@@ -1168,7 +1168,7 @@ void() ammo_touch =
 				other.ammo_cells = other.ammo_cells + self.aflag;
 			}
 
-			check_marker();
+			check_marker(FALSE);
 			other.weapon_refresh_time = 0;
 
 			bound_ammo ();
@@ -1663,7 +1663,7 @@ void() powerup_touch =
 		{
 			if (NoItemTouch())
 				return;  // marker not touched until item truly picked up
-			check_marker();
+			check_marker(FALSE);
 			self.nextthink = self.goal_respawn_time = time + self.aflag;
 			AssignVirtualGoal();
 

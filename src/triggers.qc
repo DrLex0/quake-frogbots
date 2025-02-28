@@ -426,7 +426,7 @@ void() destination_touch =
 	{
 		if (other.client_)
 		{
-			check_marker();
+			check_marker(FALSE);
 
 			test_enemy = world;
 			while ((test_enemy = find (test_enemy, target, self.targetname)))

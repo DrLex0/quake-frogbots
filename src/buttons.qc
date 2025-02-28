@@ -63,7 +63,7 @@ void() button_fire =
 			// and ignore marker_time clock, because:
 			// - this event only happens once;
 			// - timing is often essential when pushing switches
-			check_marker();
+			check_marker(TRUE);
 			msg_entity = self;
 			sound (CHAN_VOICE, self.noise, 1, ATTN_NORM);
 			enemy_ = self.enemy;

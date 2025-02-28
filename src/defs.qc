@@ -2034,6 +2034,9 @@ float score_pos_;
 .entity touch_marker;
 .float touch_distance;
 entity touch_marker_;
+// When set, all next touches will be ignored until frogbot_marker_touch has run,
+// use this for important one-time touch events like for switches
+.float sticky_touch;
 
 // Touched marker at the moment the bot planned its current path, updated at
 // .frogbot_nextthink clock, together with .linked_marker. Use this when it is

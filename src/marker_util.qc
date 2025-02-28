@@ -123,9 +123,13 @@ void(entity client, entity marker) set_marker =
 ============
 check_marker
 
+If prioritize, and the touching bot has this marker as linked_marker,
+its .touch_marker will be forced to this marker, and sticky_touch will
+be set to ignore all next touches until the bot processes the touch in
+frogbot_marker_touch().
 ============
 */
-void() check_marker =
+void(float prioritize) check_marker =
 {
 #ifdef MANUAL
 	if (!manual_mode)
@@ -149,21 +153,28 @@ void() check_marker =
 		self.touchPlayerTime = time + 2.5;
 	}
 
-	// Take the nearest touching marker (except see below)
-	distance = vlen(self.absmin + self.view_ofs - other.origin);
-	if (distance > other.touch_distance)
-		return;
-	if (self.absmin_z - 20 >= other.absmin_z)
+	if (other.sticky_touch)
+	if (! prioritize)
 		return;
 
-	// Give priority to the path destination if it (nearly) overlaps with
-	// the current marker. Otherwise bots may get stuck waiting on a touch
-	// that keeps being obscured by a nearby marker. However, don't do this
-	// for accurate path mode, it could mess up accuracy.
-	if (other.touch_marker == other.linked_marker)
-	if (other.touch_distance - distance < 20)
-	if (! (other.path_state & ACCURATE_PATH))
-		return;
+	// Take the nearest touching marker (except see below)
+	distance = vlen(self.absmin + self.view_ofs - other.origin);
+	if (!prioritize)
+	{
+		if (distance > other.touch_distance)
+			return;
+		if (self.absmin_z - 20 >= other.absmin_z)
+			return;
+
+		// Give priority to the path destination if it (nearly) overlaps with
+		// the current marker. Otherwise bots may get stuck waiting on a touch
+		// that keeps being obscured by a nearby marker. However, don't do this
+		// for accurate path mode, it could mess up accuracy.
+		if (other.touch_marker == other.linked_marker)
+		if (other.touch_distance - distance < 20)
+		if (! (other.path_state & ACCURATE_PATH))
+			return;
+	}
 
 	if (other.path_state & EXCLUSIVE_PATH)
 	{
@@ -175,6 +186,9 @@ void() check_marker =
 		}
 	}
 
+	if (prioritize)
+	if (other.linked_marker == self)
+		other.sticky_touch = TRUE;
 	other.touch_distance = distance;
 	other.touch_marker = self;
 	other.Z_ = self.Z_;
@@ -192,7 +206,7 @@ void() marker_touch =
 	if (marker_time)
 	{
 		if (other.client_)
-			check_marker();
+			check_marker(FALSE);
 	}
 };
 

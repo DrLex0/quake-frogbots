@@ -257,7 +257,7 @@ void() train_touch =
 	{
 		if (marker_time)
 		if (self.fl_marker)
-			check_marker();
+			check_marker(FALSE);
 
 		if (other.flags & FL_ONGROUND)
 			other.fl_ontrain = TRUE;	// used in FrogbotPrePhysics2

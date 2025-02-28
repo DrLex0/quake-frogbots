@@ -298,6 +298,7 @@ void() frogbot_marker_touch =
 
 	if (self.path_state & EXCLUSIVE_PATH)
 		self.path_state = self.path_state - EXCLUSIVE_PATH;
+	self.sticky_touch = FALSE;
 
 	if (linked_marker_ == touch_marker_)
 	{

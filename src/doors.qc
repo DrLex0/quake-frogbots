@@ -214,7 +214,7 @@ void() door_touch =
 		if (other.client_)
 		{
 			if (self.fl_marker)
-				check_marker();
+				check_marker(FALSE);
 		}
 	}
 };
@@ -645,7 +645,7 @@ void() secret_touch =
 	{
 		if (marker_time)
 		if (self.fl_marker)
-			check_marker();
+			check_marker(FALSE);
 
 		if (self.attack_finished <= time)
 			self.attack_finished = time + 2;
