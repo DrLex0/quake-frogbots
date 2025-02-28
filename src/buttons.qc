@@ -59,6 +59,11 @@ void() button_fire =
 	{
 		if (self.state != STATE_TOP)
 		{
+			// Only consider the marker touched when the button activates,
+			// and ignore marker_time clock, because:
+			// - this event only happens once;
+			// - timing is often essential when pushing switches
+			check_marker();
 			msg_entity = self;
 			sound (CHAN_VOICE, self.noise, 1, ATTN_NORM);
 			enemy_ = self.enemy;
@@ -77,13 +82,6 @@ void() button_touch =
 
 	if (other.client_)
 	{
-		// When button activates, ignore marker_time clock and immediately
-		// send event, because timing is often essential when pushing switches
-		if (self.state != STATE_UP)
-			check_marker();
-		else if (marker_time)
-			check_marker();
-
 		self.enemy = other;
 		button_fire ();
 	}
