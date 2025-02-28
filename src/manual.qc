@@ -1395,12 +1395,16 @@ SpikeIt
 
 Launch a spike that travels from one entity to another
 in 1 second, passing through any obstacles.
+If mD is a pseudo-path mode, use a bubble instead.
 ============
 */
-void(entity e_from, entity e_to, entity garbage) SpikeIt =
+void(entity e_from, entity e_to, float mD, entity garbage) SpikeIt =
 {
 	entity trail = spawn();
-	setmodel (trail, "progs/spike.mdl");
+	if (mD & EXCLUSIVE_DOOR)
+		setmodel (trail, "progs/s_bubble.spr");
+	else
+		setmodel (trail, "progs/spike.mdl");
 	setsize (trail, '0 0 0', '0 0 0');
 	trail.movetype = MOVETYPE_NOCLIP;
 	trail.solid = SOLID_NOT;
@@ -1422,14 +1426,15 @@ SpikeDelayedGo
 For invoking SpikeIt with a delay
 ============
 */
-void() SpikeDelayedGo = { SpikeIt(self.previous, self.next, self); }
+void() SpikeDelayedGo = { SpikeIt(self.previous, self.next, self.D0, self); }
 
-void(entity e_from, entity e_to, float delay) SpikeItDelayed =
+void(entity e_from, entity e_to, float mD, float delay) SpikeItDelayed =
 {
 	entity delay_me = spawn();
 	// slightly abusing some fields that happen to exist
 	delay_me.previous = e_from;
 	delay_me.next = e_to;
+	delay_me.D0 = mD;
 	delay_me.think = SpikeDelayedGo;
 	delay_me.nextthink = time + delay;
 }
@@ -1460,49 +1465,49 @@ void() PrintPathInfo =
 		bprint(" m", ftos(m.P0.index));
 		PrintDLabel (m.D0);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P0, world);
+		SpikeIt(active_marker, m.P0, m.D0, world);
 	}
 	if (m.P1) {
 		bprint(" m", ftos(m.P1.index));
 		PrintDLabel (m.D1);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P1, world);
+		SpikeIt(active_marker, m.P1, m.D1, world);
 	}
 	if (m.P2) {
 		bprint(" m", ftos(m.P2.index));
 		PrintDLabel (m.D2);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P2, world);
+		SpikeIt(active_marker, m.P2, m.D2, world);
 	}
 	if (m.P3) {
 		bprint(" m", ftos(m.P3.index));
 		PrintDLabel (m.D3);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P3, world);
+		SpikeIt(active_marker, m.P3, m.D3, world);
 	}
 	if (m.P4) {
 		bprint(" m", ftos(m.P4.index));
 		PrintDLabel (m.D4);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P4, world);
+		SpikeIt(active_marker, m.P4, m.D4, world);
 	}
 	if (m.P5) {
 		bprint(" m", ftos(m.P5.index));
 		PrintDLabel (m.D5);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P5, world);
+		SpikeIt(active_marker, m.P5, m.D5, world);
 	}
 	if (m.P6) {
 		bprint(" m", ftos(m.P6.index));
 		PrintDLabel (m.D6);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P6, world);
+		SpikeIt(active_marker, m.P6, m.D6, world);
 	}
 	if (m.P7) {
 		bprint(" m", ftos(m.P7.index));
 		PrintDLabel (m.D7);
 		p_count = p_count + 1;
-		SpikeIt(active_marker, m.P7, world);
+		SpikeIt(active_marker, m.P7, m.D7, world);
 	}
 	if (! p_count) bprint(" none\nin: ");
 	else bprint(" [", ftos(p_count), "]\nin :");
@@ -1516,56 +1521,56 @@ void() PrintPathInfo =
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D0);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D0, 1);
 		}
 		else if (m.P1 && (m.P1.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D1);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D1, 1);
 		}
 		else if (m.P2 && (m.P2.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D2);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D2, 1);
 		}
 		else if (m.P3 && (m.P3.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D3);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D3, 1);
 		}
 		else if (m.P4 && (m.P4.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D4);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D4, 1);
 		}
 		else if (m.P5 && (m.P5.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D5);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D5, 1);
 		}
 		else if (m.P6 && (m.P6.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D6);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D6, 1);
 		}
 		else if (m.P7 && (m.P7.index == active_marker.index))
 		{
 			bprint(" m", ftos(m.index));
 			PrintDLabel (m.D7);
 			p_count = p_count + 1;
-			SpikeItDelayed(m, active_marker, 1);
+			SpikeItDelayed(m, active_marker, m.D7, 1);
 		}
 		m = m.marker_linkfwd;
 	}
