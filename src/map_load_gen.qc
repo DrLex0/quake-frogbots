@@ -24,6 +24,7 @@
 #include "maps/trinca/map_lilith.qc"
 #include "maps/trinca/map_oktest1.qc"
 #include "maps/trinca/map_utressor.qc"
+#include "maps/trinca/map_ztndm6.qc"
 
 void() SprintMaps =
 {
@@ -35,6 +36,7 @@ void() SprintMaps =
 	sprint_fb(self, 2, "     lilith    oktest1      pkeg1\n");
 	sprint_fb(self, 2, "    povdmm4    spinev2        tox\n");
 	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
+	sprint_fb(self, 2, "     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -159,6 +161,11 @@ float() LoadWaypoints =
 		map_utressor();
 		return TRUE;
 	}
+	if (mapname == "ztndm6")
+	{
+		map_ztndm6();
+		return TRUE;
+	}
 	return FALSE;
 };
 
@@ -212,5 +219,7 @@ string(string mname) MapHasWaypoints =
 		return "oktest1";
 	if (mname == "utressor")
 		return "utressor";
+	if (mname == "ztndm6")
+		return "ztndm6";
 	return "";
 };

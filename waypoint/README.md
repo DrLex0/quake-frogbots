@@ -188,7 +188,7 @@ These steps do not need to be done in this exact order, but you will typically m
      Again, the bot will only jump within a distance of 48 units of the start marker. To make this work well, provide a single path towards the jump spot in such a way that the bot is already moving roughly in the right direction when it reaches the marker from where to jump.
    - **Slow down mode** (shown as `‘S’`, number 2048 in code) will make the bot slow down while near the marker from which this path starts. It is mostly useful to combine with precise jump, but can also be used alone or in combination with just GO mode, to avoid that the bot overshoots its target when making a deep downward jump.
    - **Just GO mode** (shown as `'!'`, number 1 in code) does what it says: it disables all safety checks in the bot for that path, and just makes it _go._ The most common use case is to override the bot's fall-from-edges mechanism, which sometimes engages inadvertently and prevents the bot from jumping off a ledge. If you see the bot zig-zagging across an edge while it should just jump down, try adding this path mode. A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to. In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
-   - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door. See the advanced section for more info.
+   - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door or platform. See the advanced section for more info.
 
 At regular moments, and especially when you're done, use `F1` to dump the waypoint code to console. If you didn't run with `-condebug`, you must then use `condump` to write the console log to a file. The `autoexec` binds this to `F5` (think QuickSave).
 
@@ -264,7 +264,7 @@ If there are lava or slime pits, or deadly traps, it may be a good idea to place
 ### Switches, Exclusive markers and doors
 
 There may be situations where you want the bot to focus on exclusively following a specific path. For instance, after touching a _switch_ to open a door, the bot has to run from the switch to the door while ignoring any markers not part of this path. The bot must also not react to touching any marker on this path towards the door _unless_ when coming from the switch.  
-An essential part of making the bot push the switch to open the door, is ensuring that the only path going to the door is a _one-way path_ via the switch. If the path from the switch to the door is well-separated from other paths, this is all that is required.
+An essential part of making the bot push the switch to open the door, is ensuring that the only path going to the door is a _one-way path_ via the switch. If the path from the switch to the door is well-separated from other paths, this is all that is required. Making a path through a switch, means the bot must push the switch before moving to the next marker in the path.
 
 In a map like `dm5` however, this does not suffice because the paths going to and coming from the switch share the same narrow bridge. Normal bot behaviour is to re-evaluate paths each time a marker is touched. If we would simply create a loop with 2 one-way paths, then when running towards the switch and touching a marker on the return path, the only allowed path is back and vice versa. In other words, the bot would keep yo-yoing between markers from both paths, and go nowhere.  
 Also, if the door is already open, we don't want the bot to make the detour via the switch.
@@ -285,15 +285,17 @@ This works as follows. The bot will:
 
 When the bot exits an exclusive path, in other words when it decides to move from an exclusive marker towards a non-exclusive marker, the `exclusive door` mechanism is instantly suppressed for 4 seconds, to allow the bot to exit through the same door without being forced back in.
 
-If you look at the `dm5` waypoints, you will notice that 2 extra exclusive markers with paths towards the door have been placed to make bots coming from other directions immediately go through the door when someone else has opened it for them. Same for `ultrav`.  
+If you look at the `dm5` waypoints, you will notice that 2 extra exclusive markers with paths towards the door have been placed to make bots approaching from other directions immediately go through the door when someone else has opened it for them. Same for `ultrav`.  
 This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it. It helps a lot to draw a diagram of the markers and how they must be set up, as in the example above (which I need to add, TODO).
+
+Mind that a _platform_ is also considered a _door,_ considered ‘open’ in its ‘up’ position, which means that an exclusive marker can also be linked to a platform with _exclusive door_ mode to activate the marker only when the platform is up. This can for instance be used to make the bot move away from under an extended platform, to avoid being squished when it comes down. An example can be found near the Quad in `ztndm6`.
 
 
 ### Reliable rocket jumps
 
 The bot has 2 rocket jump modes:
 1. The **regular** RJ mode is to run towards the launch spot and shoot a rocket at its feet while jumping, when sufficiently close to the spot and more or less heading in the right direction. This is not very accurate, but it is fast. Usually the bot is able to correct for errors through air turning tricks, but it will occasionally fail, which makes it all the more realistic.
-2. When combining an RJ path with either precision jump or slow path mode, the bot will follow a slower but much more **accurate** procedure. It will only launch itself when both at near-ideal position and angles, and will not try to correct mid-air. The line between the 2 markers acts as the ideal trajectory, hence correct marker placement is crucial for this mode. It does not allow to go as far as the regular jumps, but can be required for really tricky jumps where accuracy is essential. Bots at higher levels will be quicker and more accurate while preparing the jump.
+2. When combining an RJ path with either precision jump or slow path mode, the bot will follow a slower but much more **accurate** procedure. It will only launch itself when both at near-ideal position and angles, and will not try to correct mid-air. The line between the 2 markers acts as the ideal trajectory, hence correct marker placement is crucial for this mode. It does not allow to go as far as the regular jumps, but can be required for really tricky jumps where accuracy is essential. Bots at higher skill levels will be quicker and more accurate while preparing the jump.
 
 Rocket jumps can be tricky, especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker, or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a path to the actual destination on the ledge.
 
