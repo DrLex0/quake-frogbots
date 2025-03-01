@@ -135,9 +135,15 @@ By default, the tool will activate markers in the same way as in the game, i.e.,
 These steps do not need to be done in this exact order, but you will typically move from the top to the bottom of this list as you progress.
 
 1. Use `,` and `.` or the scroll wheel to select a **ZONE** number.  
-   - Zones could be considered parts of the map where everything is within reach without having to cross obstacles or run a long distance. For instance 2 floors that require traversing a big staircase or elevator, must get a different zone. Zone numbers do not impose a preference, I usually start with 1 for the “main” zone where most of the action will happen and go up from there, but you can use any number for any part of the map, and you can skip numbers.
+   - Zones could be considered parts of the map where everything is within reach without having to cross obstacles or run a long distance. See the guidelines below.  
+     Zone numbers do not impose a preference, I usually start with 1 for the “main” zone where most of the action will happen and go up from there, but you can use any number for any part of the map, and you can skip numbers.
    - There can be up to _32 markers_ in one zone. If you exceed this, you must split up zones.
 2. Activate the desired marker and set its zone: `ENTER` or `Q`. Do this for all markers you consider the same zone.
+   - Guidelines for assigning markers to zones:
+     1. going from one marker to another within the same zone _must not_ require passing through another zone's markers, moving between markers of the same zone must only involve following paths within the zone;
+     2. markers within a zone must be within a reasonably short travel time, no more than a few seconds;
+     3. do not create zones that are one elongated chain of markers, split those up into shorter chains;
+     4. if going from marker _B_ to _A_ takes much longer than going from _A_ to _B,_ for instance _A→B_ is a simple jump, _B→A_ requires taking staircases, elevators, swimming, … then A and B must be in different zones.
 3. Add extra markers where needed for constructing paths such that bots won't get stuck on geometry: move to the spot and `MOUSE1`. Do not overdo this, but don't leave huge gaps between markers either.  
    Remember to also assign a zone to the new markers. If a zone number is currently selected, new markers automatically get this zone.
 4. Assign **GOALS** to items: things the bot will want to fetch: weapons, ammo, health, powerups. Use `,.` or scroll to select GOAL number and again use `ENTER` or `Q` on the marker.
@@ -193,6 +199,7 @@ These steps do not need to be done in this exact order, but you will typically m
 At regular moments, and especially when you're done, use `F1` to dump the waypoint code to console. If you didn't run with `-condebug`, you must then use `condump` to write the console log to a file. The `autoexec` binds this to `F5` (think QuickSave).
 
 ### General Remarks
+- Guideline 1 for assigning markers to zones is really important; if you violate it, path planning may not work as expected. For instance, if `m42` is in `Z1` and `m43` is in `Z2`, and you want to add a marker that is _only_ connected to `m43`, then this new marker _must_ be in `Z2`, _not_ in `Z1`.
 - Remember that bots will react to _any_ marker they ‘touch,’ not only the next one on their path (unless they are in exclusive mode).  
   Also, the touch mechanism is pretty _coarse,_ and may already trigger when the bot is still quite far away. The bot will then stop moving towards that marker and change its direction towards the next planned marker. This can make it seem as if the bot is cutting corners on paths with sharp angles. If it is important for the bot to follow a specific curve, you may need to place extra markers, or move markers farther away to keep the bot from bumping into obstacles.
 - You can ‘lock’ the active marker in Static Marker mode with `I` or `TAB`, allowing to move to other markers without activating them. It is also useful to watch the paths animation (`R`) from a distance, or check how far you are from the marker with the `/` key.
@@ -316,9 +323,12 @@ Therefore:
 - in maps with a biosuit and/or pentagram of protection, it is OK to create paths through slime if it makes any sense;
 - in maps that do not have those items, do not create paths through slime unless they're very short.
 
-There are 2 new marker types related to this feature, that can be assigned by changing display mode to `type` with the `Z` key, then selecting the mode with the `V` key, and right-clicking the marker:
-1. **slime island:** if you want to add markers on dry zones or islands that can only be _exited_ through slime, it is important to set this type on them. This will allow the bot to consider jumping into the slime even when its protection has run out; otherwise it would become a sitting duck on the island.
+There are 2 new _marker types_ related to this feature, that can be assigned by changing display mode to `type` with the `Z` key, then selecting the mode with the `V` key, and right-clicking the marker:
+1. **slime island:** if there are markers on dry zones or islands that can only be _exited_ through slime, it is important to set this type on all markers on that ‘island.’ This will allow the bot to consider jumping into the slime even when its protection has run out; otherwise it would become a sitting duck on the island.  
+If there are _teleport triggers_ or _destinations_ in slime, or that will drop the player into slime, you _must_ also mark these as `slime island` for the path calculations to work correctly, because the game is unable to reliably detect that such markers are inside slime.
 2. **want biosuit:** this should be set on every worthwhile item that requires the biosuit to be safely reached. This will make the suit as desirable to the bot as the most desirable item marked as such. If there is no marker of this type, the suit will have zero desirability and the bot will only pick it up by chance.
+
+When making _zones,_ give markers in slime their own zone(s). Do not mix ‘dry’ markers and slime (island) markers in a single zone.
 
 Look at `efdm13` for an example.
 
