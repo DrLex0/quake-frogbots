@@ -336,11 +336,21 @@ void() FrogWaterMove =
 		VelocityForArrow();
 		return;
 	}
+
+	// Obstruction avoidance: only if obstruction persists, otherwise
+	// risk of oscillating in place and eventually drowning
 	if (self.obstruction_normal != '0 0 0')
 	{
-		SwimAwayFromWall();
-		return;
+		if (! self.t_swim_obstruction)
+			self.t_swim_obstruction = time + 0.2;
+		else if (time > self.t_swim_obstruction)
+		{
+			SwimAwayFromWall();
+			self.t_swim_obstruction = 0;
+			return;
+		}
 	}
+	else self.t_swim_obstruction = 0;
 
 	if (touch_marker_)
 	if (touch_marker_.classname == "trigger_teleport")
@@ -352,6 +362,8 @@ void() FrogWaterMove =
 
 	// Turn the bot into a sonar-equipped submarine.
 	// And of course implement this as if it still needs to run on a Pentium II.
+	// Maybe some random errors should be added on lower skill levels, this may
+	// work a little too well to realistically mimic a human player.
 	local float tl, tr, bl, br, go_state;
 	local vector facing = '0 0 0';
 	facing_y = self.v_angle_y;

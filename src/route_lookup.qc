@@ -188,59 +188,43 @@ void() Z23_sight_from_time = { look_traveltime = to_marker.Z23_sight_from_time_;
 void() Z24_sight_from_time = { look_traveltime = to_marker.Z24_sight_from_time_; };
 
 void() Z_marker_error = { middle_marker = dropper; zone_time = 1000000; };
-void() Z1_marker = 
-{ 
-if (path_normal) 
-	{
-	 middle_marker = from_marker.Z1_; 
-	zone_time = from_marker.Z1_time; 
- return; 
-	} 
- else 
-	{
-	 middle_marker = from_marker.Z1_rev; 
-	 zone_time = from_marker.Z1_time_rev; 
-	 } 
- };
-
-
-void() Z2_marker = { if (path_normal) { middle_marker = from_marker.Z2_; zone_time = from_marker.Z2_time; return; } else { middle_marker = from_marker.Z2_rev; zone_time = from_marker.Z2_time_rev; } };
-void() Z3_marker = { if (path_normal) { middle_marker = from_marker.Z3_; zone_time = from_marker.Z3_time; return; } else { middle_marker = from_marker.Z3_rev; zone_time = from_marker.Z3_time_rev; } };
-void() Z4_marker = { if (path_normal) { middle_marker = from_marker.Z4_; zone_time = from_marker.Z4_time; return; } else { middle_marker = from_marker.Z4_rev; zone_time = from_marker.Z4_time_rev; } };
-void() Z5_marker = { if (path_normal) { middle_marker = from_marker.Z5_; zone_time = from_marker.Z5_time; return; } else { middle_marker = from_marker.Z5_rev; zone_time = from_marker.Z5_time_rev; } };
-void() Z6_marker = { if (path_normal) { middle_marker = from_marker.Z6_; zone_time = from_marker.Z6_time; return; } else { middle_marker = from_marker.Z6_rev; zone_time = from_marker.Z6_time_rev; } };
-void() Z7_marker = { if (path_normal) { middle_marker = from_marker.Z7_; zone_time = from_marker.Z7_time; return; } else { middle_marker = from_marker.Z7_rev; zone_time = from_marker.Z7_time_rev; } };
-void() Z8_marker = { if (path_normal) { middle_marker = from_marker.Z8_; zone_time = from_marker.Z8_time; return; } else { middle_marker = from_marker.Z8_rev; zone_time = from_marker.Z8_time_rev; } };
-void() Z9_marker = { if (path_normal) { middle_marker = from_marker.Z9_; zone_time = from_marker.Z9_time; return; } else { middle_marker = from_marker.Z9_rev; zone_time = from_marker.Z9_time_rev; } };
-void() Z10_marker = { if (path_normal) { middle_marker = from_marker.Z10_; zone_time = from_marker.Z10_time; return; } else { middle_marker = from_marker.Z10_rev; zone_time = from_marker.Z10_time_rev; } };
-void() Z11_marker = { if (path_normal) { middle_marker = from_marker.Z11_; zone_time = from_marker.Z11_time; return; } else { middle_marker = from_marker.Z11_rev; zone_time = from_marker.Z11_time_rev; } };
-void() Z12_marker = { if (path_normal) { middle_marker = from_marker.Z12_; zone_time = from_marker.Z12_time; return; } else { middle_marker = from_marker.Z12_rev; zone_time = from_marker.Z12_time_rev; } };
-void() Z13_marker = { if (path_normal) { middle_marker = from_marker.Z13_; zone_time = from_marker.Z13_time; return; } else { middle_marker = from_marker.Z13_rev; zone_time = from_marker.Z13_time_rev; } };
-void() Z14_marker = 
+void() Z1_marker =
 {
- if (path_normal)
- {
- middle_marker = from_marker.Z14_; 
-zone_time = from_marker.Z14_time;
- return; 
-} 
-else
- {
- middle_marker = from_marker.Z14_rev; 
-zone_time = from_marker.Z14_time_rev; }
- };
+	if (path_normal)
+	{
+		middle_marker = from_marker.Z1_;
+		zone_time = from_marker.Z1_time;
+	}
+	else
+	{
+		middle_marker = from_marker.Z1_rev;
+		zone_time = from_marker.Z1_time_rev;
+	} 
+};
 
-
-void() Z15_marker = { if (path_normal) { middle_marker = from_marker.Z15_; zone_time = from_marker.Z15_time; return; } else { middle_marker = from_marker.Z15_rev; zone_time = from_marker.Z15_time_rev; } };
-void() Z16_marker = { if (path_normal) { middle_marker = from_marker.Z16_; zone_time = from_marker.Z16_time; return; } else { middle_marker = from_marker.Z16_rev; zone_time = from_marker.Z16_time_rev; } };
-void() Z17_marker = { if (path_normal) { middle_marker = from_marker.Z17_; zone_time = from_marker.Z17_time; return; } else { middle_marker = from_marker.Z17_rev; zone_time = from_marker.Z17_time_rev; } };
-void() Z18_marker = { if (path_normal) { middle_marker = from_marker.Z18_; zone_time = from_marker.Z18_time; return; } else { middle_marker = from_marker.Z18_rev; zone_time = from_marker.Z18_time_rev; } };
-void() Z19_marker = { if (path_normal) { middle_marker = from_marker.Z19_; zone_time = from_marker.Z19_time; return; } else { middle_marker = from_marker.Z19_rev; zone_time = from_marker.Z19_time_rev; } };
-void() Z20_marker = { if (path_normal) { middle_marker = from_marker.Z20_; zone_time = from_marker.Z20_time; return; } else { middle_marker = from_marker.Z20_rev; zone_time = from_marker.Z20_time_rev; } };
-void() Z21_marker = { if (path_normal) { middle_marker = from_marker.Z21_; zone_time = from_marker.Z21_time; return; } else { middle_marker = from_marker.Z21_rev; zone_time = from_marker.Z21_time_rev; } };
-void() Z22_marker = { if (path_normal) { middle_marker = from_marker.Z22_; zone_time = from_marker.Z22_time; return; } else { middle_marker = from_marker.Z22_rev; zone_time = from_marker.Z22_time_rev; } };
-void() Z23_marker = { if (path_normal) { middle_marker = from_marker.Z23_; zone_time = from_marker.Z23_time; return; } else { middle_marker = from_marker.Z23_rev; zone_time = from_marker.Z23_time_rev; } };
-void() Z24_marker = { if (path_normal) { middle_marker = from_marker.Z24_; zone_time = from_marker.Z24_time; return; } else { middle_marker = from_marker.Z24_rev; zone_time = from_marker.Z24_time_rev; } };
+void() Z2_marker = { if (path_normal) { middle_marker = from_marker.Z2_; zone_time = from_marker.Z2_time; } else { middle_marker = from_marker.Z2_rev; zone_time = from_marker.Z2_time_rev; } };
+void() Z3_marker = { if (path_normal) { middle_marker = from_marker.Z3_; zone_time = from_marker.Z3_time; } else { middle_marker = from_marker.Z3_rev; zone_time = from_marker.Z3_time_rev; } };
+void() Z4_marker = { if (path_normal) { middle_marker = from_marker.Z4_; zone_time = from_marker.Z4_time; } else { middle_marker = from_marker.Z4_rev; zone_time = from_marker.Z4_time_rev; } };
+void() Z5_marker = { if (path_normal) { middle_marker = from_marker.Z5_; zone_time = from_marker.Z5_time; } else { middle_marker = from_marker.Z5_rev; zone_time = from_marker.Z5_time_rev; } };
+void() Z6_marker = { if (path_normal) { middle_marker = from_marker.Z6_; zone_time = from_marker.Z6_time; } else { middle_marker = from_marker.Z6_rev; zone_time = from_marker.Z6_time_rev; } };
+void() Z7_marker = { if (path_normal) { middle_marker = from_marker.Z7_; zone_time = from_marker.Z7_time; } else { middle_marker = from_marker.Z7_rev; zone_time = from_marker.Z7_time_rev; } };
+void() Z8_marker = { if (path_normal) { middle_marker = from_marker.Z8_; zone_time = from_marker.Z8_time; } else { middle_marker = from_marker.Z8_rev; zone_time = from_marker.Z8_time_rev; } };
+void() Z9_marker = { if (path_normal) { middle_marker = from_marker.Z9_; zone_time = from_marker.Z9_time; } else { middle_marker = from_marker.Z9_rev; zone_time = from_marker.Z9_time_rev; } };
+void() Z10_marker = { if (path_normal) { middle_marker = from_marker.Z10_; zone_time = from_marker.Z10_time; } else { middle_marker = from_marker.Z10_rev; zone_time = from_marker.Z10_time_rev; } };
+void() Z11_marker = { if (path_normal) { middle_marker = from_marker.Z11_; zone_time = from_marker.Z11_time; } else { middle_marker = from_marker.Z11_rev; zone_time = from_marker.Z11_time_rev; } };
+void() Z12_marker = { if (path_normal) { middle_marker = from_marker.Z12_; zone_time = from_marker.Z12_time; } else { middle_marker = from_marker.Z12_rev; zone_time = from_marker.Z12_time_rev; } };
+void() Z13_marker = { if (path_normal) { middle_marker = from_marker.Z13_; zone_time = from_marker.Z13_time; } else { middle_marker = from_marker.Z13_rev; zone_time = from_marker.Z13_time_rev; } };
+void() Z14_marker = { if (path_normal) { middle_marker = from_marker.Z14_; zone_time = from_marker.Z14_time; } else { middle_marker = from_marker.Z14_rev; zone_time = from_marker.Z14_time_rev; } };
+void() Z15_marker = { if (path_normal) { middle_marker = from_marker.Z15_; zone_time = from_marker.Z15_time; } else { middle_marker = from_marker.Z15_rev; zone_time = from_marker.Z15_time_rev; } };
+void() Z16_marker = { if (path_normal) { middle_marker = from_marker.Z16_; zone_time = from_marker.Z16_time; } else { middle_marker = from_marker.Z16_rev; zone_time = from_marker.Z16_time_rev; } };
+void() Z17_marker = { if (path_normal) { middle_marker = from_marker.Z17_; zone_time = from_marker.Z17_time; } else { middle_marker = from_marker.Z17_rev; zone_time = from_marker.Z17_time_rev; } };
+void() Z18_marker = { if (path_normal) { middle_marker = from_marker.Z18_; zone_time = from_marker.Z18_time; } else { middle_marker = from_marker.Z18_rev; zone_time = from_marker.Z18_time_rev; } };
+void() Z19_marker = { if (path_normal) { middle_marker = from_marker.Z19_; zone_time = from_marker.Z19_time; } else { middle_marker = from_marker.Z19_rev; zone_time = from_marker.Z19_time_rev; } };
+void() Z20_marker = { if (path_normal) { middle_marker = from_marker.Z20_; zone_time = from_marker.Z20_time; } else { middle_marker = from_marker.Z20_rev; zone_time = from_marker.Z20_time_rev; } };
+void() Z21_marker = { if (path_normal) { middle_marker = from_marker.Z21_; zone_time = from_marker.Z21_time; } else { middle_marker = from_marker.Z21_rev; zone_time = from_marker.Z21_time_rev; } };
+void() Z22_marker = { if (path_normal) { middle_marker = from_marker.Z22_; zone_time = from_marker.Z22_time; } else { middle_marker = from_marker.Z22_rev; zone_time = from_marker.Z22_time_rev; } };
+void() Z23_marker = { if (path_normal) { middle_marker = from_marker.Z23_; zone_time = from_marker.Z23_time; } else { middle_marker = from_marker.Z23_rev; zone_time = from_marker.Z23_time_rev; } };
+void() Z24_marker = { if (path_normal) { middle_marker = from_marker.Z24_; zone_time = from_marker.Z24_time; } else { middle_marker = from_marker.Z24_rev; zone_time = from_marker.Z24_time_rev; } };
 
 void() Z_path_marker_error = { next_marker = world; };
 void() Z1_path_marker = { if (path_normal) { next_marker = from_marker.Z1_next; } else { next_marker = from_marker.Z1_next_rev; } };

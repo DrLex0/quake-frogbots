@@ -254,25 +254,27 @@ float() TravelTime =
 	{
 		m_D = m_D | WATER_PATH;
 		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxwaterspeed));
-		if (bio_protection)
-		if ((m.T & T_BIOHZD) || (m_P.T & T_BIOHZD))
-		{
-			// Similar hocus pocus as for rocket jumps, see below,
-			// but mark these times with a different offset value.
-			traveltime = traveltime + 10000;
-		}
 	}
 	else
 		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
 
+	/* Path calculation modulation hocus pocus -- DrLex
+	 * Add excessive times to paths that require an extra condition
+	 * to be fulfilled to be acceptable (FTR, normal times are
+	 * between 0 and 1.5). When the condition is OK, for instance
+	 * the bot can RJ or wears biosuit, we can subtract
+	 * (multiples of) the penalty values to obtain true times.
+	 * This is all very Daedalian, but that's what's needed
+	 * in a language with no arrays or dictionaries. */
+	if (bio_protection)
+	if (!(m.T & T_BIOHZD) && (m_P.T & T_BIOHZD))
+	{
+		// Only paths going into hazard area get the penalty 
+		traveltime = traveltime + 10000;
+	}
+
 	if (m_D & ROCKET_JUMP)
 	{
-		/* Rocket jump path calculation hocus pocus -- DrLex
-		 * Add excessive time 1000 to RJ paths. (FTR, normal times
-		 * are between 0 and 1.5.) When a bot can RJ, we can subtract
-		 * (multiples of) 1000 to obtain true times.
-		 * This is all very Daedalian, but that's what's needed
-		 * in a language with no arrays or dictionaries. */
 		traveltime = traveltime + 1000;
 		if (m_D & SLOW_PRECISE)
 			SetupRJLook();
@@ -293,6 +295,10 @@ float() TravelTime =
 ============
 Calc_G_time_2
 
+Wouldn't it be wonderful if there would be some actual
+documentation about what each of these methods actually do?
+This one is pretty straightforward, but the rest is pure
+headache material.
 ============
 */
 void() Calc_G_time_2 =
@@ -1358,6 +1364,8 @@ void() Calc_G_time_11 =
 					from_marker = m;
 					next_marker.zone_marker();
 					next_marker.sub_arrival_time();
+					// If this runaway feature, whatever it is, is ever made usable,
+					// it may be necessary to invoke DropTravelPenalties here?
 
 					if (traveltime >= min_traveltime)
 					if (next_marker.classname != "trigger_teleport")

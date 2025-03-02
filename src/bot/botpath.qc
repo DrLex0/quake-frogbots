@@ -26,19 +26,21 @@ See TravelTime() for more information.
 void() AdjustTravelPenalties =
 {
 	if (traveltime < 1000) return;
-	if (traveltime >= 320000) return;
+	if (traveltime >= 80000) return;
 
-	// Slime. Long paths allowed: up to 31 segments (probably overkill, but why not).
+	// Slime. Allow multiple segments (up to 7) although this should be very rare.
+	// Only paths going into the slime zone will get a 10k penalty, and if there are
+	// any 'dry' markers surrounded by slime, they must be given 'slime island' type,
+	// to ensure the zone is considered as one big whole and the bot will not get
+	// stranded on such island when running out of protection.
 	// I'm not going to add more of this voodoo for lava + invuln, because it is
 	// rarely useful, and consequences of the powerup expiring are much worse.
 	if (traveltime >= 10000)
 	{
+		// Don't jump into slime, or GTFO when only 5s of protection remain
 		if ((self.invincible_finished - time > 5) ||
 			(self.radsuit_finished - time > 5))
 		{
-			// Don't jump into slime, or GTFO when only 5s of protection remain
-			if (traveltime >= 160000) traveltime = traveltime - 160000;
-			if (traveltime >= 80000) traveltime = traveltime - 80000;
 			if (traveltime >= 40000) traveltime = traveltime - 40000;
 			if (traveltime >= 20000) traveltime = traveltime - 20000;
 			if (traveltime >= 10000) traveltime = traveltime - 10000;
@@ -92,9 +94,7 @@ To obtain true path times regardless of bot state.
 void() DropTravelPenalties =
 {
 	if (traveltime < 1000) return;
-	if (traveltime >= 320000) return;
-	if (traveltime >= 160000) traveltime = traveltime - 160000;
-	if (traveltime >= 80000) traveltime = traveltime - 80000;
+	if (traveltime >= 80000) return;
 	if (traveltime >= 40000) traveltime = traveltime - 40000;
 	if (traveltime >= 20000) traveltime = traveltime - 20000;
 	if (traveltime >= 10000) traveltime = traveltime - 10000;

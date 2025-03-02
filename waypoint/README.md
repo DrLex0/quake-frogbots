@@ -135,17 +135,20 @@ By default, the tool will activate markers in the same way as in the game, i.e.,
 These steps do not need to be done in this exact order, but you will typically move from the top to the bottom of this list as you progress.
 
 1. Use `,` and `.` or the scroll wheel to select a **ZONE** number.  
-   - Zones could be considered parts of the map where everything is within reach without having to cross obstacles or run a long distance. See the guidelines below.  
+   - **Zones** could be considered parts of the map where everything is within reach without having to cross obstacles or run a long distance. See the guidelines below.  
      Zone numbers do not impose a preference, I usually start with 1 for the “main” zone where most of the action will happen and go up from there, but you can use any number for any part of the map, and you can skip numbers.
    - There can be up to _32 markers_ in one zone. If you exceed this, you must split up zones.
+
 2. Activate the desired marker and set its zone: `ENTER` or `Q`. Do this for all markers you consider the same zone.
    - Guidelines for assigning markers to zones:
      1. going from one marker to another within the same zone _must not_ require passing through another zone's markers, moving between markers of the same zone must only involve following paths within the zone;
      2. markers within a zone must be within a reasonably short travel time, no more than a few seconds;
      3. do not create zones that are one elongated chain of markers, split those up into shorter chains;
      4. if going from marker _B_ to _A_ takes much longer than going from _A_ to _B,_ for instance _A→B_ is a simple jump, _B→A_ requires taking staircases, elevators, swimming, … then A and B must be in different zones.
+
 3. Add extra markers where needed for constructing paths such that bots won't get stuck on geometry: move to the spot and `MOUSE1`. Do not overdo this, but don't leave huge gaps between markers either.  
    Remember to also assign a zone to the new markers. If a zone number is currently selected, new markers automatically get this zone.
+
 4. Assign **GOALS** to items: things the bot will want to fetch: weapons, ammo, health, powerups. Use `,.` or scroll to select GOAL number and again use `ENTER` or `Q` on the marker.
    - The goal logic is horribly complicated and hard to understand; what follows is what I have learnt from experiments, Mick's guide, and digging in the source code. If someone has better insights, please update this guide.
    - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
@@ -159,10 +162,13 @@ These steps do not need to be done in this exact order, but you will typically m
      * 23 `item_spikes`
      * 24 `item_shells`
    - It is possible and valid to assign _no goal at all_ to items. This will _not_ make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a particular Quad or invisibility is too risky and makes the bot an easy target.
+
 5. Go to another zone and repeat steps 1 to 5.
+
 6. Use `N` and `M` to check whether you didn't forget to set zones and goals (enable NOCLIP for this, `F2`).
    - Using the `C` key on an active marker will show its zone and goal, and some more info.  
    - It is recommended to give everything a zone, even if it will not be used in a path. It is OK to omit goals as explained above.
+
 7. **Connect markers:** each marker can have up to 8 outgoing paths the bot may choose from. Normally the tool will create 2-way (bidirectional) paths, unless you enable one-way mode with `J`. Remember that you can use the `R` key to display paths for an active marker.   
    To add a path from marker _x_ to _y_ (and vice versa unless one-way mode):
    - Start at _x_, optionally press `G` to reset marker mode, then `MOUSE2` for Connect Marker Mode.
@@ -172,6 +178,7 @@ These steps do not need to be done in this exact order, but you will typically m
    - Avoid making paths _towards_ spawn points or one-way teleport destinations, use one-way mode to only go away from them, _because telefrag._
    - Ensure every marker that can be reached in any way (even if only by being flung around by an explosion), has at least one outgoing path, otherwise the bot may get stuck on it.
    - If you added a path by mistake, you can remove it with _disconnect mode,_ see below.
+
 8. **Teleports:** you must make a one-way connection from each `trigger_teleport` to its corresponding `info_teleport_destination`. (This has become a lot easier in the v2 tool.)
    - It is _essential_ to first enable both NOCLIP with `F2` and closest-marker mode with `F`.
    - Then move into the teleport trigger zone, and ensure with `C` that the `trigger_teleport` marker is selected.
@@ -182,6 +189,7 @@ These steps do not need to be done in this exact order, but you will typically m
    - A `trigger_teleport` must only have _incoming_ paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).  
      An `info_teleport_destination` of a _1-way teleporter_ must only have _outgoing_ paths besides its single incoming trigger path _(again… telefrag)._  
      For a _2-way teleporter_ however, if the destination marker(s) need to be traversed and will be touched when trying to reach the trigger at that end, then the destination marker must also have a path back to that trigger. But, never use destination markers as regular path markers if they are high up in the air and cannot be (easily) touched. Those must only have outgoing paths.
+
 9. **Special path modes.** You can apply these while making the paths, or afterwards. The modes for a marker's paths can be seen by pressing the `R` key.  
    Same workflow as above, only now you also have to select the mode with `V` before making the connection (not all are path modes, some affect display mode). Most of these require _one-way mode_ to be enabled (`J` key).
    - **Disconnect mode**: removes a path, but even though this also works without enabling one-way mode, it will only disconnect the path from the starting marker _x_ to target _y_. Repeat in the other direction unless you really want to have a one-way path.
@@ -325,7 +333,8 @@ Therefore:
 
 There are 2 new _marker types_ related to this feature, that can be assigned by changing display mode to `type` with the `Z` key, then selecting the mode with the `V` key, and right-clicking the marker:
 1. **slime island:** if there are markers on dry zones or islands that can only be _exited_ through slime, it is important to set this type on all markers on that ‘island.’ This will allow the bot to consider jumping into the slime even when its protection has run out; otherwise it would become a sitting duck on the island.  
-If there are _teleport triggers_ or _destinations_ in slime, or that will drop the player into slime, you _must_ also mark these as `slime island` for the path calculations to work correctly, because the game is unable to reliably detect that such markers are inside slime.
+If there are _teleport triggers_ or _destinations_ in slime, or that will drop the player into slime, you _must_ also mark these as `slime island` for the path calculations to work correctly, because the game is unable to reliably detect that such markers are inside slime.  
+Display mode can be set to `biohazard` with the `Z` key to see which markers are currently considered to be inside slime, or have been given a `slime island` flag. This can be helpful to see whether you still need to set this flag on certain markers.
 2. **want biosuit:** this should be set on every worthwhile item that requires the biosuit to be safely reached. This will make the suit as desirable to the bot as the most desirable item marked as such. If there is no marker of this type, the suit will have zero desirability and the bot will only pick it up by chance.
 
 When making _zones,_ give markers in slime their own zone(s). Do not mix ‘dry’ markers and slime (island) markers in a single zone.

@@ -191,11 +191,30 @@ void(entity marker) manual_marker_touch =
 	}
 };
 
+/*
+============
+UpdateBioHzd
+
+Use similar logic as in Calc_G_time_1 to set T_BIOHZD
+flag on new/moved markers depending on slime presence
+============
+*/
+void(entity mk) UpdateBioHzd =
+{
+	m_pos = mk.absmin + mk.view_ofs;
+	content = pointcontents(m_pos + '0 0 4');
+	if (content == CONTENT_SLIME)
+		mk.T = mk.T | T_BIOHZD;
+	else
+		mk.T = mk.T - (mk.T & T_BIOHZD);
+};
+
 void() SpawnNewMarker =
 {
 	spawn_marker((self.origin - '0 0 22') + self.view_ofs);
 	marker_index = marker_index + 1;
 	marker_.index = marker_index;
+	UpdateBioHzd(marker_);
 }
 
 void() RemoveActiveMarker =
@@ -421,6 +440,25 @@ void() DisplayType =
 
 /*
 ============
+DisplayBioHzd
+
+Show all markers that are considered to require a biosuit or pentagram
+============
+*/
+void() DisplayBioHzd =
+{
+	local float bio_bits = (T_BIOHZD | T_FORCESLIME);
+	marker_ = last_marker;
+	while (marker_)
+	{
+		if (marker_.T & bio_bits)
+			SpinMarkerDisplay(marker_);
+		marker_ = marker_.marker_linkrev;
+	}
+};
+
+/*
+============
 Display
 
 Whether to display this marker in path mode or not
@@ -493,6 +531,13 @@ void() MarkerDisplay =
 		DisplayType();
 		return;
 	}
+
+	if (mode & DISPLAY_BIOHZD)
+	{
+		DisplayBioHzd();
+		return;
+	}
+
 	if (mode & DISPLAY_RUNAWAY)
 	{
 		if (active_marker.RA0)
@@ -1109,6 +1154,7 @@ void() MoveActiveMarker =
 		active_marker.origin_z = rint(self.origin_z);
 		// Must do this to ensure find() uses the new coordinates
 		setorigin(active_marker, active_marker.origin);
+		UpdateBioHzd(active_marker);
 	}
 	else
 	{
@@ -1142,6 +1188,7 @@ void() VerMoveActiveMarker =
 		return;
 	}
 	bprint("active marker vertically moved\n");
+	UpdateBioHzd(active_marker);
 };
 
 float(entity marker) changed_view_ofs_z =
@@ -1654,6 +1701,7 @@ void() ToggleConnectMarkersMode =
 		{
 			active_marker.T = active_marker.T - (active_marker.T & SAVED_T);
 			bprint("active marker type CLEARED\n");
+			UpdateBioHzd(active_marker);  // in case T_FORCESLIME was cleared on pre-loaded marker
 		}
 		return;
 	}
@@ -1835,7 +1883,12 @@ void() CycleDisplayMode =
 	}
 	else if (mode & DISPLAY_TYPE)
 	{
-		mode = ((mode - DISPLAY_TYPE) | DISPLAY_RUNAWAY);
+		mode = ((mode - DISPLAY_TYPE) | DISPLAY_BIOHZD);
+		bprint("Display biohazard ON\n");
+	}
+	else if (mode & DISPLAY_BIOHZD)
+	{
+		mode = ((mode - DISPLAY_BIOHZD) | DISPLAY_RUNAWAY);
 		bprint("Display runaway ON\n");
 	}
 	else if (mode & DISPLAY_RUNAWAY)

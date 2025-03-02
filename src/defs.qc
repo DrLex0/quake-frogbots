@@ -2393,6 +2393,7 @@ float no_bots_stuck;
 .float water_unstuck_retry;
 .vector velocity_override;
 .float t_velocity_override;
+.float t_swim_obstruction;
 
 // hit wall in flight prediction AI
 float first_trace_fraction;
@@ -2508,6 +2509,7 @@ float DISPLAY_ZONE		= 32;
 float DISPLAY_TYPE		= 64;
 float DISPLAY_RUNAWAY		= 128;
 float DISPLAY_REACHABLE		= 256;
+float DISPLAY_BIOHZD		= 512;
 
 entity save_position;
 entity virtual_marker;
