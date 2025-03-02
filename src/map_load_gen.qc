@@ -23,6 +23,7 @@
 #include "maps/trinca/map_exdm3.qc"
 #include "maps/trinca/map_lilith.qc"
 #include "maps/trinca/map_oktest1.qc"
+#include "maps/trinca/map_start.qc"
 #include "maps/trinca/map_utressor.qc"
 #include "maps/trinca/map_ztndm6.qc"
 
@@ -34,9 +35,9 @@ void() SprintMaps =
 	sprint_fb(self, 2, "       e1m6     efdm13      eodm3\n");
 	sprint_fb(self, 2, "      exdm3   frobodm2    hohoho2\n");
 	sprint_fb(self, 2, "     lilith    oktest1      pkeg1\n");
-	sprint_fb(self, 2, "    povdmm4    spinev2        tox\n");
-	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
-	sprint_fb(self, 2, "     ztndm6\n");
+	sprint_fb(self, 2, "    povdmm4    spinev2      start\n");
+	sprint_fb(self, 2, "        tox     ultrav   utressor\n");
+	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -156,6 +157,11 @@ float() LoadWaypoints =
 		map_oktest1();
 		return TRUE;
 	}
+	if (mapname == "start")
+	{
+		map_start();
+		return TRUE;
+	}
 	if (mapname == "utressor")
 	{
 		map_utressor();
@@ -217,6 +223,8 @@ string(string mname) MapHasWaypoints =
 		return "lilith";
 	if (mname == "oktest1")
 		return "oktest1";
+	if (mname == "start")
+		return "start";
 	if (mname == "utressor")
 		return "utressor";
 	if (mname == "ztndm6")

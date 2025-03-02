@@ -21,5 +21,6 @@ trinca/map_eodm3.qc
 trinca/map_exdm3.qc
 trinca/map_lilith.qc
 trinca/map_oktest1.qc
+trinca/map_start.qc
 trinca/map_utressor.qc
 trinca/map_ztndm6.qc
