@@ -76,18 +76,15 @@ Also tweaked existing waypoints, for instance `efdm13` is now a whole lot more c
 - Allow embedding and using waypoint data in entity fields of maps, and provide a tool to inject marker data created with the waypoint tool into a `.map` or `.ent` file. This means no more need to recompile qwprogs to add bot support to a map.  
   It will be possible to build a BSP with embedded waypoints, or load them from an `.ent` file in engines that support these.   
   _(Status: mechanism implemented, PoC works, working on script to inject WP into map/ent.)_
-- Add Trinca's waypoints, possibly updated with the new features.
-- Something resembling documentation.  
-  _(Status: it is taking shape.)_
-- Improve upon Mick's waypoint guide. Figure out the more advanced things.  
-  _(Status: there is a usable guide, could use some screenshots though.)_
+- Add more, ideally all of Trinca's waypoints, possibly updated with the new features.
+- Some more documentation, like how the whole thing works.
 
 No promises about dates or reaching these goals whatsoever. It is done when it's done. Obviously, if you want to jump in and help: fork and branch this repository, do your thing, and create a pull request.
 
 ### Not really planned, but who knows
 - Make shootable doors even more universal, bots should be able to open any door on the path it wants to follow, without having to tie it to specific goals/zones. Maybe even extend to also allow shooting switches to open doors.
 - Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, but some things are broken. If you want to try this: remember to start a network game, or very weird things will happen when attempting to add a bot.
-- Maybe try to keep the bots from wallhacking on skill levels up to 10. At the lower levels, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner.
+- Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels.
 
 ### Wild ideas
 - Construct reasonable waypoints automatically with AI and evolutionary algorithms and blockchain and all other buzzwords we can throw against it. Yet, manual editing may always be needed for the best results.
