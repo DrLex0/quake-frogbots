@@ -89,15 +89,8 @@ U		139	147	VERTICALLY MOVE ACTIVE MARKER
 ENTER	Q	142	150	SET GOAL/ZONE
 C	8	143	151	PRINT ZONE & GOAL
 R		none	157	PRINT PATHS
-V	7	144	152	CYCLE PATH-MODES
-				- disconnect-mode
-				- jump ledge-mode
-				- dm6 door-mode
-				- rocket jump mode
-			(new!)	- precision jump mode
-				- reversible display-mode
-				- water path display-mode
-				- path mode OFF
+V	7	144	152	CYCLE PATH-MODES or
+				CYCLE MARKER TYPES
 K		none	160	AUTO CONNECT trigger_teleport
 B		145	153	DISPLAY TRAVELTIME
 Z		146	154	CYCLE DISPLAY-MODE
@@ -108,8 +101,32 @@ E		none	159	MOVE TO ACTIVE MARKER
 F1		133	143	SAVE MARKERS
 F2		?	130	NOCLIP
 F3		?	50	DISABLE DAMAGE FLASH
+F4		none	123	TOGGLE FROGBOT -- CAUTION!
+				Read Advanced section first!
 F5		-	-	CONDUMP COMMAND (dump console to file)
 MOUSE3  	-	-	FIRE
+
+PATH MODES
+	- disconnect-mode
+	- jump ledge-mode
+	- dm6 door-mode
+	- rocket jump mode
+(new)	- slow precise jump mode
+(new)	- precise jump mode
+(new)	- slow down mode
+(new)	- just GO mode
+(new)	- exclusive door mode
+	- reversible display-mode
+	- water path display-mode
+(new)	- clear all assigned path modes
+	- path mode OFF
+
+MARKER TYPES (when DISPLAY-MODE = TYPE)
+	- unreachable node
+(new)	- exclusive node
+(new)	- slime island node
+(new)	- want biosuit node
+	- type mode off (clears all types from marker)
 ```
 
 ## The workflow
@@ -122,7 +139,7 @@ After loading the map, it looks like you're in a regular Quake game with no oppo
 
 ![Markers](images/markers.jpg)
 
-**Markers** are represented by the _Quake guy._ Inactive markers have the shotgun, the active marker wields the axe. Rotating markers indicate a relation to the current marker, depending on the current view mode.
+**Markers** are represented by the _Quake guy._ Inactive markers have the shotgun, the active marker wields the axe. Rotating markers indicate a relation to the current marker, depending on the current view mode. The default is to show markers to which the active marker has an outgoing path.
 
 By default, the tool will activate markers in the same way as in the game, i.e., when you're close enough to pick up something or trigger an action. Usually, you will want to enable the tool's custom **Closest-Marker-Mode** with `F`. CMM makes it generally easier to select markers. When markers are really close to each other or overlap, CMM also allows to cycle between the 3 nearest with the `L` or `0` (zero) key.
 
@@ -205,7 +222,7 @@ These steps do not need to be done in this exact order, but you will typically g
    - **Door mode** (shown as `‘D’`, number 256 in code) is for getting through doors like in _dm6_ that need to be shot/whacked to open. This is limited by certain constraints and requires extra configuration. More details in the advanced section below.
    - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time. See the advanced section below for some tips.
    - **Slow precise jump mode** (shown as `‘PS’`, number 2176 in code) is actually a combination of the next 2 modes, provided for convenience because most often you will need them together. This combined mode allows to _navigate small steps_ like the ones towards the yellow armour in `e1m2`. The bot _will not jump_ until it is within a distance of _48 units_ of the marker from which this `PS` path originates. This means you must place such markers close enough to the ledge on which the bot needs to jump, otherwise it will not jump at the right moment, and get stuck.  
-     You may not need this often, but without it, getting onto certain small steps is often near impossible because the bot moves too erratically when trying to use ledge jump mode.
+     You may not need this often, but without it, getting onto certain small steps is often near impossible because the bot moves too erratically when trying to use ledge jump mode.  
      ![Slow precise jumps in e1m2](images/precise.jpg)
    - **Precise jump mode** (shown as `‘P’`, number 128 in code) will make the bot do extra effort to initiate a jump closer from the location of the marker where this path originates, and also to better aim in the direction of the destination marker. This can be used for tricky jumps that require accuracy, because normal bot movement is rather _sloppy._  
      Again, the bot will only jump within a distance of 48 units of the start marker. To make this work well, provide a single path towards the jump spot in such a way that the bot is already moving roughly in the right direction when it reaches the marker from where to jump.
@@ -214,6 +231,8 @@ These steps do not need to be done in this exact order, but you will typically g
      A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to.  
      In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
    - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door or platform. See the advanced section for more info.
+
+The path mode selection also affects the display of markers connected to the active marker: when a certain mode is selected, only markers connected through an outgoing path of that type will be shown spinning. (The selection contains 2 pure `display-modes` for certain auto-assigned path types, these cannot be set.)
 
 At regular moments, and especially when you're done, use `F1` to dump the waypoint code to console. If you didn't run with `-condebug`, you must then use `condump` to write the console log to a file. The `autoexec` binds this to `F5` (think QuickSave).
 
@@ -369,6 +388,7 @@ If the bot can approach the ladder from its sides, you may need to place extra �
 
 ![Ladder markers](images/ladder.jpg)
 
+
 ### Dealing with overlapping markers
 
 Some maps have markers at the exact same coordinates. I consider this _bad practice_ (even though one of the most iconic Quake maps suffers from this) and it should be avoided, but how to deal with it when it's in an existing map?
@@ -412,3 +432,20 @@ You should then see something like “`dm6_door dist 48.7`.” Round down the nu
 As you can see, pretty complicated, but having bots open these doors and obtain the precious item behind it, makes them more realistic and challenging. Look at `hohoho2` for a full example of all the above.
 
 (Nerdy detail: the lower the zone number you use for the thing behind the door (ideally 1), the more efficient the program will run. But unless you want to run the bots on an ancient machine, this doesn't matter at all of course.)
+
+
+### Become a Frogbot
+Last but not least, you may have noticed the `F4` key which is bound to `TOGGLE FROGBOT`, and it does exactly that. Not only is this very cool because you can actually look through the eyes of a bot, it is also _tremendously useful_ to test how the bot will behave from a certain starting point and configuration in the map. There are a few **rules** though:
+
+1. Paths must have been calculated, which currently only happens upon loading the map. In other words:
+   - this will only work on previously compiled waypoints;
+   - adding or deleting markers or paths, and then activating this, is **a guarantee for crashing the game,** and you will **lose your work** unless you saved it — _you have been warned._  
+     (I might at some point provide a way to trigger recomputing of paths, but this is not trivial.)
+2. Small changes like adding or removing modes to existing paths, or nudging the position of markers, are safe and can be tested on-the-fly. Changing marker types may not always have an effect.  
+   It is _always_ best to dump your changes, rebuild, and reload, before testing them with this feature.
+3. You should not be in manual mode, the bot will act like a drunken madman otherwise. You should not be in `NOCLIP` mode either.
+4. There are differences between the bot running in Quake and in QuakeWorld engines. They are not huge, but especially jumps can be different. What works well in the waypoint tool might not work well in QW, and vice versa. You should still test your waypoints thoroughly in a QW engine.
+
+You can test rocket jumps if you first pick up the prerequisites (obviously, a RL and rockets, but also enough health and armour). The random factor for RJs is disabled in the waypoint tool, and the bot will always want to RJ.
+
+If you want to live dangerously and test changes on-the-fly, make it a reflex to first dump your waypoint data to the console and then a file (`F1`, `F5`) before pressing `F4`.
