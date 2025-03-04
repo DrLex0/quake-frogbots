@@ -268,7 +268,8 @@ void() SpecialAccurateMoves =
 	if (self.waterlevel > 1)
 		return;
 	// This auto path mode is set on each path with PRECISE_JUMP or SLOW_DOWN,
-	// and each path leading to a marker that has any such outgoing path.
+	// and each path leading to a marker that has any such outgoing path;
+	// also if the path leads to a T_NEARBY marker.
 	if (!(self.path_state & ACCURATE_PATH))
 		return;
 	if (self.path_state & ROCKET_JUMP)

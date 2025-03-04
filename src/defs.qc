@@ -1633,8 +1633,9 @@ float T_UNREACHABLE			= 1;
 float T_FORCESLIME			= 2;
 float T_EXCLUSIVE			= 4;
 float T_WANTSUIT			= 8;
-// Bits to be saved in waypoint code: T_UNREACHABLE | T_FORCESLIME | T_EXCLUSIVE | T_WANTSUIT
-float SAVED_T				= 15;
+float T_NEARBY				= 16;
+// Bits to be saved in waypoint code: sum of all the above
+float SAVED_T				= 31;
 
 // auto set values
 float T_LIQUID				= 128;

@@ -287,6 +287,10 @@ float() TravelTime =
 	else if(SLOW_PRECISE & 
 		(m_P.D0 | m_P.D1 | m_P.D2 | m_P.D3 | m_P.D4 | m_P.D5 | m_P.D6 | m_P.D7))
 		m_D = m_D | ACCURATE_PATH;
+	// We also want accuracy if the target marker is near-only,
+	// because the touch zone will be small
+	else if(m_P.T & T_NEARBY)
+		m_D = m_D | ACCURATE_PATH;
 
 	return TRUE;
 };

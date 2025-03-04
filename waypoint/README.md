@@ -380,13 +380,17 @@ Look at `efdm13` for an example.
 Never make any paths going into _lava,_ even though theoretically they could be traversed with invulnerability. The extra complexity required to also implement this, was not deemed worth it. Maps where it would be useful are scarce, and the consequences of the power-up expiring while still in lava are usually _lethal._ Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
 
 
-### Ladders
+### Ladders, nearby-only markers
 
 Some maps simulate _ladders_ by means of what is basically the steepest possible staircase in a Quake map, with extremely thin steps, typically only 1 unit deep. The old Frogbot was unable to ascend these, but this has been fixed in v2. It should suffice to place one marker at the bottom of the ‘ladder’, one at the top, connect them, and the bot will climb up the ladder like a human player. (This may still fail if the map does not adhere to the best practice of using integer coordinates for all vertices.)
 
-If the bot can approach the ladder from its sides, you may need to place extra ‘guard’ markers to the left and right, to ensure that the marker whose path goes up the ladder is only touched when the bot is truly in front of the ladder, and will not already try to aim for the top of the ladder while it is not yet in the right spot.
+If the bot can approach the ladder from its sides, placing a single normal marker in front of it will be problematic. Due to the coarseness of the touch mechanism, the marker may already be touched long before the bot is in front of the ladder. The bot will then already try to aim for the top of the ladder, fruitlessly attempting to climb up the wall.
+
+The most practical solution in cases like these where markers must only be touched when the bot is almost on top of them, is to assign `nearby-only` marker mode. This mode causes the marker to only be touched when the bot is within 24 units distance. As usual, set display mode to `type` with the `Z` key, then select this mode with the `V` key, and right-click the marker.
 
 ![Ladder markers](images/ladder.jpg)
+
+If even this would not suffice, you could place extra markers to ‘shield’ the marker from being prematurely touched.
 
 
 ### Dealing with overlapping markers
