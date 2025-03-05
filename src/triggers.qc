@@ -633,6 +633,9 @@ void() trigger_push_touch =
 				msg_entity = other;
 				sound (CHAN_AUTO, "ambience/windfly.wav", 1, ATTN_NORM);
 			}
+			// Same as for buttons: only trigger touch when actually being pushed
+			// and prioritize to ensure the bot registers it
+			check_marker(TRUE);
 		}
 	}
 	else if (other.touch == GrenadeTouch)
@@ -657,6 +660,11 @@ void() trigger_push =
 		self.touch = trigger_push_touch;
 		if (!self.speed)
 			self.speed = 1000;
+		self.view_ofs = 0.5 * (self.absmax - self.absmin);
+
+		adjust_view_ofs_z();
+		BecomeMarker(self);
+		SetFrB_Props(self);
 	}
 };
 

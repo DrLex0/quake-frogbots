@@ -1075,7 +1075,8 @@ void() DumpMarkerInfo =
 	{
 		if ((m.classname == "trigger_teleport") ||
 			(m.classname == "door") ||
-			(m.classname == "func_button"))
+			(m.classname == "func_button") ||
+			(m.classname == "trigger_push"))
 		{
 			// See PrintGoal, take middle of bounding box to represent 'origin'
 			v_temp = (m.mins + m.maxs) * 0.5;
@@ -1182,7 +1183,8 @@ void() VerMoveActiveMarker =
 	}
 	else if ((active_marker.classname == "func_button") ||
 		(active_marker.classname == "trigger_teleport") ||
-		(active_marker.classname == "door"))
+		(active_marker.classname == "door") ||
+		(active_marker.classname == "trigger_push"))
 	{
 		active_marker.view_ofs_z = rint(self.origin_z - active_marker.absmin_z);
 		active_marker.display.origin_z = rint(self.origin_z);
@@ -1200,7 +1202,8 @@ float(entity marker) changed_view_ofs_z =
 {
 	if ((marker.classname == "func_button") ||
 		(marker.classname == "trigger_teleport") ||
-		(marker.classname == "door"))
+		(marker.classname == "door") ||
+		(marker.classname == "trigger_push"))
 	{
 		if (marker.view_ofs_z != marker.arrow)
 		{
@@ -1348,16 +1351,21 @@ void() PrintGoal =
 
 	if ((active_marker.classname == "trigger_teleport") ||
 	    (active_marker.classname == "door") ||
-	    (active_marker.classname == "func_button"))
+	    (active_marker.classname == "func_button") ||
+	    (active_marker.classname == "trigger_push"))
 	{
 		// These markers have no origin because they are brushes.
-		// Approximate location by center of bounding box (likely
-		// same way the display marker position is obtained).
-		local vector v_temp = (active_marker.mins + active_marker.maxs) * 0.5;
-		bprint(" ~(",
+		// Therefore it is important to rely on the view_ofs in general:
+		local vector v_temp = active_marker.absmin + active_marker.view_ofs;
+		bprint("  (",
 			ftos(rint(v_temp_x)), ",",
 			ftos(rint(v_temp_y)), ",",
-			ftos(rint(v_temp_z)), ")~ ");
+			ftos(rint(v_temp_z)), ") ");
+		// Show vertical position adjustment as well
+		local float dz = active_marker.view_ofs_z - active_marker.arrow;
+		if (dz > 0) bprint("~z+", ftos(rint(dz)), "  ");
+		else if (dz < 0) bprint("~z", ftos(rint(dz)), "  ");
+		else bprint("~z=0  ");
 	}
 	else
 	{
