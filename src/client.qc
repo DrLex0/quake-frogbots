@@ -1216,6 +1216,42 @@ void() PlayerPreThink =
 	}
 };
 
+
+/*
+================
+CheckStuckOnDoor
+
+Only invoke when not FL_ONGROUND.
+Workaround for a rare but very annoying bug where players may get stuck
+when standing on a horizontal door. The game engine fails to register
+that the player is standing on a solid object, and eternally waits for
+the player to land, without allowing movement.
+The fix is to force FL_ONGROUND when this situation is detected.
+(Movement will still be a bit weird, but at least the player/bot can move.)
+================
+*/
+void() CheckStuckOnDoor =
+{
+	if (self.movetype == MOVETYPE_NOCLIP)
+		return;
+	// If we're not touching ground but not moving, something is wrong
+	if (self.origin == self.check_stuck_pos)
+	{
+		// Probe for door below
+		traceline(self.origin, self.origin + '0 0 -28', 1, self);
+		if (trace_fraction < 1)
+		if (trace_ent.classname == "door")
+		{
+			self.flags = self.flags | FL_ONGROUND;
+			self.groundentity = trace_ent;
+			self.velocity = self.oldvelocity;
+		}
+	}
+	else
+		self.check_stuck_pos = self.origin;
+};
+
+
 /*
 ================
 PlayerPostThink
@@ -1550,8 +1586,12 @@ void() PlayerPostThink =
 
 	// check to see if player landed and play landing sound
 		if (self.jump_flag)
-		if (self.flags & FL_ONGROUND)
-			CheckLand();
+		{
+			if (self.flags & FL_ONGROUND)
+				CheckLand();
+			else
+				CheckStuckOnDoor();
+		}
 
 		PlayerPostThink_apply();
 	}

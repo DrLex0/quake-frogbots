@@ -1328,6 +1328,8 @@ void(float f) stuffcmd_ftos =
 	stuffcmd(str);
 };
 
+// Anti-stuck workaround for rare door bug
+.vector check_stuck_pos;
 
 //===========================================================================
 
