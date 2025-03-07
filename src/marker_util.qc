@@ -131,6 +131,12 @@ frogbot_marker_touch().
 */
 void(float prioritize) check_marker =
 {
+	if (! other)
+	{
+		// Shouldn't happen, but if it does, avoid crashing the game
+		dprint("check_marker invoked on ", self.classname, " with other=world\n");
+		return;
+	}
 #ifdef MANUAL
 	if (!manual_mode)
 #endif
