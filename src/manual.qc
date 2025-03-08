@@ -98,7 +98,7 @@ Actions to perform when 'touching' a marker in manual mode.
 */
 void(entity marker) manual_marker_touch =
 {
-	if (self.T & T_NEARBY)
+	if (self.T & T_NARROW)
 	if (! (mode & CLOSEST_MARKER))
 	if (distance > 24)
 		return;
@@ -1751,10 +1751,10 @@ void() CycleDescriptionMode =
 		}
 		else if (type_mode == T_EXCLUSIVE)
 		{
-			type_mode = T_NEARBY;
-			bprint("nearby-only node ON\n");
+			type_mode = T_NARROW;
+			bprint("narrow node ON\n");
 		}
-		else if (type_mode == T_NEARBY)
+		else if (type_mode == T_NARROW)
 		{
 			type_mode = T_FORCESLIME;
 			bprint("slime island node ON\n");

@@ -163,7 +163,8 @@ These steps do not need to be done in this exact order, but you will typically g
      1. going from one marker to another within the same zone _must not_ require passing through another zone's markers: moving between markers of the same zone must only involve following paths within the zone;
      2. markers within a zone must be within a reasonably short travel time, no more than a few seconds;
      3. do not create zones that are one elongated chain of markers, split those up into shorter chains;
-     4. if going from marker _B_ to _A_ takes much longer than going from _A_ to _B,_ for instance _A→B_ is a simple jump, _B→A_ requires taking staircases, elevators, swimming, … then A and B must be in different zones.
+     4. if going from marker _B_ to _A_ takes much longer than going from _A_ to _B,_ for instance _A→B_ is a simple jump, _B→A_ requires taking staircases, elevators, swimming, … then A and B must be in different zones;
+     5. _doors_ should usually be treated as zone borders, and secret doors (that need to be shot to open) _must_ separate different zones (see advanced section).
 
 3. Add extra markers where needed for constructing paths such that bots won't get stuck on geometry: move to the spot and `MOUSE1`. Do not overdo this, but don't leave huge gaps between markers either.  
    Remember to also assign a zone to the new markers. If a zone number is currently selected, new markers automatically get this zone.  
@@ -174,7 +175,7 @@ These steps do not need to be done in this exact order, but you will typically g
    - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
    - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and absolutely not when they are directly linked. It _should_ be OK to give the same weapon the same goal across different zones, but I am not sure about this.
    - If health or same ammo items are clustered together with direct paths between each other, then **do** give them the same goal number. Also, the larger the cluster of same ammo or health, the more worthwhile it may be, hence may deserve a lower goal number than isolated items of the same kind (but again, goal number preference is weak anyway).
-   - You will notice that the following items are given high default goals because they are considered less desirable, but of course you can give particular instances of these items (especially the weapons) a different goal if you want:
+   - You will notice that the following items are given high default goals because they are considered less desirable. Of course you can give particular instances of these items (especially the weapons) a different goal if you want:
      * 19 `item_cells`
      * 20 `weapon_supernailgun`
      * 21 `weapon_supershotgun`
@@ -255,6 +256,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
   Although markers can be placed further apart than what this tool considers too far, it is still a good guideline for maximum marker distance.
 - Same for the _runaway_ thing: I don't know what it's for. The information printed on the second and third lines when pressing `C` is related to this ‘runaway’ concept, and the markers shown in runaway mode are the same ones listed in those lines. This appears to be an unfinished feature, there is some logic in the code to do something special when the bot is in `RUNAWAY` state, but _nothing_ in the code sets this state. I might look into this someday… If anyone knows more about it, please explain!
 - Markers have an _index:_ the index for `m123` is 123. Lower indices are used by map entities. In previous editions of the Frogbot, indices for custom markers could change when loading existing waypoints and then saving them, even when making no changes at all. The v2 waypoint tool has a deterministic way of saving waypoint data and will not only preserve existing indices, it also saves waypoint code in a standard ordering to make it much easier to track changes. (When importing waypoints from an older version, data will be reordered, but indices will stay the same.)
+- Goal assignments will be omitted from waypoint data if they do not deviate from the default. Therefore you will never see `G23(m42)` in the waypoint dump if `m42` is a box of spikes.
 
 ### Troubleshooting
 - If you notice the bot going nowhere, randomly moving around while looking at the ceiling or floor, most likely a nearby marker has an invalid path going towards a marker in another room. Check paths with the `R` key, and delete invalid paths in both directions if they go through walls, ceilings or floors.
@@ -385,17 +387,19 @@ Look at `efdm13` for an example.
 Never make any paths going into _lava,_ even though theoretically they could be traversed with invulnerability. The extra complexity required to also implement this, was not deemed worth it. Maps where it would be useful are scarce, and the consequences of the power-up expiring while still in lava are usually _lethal._ Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
 
 
-### Ladders, nearby-only markers
+### Ladders, narrow markers
 
 Some maps simulate _ladders_ by means of what is basically the steepest possible staircase in a Quake map, with extremely thin steps, typically only 1 unit deep. The old Frogbot was unable to ascend these, but this has been fixed in v2. It should suffice to place one marker at the bottom of the ‘ladder’, one at the top, connect them, and the bot will climb up the ladder like a human player. (This may still fail if the map does not adhere to the best practice of using integer coordinates for all vertices.)
 
 If the bot can approach the ladder from its sides, placing a single normal marker in front of it will be problematic. Due to the coarseness of the touch mechanism, the marker may already be touched long before the bot is in front of the ladder. The bot will then already try to aim for the top of the ladder, fruitlessly attempting to climb up the wall.
 
-The most practical solution in cases like these where markers must only be touched when the bot is almost on top of them, is to assign `nearby-only` marker mode. This mode causes the marker to only be touched when the bot is within 24 units distance. As usual, set display mode to `type` with the `Z` key, then select this mode with the `V` key, and right-click the marker.
+The most practical solution in cases like these where markers must only be touched when the bot is almost on top of them, is to assign `narrow` marker mode. This mode causes the marker to only be touched when the bot is within 24 units distance. As usual, set display mode to `type` with the `Z` key, then select this mode with the `V` key, and right-click the marker.
 
 ![Ladder markers](images/ladder.jpg)
 
 If even this would not suffice, you could place extra markers to ‘shield’ the marker from being prematurely touched.
+
+`Narrow` markers are not only useful for ladders, they can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam.
 
 
 ### Dealing with overlapping markers
@@ -442,6 +446,8 @@ You should then see something like “`dm6_door dist 48.7`.” Round down the nu
 As you can see, pretty complicated, but having bots open these doors and obtain the precious item behind it, makes them more realistic and challenging. Look at `hohoho2` for a full example of all the above.
 
 (Nerdy detail: the lower the zone number you use for the thing behind the door (ideally 1), the more efficient the program will run. But unless you want to run the bots on an ancient machine, this doesn't matter at all of course.)
+
+(It should be possible to simplify this whole system because it is overly complicated and needlessly constrained. The bot should simply shoot at doors (or secret switches that open doors) whenever it wants to go through them while the door is closed. There is no need to tie this to specific items or zones.)
 
 
 ### Become a Frogbot

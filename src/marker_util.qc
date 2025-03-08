@@ -165,8 +165,8 @@ void(float prioritize) check_marker =
 
 	// Take the nearest touching marker (except see below)
 	distance = vlen(self.absmin + self.view_ofs - other.origin);
-	// Once near-only marker is touched, treat as normal, otherwise endless loop risk
-	if (self.T & T_NEARBY)
+	// Once narrow marker is touched, treat as normal, otherwise endless loop risk
+	if (self.T & T_NARROW)
 	if (other.touch_marker != self)
 	if (distance > 24)
 		return;
