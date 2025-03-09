@@ -17,7 +17,6 @@
 #include "maps/trinca/map_bovine.qc"
 #include "maps/trinca/map_cmt4.qc"
 #include "maps/trinca/map_dm5.qc"
-#include "maps/trinca/map_e1m6.qc"
 #include "maps/trinca/map_efdm13.qc"
 #include "maps/trinca/map_eodm3.qc"
 #include "maps/trinca/map_exdm3.qc"
@@ -32,12 +31,12 @@ void() SprintMaps =
 	sprint_fb(self, 2, "   aerowalk     amphi2     bovine\n");
 	sprint_fb(self, 2, "       cmt4        dm3        dm4\n");
 	sprint_fb(self, 2, "        dm5        dm6       e1m2\n");
-	sprint_fb(self, 2, "       e1m6     efdm13      eodm3\n");
-	sprint_fb(self, 2, "      exdm3   frobodm2    hohoho2\n");
-	sprint_fb(self, 2, "     lilith    oktest1      pkeg1\n");
-	sprint_fb(self, 2, "    povdmm4    spinev2      start\n");
-	sprint_fb(self, 2, "        tox     ultrav   utressor\n");
-	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "     efdm13      eodm3      exdm3\n");
+	sprint_fb(self, 2, "   frobodm2    hohoho2     lilith\n");
+	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
+	sprint_fb(self, 2, "    spinev2      start        tox\n");
+	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
+	sprint_fb(self, 2, "     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -127,11 +126,6 @@ float() LoadWaypoints =
 		map_dm5();
 		return TRUE;
 	}
-	if (mapname == "e1m6")
-	{
-		map_e1m6();
-		return TRUE;
-	}
 	if (mapname == "efdm13")
 	{
 		map_efdm13();
@@ -211,8 +205,6 @@ string(string mname) MapHasWaypoints =
 		return "cmt4";
 	if (mname == "dm5")
 		return "dm5";
-	if (mname == "e1m6")
-		return "e1m6";
 	if (mname == "efdm13")
 		return "efdm13";
 	if (mname == "eodm3")
