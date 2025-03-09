@@ -64,11 +64,12 @@ However, while working on the tool and testing newly created waypoints, I also n
 7. Waypoints through **slime** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up one of those items.
 8. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_bot, it was surprisingly bad at swimming). Bots are now more robust against less-than-ideally-placed underwater markers, and will no longer get stuck on the water surface for no good reason.
 9. Added _exclusive paths_ that allow to make the bot do seemingly smart things by being forced to follow a specific path after touching specific markers, or depending on whether a door is open.
-10. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
+10. Improved platform/lift handling, the bot can wait for a platform to come down to avoid being squished, and can handle lifts with exits at multiple floors.
+11. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
    To override smartness, set the `fb_smartness` cvar to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
-11. Allow to set custom bot names through localinfo `frobo_name1` through `frobo_name16` variables.
-12. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
-13. Created waypoints for some newer maps. Already available: `hohoho2` and `tox`. Try them, they're fun.  
+12. Allow to set custom bot names through localinfo `frobo_name1` through `frobo_name16` variables.
+13. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
+14. Created waypoints for some newer maps. Already available: `hohoho2` and `tox`. Try them, they're fun.  
 Also tweaked existing waypoints, for instance `efdm13` is now a whole lot more challenging.
 
 ### Planned

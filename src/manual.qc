@@ -1756,6 +1756,11 @@ void() CycleDescriptionMode =
 		}
 		else if (type_mode == T_NARROW)
 		{
+			type_mode = T_WAITLIFT;
+			bprint("wait lift node ON\n");
+		}
+		else if (type_mode == T_WAITLIFT)
+		{
 			type_mode = T_FORCESLIME;
 			bprint("slime island node ON\n");
 		}

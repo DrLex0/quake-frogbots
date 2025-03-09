@@ -11,6 +11,7 @@
 #include "../settings.h"
 
 float() able_rj;
+void() NewVelocityForArrow;
 
 /*
 ============
@@ -111,8 +112,13 @@ EvalPath
 */
 void() EvalPath =
 {
+	// Default for 'lifts' not in down position: do not consider them at all.
+	// If 'wait lift' is set on them, do consider them and wait if best path.
+	// If the path has Just GO mode, ignore any danger or uselessness.
 	if (test_marker.classname == "door")
 	if (test_marker.state != STATE_BOTTOM)
+	if (! (test_marker.T & T_WAITLIFT))
+	if (! (description & JUST_GO))
 		return;
 
 	if (!path_normal)
@@ -280,6 +286,134 @@ void() SetExclusive =
 
 /*
 ============
+LiftNeedsButton
+
+Returns TRUE if the touched marker is a "door" (typically a lift)
+that still needs a button to be pushed, and the bot is currently
+heading for this button.
+============
+*/
+float() LiftNeedsButton =
+{
+	if (touch_marker_.classname != "door")
+		return FALSE;
+	if (touch_marker_.state != STATE_BOTTOM)
+		return FALSE;  // already activated
+	if (linked_marker_.classname != "func_button")
+		return FALSE;
+	if (linked_marker_.target == touch_marker_.targetname)
+		return TRUE;
+	return FALSE;
+};
+
+/*
+============
+WaitAtTouchMarker
+
+Forces bot to stick to current touch_marker_ and not stray away too far from it
+============
+*/
+void() WaitAtTouchMarker =
+{
+	linked_marker_ = self.linked_marker = touch_marker_;
+	self.path_from_marker = touch_marker_;
+	SetExclusive();
+	self.path_state = 0;
+	self.linked_marker_time = time + 5;
+	self.old_linked_marker = world;
+	dir_move = touch_marker_.absmin + touch_marker_.view_ofs - self.origin;
+	dir_move_z = 0;
+	if(vlen(dir_move) > 48)
+	{
+		dir_move = normalize(dir_move);
+		NewVelocityForArrow();
+	}
+}
+
+/*
+============
+WaitOnLift
+
+Elevator logic with deliberate ambiguous function name. Handles:
+1. waiting for lifts to come down if linked marker has T_WAITLIFT type
+   and is either a "door", or button controlling a "door";
+2. standing still on lifts while waiting for them to reach destination.
+For lifts activated with buttons, 1-way paths must be coming from outside
+towards the button, and then from button to platform. Platform touch
+will be ignored when the bot is heading for the switch while the lift
+is not yet activated.
+Return value indicates whether the bot will be waiting or not.
+============
+*/
+float() WaitOnLift =
+{
+	local entity btn_target;
+	if (linked_marker_.T & T_WAITLIFT)
+	{
+		if (self.path_state & JUST_GO)
+			return FALSE;  // allow override for specific paths
+		if (linked_marker_.classname == "door")
+		{
+			if (linked_marker_.state == STATE_BOTTOM)
+				return FALSE;
+			else
+			{
+				WaitAtTouchMarker();
+				return TRUE;
+			}
+		}
+		if (linked_marker_.target != "")
+		{
+			// A button could control multiple lifts, take the worst case
+			btn_target = find (world, targetname, linked_marker_.target);
+			while (btn_target)
+			{
+				if (btn_target.state != STATE_BOTTOM)
+				{
+					WaitAtTouchMarker();
+					return TRUE;
+				}
+				btn_target = find (btn_target, targetname, linked_marker_.target);
+			}
+		}
+	}
+
+	/* Comment from ancient times: "FIXME: should this include doors?"
+	 * DrLex says: probably not, but map makers do use func_door as lifts, which raises
+	 * the question what is a "door". So far I have not seen obvious problems caused
+	 * by considering classname "door" here. Walking across a true closed door like in
+	 * dm6 is OK because it will be in STATE_TOP. If problems do arise with shootable
+	 * doors, an extra test and maybe an extra marker type/path mode will be needed. */
+	if (touch_marker_.classname != "door")
+		return FALSE;
+	if (deathtype == "squish")
+		return FALSE;  // don't wait to be squished
+
+	if (touch_marker_.state == STATE_TOP)
+		return FALSE;
+	if (linked_marker_.absmin_z + linked_marker_.view_ofs_z <= self.origin_z + 18)
+		return FALSE;  // can walk to destination
+
+	if (teamplay)
+	{
+		if (self.state & HELP_TEAMMATE)
+			self.state = self.state - HELP_TEAMMATE;
+	}
+
+	// check if fully on lift - if not then continue moving to linked_marker_
+	if (self.absmin_x >= touch_marker_.absmin_x)
+	if (self.absmax_x <= touch_marker_.absmax_x)
+	if (self.absmin_y >= touch_marker_.absmin_y)
+	if (self.absmax_y <= touch_marker_.absmax_y)
+	{
+		WaitAtTouchMarker();
+		return TRUE;
+	}
+	return FALSE;
+};
+
+/*
+============
 frogbot_marker_touch
 
 The ginormous bot decision logic when touching a new marker.
@@ -289,6 +423,9 @@ void() frogbot_marker_touch =
 {
 	if (self.path_state & WAIT_GROUND)
 	if (!(self.flags & FL_ONGROUND))
+		return;
+
+	if (LiftNeedsButton())
 		return;
 
 	goalentity_marker = goalentity_.touch_marker;
@@ -606,32 +743,8 @@ void() frogbot_marker_touch =
 		EvalPath();
 	}
 
-	if (touch_marker_.classname == "door")	// FIXME: should this include doors?
-	{
-		if (deathtype != "squish")
-		if (linked_marker_.absmin_z + linked_marker_.view_ofs_z > self.origin_z + 18)
-		{
-			// check if fully on lift - if not then continue moving to linked_marker_
-			if (teamplay)
-			{
-				if (self.state & HELP_TEAMMATE)
-					self.state = self.state - HELP_TEAMMATE;
-			}
-			if (self.absmin_x >= touch_marker_.absmin_x)
-			if (self.absmax_x <= touch_marker_.absmax_x)
-			if (self.absmin_y >= touch_marker_.absmin_y)
-			if (self.absmax_y <= touch_marker_.absmax_y)
-			{
-				linked_marker_ = self.linked_marker = touch_marker_;
-				self.path_from_marker = touch_marker_;
-				SetExclusive();
-				self.path_state = 0;
-				self.linked_marker_time = time + 5;
-				self.old_linked_marker = world;
-			}
-			return;
-		}
-	}
+	if (WaitOnLift())
+		return;
 
 	if (self.state & WAIT)
 	{
