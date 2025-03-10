@@ -114,9 +114,12 @@ void() EvalPath =
 {
 	// Default for 'lifts' not in down position: do not consider them at all.
 	// If 'wait lift' is set on them, do consider them and wait if best path.
-	// If the path has Just GO mode, ignore any danger or uselessness.
+	// Also do not ignore when coming from a T_WAITLIFT button, platform may
+	// already be moving.
+	// If path has Just GO mode, ignore any danger or uselessness.
 	if (test_marker.classname == "door")
 	if (test_marker.state != STATE_BOTTOM)
+	if (! (touch_marker_.T & T_WAITLIFT))
 	if (! (test_marker.T & T_WAITLIFT))
 	if (! (description & JUST_GO))
 		return;
