@@ -466,7 +466,7 @@ vector() VelocityForDamage =
 		return (vec_ * 10);
 };
 
-void(string gibname) ThrowGib =
+void(string gibname, float gibtime) ThrowGib =
 {
 	local	entity new;
 
@@ -481,7 +481,7 @@ void(string gibname) ThrowGib =
 	new.avelocity_z = random()*600;
 	new.think = SUB_Remove;
 	new.ltime = time;
-	new.nextthink = time + 10 + random()*10;
+	new.nextthink = time + gibtime + random()*gibtime;
 };
 
 void() GibPlayer =
@@ -517,11 +517,13 @@ void() GibPlayer =
 	self.flags = self.flags & FL_NOT_ONGROUND;
 	self.avelocity = crandom() * '0 600 0';
 
-	ThrowGib ("progs/gib1.mdl");
-	ThrowGib ("progs/gib2.mdl");
-	ThrowGib ("progs/gib3.mdl");
+	ThrowGib ("progs/gib1.mdl", 10);
+	ThrowGib ("progs/gib2.mdl", 10);
+	ThrowGib ("progs/gib3.mdl", 10);
+	ThrowGib ("progs/gib3.mdl", 3);
+	ThrowGib ("progs/gib3.mdl", 3);
 	if (random() > 0.9)
-		ThrowGib ("progs/eyes.mdl");
+		ThrowGib ("progs/eyes.mdl", 2);
 
 	msg_entity = self;
 	if (attacker.classname == "teledeath")

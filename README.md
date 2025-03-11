@@ -20,6 +20,25 @@ The old Frogbot had a few issues that lead to its development grinding to a halt
 - The source for the waypoint tool had become unavailable (or near impossible to find), making it infeasible to resume editing existing waypoints. Either one had to do a whole map in one go (insane for larger maps), or manually edit the waypoints (just plain insane even for tiny maps).
 
 
+## Basic instructions
+
+This section could be improved, but here's something to begin with.
+
+At this time I recommend to obtain the `frogbot.pk3` that is bundled with [nQuake](https://nquake.com/), unzip it, replace the `qwprogs.dat` with the one from this repository, and then zip the file again, and ensure the file extension is `pk3`. The Frogbot package bundled with nQuake has a good set of configs, as opposed to the ones in this repository which are old and need to be improved. (Eventually it might make sense to just bundle the v2 Frogbot with nQuake, when enough waypoints have been ported to cover the classic set of maps.)
+
+Of course, if you're familiar with Quake config tweaking, go wild.
+
+Playing against bots is only possible on supported maps, i.e., maps for which waypoints were built into the qwprogs. You can find this list of maps in the `src/maps/maplist.txt` file, but it will also be printed in-game after loading a map that is not supported.
+
+The list of supported maps is currently much smaller than what used to be bundled with nQuake. The goal is to port as many of the old huge collection to the v2 Frogbot, but each map needs to go through some QA to fix problems and possibly upgrade it to benefit from the new features. Check back here for newer releases.
+
+The default mode is FFA, other modes are available. After loading a map, use the `addbot` and `removebot` commands to add or remove bots. Bots will be carried over when changing maps (if the next map is supported of course).
+
+If you want to change the skill level of the bots, you can use the `skilldown` and `skillup` commands, or impulses _114_ and _115_ respectively. The new skill level will only be applied to bots spawned afterwards, not to bots already active in the current game. This does mean you can mix bots of different skill levels in a single game. The simplest way to ensure all bots run at the adjusted skill level, is to reload the map.
+
+As for running the `waypoint` tool to create or edit waypoints, see the README in the `waypoint` directory.
+
+
 ## What is the difference with the KTX Frogbot?
 
 Although born from the same origin, this is a different Frogbot fork than [the one included in KTX](https://github.com/QW-Group/ktx). The differences are:
@@ -57,34 +76,37 @@ However, while working on the tool and testing newly created waypoints, I also n
    - made _closest marker mode_ way more usable, by fixing reliability issues and also allowing to cycle between 3 nearest markers; this allows to reliably select hard-to-reach markers like teleport triggers, and deal with overlapping markers;
    - print more info next to goal and zone, like coordinates and marker type;
    - made it much easier to check how markers are connected, by printing paths going out and coming into the active marker (including special modes), and visualising them through flying spikes;
-   - fixed various bugs, for instance the tool would often crash after deleting a marker.
-4. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors, of various sizes. (Still only 1 door per map though.)
-5. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this for instance to the yellow armor zone of `e1m2`, it works really well.
-6. Fixed the pretty much broken _rocket jump_ system. Bots will now rocket-jump much more often, and plan paths that include RJs, if of course the conditions for a RJ are satisfied.
-7. Waypoints through **slime** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up one of those items.
-8. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_bot, it was surprisingly bad at swimming). Bots are now more robust against less-than-ideally-placed underwater markers, and will no longer get stuck on the water surface for no good reason.
-9. Added _exclusive paths_ that allow to make the bot do seemingly smart things by being forced to follow a specific path after touching specific markers, or depending on whether a door is open.
-10. Improved platform/lift handling, the bot can wait for a platform to come down to avoid being squished, and can handle lifts with exits at multiple floors.
+   - auto-connect teleport triggers to destinations, way less tedious/error-prone;
+   - fixed various bugs, for instance the tool would often crash after deleting a marker;
+   - waypoint output format is now deterministic and mostly sorted in a sensible way.
+4. Added _precision jump mode_ for paths. This allows bots to navigate small steps much more reliably. The ordinary ledge jump mode does not work well for this, they would often jump around way too erratically. I applied this for instance to the yellow armor zone of `e1m2`, it works really well.
+5. Fixed the pretty much broken _rocket jump_ system. Bots will now rocket-jump much more often, and plan paths that include RJs, if of course the conditions for a RJ are satisfied.
+6. Added _exclusive paths_ that allow to make the bot do seemingly smart things by being forced to follow a specific path after touching specific markers, or depending on whether a door is open.
+7. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_ bot, it was surprisingly bad at swimming). Bots are now more robust against less-than-ideally-placed underwater markers, and will no longer get stuck on the water surface for no good reason.
+8. Waypoints through **slime** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up one of those items.
+9. Improved _platform/lift handling,_ especially for button-activated lifts. Bots can wait for a platform to come down to avoid being squished, and can handle exits at multiple floors.
+10. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors, of various sizes. (Still only 1 door per map though.)
 11. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
    To override smartness, set the `fb_smartness` cvar to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
-12. Allow to set custom bot names through localinfo `frobo_name1` through `frobo_name16` variables.
+12. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables.
 13. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
 14. Created waypoints for some newer maps. Already available: `hohoho2` and `tox`. Try them, they're fun.  
-Also tweaked existing waypoints, for instance `efdm13` is now a whole lot more challenging.
+Also updated some existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging.
 
 ### Planned
 
 - Allow embedding and using waypoint data in entity fields of maps, and provide a tool to inject marker data created with the waypoint tool into a `.map` or `.ent` file. This means no more need to recompile qwprogs to add bot support to a map.  
   It will be possible to build a BSP with embedded waypoints, or load them from an `.ent` file in engines that support these.   
   _(Status: mechanism implemented, PoC works, working on script to inject WP into map/ent.)_
-- Add more, ideally all of Trinca's waypoints, possibly updated with the new features.
-- Some more documentation, like how the whole thing works.
+- Add more—ideally all—of Trinca's waypoints, with errors fixed and updated to benefit from the new features.
+- Create new waypoints for some more recent popular maps.
+- Some more documentation, like how the whole thing works at a technical level.
 
 No promises about dates or reaching these goals whatsoever. It is done when it's done. Obviously, if you want to jump in and help: fork and branch this repository, do your thing, and create a pull request.
 
-### Not really planned, but who knows
-- Make shootable doors even more universal, bots should be able to open any door on the path it wants to follow, without having to tie it to specific goals/zones. Maybe even extend to also allow shooting switches to open doors.
-- Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, but some things are broken. If you want to try this: remember to start a network game, or very weird things will happen when attempting to add a bot.
+### Not really planned, but who knows…
+- Make shootable doors even more universal and extend to any shootable trigger. Bots should be able to open any door on the path they want to follow, without having to tie it to specific goals/zones. The current `dm6_door` system is overly complicated.
+- Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, but some things are broken. If you want to try this: remember to start a network game, or very weird things will happen when attempting to add a bot in single-player mode. However, both in single-player and multiplayer, you can turn yourself into a bot through `impulse 123`. Try it!
 - Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels.
 
 ### Wild ideas
