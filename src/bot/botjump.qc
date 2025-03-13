@@ -72,6 +72,8 @@ float() able_rj =
 	if (!beQuiet)
 #ifndef MANUAL
 	if (random() > 0.33)
+#else
+	if (!no_rocketjump)
 #endif
 		return TRUE;
 	return FALSE;

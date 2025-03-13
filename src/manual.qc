@@ -333,6 +333,7 @@ void() ClearActiveMarker =
 ClosestMarker
 
 Similar to LocateMarker in marker_util, but tweaked for manual mode
+and with detection of 4 nearest (or overlapping) markers
 ============
 */
 entity(vector org) ClosestMarker =
@@ -342,9 +343,11 @@ entity(vector org) ClosestMarker =
 	local float shortest_distance = 1000000;
 	local float next_dist1 = 1000000;
 	local float next_dist2 = 1000000;
+	local float next_dist3 = 1000000;
 	closest_marker = world;
-	next_closest1 = world;
-	next_closest2 = world;
+	local entity next_closest1 = world;
+	local entity next_closest2 = world;
+	local entity next_closest3 = world;
 
 	marker_ = findradius(view_org, 1000);
 	while (marker_)
@@ -362,6 +365,8 @@ entity(vector org) ClosestMarker =
 			}
 			if (distance < shortest_distance)
 			{
+				next_dist3 = next_dist2;
+				next_closest3 = next_closest2;
 				next_dist2 = next_dist1;
 				next_closest2 = next_closest1;
 				next_dist1 = shortest_distance;
@@ -371,6 +376,8 @@ entity(vector org) ClosestMarker =
 			}
 			else if (distance < next_dist1)
 			{
+				next_dist3 = next_dist2;
+				next_closest3 = next_closest2;
 				next_dist2 = next_dist1;
 				next_closest2 = next_closest1;
 				next_dist1 = distance;
@@ -378,8 +385,15 @@ entity(vector org) ClosestMarker =
 			}
 			else if (distance < next_dist2)
 			{
+				next_dist3 = next_dist2;
+				next_closest3 = next_closest2;
 				next_dist2 = distance;
 				next_closest2 = marker_;
+			}
+			else if (distance < next_dist3)
+			{
+				next_dist3 = distance;
+				next_closest3 = marker_;
 			}
 		}
 		marker_ = marker_.chain;
@@ -389,7 +403,9 @@ entity(vector org) ClosestMarker =
 		return closest_marker;
 	if (alt_marker_idx == 1 || next_closest2 == world)
 		return next_closest1;
-	return next_closest2;
+	if (alt_marker_idx == 2 || next_closest3 == world)
+		return next_closest2;
+	return next_closest3;
 };
 
 /*
@@ -1772,7 +1788,7 @@ void() CycleDescriptionMode =
 		else
 		{
 			type_mode = 0;
-			bprint("type mode OFF\n");
+			bprint("type mode OFF / clear marker type\n");
 		}
 	}
 	else if (path_mode == 0)
@@ -1838,16 +1854,17 @@ void() CycleDescriptionMode =
 	else
 	{
 		path_mode = 0;
-		bprint("path mode OFF\n");
+		bprint("regular path mode\n");
 	}
 };
 
-/* To be able to select between markers very close to each other, or
- * overlap like some in aerowalk. Only works in closest marker mode. */
+/* To be able to select between markers very close to each other, or overlap.
+ * The worst case I have seen is 4 overlapping health packs in 'hohoho', and
+ * I hope this is the maximum. Only works in closest marker mode. */
 void() CycleAltMarker =
 {
 	alt_marker_idx = alt_marker_idx + 1;
-	if (alt_marker_idx > 2)
+	if (alt_marker_idx > 3)
 		alt_marker_idx = 0;
 	bprint("closest marker mode: ");
 	if (alt_marker_idx == 0)
@@ -1926,6 +1943,16 @@ void() CycleDisplayMode =
 	}
 };
 
+void() MoveToActiveMarker =
+{
+	if (!active_marker)
+	{
+		bprint("No active marker\n");
+		return;
+	}
+	setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
+}
+
 /*
 ============
 CheckAllZones
@@ -1963,10 +1990,58 @@ void() CheckAllZones =
 		else  // looped over all, on last marker or none
 			active_marker = first_bad;
 		bprint("Zone missing\n");
-		setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
+		MoveToActiveMarker();
 		return;
 	}
 	bprint("Zones completed\n");
+};
+
+/*
+============
+FindNextSameGoal
+
+Move towards the next item marker that has goal findG (or none if 0),
+starting from either skipEnt, or any item that has the exact same
+coordinates as the 'player.'
+Needs NOCLIP to allow moving to obstructed markers.
+============
+*/
+float(float findG, entity skipEnt) FindNextSameGoal =
+{
+	local float exit_next = 0;
+	local entity first_match = world;
+	local entity last_match = world;
+
+	marker_ = first_item;
+	while (marker_)
+	{
+		if (marker_.G_ == findG)
+		{
+			if (! first_match) first_match = marker_;
+			last_match = marker_;
+			if (exit_next) break;
+			if (skipEnt != world)
+			{
+				if (marker_ == skipEnt)
+					exit_next = 1;
+			}
+			else if(self.origin == ((marker_.absmin + marker_.view_ofs) + '0 0 22') - self.view_ofs)
+				exit_next = 1;
+		}
+		marker_ = marker_.next;
+	}
+
+	if (last_match)
+	{
+		Deselect(active_marker);
+		if (marker_)  // exited early
+			active_marker = last_match;
+		else  // looped over all, on last marker or none
+			active_marker = first_match;
+		MoveToActiveMarker();
+		return TRUE;
+	}
+	return FALSE;
 };
 
 /*
@@ -1975,52 +2050,110 @@ CheckAllGoals
 
 If an item marker lacks a goal, move towards it.
 When already on such marker, move to the next.
-Needs noclip to allow moving to obstructed markers.
 ============
 */
 void() CheckAllGoals =
 {
-	local float exit_next = 0;
-	local entity first_bad = world;
-	local entity last_bad = world;
-
-	marker_ = first_item;
-	while (marker_)
-	{
-		if (!marker_.G_)
-		{
-			if (! first_bad) first_bad = marker_;
-			last_bad = marker_;
-			if (exit_next) break;
-			if (self.origin == ((marker_.absmin + marker_.view_ofs) + '0 0 22') - self.view_ofs)
-				exit_next = 1;
-		}
-		marker_ = marker_.next;
-	}
-
-	if (last_bad)
-	{
-		Deselect(active_marker);
-		if (marker_)  // exited early
-			active_marker = last_bad;
-		else  // looped over all, on last marker or none
-			active_marker = first_bad;
+	if (FindNextSameGoal(0, world))
 		bprint("Goal missing\n");
-		setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
-		return;
-	}
-	bprint("Goals completed\n");
-};
-
-void() MoveToActiveMarker =
-{
-	if (!active_marker)
-	{
-		bprint("No active marker\n");
-		return;
-	}
-	setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
+	else
+		bprint("Goals completed\n");
 }
+
+/*
+============
+FindNextGoal
+
+If active marker is item with assigned goal,
+move to next marker that has the same goal.
+Otherwise, print the lowest unused goal number, if any.
+============
+*/
+void() FindNextGoal =
+{
+	local float lastG = 0;
+	local entity last_active = active_marker;
+
+	if (active_marker)
+	if (active_marker.G_)
+		lastG = active_marker.G_;
+
+	if (lastG)
+	{
+		if (FindNextSameGoal(lastG, active_marker))
+		{
+			if (active_marker == last_active)
+				bprint("Only item with G", ftos(lastG), " is m", ftos(active_marker.index), "\n");
+			else
+				bprint("Next item with G", ftos(lastG), " is m", ftos(active_marker.index), "\n");
+		}
+		else
+			bprint("Something impossible happened\n");
+	}
+	else
+	{
+		// Oh, the joys of implementing stuff like this in a language without even arrays
+		local float fun_with_bits = 0;
+		marker_ = first_item;
+		while (marker_)
+		{
+			if (marker_.G_ == 1) fun_with_bits = (fun_with_bits | 1);
+			else if (marker_.G_ == 2) fun_with_bits = (fun_with_bits | 2);
+			else if (marker_.G_ == 3) fun_with_bits = (fun_with_bits | 4);
+			else if (marker_.G_ == 4) fun_with_bits = (fun_with_bits | 8);
+			else if (marker_.G_ == 5) fun_with_bits = (fun_with_bits | 16);
+			else if (marker_.G_ == 6) fun_with_bits = (fun_with_bits | 32);
+			else if (marker_.G_ == 7) fun_with_bits = (fun_with_bits | 64);
+			else if (marker_.G_ == 8) fun_with_bits = (fun_with_bits | 128);
+			else if (marker_.G_ == 9) fun_with_bits = (fun_with_bits | 256);
+			else if (marker_.G_ == 10) fun_with_bits = (fun_with_bits | 512);
+			else if (marker_.G_ == 11) fun_with_bits = (fun_with_bits | 1024);
+			else if (marker_.G_ == 12) fun_with_bits = (fun_with_bits | 2048);
+			else if (marker_.G_ == 13) fun_with_bits = (fun_with_bits | 4096);
+			else if (marker_.G_ == 14) fun_with_bits = (fun_with_bits | 8192);
+			else if (marker_.G_ == 15) fun_with_bits = (fun_with_bits | 16384);
+			else if (marker_.G_ == 16) fun_with_bits = (fun_with_bits | 32768);
+			else if (marker_.G_ == 17) fun_with_bits = (fun_with_bits | 65536);
+			else if (marker_.G_ == 18) fun_with_bits = (fun_with_bits | 131072);
+			else if (marker_.G_ == 19) fun_with_bits = (fun_with_bits | 262144);
+			else if (marker_.G_ == 20) fun_with_bits = (fun_with_bits | 524288);
+			else if (marker_.G_ == 21) fun_with_bits = (fun_with_bits | 1048576);
+			else if (marker_.G_ == 22) fun_with_bits = (fun_with_bits | 2097152);
+			else if (marker_.G_ == 23) fun_with_bits = (fun_with_bits | 4194304);
+			else if (marker_.G_ == 24) fun_with_bits = (fun_with_bits | 8388608);
+			marker_ = marker_.next;
+		}
+		if (! (fun_with_bits & 1)) lastG = 0;
+		else if (! (fun_with_bits & 2)) lastG = 1;
+		else if (! (fun_with_bits & 4)) lastG = 2;
+		else if (! (fun_with_bits & 8)) lastG = 3;
+		else if (! (fun_with_bits & 16)) lastG = 4;
+		else if (! (fun_with_bits & 32)) lastG = 5;
+		else if (! (fun_with_bits & 64)) lastG = 6;
+		else if (! (fun_with_bits & 128)) lastG = 7;
+		else if (! (fun_with_bits & 256)) lastG = 8;
+		else if (! (fun_with_bits & 512)) lastG = 9;
+		else if (! (fun_with_bits & 1024)) lastG = 10;
+		else if (! (fun_with_bits & 2048)) lastG = 11;
+		else if (! (fun_with_bits & 4096)) lastG = 12;
+		else if (! (fun_with_bits & 8192)) lastG = 13;
+		else if (! (fun_with_bits & 16384)) lastG = 14;
+		else if (! (fun_with_bits & 32768)) lastG = 15;
+		else if (! (fun_with_bits & 65536)) lastG = 16;
+		else if (! (fun_with_bits & 131072)) lastG = 17;
+		else if (! (fun_with_bits & 262144)) lastG = 18;
+		else if (! (fun_with_bits & 524288)) lastG = 19;
+		else if (! (fun_with_bits & 1048576)) lastG = 20;
+		else if (! (fun_with_bits & 2097152)) lastG = 21;
+		else if (! (fun_with_bits & 4194304)) lastG = 22;
+		else if (! (fun_with_bits & 8388608)) lastG = 23;
+		else lastG = 24;
+		if (lastG < 24)
+			bprint("Next unused goal is G", ftos(1 + lastG), "\n");
+		else
+			bprint("All goal numbers are being used\n");
+	}
+};
 
 void() PrintDebugInfo =
 {
@@ -2069,9 +2202,9 @@ void() ManualImpulseCommands =
 		MoveActiveMarker();
 	else if (impulse_ == 147)  // `U`
 		VerMoveActiveMarker();
-	else if (impulse_ == 148)  // MWHEELUP or `.` or `2`
+	else if (impulse_ == 148)  // MWHEELUP or `2`
 		IncGoal();
-	else if (impulse_ == 149)  // MWHEELDOWN or `,` or `1`
+	else if (impulse_ == 149)  // MWHEELDOWN or `1`
 		DecGoal();
 	else if (impulse_ == 150)  // ENTER or `Q`
 		SetGoal();
@@ -2095,6 +2228,8 @@ void() ManualImpulseCommands =
 		MoveToActiveMarker();
 	else if (impulse_ == 160)  // `K`
 		TeleportAutoConnect();
+	else if (impulse_ == 161)  // `,`
+		FindNextGoal();
 };
 
 #endif

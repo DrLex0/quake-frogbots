@@ -70,35 +70,36 @@ A marker will be _touched_ when the bot comes sufficiently near it, and even if 
 These are the bindings provided by the `autoexec.cfg`. Of course you are free to modify them. Unless your memory is flawless, you will want to print out this list, or have it on a second monitor while running the waypoint tool.
 ```
 KEY	ALTKEY	OLD_IMP	NEW_IMP	FUNCTION
-MOUSE1	3	119	132	SPAWN A MARKER
 O		120	131	TOGGLE MANUAL-MODE
-N		125	133	CHECK ALL GOALS
-M		126	134	CHECK ALL ZONES
+MOUSE1	3	119	132	SPAWN A MARKER
+G	9	132	142	DEFAULT MARKER-MODE
+F	5	135	144	TOGGLE CLOSEST-MARKER-MODE
+L	0	none	156	CYCLE BETWEEN 4 CLOSEST MARKERS
 I	TAB	127	135	TOGGLE STATIC ACTIVE MARKER
 P		128	136	REMOVE ACTIVE MARKER
 H		129	137	DISABLE ACTIVE MARKER
 J	6	130	138	TOGGLE ONEWAY-MODE
 MOUSE2	4	131	139	TOGGLE CONNECT-MARKERS-MODE
-G	9	132	142	DEFAULT MARKER-MODE
-F	5	135	144	TOGGLE CLOSEST-MARKER-MODE
-T		137	145	CLEAR ACTIVE MARKER
+K		none	160	AUTO CONNECT trigger_teleport
+T		137	145	CLEAR ACTIVE MARKER PATHS
 Y		138	146	MOVE ACTIVE MARKER
 U		139	147	VERTICALLY MOVE ACTIVE MARKER
-.	2	140	148	INCREASE GOAL/ZONES
-,	1	141	149	DECREASE GOAL/ZONES
+WHEELUP	2	140	148	INCREASE GOAL/ZONES
+WHEELDN	1	141	149	DECREASE GOAL/ZONES
 ENTER	Q	142	150	SET GOAL/ZONE
-C	8	143	151	PRINT ZONE & GOAL
-R		none	157	PRINT PATHS
+C	8	143	151	PRINT ZONE, GOAL, TYPE
+R		none	157	PRINT/SHOW PATHS
 V	7	144	152	CYCLE PATH-MODES or
 				CYCLE MARKER TYPES
-K		none	160	AUTO CONNECT trigger_teleport
-B		145	153	DISPLAY TRAVELTIME
 Z		146	154	CYCLE DISPLAY-MODE
+B		145	153	DISPLAY TRAVELTIME
 X		147	155	DISPLAY REACHABLE
-L	0	none	156	CYCLE BETWEEN 3 CLOSEST MARKERS
+N		125	133	CHECK ALL GOALS
+M		126	134	CHECK ALL ZONES
+,		none	161	SHOW SAME OR NEXT GOAL
 E		none	159	MOVE TO ACTIVE MARKER
 /		none	158	PRINT COORDINATES & EXTRA INFO
-F1		133	143	SAVE MARKERS
+F1		133	143	DUMP WAYPOINT DATA
 F2		?	130	NOCLIP
 F3		?	50	DISABLE DAMAGE FLASH
 F4		none	123	TOGGLE FROGBOT -- CAUTION!
@@ -107,6 +108,7 @@ F5		-	-	CONDUMP COMMAND (dump console to file)
 MOUSE3  	-	-	FIRE
 
 PATH MODES
+	- regular path mode (default)
 	- disconnect-mode
 	- jump ledge-mode
 	- dm6 door-mode
@@ -119,14 +121,15 @@ PATH MODES
 	- reversible display-mode
 	- water path display-mode
 (new)	- clear all assigned path modes
-	- path mode OFF
 
 MARKER TYPES (when DISPLAY-MODE = TYPE)
+	- type mode off / clear marker type (default)
 	- unreachable node
 (new)	- exclusive node
+(new)	- narrow node
+(new)	- wait lift node
 (new)	- slime island node
 (new)	- want biosuit node
-	- type mode off (clears all types from marker)
 ```
 
 ## The workflow
@@ -141,7 +144,7 @@ After loading the map, it looks like you're in a regular Quake game with no oppo
 
 **Markers** are represented by the _Quake guy._ Inactive markers have the shotgun, the active marker wields the axe. Rotating markers indicate a relation to the current marker, depending on the current view mode. The default is to show markers to which the active marker has an outgoing path.
 
-By default, the tool will activate markers in the same way as in the game, i.e., when you're close enough to pick up something or trigger an action. Usually, you will want to enable the tool's custom **Closest-Marker-Mode** with `F`. CMM makes it generally easier to select markers. When markers are really close to each other or overlap, CMM also allows to cycle between the 3 nearest with the `L` or `0` (zero) key.
+By default, the tool will activate markers in the same way as in the game, i.e., when you're close enough to pick up something or trigger an action. Usually, you will want to enable the tool's custom **Closest-Marker-Mode** with `F`. CMM makes it generally easier to select markers. When markers are really close to each other or overlap, CMM also allows to cycle between the 4 nearest with the `L` or `0` (zero) key.
 
 ### Useful keys for displaying info
 - `Z` changes the display mode, which is useful to verify things. For instance path display mode (the default) will make all other markers spin that are part of the active marker's outgoing paths.
@@ -152,7 +155,7 @@ By default, the tool will activate markers in the same way as in the game, i.e.,
 ### Steps
 These steps do not need to be done in this exact order, but you will typically gradually move from the top to the bottom of this list as you progress.
 
-1. Use `,` and `.` or the scroll wheel to select a **ZONE** number.  
+1. Use the scroll wheel or keys `1` and `2` to select a **ZONE** number.  
    - **Zones** could be considered parts of the map where everything is within reach without having to cross obstacles or run a long distance. See the guidelines below.  
      Zone numbers do not impose a preference, I usually start with 1 for the “main” zone where most of the action will happen and go up from there, but you can use any number for any part of the map, and you can skip numbers.
    - There can be up to _32 markers_ in one zone. If you exceed this, you must split up zones.
@@ -170,7 +173,7 @@ These steps do not need to be done in this exact order, but you will typically g
    Remember to also assign a zone to the new markers. If a zone number is currently selected, new markers automatically get this zone.  
    ![Adding markers](images/markers2.jpg)
 
-4. Assign **GOALS** to items: things the bot will want to fetch: weapons, ammo, health, powerups. Use `,.` or scroll to select GOAL number and again use `ENTER` or `Q` on the marker.
+4. Assign **GOALS** to items: things the bot will want to fetch: weapons, ammo, health, powerups. Use the scroll wheel or keys `1` and `2` to select GOAL number and again use `ENTER` or `Q` on the marker.
    - The goal logic is horribly complicated and hard to understand; what follows is what I have learnt from experiments, Mick's guide, and digging in the source code. If someone has better insights, please update this guide.
    - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
    - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and absolutely not when they are directly linked. It _should_ be OK to give the same weapon the same goal across different zones, but I am not sure about this.
@@ -182,6 +185,7 @@ These steps do not need to be done in this exact order, but you will typically g
      * 22 `weapon_nailgun`
      * 23 `item_spikes`
      * 24 `item_shells`
+   - To help with avoiding overlapping goals, the `,` key cycles between items that share the same goal number, when an item with assigned goal is active. Otherwise it prints the lowest unused goal number.
    - It is possible and valid to assign _no goal at all_ to items. This will _not_ make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a particular Quad or invisibility is too risky and makes the bot an easy target.
 
 5. Go to another zone and repeat steps 1 to 5.
@@ -323,6 +327,8 @@ By default, the bot will not go towards such platforms when they are not in thei
 
 The `wait lift` mode will make the bot wait at any marker that has a path towards the platform, if the platform is the most desirable path, but it is not in the downmost position. If this is not desirable for a specific path, set `just GO` mode on the path, and the bot will ignore any dangers as usual. Also, make sure that the waiting spots are sufficiently far away from the platform, or the bot may still get _juiced._
 
+Note that all door-and-lift-like things are treated equal. There may be cases where the bot has to walk towards a door that will open automatically, and the test for platform-like things not being in the downmost position causes the bot to refuse to walk towards this door. The solution here is to set `just GO` mode on that path. An example can be found in the map `skull`.
+
 Maps often feature lifts that require a **button press.** This is a bit more complicated to set up, make sure to look at the illustration:
 1. make _one-way_ path(s) from outside the lift (_mIn_ in the image) directly to the button (_mBtn_ in the image; do _not_ link to the platform);
 2. then make a one-way path from the button to the platform marker (_mPlat_);
@@ -428,7 +434,7 @@ If even this would not suffice, you could place extra markers to ‘shield’ th
 ### Dealing with overlapping markers
 
 Some maps have markers at the exact same coordinates. I consider this _bad practice_ (even though one of the most iconic Quake maps suffers from this) and it should be avoided, but how to deal with it when it's in an existing map?
-- By enabling closest-marker-mode (`F`), you can select between overlapping markers with the `L` or `0` (zero) key to cycle between the 3 most nearby markers. Print marker info with `C` to see what marker you have actually selected.
+- By enabling closest-marker-mode (`F`), you can select between overlapping markers with the `L` or `0` (zero) key to cycle between the 4 most nearby markers. Print marker info with `C` to see what marker you have actually selected.
 - In general, _you should not make a path between overlapping markers._ Although the v2 Frogbot has some protections against this, connecting such markers may cause the bot to get temporarily stuck. It makes no sense anyway, there is no path to follow between things at the same coordinates. Just connect both markers to neighbouring markers in the same way (unless one is a spawn, then it should only have outgoing paths).
 - The same goes for markers that do not exactly overlap, but are still very close to each other. If you notice bots getting stuck or yo-yoing between such markers, try removing the connections between them and give them the same incoming and outgoing paths.
 

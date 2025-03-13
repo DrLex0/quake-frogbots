@@ -2491,14 +2491,13 @@ float manual_mode;
 float goal_index;
 float alt_marker_idx;
 entity active_marker;
-entity next_closest1;
-entity next_closest2;
 
 .entity display;
 
 float mode;
 float path_mode;
 float type_mode;
+float no_rocketjump;
 
 //
 // mode values
