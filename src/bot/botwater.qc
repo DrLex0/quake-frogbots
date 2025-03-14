@@ -44,16 +44,16 @@ void() CheckWaterPathState =
 
 /*
 ============
-CheckBotStuckInWater
+CheckBotStuckInLiquid
 
 Use a different strategy when we can't seem to reach the target marker
-in water than on land. When this happens, it may be because the bot
-briefly touched a marker on a ledge and fell back in water, or drifted
+in liquids than on land. When this happens, it may be because the bot
+briefly touched a marker on a ledge and fell back in liquid, or drifted
 away while trying to reach a marker. Try to fix by finding a nearby
 accessible marker and resetting path state.
 ============
 */
-void() CheckBotStuckInWater = 
+void() CheckBotStuckInLiquid = 
 {
 	if (! self.frogbot) return;
 
@@ -66,11 +66,10 @@ void() CheckBotStuckInWater =
 		return;
 	}
 
-	local entity nearest = LocateMarker(self.origin + '0 0 32');
+	// ignore markers too high up, probably can't reach them anyway
+	local entity nearest = LocateMarker(self.origin + '0 0 32', 42);
 	if (distance >= 1000)
-		return;  // Do not consider markers behind obstacles
-	if (nearest.absmin_z + nearest.view_ofs_z - self.origin_z > 96)
-		return;  // or too high up
+		return;  // markers behind obstacle or too high up
 	self.old_linked_marker = world;
 	self.linked_marker = nearest;
 	self.path_state = 0;

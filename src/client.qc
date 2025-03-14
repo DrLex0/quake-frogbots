@@ -58,7 +58,7 @@ void(entity marker) BecomeMarker;
 void(entity mk) SetFrB_Props;
 void() FrogWaterMove;
 void() CheckWaterPathState;
-void() CheckBotStuckInWater;
+void() CheckBotStuckInLiquid;
 void() SetFrogbotAngles;
 
 
@@ -999,7 +999,7 @@ void() PlayerPreThink_apply =
 		#endif
 			if (self.waterlevel == 2)  // swimming but with head above liquid
 			{
-				CheckBotStuckInWater();
+				CheckBotStuckInLiquid();
 				CheckWaterJump();
 			}
 		}
@@ -1064,7 +1064,15 @@ void() PlayerPreThink_apply =
 			if (self.watertype == CONTENT_WATER)
 				sound (CHAN_BODY, "player/inh2o.wav", 1, ATTN_NORM);
 			else if (self.watertype == CONTENT_LAVA)
+			{
 				sound (CHAN_BODY, "player/inlava.wav", 1, ATTN_NORM);
+				// Force bots to immediately find a marker to escape the liquid hot magma.
+				// Ending up in lava is almost never planned, and waiting for current
+				// linked_marker to expire is often lethal.
+				self.water_unstuck_retry = 0;
+				self.linked_marker_time = 0;
+				CheckBotStuckInLiquid();
+			}
 			else if (self.watertype == CONTENT_SLIME)
 				sound (CHAN_BODY, "player/slimbrn2.wav", 1, ATTN_NORM);
 

@@ -25,7 +25,7 @@ void() W_SetCurrentAmmo;
 void(float prioritize) check_marker;
 void() AddToQue;
 void() UpdateGoalEntity;
-entity(vector org) LocateMarker;
+entity(vector org, float not_above) LocateMarker;
 void() AssignVirtualGoal;
 void() marker_touch;
 void() LocateDynamicItem;
@@ -2026,7 +2026,7 @@ void() LocateDynamicItem =
 	{
 		content = pointcontents(self.origin);
 
-		self.touch_marker = LocateMarker(self.absmin + self.view_ofs);
+		self.touch_marker = LocateMarker(self.absmin + self.view_ofs, 0);
 		if ((self.touch_marker.T & T_UNREACHABLE) || (content == CONTENT_LAVA))
 			self.touch_marker = world;
 
@@ -2202,7 +2202,7 @@ void() backpack_touch =
 
 				UpdateGoalEntity();
 				other.old_linked_marker = world;
-				other.linked_marker = LocateMarker(other.origin);
+				other.linked_marker = LocateMarker(other.origin, 0);
 				other.linked_marker_time = time + 5;
 
 				remove_self();
@@ -2395,7 +2395,7 @@ void() RuneTouch =
 
 			UpdateGoalEntity();
 			other.old_linked_marker = world;
-			other.linked_marker = LocateMarker(other.origin);
+			other.linked_marker = LocateMarker(other.origin, 0);
 			other.linked_marker_time = time + 5;
 
 			remove_self();

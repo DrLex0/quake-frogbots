@@ -257,7 +257,7 @@ void() ammo_touch;
 void() powerup_touch;
 void() SUB_regen;
 void() CheckWaterPathState;
-void() CheckBotStuckInWater;
+void() CheckBotStuckInLiquid;
 void() CheckWaterJump;
 #ifndef QUAKE
 void(float to, entity client) SetColorName;
@@ -2307,7 +2307,7 @@ float() a_prethink =
 	#endif
 		if (self.waterlevel == 2)
 		{
-			CheckBotStuckInWater();
+			CheckBotStuckInLiquid();
 			CheckWaterJump();
 		}
 	#ifndef QUAKE

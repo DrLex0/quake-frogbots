@@ -258,7 +258,7 @@ LocateMarker
 Bot disorientated / BackPacks.
 ============
 */
-entity(vector org) LocateMarker =
+entity(vector org, float not_above) LocateMarker =
 {
 	local float shortest_distance = 1000000;
 	closest_marker = world;
@@ -270,9 +270,15 @@ entity(vector org) LocateMarker =
 		{
 			marker_pos = marker_.absmin + marker_.view_ofs;
 			distance = vlen(marker_pos - org);
-			traceline(org, marker_pos, TRUE, dropper);
-			if (trace_fraction != 1)
+			if (not_above && (marker_pos_z - org_z > not_above))
 				distance = distance + 1000;
+			else
+			{
+				traceline(org, marker_pos, TRUE, dropper);
+				if (trace_fraction != 1)
+					distance = distance + 1000;
+			}
+
 			if (distance < shortest_distance)
 			{
 			#ifndef ARENA

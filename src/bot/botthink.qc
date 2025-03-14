@@ -187,7 +187,7 @@ void() ThinkTime =
 
 		if (time >= self.touch_marker_time)
 		{
-			marker_ = LocateMarker(self.origin);
+			marker_ = LocateMarker(self.origin, 0);
 			set_marker(self, marker_);
 		}
 

@@ -63,7 +63,7 @@ void() custom_quad_touch =
 				self.frogbot_nextthink = time + 30;
 				powerup_touch_apply();
 				other.old_linked_marker = world;
-				other.linked_marker = LocateMarker(other.origin);
+				other.linked_marker = LocateMarker(other.origin, 0);
 				other.linked_marker_time = time + 5;
 				msg_entity = other;
 				sprint_fb(other, 0, "You got the ");

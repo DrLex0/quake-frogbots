@@ -35,7 +35,7 @@ void() HazardTeleport =
 			if (test_enemy.linked_marker == self)
 			{
 				test_enemy.old_linked_marker = world;
-				test_enemy.linked_marker = LocateMarker(test_enemy.origin);
+				test_enemy.linked_marker = LocateMarker(test_enemy.origin, 0);
 				test_enemy.path_state = 0;
 				test_enemy.linked_marker_time = time + 5;
 			}
