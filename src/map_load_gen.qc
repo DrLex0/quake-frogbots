@@ -14,6 +14,7 @@
 #include "maps/map_ztndm3.qc"
 #include "maps/drlex/map_hohoho2.qc"
 #include "maps/drlex/map_tox.qc"
+#include "maps/ktx/map_shifter.qc"
 #include "maps/trinca/map_bovine.qc"
 #include "maps/trinca/map_cmt4.qc"
 #include "maps/trinca/map_dm5.qc"
@@ -35,9 +36,9 @@ void() SprintMaps =
 	sprint_fb(self, 2, "     efdm13      eodm3      exdm3\n");
 	sprint_fb(self, 2, "   frobodm2    hohoho2     lilith\n");
 	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
-	sprint_fb(self, 2, "      skull    spinev2      start\n");
-	sprint_fb(self, 2, "        tox     ultrav   utressor\n");
-	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "    shifter      skull    spinev2\n");
+	sprint_fb(self, 2, "      start        tox     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -110,6 +111,11 @@ float() LoadWaypoints =
 	if (mapname == "tox")
 	{
 		map_tox();
+		return TRUE;
+	}
+	if (mapname == "shifter")
+	{
+		map_shifter();
 		return TRUE;
 	}
 	if (mapname == "bovine")
@@ -205,6 +211,8 @@ string(string mname) MapHasWaypoints =
 		return "hohoho2";
 	if (mname == "tox")
 		return "tox";
+	if (mname == "shifter")
+		return "shifter";
 	if (mname == "bovine")
 		return "bovine";
 	if (mname == "cmt4")
