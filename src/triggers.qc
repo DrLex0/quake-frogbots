@@ -626,6 +626,15 @@ void() trigger_push_touch =
 	{
 		if (other.takedamage)
 		{
+#ifdef QUAKE
+			// Very thin triggers do not push the player up as much in Quake as in QW.
+			// Unclear what is the truly correct way to fix this; this workaround has
+			// been tweaked with `monsoon` and a test map. It might not provide the
+			// same results for other maps or if frame rate is not 77.
+			if (self.maxs_z - self.mins_z < 5)
+				other.velocity = other.oldvelocity = self.speed * self.movedir * 10.55;
+			else
+#endif
 			other.velocity = other.oldvelocity = self.speed * self.movedir * 10;
 			if (other.fly_sound < time)
 			{
