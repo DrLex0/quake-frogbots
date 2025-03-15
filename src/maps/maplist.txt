@@ -12,6 +12,7 @@ map_ultrav.qc
 map_ztndm3.qc
 drlex/map_hohoho2.qc
 drlex/map_tox.qc
+ktx/map_monsoon.qc
 ktx/map_shifter.qc
 trinca/map_bovine.qc
 trinca/map_cmt4.qc

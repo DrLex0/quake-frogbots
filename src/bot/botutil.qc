@@ -451,6 +451,8 @@ void() CanJumpOver =
 		marker = spawn();
 		setmodel (marker, "progs/player.mdl");
 		setorigin(marker, testplace);
+		marker.think = SUB_Remove;
+		marker.nextthink = time + 5;
 #endif
 
 		FallSpotAir();
