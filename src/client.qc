@@ -300,6 +300,7 @@ void() execute_changelevel =
 	while (self)
 	{
 		self.takedamage = self.solid = self.movetype = self.nextthink = self.view_ofs_z = 0;
+		self.items = 0;  // Don't light up intermission with Quad or pentagram glow
 	#ifdef QUAKE
 		self.model = self.aiment.model = "";
 	#else

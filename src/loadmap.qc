@@ -3,7 +3,7 @@
 
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 2000-2007 ParboiL
-	Changed to Spike/Trinca map management; universal doors by DrLex
+	Changed to Spike/Trinca map management and other changes by DrLex 2024-2025
 */
 
 #include "settings.h"
@@ -11,6 +11,8 @@
 //generated inside map_load_gen.qc
 void() SprintMaps;
 float() LoadWaypoints;
+
+void() AddMissingBits;
 
 
 /*
@@ -69,4 +71,40 @@ void() LoadMap =
 	}
 
 	SetUpItems();
+
+	AddMissingBits();
 };
+
+
+/*
+============
+AddMissingBits
+
+Hard-coded fixes for certain maps, mostly missing intermission cameras
+============
+*/
+void() AddMissingBits =
+{
+	local entity ent;
+	if (mapname == "amphi")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '1244 -337 570';
+		ent.mangle = '40 -135 10';
+	}
+	else if (mapname == "endif")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '-227 -732 800';
+		ent.mangle = '54 45 8';
+	}
+	else if(mapname == "oktest1")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '513 -281 1167';
+		ent.mangle = '37 -147 -13';
+	}
+}
