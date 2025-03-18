@@ -19,7 +19,10 @@ KTX_PATHF_TO_V2 = {
 }
 
 KTX_MARKF_TO_V2 = {
-    "f": 1,  # unreachable???
+    "u": 1,  # unreachable
+    # unsure what this is, seems like entities that aren't used as markers in QuakeC bot,
+    # will be filtered out anyway when re-dumping
+    "f": 0,
 }
 
 

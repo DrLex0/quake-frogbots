@@ -2157,7 +2157,9 @@ void() FindNextGoal =
 
 void() PrintDebugInfo =
 {
-	bprint("pos ", vtos(self.origin));
+	local float a_pit = rint(self.angles_x * -3);
+	local float a_yaw = rint(self.angles_y);
+	bprint("pos ", vtos(self.origin), " p=", ftos(a_pit), " y=", ftos(a_yaw));
 	if ((mode & STATIC_ACTIVE_MARKER) && active_marker)
 		bprint(" d ", ftos(vlen(self.origin - active_marker.origin)));
 	if (dm6_door)
