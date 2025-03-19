@@ -98,6 +98,7 @@ Actions to perform when 'touching' a marker in manual mode.
 */
 void(entity marker) manual_marker_touch =
 {
+	// Mimic check_marker behavior, unless when CMM enabled
 	if (self.T & T_NARROW)
 	if (! (mode & CLOSEST_MARKER))
 	if (distance > 24)
@@ -134,6 +135,8 @@ void(entity marker) manual_marker_touch =
 					DescriptionMarker("slow down");
 					description = JUST_GO;
 					DescriptionMarker("just GO");
+					description = FOCUS_PATH;
+					DescriptionMarker("focused");
 					description = EXCLUSIVE_DOOR;
 					DescriptionMarker("exclusive door");
 				}
@@ -1447,6 +1450,8 @@ void(float descbits) PrintDLabel =
 		bprint("\xD3");  // S
 	if (descbits & JUST_GO)
 		bprint("\xA1");  // !
+	if (descbits & FOCUS_PATH)
+		bprint("\xC6");  // F
 	if (descbits & EXCLUSIVE_DOOR)
 		bprint("\xC5");  // E
 }
@@ -1803,11 +1808,6 @@ void() CycleDescriptionMode =
 	}
 	else if (path_mode == JUMP_LEDGE)
 	{
-		path_mode = DM6_DOOR;
-		bprint("dm6 door mode ON\n");
-	}
-	else if (path_mode == DM6_DOOR)
-	{
 		path_mode = ROCKET_JUMP;
 		bprint("rocket jump mode ON\n");
 	}
@@ -1832,6 +1832,16 @@ void() CycleDescriptionMode =
 		bprint("just GO mode ON\n");
 	}
 	else if (path_mode == JUST_GO)
+	{
+		path_mode = FOCUS_PATH;
+		bprint("focused path mode ON\n");
+	}
+	else if (path_mode == FOCUS_PATH)
+	{
+		path_mode = DM6_DOOR;
+		bprint("dm6 door mode ON\n");
+	}
+	else if (path_mode == DM6_DOOR)
 	{
 		path_mode = EXCLUSIVE_DOOR;
 		bprint("exclusive door mode ON\n");

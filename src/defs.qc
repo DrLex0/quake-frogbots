@@ -1572,8 +1572,7 @@ float new_path_state;
 
 // map set values
 float JUST_GO			= 1;
-// Obsolete, even more so now that waterjumping has been fixed. Up for recycling.
-//float WATERJUMP_			= 2;
+float FOCUS_PATH		= 2;
 float EXCLUSIVE_DOOR		= 4;
 float PRECISE_JUMP		= 128;
 float DM6_DOOR			= 256;

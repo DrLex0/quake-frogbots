@@ -939,6 +939,11 @@ void() frogbot_marker_touch =
 		self.look_object = self.linked_marker;
 		return;
 	}
+	if (self.path_state & FOCUS_PATH)
+	{
+		self.look_object = look_object_ = self.linked_marker;
+		return;
+	}
 
 	if (random() < self.look_anywhere)
 	{
