@@ -1636,8 +1636,9 @@ float T_EXCLUSIVE			= 4;
 float T_WANTSUIT			= 8;
 float T_NARROW				= 16;
 float T_WAITLIFT			= 32;
+float T_NOTOUCH				= 64;
 // Bits to be saved in waypoint code: sum of all the above
-float SAVED_T				= 63;
+float SAVED_T				= 127;
 
 // auto set values
 float T_LIQUID				= 128;

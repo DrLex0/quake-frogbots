@@ -104,6 +104,11 @@ void(entity marker) manual_marker_touch =
 	if (distance > 24)
 		return;
 
+	// Untouchable markers can only be selected in CMM
+	if (self.T & T_NOTOUCH)
+	if (! (mode & CLOSEST_MARKER))
+		return;
+
 	if (mode & STATIC_ACTIVE_MARKER)
 	{
 		if (!active_marker)
@@ -1115,6 +1120,25 @@ void() DumpMarkerInfo =
 		if (m.FrB_ID != "")
 			bprint(" \"", m.FrB_ID, "\"");
 		bprint(";\n");
+
+		// PEBKAC protection
+		if (m.P0.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P0.index), "\n");
+		if (m.P1.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P1.index), "\n");
+		if (m.P2.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P2.index), "\n");
+		if (m.P3.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P3.index), "\n");
+		if (m.P4.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P4.index), "\n");
+		if (m.P5.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P5.index), "\n");
+		if (m.P6.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P6.index), "\n");
+		if (m.P7.T & T_NOTOUCH)
+			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P7.index), "\n");
+
 		count_ = count_ + 1;
 		m = m.marker_linkfwd;
 		if (count_ >= 10)
@@ -1789,6 +1813,11 @@ void() CycleDescriptionMode =
 		{
 			type_mode = T_WANTSUIT;
 			bprint("want biosuit node ON\n");
+		}
+		else if (type_mode == T_WANTSUIT)
+		{
+			type_mode = T_NOTOUCH;
+			bprint("untouchable node ON\n");
 		}
 		else
 		{

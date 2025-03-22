@@ -123,6 +123,7 @@ void(entity client, entity marker) set_marker =
 ============
 check_marker
 
+Check marker as candidate for being touched.
 If prioritize, and the touching bot has this marker as linked_marker,
 its .touch_marker will be forced to this marker, and sticky_touch will
 be set to ignore all next touches until the bot processes the touch in
@@ -152,6 +153,8 @@ void(float prioritize) check_marker =
 		if (vlen(self.exclu_door_ent.origin - self.exclu_door_ent.pos2) > 10)
 			return;
 	}
+	if (self.T & T_NOTOUCH)
+		return;  // DENIED.
 
 	if (random() < 0.25)  // what is this for?!
 	{

@@ -13,16 +13,42 @@ from typing import TextIO
 
 
 KTX_PATHF_TO_V2 = {
+    "6": 256,  # dm6 door
     "r": 512,  # rocket jump
-    "j": 1024,  # jump ledge?
-    "v": 0,  # not sure what this is, something with platforms, no equivalent in v2 Frog?
+    "j": 1024,  # jump ledge
+    "w": 2,  # waterjump: treat as focused path
+    "v": 0,  # vertical platform, platform handling in v2 frogbot is automatic
+    "a": 0,  # curljump hint, not sure what it's for
 }
 
 KTX_MARKF_TO_V2 = {
     "u": 1,  # unreachable
-    # unsure what this is, seems like entities that aren't used as markers in QuakeC bot,
-    # will be filtered out anyway when re-dumping
-    "f": 0,
+    "6": -6,  # is dm6_door
+    "f": 0,  # fire on match start, is hard-coded logic in v2 frogbot
+    "b": 0,  # blocked on STATE_TOP, TODO I might still implement this
+    "t": 0,  # door touchable, not sure what it's for
+    "e": 0,  # escape route, not sure what it's for
+    "n": 64,  # untouchable
+}
+
+V2_PATHF_TO_KTX = {
+    1: "",  # just GO
+    2: "",  # focused
+    4: "",  # exclusive door (pseudo)
+    128: "",  # precise jump
+    256: "6",  # dm6 door
+    512: "r",  # rocket jump
+    1024: "j",  # jump ledge
+}
+
+V2_MARKF_TO_KTX = {
+    1: "u",  # unreachable
+    2: "",  # slime island
+    4: "",  # exclusive
+    8: "",  # want biosuit
+    16: "",  # narrow
+    32: "",  # wait lift
+    64: "n",  # untouchable
 }
 
 
@@ -77,18 +103,32 @@ def ktx_to_frog2(
                 out_stream, item_count, 8
             )
         elif mat := re.match(r"^SetMarkerPathFlags (\d+) (\d+) (.+)", line):
-            path_mode = KTX_PATHF_TO_V2.get(mat.group(3), 0)
+            path_mode = 0
+            for flag in list(mat.group(3)):
+                mode: int = KTX_PATHF_TO_V2.get(flag, 0)
+                if not mode:
+                    print(f"Skipping path mode flag {flag};", file=sys.stderr)
+                path_mode += mode
             if not path_mode:
-                print(f"Skipping path mode flag {mat.group(3)};", file=sys.stderr)
                 continue
             item_count = print_neat_lines(
                 f"m{mat.group(1)}.D{mat.group(2)}={path_mode};",
                 out_stream, item_count, 8
             )
         elif mat := re.match(r"^SetMarkerFlag (\d+) (.+)", line):
-            mark_mode = KTX_MARKF_TO_V2.get(mat.group(2), 0)
+            mark_mode = 0
+            for flag in list(mat.group(2)):
+                mode: int = KTX_MARKF_TO_V2.get(flag, 0)
+                if not mode:
+                    print(f"Skipping marker mode flag {flag};", file=sys.stderr)
+                elif mode == -6:
+                    item_count = print_neat_lines(
+                        f"dm6_door=m{mat.group(1)};",
+                        out_stream, item_count, 8
+                    )
+                    mode = 0
+                mark_mode += mode
             if not mark_mode:
-                print(f"Skipping marker mode flag {mat.group(2)};", file=sys.stderr)
                 continue
             item_count = print_neat_lines(
                 f"m{mat.group(1)}.T={mark_mode};",
@@ -101,10 +141,21 @@ def ktx_to_frog2(
     print("};", file=out_stream)
 
 
+def frog2_to_ktx(
+    args: argparse.Namespace,
+    in_stream: TextIO,
+    out_stream: TextIO
+) -> None:
+    """Transforms a Frogbot v2 QuakeC waypoint source file stream into KTX format."""
+    print("UNIMPLEMENTED!")
+
+
 def transform_ktx_files(args: argparse.Namespace) -> None:
-    """Transforms KTX waypoint source files listed in args.list_file
-    into Frogbot v2 QuakeC format."""
+    """Transforms KTX waypoint source files (.bot extension) listed
+    in args.list_file into Frogbot v2 QuakeC format (.qc extension)."""
     for bot_file in args.files:
+        if not re.search(r"\.bot$", bot_file, flags=re.IGNORECASE):
+            continue
         map_name = re.sub(r"(\..+)?$", "", os.path.basename(bot_file))
         out_file = f"map_{map_name}.qc"
         if os.path.exists(out_file):
@@ -118,11 +169,52 @@ def transform_ktx_files(args: argparse.Namespace) -> None:
             if args.verbose:
                 print(f"Overwriting existing {out_file}")
 
+        if args.verbose:
+            print(f"Converting {bot_file} to {out_file}")
         # Although files should normally be pure ASCII, use a bogus encoding
         # that allows pretty much any byte value
         with open(bot_file, 'r+', encoding='iso8859_15') as ktx_file:
-            with open(out_file, 'w', encoding='iso8859_15') as qc_file:
-                ktx_to_frog2(args, map_name, ktx_file, qc_file)
+            with open(out_file, 'w', encoding='iso8859_15') as fv2_file:
+                ktx_to_frog2(args, map_name, ktx_file, fv2_file)
+
+
+def transform_qc_files(args: argparse.Namespace) -> None:
+    """Transforms Frogbot v2 QuakeC waypoint source files (.qc extension)
+    listed in args.list_file into KTX format (.bot extension)."""
+    for qc_file in args.files:
+        if not re.search(r"\.qc$", qc_file, flags=re.IGNORECASE):
+            continue
+        map_name = re.sub(r"(\..+)?$", "", os.path.basename(qc_file))
+        map_name = re.sub(r"^map_", "", map_name, flags=re.IGNORECASE)
+        out_file = f"{map_name}.bot"
+        if os.path.exists(out_file):
+            if not args.force:
+                print(
+                    f"Skipping {qc_file} because output file {out_file} exists, "
+                    "use --force to overwrite",
+                    file=sys.stderr
+                )
+                continue
+            if args.verbose:
+                print(f"Overwriting existing {out_file}")
+
+        if args.verbose:
+            print(f"Converting {qc_file} to {out_file}")
+        # Although files should normally be pure ASCII, use a bogus encoding
+        # that allows pretty much any byte value
+        with open(qc_file, 'r+', encoding='iso8859_15') as fv2_file:
+            with open(out_file, 'w', encoding='iso8859_15') as ktx_file:
+                frog2_to_ktx(args, fv2_file, ktx_file)
+
+
+def check_files(args: argparse.Namespace) -> None:
+    """Reports files in args.list_file that have an extension other than .qc or .bot"""
+    for some_file in args.files:
+        if not re.search(r"\.(bot|qc)$", some_file, flags=re.IGNORECASE):
+            print(
+                f"Skipping unknown file {some_file}; only .bot or .qc files allowed",
+                file=sys.stderr
+            )
 
 
 def main():
@@ -142,7 +234,10 @@ def main():
     if args.verbose:
         print("Verbose output enabled", file=sys.stderr)
 
+    check_files(args)
     transform_ktx_files(args)
+    transform_qc_files(args)
+
 
 if __name__ == '__main__':
     main()
