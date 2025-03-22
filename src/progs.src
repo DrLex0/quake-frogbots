@@ -2,6 +2,7 @@
 
 defs.qc
 defs2.qc
+math.qc
 arena.qc
 load.qc
 subs.qc

@@ -236,6 +236,7 @@ void() aliases3;
 void(string s, float value) alias;
 
 // other functions used
+float(float a, float b) pow;
 float(float a) anglemod2;
 void() obstruction;
 void() PrintRules;
@@ -344,108 +345,6 @@ void(string s) centerprint_players =
 			centerprint(msg_entity, s);
 		msg_entity = find(msg_entity, classname, "player");
 	}
-};
-
-// check if n is an integer
-float(float a) int =
-{
-	if (a == rint(a))
-		return 1;
-	return 0;
-};
-
-// check if n is an odd integer
-float(float a) oint =
-{
-	if (int(a))
-	if (!int(a / 2))
-		return 1;
-	return 0;
-};
-
-// check if a^b is an imaginary number
-float(float a, float b) imaginary =
-{
-	if (a < 0)
-	if (!int(b))
-	if (!oint(1 / b))
-		return 1;
-	return 0;
-};
-
-// return digit in b place of number a (b = power of 10)
-float(float a, float b) dig =
-{
-	local float c, d, e;
-	a = fabs(a);
-	c = floor(a / b);
-	d = floor(c / 10) * 10;
-	e = c - d;
-	return e;
-};
-
-// returns a^b (w00t!)
-float(float a, float b) pow =
-{
-	local float c, d, e, f, g, h, i, j, k;
-
-	if (!a)
-		return 0;
-	if (!b)
-		return 1;
-	if (imaginary(a, b))
-		return 0;
-	if (b > 14000)
-		return 0;
-	b = rint(b * 100) / 100;
-	c = fabs(b);
-	c = floor(c);
-	d = 1;
-	while (c > 0)
-	{
-		c = c - 1;
-		d = d * a;
-	}
-	if (!int(b))
-	{
-		e = 0.1;
-		while (e >= 0.01)
-		{
-			f = dig(b, e);
-			f = pow(a, f);
-			if (f)
-			{
-				g = 50;
-				if (a > 1)
-					h = a;
-				else
-					h = 1;
-				i = 0;
-				while (g > 0)
-				{
-					g = g - 1;
-					j = (h + i) / 2;
-
-				k = pow(j, 1 / e);
-					if (k == f)
-						g = 0;
-					else
-					if (k > f)
-						h = j;
-					else
-					if (k < f)
-						i = j;
-				}
-				d = d * j;
-			}
-			e = e / 10;
-		}
-		if (a < 0)
-			d = -1 * d;
-	}
-	if (b < 0)
-		d = 1 / d;
-	return d;
 };
 
 // used for testing (a^b)

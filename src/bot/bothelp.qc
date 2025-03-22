@@ -7,6 +7,9 @@
 
 #include "../settings.h"
 
+float(float v) anglemod360;
+
+
 float(vector vec) EntVisible =
 {
 	traceline(self.origin, vec, TRUE, self);
@@ -76,36 +79,6 @@ entity(entity me) identify_teammate_ =
 		p = find(p, stringname, "gamer");		
 	}
 	return g;
-};
-
-float(float v) anglemod360 =
-{
-	while (v >= 360)
-		v = v - 360;
-	while (v < 0)
-		v = v + 360;
-	return v;
-};
-
-float(float a) anglemod =
-{
-	while (a >= 180)
-		a = a - 360; // a < 180
-	while (a < -180)
-		a = a + 360; // a >= -180
-	return a;
-};
-
-// For player v_angle and angles. These go from -180 to 180 and are
-// represented in 8-bit, hence the rounding with factor 360/256.
-float(float a) anglemod2 =
-{
-	while (a >= 180)
-		a = a - 360; // a < 180
-	while (a < -180)
-		a = a + 360; // a >= -180
-	a = rint(a / 1.40625) * 1.40625;
-	return a;
 };
 
 float(entity me) visible_teammate =

@@ -24,6 +24,9 @@ void() Calc_G_time_11;
 void() Calc_G_time_12;
 void() Calc_G_time_13;
 void() Calc_G_time_14;
+float(float x) sqrt;
+float(float y, float x) atan2;
+float(float a) anglemod;
 
 
 /*
@@ -196,6 +199,8 @@ void() Calc_G_time_1 =
 SetupRJLook
 
 Create dummy object for the bot to set its aim for an accurate RJ.
+If the RJ is combined with 'slow path', it is set up as a 'mortar' shot.
+If combined with 'accurate path', it is set up as a 'cannon' shot.
 ============
 */
 void() SetupRJLook =
@@ -209,9 +214,33 @@ void() SetupRJLook =
 	m.look_here = spawn();
 	m.look_here.solid = SOLID_NOT;
 	setsize (m.look_here, '0 0 0', '0 0 0');
-	// TODO may need to compensate pitch for long horizontal distances
-	setorigin (m.look_here, m.absmin + m.view_ofs + 
-	           48 * normalize((m.absmin + m.view_ofs) - (m_P.absmin + m_P.view_ofs + '0 0 24')));
+
+	// Aim a tad higher to be sure
+	rel_pos = (m_P.absmin + m_P.view_ofs + '0 0 16') - (m.absmin + m.view_ofs);
+	local float dz = rel_pos_z;
+	rel_pos_z = 0;
+	local float dxy = vlen(rel_pos);
+	local vector aim_angles = '0 0 0';
+	aim_angles_y = anglemod(vectoyaw(rel_pos) + 180);
+	if (m_D & PRECISE_JUMP)  // 'cannon' mode
+	{
+		// Direct angle + compensation for gravity drop.
+		// Last number = 2 * (initial velocity guesstimate)^2
+		// Annoying: there is a subtle difference between Quake and QW,
+		// probably caused by different physics handling timing?
+		// Using a different impulse estimate makes it more or less consistent.
+#ifdef QUAKE
+		aim_angles_x = atan2(dz, dxy) + atan2(cvar("sv_gravity") * dxy, 500000);
+#else
+		aim_angles_x = atan2(dz, dxy) + atan2(cvar("sv_gravity") * dxy, 400000);
+#endif
+	}
+	else  // 'mortar' mode
+	{
+		aim_angles_x = atan2(sqrt(2 * cvar("sv_gravity") * dz), dxy);
+	}
+	makevectors (aim_angles);
+	setorigin (m.look_here, m.absmin + m.view_ofs + 48 * v_forward);
 }
 
 /*

@@ -160,6 +160,7 @@ void() AccurateRJump =
 {
 	self.precise_speed = 0;
 	rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - self.origin;
+	rel_pos_z = 0;  // avoid problems with steps
 	rel_dist = vlen(rel_pos);
 	if (rel_dist < 2.5 + 12 * self.bot_inaccuracy)
 	{

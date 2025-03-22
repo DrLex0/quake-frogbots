@@ -586,6 +586,8 @@ Updates bot view and model angles
 void() SetFrogbotAngles =
 {
 	if (self.path_from_marker.look_here)
+	// may be extended to shoot buttons/doors as well
+	if (self.path_state & ROCKET_JUMP)
 	if (self.look_object != self.enemy)  // don't get distracted while shooting enemies
 	{
 		rel_pos = self.path_from_marker.look_here.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs);
