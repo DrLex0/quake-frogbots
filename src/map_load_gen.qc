@@ -25,6 +25,7 @@
 #include "maps/trinca/map_efdm13.qc"
 #include "maps/trinca/map_eodm3.qc"
 #include "maps/trinca/map_exdm3.qc"
+#include "maps/trinca/map_four.qc"
 #include "maps/trinca/map_lilith.qc"
 #include "maps/trinca/map_oktest1.qc"
 #include "maps/trinca/map_skull.qc"
@@ -39,12 +40,12 @@ void() SprintMaps =
 	sprint_fb(self, 2, "        dm3        dm4        dm5\n");
 	sprint_fb(self, 2, "        dm6       e1m2     efdm13\n");
 	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
-	sprint_fb(self, 2, "   frobodm2    hohoho2     lilith\n");
-	sprint_fb(self, 2, "    monsoon    oktest1      pkeg1\n");
-	sprint_fb(self, 2, "    povdmm4    shifter      skull\n");
-	sprint_fb(self, 2, "    spinev2      start        tox\n");
-	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
-	sprint_fb(self, 2, "     ztndm6\n");
+	sprint_fb(self, 2, "       four   frobodm2    hohoho2\n");
+	sprint_fb(self, 2, "     lilith    monsoon    oktest1\n");
+	sprint_fb(self, 2, "      pkeg1    povdmm4    shifter\n");
+	sprint_fb(self, 2, "      skull    spinev2      start\n");
+	sprint_fb(self, 2, "        tox     ultrav   utressor\n");
+	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -174,6 +175,11 @@ float() LoadWaypoints =
 		map_exdm3();
 		return TRUE;
 	}
+	if (mapname == "four")
+	{
+		map_four();
+		return TRUE;
+	}
 	if (mapname == "lilith")
 	{
 		map_lilith();
@@ -259,6 +265,8 @@ string(string mname) MapHasWaypoints =
 		return "eodm3";
 	if (mname == "exdm3")
 		return "exdm3";
+	if (mname == "four")
+		return "four";
 	if (mname == "lilith")
 		return "lilith";
 	if (mname == "oktest1")
