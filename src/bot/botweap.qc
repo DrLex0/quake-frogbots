@@ -157,8 +157,15 @@ void() SetFireButton =
 			if (self.weapon == IT_ROCKET_LAUNCHER)
 			if (self.real_pitch == 78.75)
 			{
-				self.button0_ = TRUE;
-				self.state = self.state & NOT_HURT_SELF;
+				// Make sure the blast will be near enough
+				rocket_origin = origin_ + '0 0 16';
+				makevectors(self.v_angle);
+				traceline(rocket_origin, rocket_origin + (v_forward * 100), FALSE, self);
+				if (trace_fraction < 1)
+				{
+					self.button0_ = TRUE;
+					self.state = self.state & NOT_HURT_SELF;
+				}
 			}
 			return;
 		}
