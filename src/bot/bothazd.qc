@@ -190,15 +190,32 @@ AvoidHazards
 */
 void() AvoidHazards =
 {
+	new_velocity = self.velocity;
+	linked_marker_ = self.linked_marker;
+
 	if (self.path_state & JUST_GO)  // skip all safety nets, just go wild
 	{
-		// Only do immobility mitigation
+		// Simplified version of the JL logic, basically just JUMP
+		if (self.path_state & JUMP_LEDGE)
+		if (time > self.arrow_time2)
+		if (self.flags & FL_ONGROUND)
+		if (vlen(new_velocity) > 160)
+		{
+			rel_pos = (linked_marker_.absmin + linked_marker_.view_ofs) - self.origin;
+			jumpspeed = new_velocity_z + JUMPSPEED;
+			if ((jumpspeed * jumpspeed * 0.000625) >= rel_pos_z)
+			{
+				self.button2_ = TRUE;
+				self.path_state = self.path_state | WAIT_GROUND;
+				self.ledge_backup_time = 0;
+				return;
+			}
+		}
+
+		// Otherwise only do immobility mitigation
 		BotAntiFreeze();
 		return;
 	}
-
-	new_velocity = self.velocity;
-	linked_marker_ = self.linked_marker;
 
 	if (self.path_state & JUMP_LEDGE)
 	{
