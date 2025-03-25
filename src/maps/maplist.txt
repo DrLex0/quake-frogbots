@@ -21,6 +21,7 @@ trinca/map_bovine.qc
 trinca/map_cmt4.qc
 trinca/map_dm5.qc
 trinca/map_efdm13.qc
+trinca/map_efdm8.qc
 trinca/map_eodm3.qc
 trinca/map_exdm3.qc
 trinca/map_four.qc
