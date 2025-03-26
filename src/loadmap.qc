@@ -107,6 +107,13 @@ void() AddMissingBits =
 		ent.origin = '-35 0 11';
 		ent.mangle = '-30 0 0';
 	}
+	else if (mapname == "thf")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '-1265 358 386';
+		ent.mangle = '-10 -36 0';
+	}
 	else if(mapname == "oktest1")
 	{
 		ent = spawn();
