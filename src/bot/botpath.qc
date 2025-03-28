@@ -12,6 +12,7 @@
 
 float() able_rj;
 void() NewVelocityForArrow;
+float(float max_angle) right_direction;
 
 /*
 ============
@@ -417,6 +418,34 @@ float() WaitOnLift =
 
 /*
 ============
+CheckAccurateRunUp
+
+When entering a non-slow PRECISE_JUMP path, check whether conditions
+are good for the jump. If not, start the run-up procedure.
+============
+*/
+void() CheckAccurateRunUp =
+{
+	if (self.running_up)
+		return;
+	if (! (new_path_state & PRECISE_JUMP))
+	{
+		self.running_up = 0;
+		return;
+	}
+	if (new_path_state & SLOW_DOWN)
+		return;
+	if(right_direction(20 + 30 * self.bot_inaccuracy)) // direction already OK, no run-up needed
+		return;
+	dir_move = touch_marker_.absmin + touch_marker_.view_ofs -
+		(linked_marker_.absmin + linked_marker_.view_ofs);
+	dir_move_z = 0;
+	self.run_up_point = touch_marker_.absmin + touch_marker_.view_ofs + 100 * normalize(dir_move);
+	self.running_up = self.linked_marker_time = time + 2.5;
+}
+
+/*
+============
 frogbot_marker_touch
 
 The ginormous bot decision logic when touching a new marker.
@@ -675,6 +704,7 @@ void() frogbot_marker_touch =
 		// The idea here seems to also evaluate just staying in place as an option.
 		test_marker = touch_marker_;
 		if (test_marker)
+		if (self.watertype != CONTENT_LAVA)  // not a good idea
 		{
 			description = 0;
 			path_time = 0;
@@ -838,6 +868,8 @@ void() frogbot_marker_touch =
 			}
 		}
 	}
+
+	CheckAccurateRunUp();
 
 	self.linked_marker = linked_marker_;
 	self.path_from_marker = touch_marker_;

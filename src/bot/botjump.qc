@@ -24,7 +24,9 @@ float(float max_angle) right_direction =
 
 	dir_move = normalize(self.oldvelocity);  // before physics
 	current_dir = vectoyaw(dir_move);
-	dir_move = normalize(self.linked_marker.absmin + self.linked_marker.view_ofs - self.origin);
+	dir_move = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	dir_move_z = 0;
+	dir_move = normalize(dir_move);
 	wish_dir = vectoyaw(dir_move);
 	min_one = fabs(wish_dir - current_dir);
 	if (wish_dir >= 180)
@@ -82,7 +84,7 @@ float() able_rj =
 // boven = Dutch for above ;)
 float() checkboven =
 {
-	traceline(self.origin, self.origin + '0 0 140', TRUE, self);
+	traceline(origin_, origin_ + '0 0 140', TRUE, self);
 	return (trace_fraction == 1);
 };
 
@@ -91,7 +93,7 @@ float() checkground =
 	makevectors(self.v_angle);
 	v_forward_z = 0;
 	v_forward = normalize(v_forward) * 10;
-	traceline (self.origin, (self.origin + v_forward) + '0 0 -40', TRUE, self);
+	traceline (origin_, (origin_ + v_forward) + '0 0 -40', TRUE, self);
 	return (trace_fraction != 1);
 };
 
@@ -159,7 +161,7 @@ void() lava_jump =
 void() AccurateRJump =
 {
 	self.precise_speed = 0;
-	rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - self.origin;
+	rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
 	rel_pos_z = 0;  // avoid problems with steps
 	rel_dist = vlen(rel_pos);
 	if (rel_dist < 2.5 + 12 * self.bot_inaccuracy)
@@ -192,7 +194,7 @@ void() a_rocketjump =
 		return;
 
 	if (self.waterlevel > 1)
-	if (pointcontents(self.origin + '0 0 -24') == CONTENT_LAVA)
+	if (pointcontents(origin_ + '0 0 -24') == CONTENT_LAVA)
 	if (! (self.items & IT_INVULNERABILITY))
 	if (checkboven())
 	{
@@ -221,7 +223,7 @@ void() a_rocketjump =
 		AccurateRJump();
 		return;
 	}
-	if (vlen(self.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs)) > 100)
+	if (vlen(origin_ - (self.path_from_marker.absmin + self.path_from_marker.view_ofs)) > 100)
 		return;
 	if (!checkboven())
 		return;
@@ -238,6 +240,7 @@ void() a_rocketjump =
 		// Regular RJ logic would totally fail with Quad power, cheat a bit.
 		// Could consider using this same system for regular RJs as well on
 		// highest skill levels where the bot is expected to cheat.
+		dir_move = normalize(linked_marker_.absmin + linked_marker_.view_ofs - origin_);
 		local vector dest_angles = vectoangles(dir_move);
 		new_pitch = dest_angles_x + 12;  // aim a bit higher to help with (l)edges
 		if (new_pitch > 78.75)
@@ -266,6 +269,29 @@ void() a_rocketjump =
 void() SpecialAccurateMoves =
 {
 	self.precise_speed = 0;
+	if (self.running_up > 0)
+	{
+		if (time > self.running_up)
+		{
+			self.running_up = 0;
+			return;
+		}
+		dir_move = self.run_up_point - origin_;
+		if (vlen(dir_move) < 40)  // begin the actual run-up
+			self.running_up = -self.running_up;
+		dir_move = normalize(dir_move);
+		NewVelocityForArrow();
+		return;
+	}
+	else if(self.running_up < 0)
+	{
+		if (time > -self.running_up)
+		{
+			self.running_up = 0;
+			return;
+		}
+	}
+
 	if (! self.path_from_marker)
 		return;
 	if (self.waterlevel > 1)
@@ -283,7 +309,7 @@ void() SpecialAccurateMoves =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
-	local float touch_dist = vlen(self.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs));
+	local float touch_dist = vlen(origin_ - (self.path_from_marker.absmin + self.path_from_marker.view_ofs));
 
 	// right_direction() sets the ideal direction vector dir_move,
 	// NewVelocityForArrow() will try to better match this direction
@@ -319,6 +345,11 @@ void() SpecialAccurateMoves =
 	}
 	else if(vlen(self.velocity) < 260)  // or too slow
 		return;
+	if (self.running_up)
+		self.running_up = -(time + 0.1);
+	// Make the jump increasingly perfect with increasing bot skill level
+	self.velocity = (self.bot_inaccuracy * self.velocity) + 
+		(1.0 - self.bot_inaccuracy) * vlen(self.velocity) * dir_move;
 	self.button2_ = 1;
 };
 

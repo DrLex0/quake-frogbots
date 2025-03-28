@@ -155,6 +155,8 @@ void(float prioritize) check_marker =
 	}
 	if (self.T & T_NOTOUCH)
 		return;  // DENIED.
+	if (other.running_up)  // ignore everything, freeze touch state until run-up is done
+		return;
 
 	if (random() < 0.25)  // what is this for?!
 	{

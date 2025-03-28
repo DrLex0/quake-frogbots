@@ -523,6 +523,10 @@ void() ThinkTime =
 				else
 				{
 					rel_pos = look_object_.absmin + look_object_.view_ofs - origin_;
+					// Don't look up/down while doing a focused jump, it can affect jump distance
+					if (self.path_state & FOCUS_PATH)
+					if (!(self.flags & FL_ONGROUND))
+						rel_pos_z = 0;
 					rel_dist = vlen(rel_pos);
 
 					if (self.path_state & DM6_DOOR)
@@ -637,6 +641,8 @@ void() SetFrogbotAngles =
 
 	if (special_moves_clock)
 	{
+		linked_marker_ = self.linked_marker;
+		origin_ = self.origin;
 		// Need to do this here because alters new_pitch when engaged
 		a_rocketjump();
 		SpecialAccurateMoves();

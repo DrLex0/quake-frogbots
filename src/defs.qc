@@ -1606,6 +1606,8 @@ float SLOW_PRECISE			= 2176;
 
 .entity exclu_door_ent;  // marker property set by EXCLUSIVE_DOOR path mode
 .float exclu_door_cooldown;  // bot property to prevent it from yo-yoing
+.float running_up;  // > 0: heading towards run_up_point; < 1: from run_up_point to jump position
+.vector run_up_point;
 
 // runaway markers
 .entity RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7;
