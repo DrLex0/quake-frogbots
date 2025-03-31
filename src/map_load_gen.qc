@@ -18,6 +18,7 @@
 #include "maps/ktx/map_endif.qc"
 #include "maps/ktx/map_monsoon.qc"
 #include "maps/ktx/map_shifter.qc"
+#include "maps/trinca/map_a2.qc"
 #include "maps/trinca/map_amphi.qc"
 #include "maps/trinca/map_bovine.qc"
 #include "maps/trinca/map_cmt4.qc"
@@ -37,18 +38,18 @@
 
 void() SprintMaps =
 {
-	sprint_fb(self, 2, "   aerowalk      amphi     amphi2\n");
-	sprint_fb(self, 2, "     bovine  burialb10       cmt4\n");
-	sprint_fb(self, 2, "        dm3        dm4        dm5\n");
-	sprint_fb(self, 2, "        dm6       e1m2     efdm13\n");
-	sprint_fb(self, 2, "      efdm8      endif      eodm3\n");
-	sprint_fb(self, 2, "      exdm3       four   frobodm2\n");
-	sprint_fb(self, 2, "    hohoho2     lilith    monsoon\n");
-	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
-	sprint_fb(self, 2, "    shifter      skull    spinev2\n");
-	sprint_fb(self, 2, "      start        thf        tox\n");
-	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
-	sprint_fb(self, 2, "     ztndm6\n");
+	sprint_fb(self, 2, "         a2   aerowalk      amphi\n");
+	sprint_fb(self, 2, "     amphi2     bovine  burialb10\n");
+	sprint_fb(self, 2, "       cmt4        dm3        dm4\n");
+	sprint_fb(self, 2, "        dm5        dm6       e1m2\n");
+	sprint_fb(self, 2, "     efdm13      efdm8      endif\n");
+	sprint_fb(self, 2, "      eodm3      exdm3       four\n");
+	sprint_fb(self, 2, "   frobodm2    hohoho2     lilith\n");
+	sprint_fb(self, 2, "    monsoon    oktest1      pkeg1\n");
+	sprint_fb(self, 2, "    povdmm4    shifter      skull\n");
+	sprint_fb(self, 2, "    spinev2      start        thf\n");
+	sprint_fb(self, 2, "        tox     ultrav   utressor\n");
+	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -141,6 +142,11 @@ float() LoadWaypoints =
 	if (mapname == "shifter")
 	{
 		map_shifter();
+		return TRUE;
+	}
+	if (mapname == "a2")
+	{
+		map_a2();
 		return TRUE;
 	}
 	if (mapname == "amphi")
@@ -264,6 +270,8 @@ string(string mname) MapHasWaypoints =
 		return "monsoon";
 	if (mname == "shifter")
 		return "shifter";
+	if (mname == "a2")
+		return "a2";
 	if (mname == "amphi")
 		return "amphi";
 	if (mname == "bovine")

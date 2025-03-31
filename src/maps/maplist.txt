@@ -16,6 +16,7 @@ drlex/map_tox.qc
 ktx/map_endif.qc
 ktx/map_monsoon.qc
 ktx/map_shifter.qc
+trinca/map_a2.qc
 trinca/map_amphi.qc
 trinca/map_bovine.qc
 trinca/map_cmt4.qc
