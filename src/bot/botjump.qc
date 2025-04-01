@@ -351,6 +351,7 @@ void() SpecialAccurateMoves =
 	self.velocity = (self.bot_inaccuracy * self.velocity) + 
 		(1.0 - self.bot_inaccuracy) * vlen(self.velocity) * dir_move;
 	self.button2_ = 1;
+	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 };
 
 void() CheckCombatJump =
