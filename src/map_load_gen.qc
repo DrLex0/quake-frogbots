@@ -23,6 +23,7 @@
 #include "maps/trinca/map_bovine.qc"
 #include "maps/trinca/map_cmt4.qc"
 #include "maps/trinca/map_dm5.qc"
+#include "maps/trinca/map_dranzdm8.qc"
 #include "maps/trinca/map_efdm13.qc"
 #include "maps/trinca/map_efdm8.qc"
 #include "maps/trinca/map_eodm3.qc"
@@ -41,15 +42,15 @@ void() SprintMaps =
 	sprint_fb(self, 2, "         a2   aerowalk      amphi\n");
 	sprint_fb(self, 2, "     amphi2     bovine  burialb10\n");
 	sprint_fb(self, 2, "       cmt4        dm3        dm4\n");
-	sprint_fb(self, 2, "        dm5        dm6       e1m2\n");
-	sprint_fb(self, 2, "     efdm13      efdm8      endif\n");
-	sprint_fb(self, 2, "      eodm3      exdm3       four\n");
-	sprint_fb(self, 2, "   frobodm2    hohoho2     lilith\n");
-	sprint_fb(self, 2, "    monsoon    oktest1      pkeg1\n");
-	sprint_fb(self, 2, "    povdmm4    shifter      skull\n");
-	sprint_fb(self, 2, "    spinev2      start        thf\n");
-	sprint_fb(self, 2, "        tox     ultrav   utressor\n");
-	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "        dm5        dm6   dranzdm8\n");
+	sprint_fb(self, 2, "       e1m2     efdm13      efdm8\n");
+	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
+	sprint_fb(self, 2, "       four   frobodm2    hohoho2\n");
+	sprint_fb(self, 2, "     lilith    monsoon    oktest1\n");
+	sprint_fb(self, 2, "      pkeg1    povdmm4    shifter\n");
+	sprint_fb(self, 2, "      skull    spinev2      start\n");
+	sprint_fb(self, 2, "        thf        tox     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -169,6 +170,11 @@ float() LoadWaypoints =
 		map_dm5();
 		return TRUE;
 	}
+	if (mapname == "dranzdm8")
+	{
+		map_dranzdm8();
+		return TRUE;
+	}
 	if (mapname == "efdm13")
 	{
 		map_efdm13();
@@ -280,6 +286,8 @@ string(string mname) MapHasWaypoints =
 		return "cmt4";
 	if (mname == "dm5")
 		return "dm5";
+	if (mname == "dranzdm8")
+		return "dranzdm8";
 	if (mname == "efdm13")
 		return "efdm13";
 	if (mname == "efdm8")
