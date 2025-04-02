@@ -19,6 +19,7 @@
 #include "maps/ktx/map_monsoon.qc"
 #include "maps/ktx/map_shifter.qc"
 #include "maps/trinca/map_a2.qc"
+#include "maps/trinca/map_aggressr.qc"
 #include "maps/trinca/map_amphi.qc"
 #include "maps/trinca/map_bovine.qc"
 #include "maps/trinca/map_cmt4.qc"
@@ -39,18 +40,19 @@
 
 void() SprintMaps =
 {
-	sprint_fb(self, 2, "         a2   aerowalk      amphi\n");
-	sprint_fb(self, 2, "     amphi2     bovine  burialb10\n");
-	sprint_fb(self, 2, "       cmt4        dm3        dm4\n");
-	sprint_fb(self, 2, "        dm5        dm6   dranzdm8\n");
-	sprint_fb(self, 2, "       e1m2     efdm13      efdm8\n");
-	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
-	sprint_fb(self, 2, "       four   frobodm2    hohoho2\n");
-	sprint_fb(self, 2, "     lilith    monsoon    oktest1\n");
-	sprint_fb(self, 2, "      pkeg1    povdmm4    shifter\n");
-	sprint_fb(self, 2, "      skull    spinev2      start\n");
-	sprint_fb(self, 2, "        thf        tox     ultrav\n");
-	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "         a2   aerowalk   aggressr\n");
+	sprint_fb(self, 2, "      amphi     amphi2     bovine\n");
+	sprint_fb(self, 2, "  burialb10       cmt4        dm3\n");
+	sprint_fb(self, 2, "        dm4        dm5        dm6\n");
+	sprint_fb(self, 2, "   dranzdm8       e1m2     efdm13\n");
+	sprint_fb(self, 2, "      efdm8      endif      eodm3\n");
+	sprint_fb(self, 2, "      exdm3       four   frobodm2\n");
+	sprint_fb(self, 2, "    hohoho2     lilith    monsoon\n");
+	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
+	sprint_fb(self, 2, "    shifter      skull    spinev2\n");
+	sprint_fb(self, 2, "      start        thf        tox\n");
+	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
+	sprint_fb(self, 2, "     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -148,6 +150,11 @@ float() LoadWaypoints =
 	if (mapname == "a2")
 	{
 		map_a2();
+		return TRUE;
+	}
+	if (mapname == "aggressr")
+	{
+		map_aggressr();
 		return TRUE;
 	}
 	if (mapname == "amphi")
@@ -278,6 +285,8 @@ string(string mname) MapHasWaypoints =
 		return "shifter";
 	if (mname == "a2")
 		return "a2";
+	if (mname == "aggressr")
+		return "aggressr";
 	if (mname == "amphi")
 		return "amphi";
 	if (mname == "bovine")
