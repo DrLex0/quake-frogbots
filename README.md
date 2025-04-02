@@ -108,7 +108,7 @@ However, while working on the tool and testing newly created waypoints, I also n
 
 13. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
 
-14. Created waypoints for some newer maps. Already available: `hohoho2` and `tox`. Try them, they're fun.  
+14. Created waypoints for some newer maps. Already available: `hohoho2`, `burialb10` and `tox`. Try them, they're fun.  
 Also updated some existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging.
 
 ### Planned

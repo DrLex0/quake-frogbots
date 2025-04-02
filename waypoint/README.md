@@ -59,7 +59,7 @@ The Frogbot relies on **markers** to navigate the map. Bots can only run or jump
 Markers are automatically generated for several entities in a map:
 - deathmatch spawn points;
 - weapons, ammo, health packs, armour, etc.;
-- teleport triggers and destinations, doors, and platforms.
+- teleport triggers and destinations, buttons, doors, platforms, and push triggers.
 
 However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up must be given **goal** numbers to indicate (weak) preference. Last but not least, **connections** must be created between markers to tell the bot what paths can be followed, optionally with special descriptions for some of those connections.
 
@@ -131,6 +131,7 @@ MARKER TYPES (when DISPLAY-MODE = TYPE)
 (new)	- wait lift node
 (new)	- slime island node
 (new)	- want biosuit node
+(new)	- untouchable node
 ```
 
 ## The workflow
@@ -253,7 +254,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - It helps to draw a floor plan of the map with zones, goals and paths, especially for complicated cases like exclusive paths, although the visualisation modes of the tool make it easy to spot mistakes. It also is interesting to walk around in existing maps and see how waypoints were added.
 - At any time when you are confused about what marker mode you're in, press `G` to reset. (The only thing this does not reset, is closest marker mode.)
 - Moving an existing marker is preferable over deleting it and making a new one. Static marker mode (`I` or `TAB`) is your friend here.
-- Paths through _push zones_ must be _one-way_ for obvious reasons. The old Frogbot did not create markers for push brushes, but the v2 Frogbot does. Some maps have push zones consisting of multiple segments, meaning there will be multiple markers. In that case you should not connect all those markers, it suffices to make a path to the first `trigger_push` marker, and then a path from that marker to the exit. Any `trigger_push` markers on the way can be left unconnected and should be given `untouchable` marker type. See `aerowalk` for an example.
+- Paths through _push zones_ must be _one-way_ for obvious reasons. The old Frogbot did not create markers for push brushes, but the v2 Frogbot does. Some maps have push zones consisting of multiple segments, meaning there will be multiple markers. In that case you should not connect all those markers, it suffices to make a path to the first `trigger_push` marker, and then a path from that marker to the exit. Any `trigger_push` markers on the way can be left unconnected and should be given `untouchable` marker type. Also, vertically move the first push marker such that it is at the same height as the floor. See `aerowalk` for an example.
 - Vertically moving markers (`U`) can also be used on `func_button`, `teleport_trigger`, `trigger_push`, and `door` markers, but not on other non-manually created markers like weapons.
 - It is possible to apply multiple modes to a path, but some combinations make no sense.
 - The Frogbot can exploit Quake engine tricks like real players (strafe + turn) to change direction while in the air. This means you may create jumps that rely on such tricks, but make sure to verify they work with an acceptable success rate.
@@ -320,7 +321,7 @@ To set a marker as unreachable: set display mode `Z` to “Display type,” and 
 
 If there are lava or slime pits, or deadly traps, it may be a good idea to place some unreachable markers in them. Look at `dm4`, `start`, or `tox` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.
 
-There is also an _untouchable_ marker type. When set, the marker will never produce a touch event. As mentioned above, it is recommended to set this on intermediate `trigger_push` markers. It can also be used on markers that overlap with other markers and are redundant. For instance if an `info_player_deathmatch` is on top of an item marker, it makes sense to just disable the spawn marker and use the item for paths.  
+There is also an _untouchable_ marker type. When set, the marker will never produce a touch event. As mentioned above, it is recommended to set this on intermediate `trigger_push` markers. It can also be used on markers that overlap with other markers and are redundant. For instance if an `info_player_deathmatch` is on top of an item marker, it makes sense to just disable touch on the spawn marker and only use the item for paths.  
 _Be careful:_ an untouchable marker must never have incoming paths, or the bot may orbit around it waiting for a touch that never comes. (It makes no sense either to give it outgoing paths, but that is merely pointless instead of dangerous). Errors will be printed in the `MarkerInfo` section of the waypoint dump when paths towards untouchable markers are detected.  
 The waypoint tool will also ignore untouchable markers unless closest-marker-mode (`F`) is active. This helps to connect paths to the other overlapping marker (and makes it more obvious when a marker is untouchable).
 
@@ -502,6 +503,7 @@ There are a few **rules** though:
 1. Paths must have been calculated, which currently only happens upon loading the map. In other words:
    - this will only work on previously compiled waypoints;
    - adding or deleting markers or paths, and then activating this, is **a guarantee for crashing the game,** and you will **lose your work** unless you saved it — _you have been warned._  
+     In other words, after editing waypoints: dump them, quit Quake, rebuild the waypoint tool with your changes included, and only then launch it again and you can safely become a Frogbot.  
      (I might at some point provide a way to trigger recomputing of paths, but this is not trivial.)
 2. Small changes like adding or removing modes to existing paths, or nudging the position of markers, are safe and can be tested on-the-fly. Changing marker types may not always have an effect.  
    It is _always_ best to dump your changes, rebuild, and reload, before testing them with this feature.
