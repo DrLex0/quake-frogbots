@@ -371,7 +371,7 @@ This works as follows. The bot will:
 - ignore touching an `exclusive node` marker, _unless:_
   - when coming from another marker, following a path that has this exclusive node as its destination;
   - when this node has an `exclusive door` pseudo-path towards a door marker, and that door is currently open;
-- ignore _all_ other markers except the `exclusive node` as soon as it starts following a path towards this node. Because of risk of forever getting stuck, there is a deadline of _2.5 seconds_ to reach the exclusive node, the bot will resume its usual business if this deadline expires.
+- ignore _all_ other markers except the `exclusive node` as soon as it starts following a path towards this node. Because of risk of forever getting stuck, there is a deadline of _3 seconds_ to reach the exclusive node, the bot will resume its usual business if this deadline expires.
 
 When the bot exits an exclusive path, in other words when it decides to move from an exclusive marker towards a non-exclusive marker, the `exclusive door` mechanism is instantly suppressed for 4 seconds, to allow the bot to exit through the same door without being forced back in.
 

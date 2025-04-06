@@ -276,12 +276,12 @@ void() SetExclusive =
 {
 	if (linked_marker_.T & T_EXCLUSIVE)
 	{
-		self.exclusive_deadline = time + 2.5;
+		self.exclusive_deadline = time + 3;
 		self.path_state = (self.path_state | EXCLUSIVE_PATH);
 	}
 	else if (touch_marker_.T & T_EXCLUSIVE)  // Leaving exclusive path
 	{
-		self.exclusive_deadline = time + 0.25;
+		self.exclusive_deadline = time + 0.33;
 		// Prevent yo-yoing on exclusive door paths while door is still open
 		self.exclu_door_cooldown = time + 4;
 		self.path_state = (self.path_state | EXCLUSIVE_PATH);
