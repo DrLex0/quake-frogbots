@@ -31,6 +31,7 @@ trinca/map_four.qc
 trinca/map_lilith.qc
 trinca/map_oktest1.qc
 trinca/map_rwild.qc
+trinca/map_shine.qc
 trinca/map_skull.qc
 trinca/map_start.qc
 trinca/map_thf.qc
