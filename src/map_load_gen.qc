@@ -37,6 +37,7 @@
 #include "maps/trinca/map_skull.qc"
 #include "maps/trinca/map_start.qc"
 #include "maps/trinca/map_thf.qc"
+#include "maps/trinca/map_trindm2.qc"
 #include "maps/trinca/map_utressor.qc"
 #include "maps/trinca/map_ztndm6.qc"
 
@@ -53,8 +54,9 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
 	sprint_fb(self, 2, "      rwild    shifter      shine\n");
 	sprint_fb(self, 2, "      skull    spinev2      start\n");
-	sprint_fb(self, 2, "        thf        tox     ultrav\n");
-	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "        thf        tox     tridm2\n");
+	sprint_fb(self, 2, "    trindm2     ultrav   utressor\n");
+	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -244,6 +246,11 @@ float() LoadWaypoints =
 		map_thf();
 		return TRUE;
 	}
+	if (mapname == "trindm2")
+	{
+		map_trindm2();
+		return TRUE;
+	}
 	if (mapname == "utressor")
 	{
 		map_utressor();
@@ -252,6 +259,11 @@ float() LoadWaypoints =
 	if (mapname == "ztndm6")
 	{
 		map_ztndm6();
+		return TRUE;
+	}
+	if (mapname == "tridm2")
+	{
+		map_trindm2();
 		return TRUE;
 	}
 	return FALSE;
@@ -333,9 +345,13 @@ string(string mname) MapHasWaypoints =
 		return "start";
 	if (mname == "thf")
 		return "thf";
+	if (mname == "trindm2")
+		return "trindm2";
 	if (mname == "utressor")
 		return "utressor";
 	if (mname == "ztndm6")
 		return "ztndm6";
+	if (mname == "tridm2")
+		return "tridm2";
 	return "";
 };
