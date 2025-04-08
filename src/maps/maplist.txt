@@ -21,6 +21,7 @@ trinca/map_aggressr.qc
 trinca/map_amphi.qc
 trinca/map_bovine.qc
 trinca/map_cmt4.qc
+trinca/map_del1.qc
 trinca/map_dm5.qc
 trinca/map_dranzdm8.qc
 trinca/map_efdm13.qc
