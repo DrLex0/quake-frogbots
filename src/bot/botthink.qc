@@ -142,7 +142,7 @@ void() FrogTrackSimple =
 	angle_error_x = anglemod(angle_error_x);
 	angle_error_y = anglemod(angle_error_y);
 
-	local float speed_factor = 1.5 + self.bot_skill / 4;
+	local float speed_factor = 2.5 + self.bot_skill / 4;
 	self.track_pitchspeed = speed_factor * angle_error_x;
 	if (self.track_pitchspeed > 0.71)
 		self.track_pitchspeed = self.track_pitchspeed + 1.5;

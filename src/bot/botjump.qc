@@ -73,7 +73,7 @@ float() able_rj =
 #endif
 	if (!beQuiet)
 #ifndef MANUAL
-	if (random() > 0.33)
+	if (random() > 0.33 || health_after > 99)
 #else
 	if (!no_rocketjump)
 #endif
