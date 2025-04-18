@@ -107,6 +107,13 @@ void() AddMissingBits =
 		ent.origin = '-35 0 11';
 		ent.mangle = '-30 0 0';
 	}
+	else if (mapname == "genocide")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '-592 -563 56';
+		ent.mangle = '28 40 0';
+	}
 	else if(mapname == "oktest1")
 	{
 		ent = spawn();

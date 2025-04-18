@@ -32,6 +32,7 @@ trinca/map_four.qc
 trinca/map_genocide.qc
 trinca/map_lilith.qc
 trinca/map_oktest1.qc
+trinca/map_q3dm6qw.qc
 trinca/map_rwild.qc
 trinca/map_schloss.qc
 trinca/map_shine.qc

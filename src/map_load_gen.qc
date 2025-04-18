@@ -34,6 +34,7 @@
 #include "maps/trinca/map_genocide.qc"
 #include "maps/trinca/map_lilith.qc"
 #include "maps/trinca/map_oktest1.qc"
+#include "maps/trinca/map_q3dm6qw.qc"
 #include "maps/trinca/map_rwild.qc"
 #include "maps/trinca/map_schloss.qc"
 #include "maps/trinca/map_shine.qc"
@@ -56,12 +57,13 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      eodm3      exdm3       four\n");
 	sprint_fb(self, 2, "   frobodm2   genocide    hohoho2\n");
 	sprint_fb(self, 2, "     lilith    monsoon    oktest1\n");
-	sprint_fb(self, 2, "      pkeg1    povdmm4      rwild\n");
-	sprint_fb(self, 2, "    schloss    shifter      shine\n");
-	sprint_fb(self, 2, "      skull    spinev2      start\n");
-	sprint_fb(self, 2, "        thf        tox     tridm2\n");
-	sprint_fb(self, 2, "    trindm2     ukpak2     ultrav\n");
-	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "      pkeg1    povdmm4    q3dm6qw\n");
+	sprint_fb(self, 2, "      rwild    schloss    shifter\n");
+	sprint_fb(self, 2, "      shine      skull    spinev2\n");
+	sprint_fb(self, 2, "      start        thf        tox\n");
+	sprint_fb(self, 2, "     tridm2    trindm2     ukpak2\n");
+	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
+	sprint_fb(self, 2, "     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -236,6 +238,11 @@ float() LoadWaypoints =
 		map_oktest1();
 		return TRUE;
 	}
+	if (mapname == "q3dm6qw")
+	{
+		map_q3dm6qw();
+		return TRUE;
+	}
 	if (mapname == "rwild")
 	{
 		map_rwild();
@@ -364,6 +371,8 @@ string(string mname) MapHasWaypoints =
 		return "lilith";
 	if (mname == "oktest1")
 		return "oktest1";
+	if (mname == "q3dm6qw")
+		return "q3dm6qw";
 	if (mname == "rwild")
 		return "rwild";
 	if (mname == "schloss")
