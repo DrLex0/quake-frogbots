@@ -41,6 +41,7 @@
 #include "maps/trinca/map_start.qc"
 #include "maps/trinca/map_thf.qc"
 #include "maps/trinca/map_trindm2.qc"
+#include "maps/trinca/map_ukpak2.qc"
 #include "maps/trinca/map_utressor.qc"
 #include "maps/trinca/map_ztndm6.qc"
 
@@ -59,8 +60,8 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    schloss    shifter      shine\n");
 	sprint_fb(self, 2, "      skull    spinev2      start\n");
 	sprint_fb(self, 2, "        thf        tox     tridm2\n");
-	sprint_fb(self, 2, "    trindm2     ultrav   utressor\n");
-	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "    trindm2     ukpak2     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -270,6 +271,11 @@ float() LoadWaypoints =
 		map_trindm2();
 		return TRUE;
 	}
+	if (mapname == "ukpak2")
+	{
+		map_ukpak2();
+		return TRUE;
+	}
 	if (mapname == "utressor")
 	{
 		map_utressor();
@@ -372,6 +378,8 @@ string(string mname) MapHasWaypoints =
 		return "thf";
 	if (mname == "trindm2")
 		return "trindm2";
+	if (mname == "ukpak2")
+		return "ukpak2";
 	if (mname == "utressor")
 		return "utressor";
 	if (mname == "ztndm6")

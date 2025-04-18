@@ -107,6 +107,13 @@ void() AddMissingBits =
 		ent.origin = '-35 0 11';
 		ent.mangle = '-30 0 0';
 	}
+	else if(mapname == "oktest1")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '513 -281 1167';
+		ent.mangle = '37 -147 -13';
+	}
 	else if (mapname == "thf")
 	{
 		ent = spawn();
@@ -114,11 +121,11 @@ void() AddMissingBits =
 		ent.origin = '-1265 358 386';
 		ent.mangle = '-10 -36 0';
 	}
-	else if(mapname == "oktest1")
+	else if (mapname == "ukpak2")
 	{
 		ent = spawn();
 		ent.classname = "info_intermission";
-		ent.origin = '513 -281 1167';
-		ent.mangle = '37 -147 -13';
+		ent.origin = '398 -572 353';
+		ent.mangle = '32 -150 5';
 	}
 }
