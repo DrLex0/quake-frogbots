@@ -93,6 +93,13 @@ void() AddMissingBits =
 		ent.origin = '1244 -337 570';
 		ent.mangle = '40 -135 10';
 	}
+	else if (mapname == "dm4ish")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '-310 -293 404';
+		ent.mangle = '25 32 0';
+	}
 	else if (mapname == "endif")
 	{
 		ent = spawn();
