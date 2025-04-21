@@ -39,6 +39,19 @@ If you want to change the skill level of the bots, you can use the `skilldown` a
 As for running the `waypoint` tool to create or edit waypoints, see the README in the `waypoint` directory.
 
 
+## Caveats
+
+### Customized .ent files may crash the Frogbot
+
+Be careful with `.ent` files. If they add item entities like weapons, ammo, teleport destinations, or the like, in all likelihood **the game will crash** when loading a Frogbot-supported map, because the extra entities will cause entity numbers to be shifted, causing a fatal mess with the waypoint data. This usually manifests itself as an error `<NO FUNCTION>` or `NULL function` in the console or log. Even if the game would not crash, the bot would act very weird.
+
+If this happens, either disable the loading of `.ent` files, or just move the `.ent` file aside (to a separate folder).
+
+When making waypoints in an engine that supports `.ent` files, by all means ensure no custom file is loaded for the map.
+
+The good news is that if I ever get to finish the script that can inject waypoint data into an `.ent` file to allow loading waypoints without recompiling the qwprogs, then custom `.ent` files will likely work, as long as they do not try to remove entities from the original set (is that even possible anyway?) Any added entities will then not be usable for the bot, unless they are annotated inside the `.ent` file with their own zone, goal, and path info, but this is all speculative at this moment…
+
+
 ## What is the difference with the KTX Frogbot?
 
 Although born from the same origin, this is a different Frogbot fork than [the one included in KTX](https://github.com/QW-Group/ktx). The differences are:
@@ -129,6 +142,7 @@ No promises about dates or reaching these goals whatsoever. It is done when it's
 
 ### Wild ideas
 - Construct reasonable waypoints automatically with AI and evolutionary algorithms and blockchain and all other buzzwords we can throw against it. Yet, manual editing may always be needed for the best results.
+
 
 ## License
 
