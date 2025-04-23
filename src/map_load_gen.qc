@@ -22,6 +22,7 @@
 #include "maps/trinca/map_aggressr.qc"
 #include "maps/trinca/map_amphi.qc"
 #include "maps/trinca/map_bovine.qc"
+#include "maps/trinca/map_bsdm6.qc"
 #include "maps/trinca/map_cmt4.qc"
 #include "maps/trinca/map_del1.qc"
 #include "maps/trinca/map_dm4ish.qc"
@@ -51,20 +52,20 @@ void() SprintMaps =
 {
 	sprint_fb(self, 2, "         a2   aerowalk   aggressr\n");
 	sprint_fb(self, 2, "      amphi     amphi2     bovine\n");
-	sprint_fb(self, 2, "  burialb10       cmt4       del1\n");
-	sprint_fb(self, 2, "        dm3        dm4     dm4ish\n");
-	sprint_fb(self, 2, "        dm5        dm6   dranzdm8\n");
-	sprint_fb(self, 2, "       e1m2     efdm13      efdm8\n");
-	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
-	sprint_fb(self, 2, "       four   frobodm2   genocide\n");
-	sprint_fb(self, 2, "    hohoho2     lilith    monsoon\n");
-	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
-	sprint_fb(self, 2, "    q3dm6qw      rwild    schloss\n");
-	sprint_fb(self, 2, "    shifter      shine      skull\n");
-	sprint_fb(self, 2, "    spinev2      start        thf\n");
-	sprint_fb(self, 2, "        tox     tridm2    trindm2\n");
-	sprint_fb(self, 2, "     ukpak2     ultrav   utressor\n");
-	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "      bsdm6  burialb10       cmt4\n");
+	sprint_fb(self, 2, "       del1        dm3        dm4\n");
+	sprint_fb(self, 2, "     dm4ish        dm5        dm6\n");
+	sprint_fb(self, 2, "   dranzdm8       e1m2     efdm13\n");
+	sprint_fb(self, 2, "      efdm8      endif      eodm3\n");
+	sprint_fb(self, 2, "      exdm3       four   frobodm2\n");
+	sprint_fb(self, 2, "   genocide    hohoho2     lilith\n");
+	sprint_fb(self, 2, "    monsoon    oktest1      pkeg1\n");
+	sprint_fb(self, 2, "    povdmm4    q3dm6qw      rwild\n");
+	sprint_fb(self, 2, "    schloss    shifter      shine\n");
+	sprint_fb(self, 2, "      skull    spinev2      start\n");
+	sprint_fb(self, 2, "        thf        tox     tridm2\n");
+	sprint_fb(self, 2, "    trindm2     ukpak2     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -177,6 +178,11 @@ float() LoadWaypoints =
 	if (mapname == "bovine")
 	{
 		map_bovine();
+		return TRUE;
+	}
+	if (mapname == "bsdm6")
+	{
+		map_bsdm6();
 		return TRUE;
 	}
 	if (mapname == "cmt4")
@@ -353,6 +359,8 @@ string(string mname) MapHasWaypoints =
 		return "amphi";
 	if (mname == "bovine")
 		return "bovine";
+	if (mname == "bsdm6")
+		return "bsdm6";
 	if (mname == "cmt4")
 		return "cmt4";
 	if (mname == "del1")
