@@ -20,7 +20,8 @@ AdjustTravelPenalties
 
 Dynamic path cost hocus-pocus. Restore traveltime for paths if:
 - path has RJ flag and the bot can rocket-jump,
-- path goes through slime and the bot has protection.
+- path goes through slime and the bot has protection,
+- path goes through lava and the bot has pentagram.
 Basically this must be invoked after every .sub_arrival_time() call.
 See TravelTime() for more information.
 ============
@@ -28,15 +29,27 @@ See TravelTime() for more information.
 void() AdjustTravelPenalties =
 {
 	if (traveltime < 1000) return;
-	if (traveltime >= 80000) return;
+	if (traveltime >= 400000) return;
 
-	// Slime. Allow multiple segments (up to 7) although this should be very rare.
-	// Only paths going into the slime zone will get a 10k penalty, and if there are
-	// any 'dry' markers surrounded by slime, they must be given 'slime island' type,
+	// Lava or slime. Allow multiple segments (up to 3 for lava, 7 for slime),
+	// although this should be very rare.
+	// Only paths going into the danger zone will get a penalty. If there are any
+	// 'dry' markers surrounded by slime, they must be given 'slime island' type,
 	// to ensure the zone is considered as one big whole and the bot will not get
 	// stranded on such island when running out of protection.
-	// I'm not going to add more of this voodoo for lava + invuln, because it is
-	// rarely useful, and consequences of the powerup expiring are much worse.
+	// For lava this is pointless: the bot is better off staying on the island when
+	// the pentagram expires, and maybe scoring some kills before getting killed,
+	// instead of getting a suicide penalty for jumping into the lava.
+	if (traveltime >= 100000)
+	{
+		// Don't jump into lava, or GTFO when only 5s of protection remain
+		if (self.invincible_finished - time > 5)
+		{
+			if (traveltime >= 200000) traveltime = traveltime - 200000;
+			if (traveltime >= 100000) traveltime = traveltime - 100000;
+		}
+		else return;
+	}
 	if (traveltime >= 10000)
 	{
 		// Don't jump into slime, or GTFO when only 5s of protection remain
@@ -70,8 +83,13 @@ Like AdjustTravelPenalties, but for a single segment's path_time.
 void() AdjustPathTimePenalty
 {
 	if (path_time < 1000) return;
-	if (path_time >= 20000) return;
+	if (path_time >= 200000) return;
 
+	if (path_time >= 100000)
+	{
+		if (self.invincible_finished - time > 5)
+			path_time = path_time - 100000;
+	}
 	if (path_time >= 10000)
 	{
 		if ((self.invincible_finished - time > 5) ||

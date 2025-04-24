@@ -448,6 +448,8 @@ void() CheckWaterColumn =
 	m.T = m.T | T_LIQUID;
 	if (content == CONTENT_SLIME)
 		m.T = m.T | T_BIOHZD;
+	else if(content == CONTENT_LAVA)
+		m.T = m.T | T_HOTMAGMA;
 
 	testplace = m_pos;
 	while (TRUE)

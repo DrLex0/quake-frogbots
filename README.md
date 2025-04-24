@@ -108,7 +108,7 @@ However, while working on the tool and testing newly created waypoints, I also n
 
 7. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_ bot, it was surprisingly bad at swimming). Bots are now more robust against less-than-ideally-placed underwater markers, and will no longer get stuck on the water surface for no good reason.
 
-8. Waypoints through **slime** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up one of those items. It will desire to pick up the biosuit when it desires to fetch an item from slime. Try `efdm13`.
+8. Waypoints through **slime** or **lava** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up the power-up that protects against the hazard. It will desire to pick up the biosuit when it desires to fetch an item from slime. Try `efdm13`.
 
 9. Improved _platform/lift handling,_ especially for button-activated lifts. Bots can wait for a platform to come down to avoid being squished, and can handle exits at multiple floors.
 

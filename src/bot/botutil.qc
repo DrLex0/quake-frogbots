@@ -233,7 +233,7 @@ void() FallSpotGround =
 		}
 		content = pointcontents(self.origin + '0 0 -24');
 
-		if (content == CONTENT_LAVA)
+		if (content == CONTENT_LAVA && (fallspot_self.invincible_finished - time < 5))
 			fall = FALL_DEATH;
 		else if (self.origin_z < fallheight)
 			fall = FALL_LAND;
@@ -294,7 +294,7 @@ void() FallSpotAir =
 	}
 	content = pointcontents(self.origin + '0 0 -24');
 
-	if (content == CONTENT_LAVA)
+	if (content == CONTENT_LAVA && (fallspot_self.invincible_finished - time < 5))
 		fall = FALL_DEATH;
 	else if (self.origin_z < fallheight)
 		fall = FALL_LAND;

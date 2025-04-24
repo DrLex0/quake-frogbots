@@ -1743,6 +1743,7 @@ void() item_artifact_invulnerability =
 		self.pickup = pickup_true;
 	}
 	bio_protection = 1;
+	penta_protection = 1;
 	setsize (self, '-16 -16 -24', '16 16 32');
 	StartItem ();
 };

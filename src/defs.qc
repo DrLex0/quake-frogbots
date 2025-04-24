@@ -1646,13 +1646,18 @@ float SAVED_T				= 127;
 float T_LIQUID				= 128;
 float T_NO_AIR				= 256;
 float T_BIOHZD				= 512;
+// You forget, Scott. We're in a volcano. We're surrounded by liquid hot magma.
+float T_HOTMAGMA			= 1024;
 
-// Whether map provides biosuit or invulnerability (regardless of powerups disabled).
+// Whether map provides biosuit or pentagram (regardless of powerups disabled).
 // Used to decide whether to avoid paths in slime or not. Waypoints for a map
 // without protective items should never have (long) paths in slime.
 float bio_protection;
 // property set to "y" on markers of T_WANTSUIT type
 .string want_suit;
+// Whether map contains pentagram. We don't need a want_penta marker type because
+// the bot is extremely eager to get the pentagram anyway.
+float penta_protection;
 
 .float exclusive_deadline;
 .entity near_teleport;

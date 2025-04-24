@@ -180,6 +180,10 @@ void() Calc_G_time_1 =
 
 			count_ = count_ - 1;
 		}
+		else if (pointcontents(m.absmin) == CONTENT_LAVA)
+		{
+			m.T = m.T | T_HOTMAGMA;
+		}
 
 		m = m.marker_linkrev;
 
@@ -298,8 +302,14 @@ float() TravelTime =
 	if (bio_protection)
 	if (!(m.T & T_BIOHZD) && (m_P.T & T_BIOHZD))
 	{
-		// Only paths going into hazard area get the penalty 
+		// Only paths going into hazard area get penalty
 		traveltime = traveltime + 10000;
+	}
+	if (penta_protection)
+	if (!(m.T & T_HOTMAGMA) && (m_P.T & T_HOTMAGMA))
+	{
+		// Idem, but for liquid hot magma
+		traveltime = traveltime + 100000;
 	}
 
 	if (m_D & ROCKET_JUMP)

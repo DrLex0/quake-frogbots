@@ -415,24 +415,29 @@ Bots will only actively plan an RJ when that path is worth following to reach a 
 The Frogbot uses different logic to navigate underwater due to the ability to move in 3 dimensions. There are additional checks on reachability of destinations. Make sure that connected markers are within visible range and are not obscured by corners or other obstacles. There is robustness against minor obstacles, but don't expect the bot to find its way through a maze with sparsely provided waypoints.
 
 
-### Slime
+### Slime and Lava
 
-With the old Frogbot, making paths through _slime_ was a no-go. Unaware of the danger, the bots would happily swim in the slime and get killed. The v2 Frogbot is smarter and will avoid paths through slime, but _only_ if the map contains a biosuit or invulnerability power-up. If a bot then picks up one of those items, the slime paths will be treated like normal paths and the bot may traverse the slime to reach something worthwhile.  
+With the old Frogbot, making paths through _slime_ or _lava_ was a no-go. Unaware of the danger, the bots would happily swim in the slime or lava and get killed. The v2 Frogbot is smarter and will avoid paths through slime, but _only_ if the map contains a biosuit or invulnerability power-up. Likewise, it will avoid paths through lava if the map has a pentagram. If a bot then picks up one of those items that protects against the hazard, the slime/lava paths will be treated like normal paths and the bot may traverse them to reach something worthwhile.  
 Therefore:
 - in maps with a biosuit and/or pentagram of protection, it is OK to create paths through slime if it makes any sense;
-- in maps that do not have those items, do not create paths through slime unless they're very short.
+- in maps with a pentagram, it is OK to create paths through lava;
+- in maps that do not have those items, do not create paths through slime/lava unless they're very short.
 
 There are 2 new _marker types_ related to this feature, that can be assigned by changing display mode to `type` with the `Z` key, then selecting the mode with the `V` key, and right-clicking the marker:
-1. **slime island:** if there are markers on dry zones or islands that can only be _exited_ through slime, it is important to set this type on all markers on that ‘island.’ This will allow the bot to consider jumping into the slime even when its protection has run out; otherwise it would become a sitting duck on the island.  
+1. **slime island:** if there are markers on dry zones or islands that can only be _exited_ through slime, it is important to set this type on all markers on that ‘island.’ This will allow the bot to consider jumping into the slime and having a chance of escaping even when its protection has run out; otherwise it would become a sitting duck on the island.  
 If there are _teleport triggers_ or _destinations_ in slime, or that will drop the player into slime, you _must_ also mark these as `slime island` for the path calculations to work correctly, because the game is unable to reliably detect that such markers are inside slime.  
 Display mode can be set to `biohazard` with the `Z` key to see which markers are currently considered to be inside slime, or have been given a `slime island` flag. This can be helpful to see whether you still need to set this flag on certain markers.
 2. **want biosuit:** this should be set on every worthwhile item that requires the biosuit to be safely reached. This will make the suit as desirable to the bot as the most desirable item marked as such. If there is no marker of this type, the suit will have zero desirability and the bot will only pick it up by chance.
 
-When making _zones,_ give markers in slime their own zone(s). Do not mix ‘dry’ markers and slime (island) markers in a single zone.
+There are no lava equivalents of those marker types, because:
+- lava is much more lethal than slime, hence when running out of protection, the bot is better off staying on a lava island and being shot by another player, than to get a penalty for a likely suicide;
+- the pentagram is one of the most desirable items for bots anyway.
+
+When making _zones,_ give markers in slime or lava their own zone(s). Do not mix ‘dry’ markers and lava or slime (island) markers in a single zone.
 
 Look at `efdm13` for an example.
 
-Never make any paths going into _lava,_ even though theoretically they could be traversed with invulnerability. The extra complexity required to also implement this, was not deemed worth it. Maps where it would be useful are scarce, and the consequences of the power-up expiring while still in lava are usually _lethal._ Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
+Be aware that some maps have lava that looks like slime—if it kills you within seconds, it is lava.
 
 
 ### Ladders, narrow markers
