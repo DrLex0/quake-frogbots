@@ -1063,7 +1063,7 @@ void() weapon_rocketlauncher =
 
 void() goal_lightning1 =
 {
-	goal_desire = (self.desire_lightning + (virtual_enemy.desire_lightning * 0.5));
+	goal_desire = (self.desire_lightning + (virtual_enemy.desire_lightning * 0.75));
 };
 
 void() goal_lightning2 =
@@ -1071,7 +1071,7 @@ void() goal_lightning2 =
 	if (items_ & IT_LIGHTNING)
 		goal_desire = 0;
 	else
-		goal_desire = (self.desire_lightning + (virtual_enemy.desire_lightning * 0.5));
+		goal_desire = (self.desire_lightning + (virtual_enemy.desire_lightning * 0.75));
 };
 
 float() pickup_lightning2 =
