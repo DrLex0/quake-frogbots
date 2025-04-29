@@ -114,7 +114,9 @@ To obtain true path times regardless of bot state.
 void() DropTravelPenalties =
 {
 	if (traveltime < 1000) return;
-	if (traveltime >= 80000) return;
+	if (traveltime >= 400000) return;
+	if (traveltime >= 200000) traveltime = traveltime - 200000;
+	if (traveltime >= 100000) traveltime = traveltime - 100000;
 	if (traveltime >= 40000) traveltime = traveltime - 40000;
 	if (traveltime >= 20000) traveltime = traveltime - 20000;
 	if (traveltime >= 10000) traveltime = traveltime - 10000;
