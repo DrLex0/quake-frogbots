@@ -38,6 +38,7 @@ trinca/map_oktest1.qc
 trinca/map_q3dm6qw.qc
 trinca/map_rwild.qc
 trinca/map_schloss.qc
+trinca/map_shady.qc
 trinca/map_shine.qc
 trinca/map_skull.qc
 trinca/map_start.qc
