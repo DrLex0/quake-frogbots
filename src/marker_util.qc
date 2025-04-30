@@ -174,7 +174,7 @@ void(float prioritize) check_marker =
 	if (self.T & T_NARROW)
 	if (other.path_from_marker != self)
 #ifdef MANUAL
-	if (manual_mode && self != active_marker)
+	if (!manual_mode || (manual_mode && self != active_marker))
 #endif
 	if (distance > 24)
 		return;
