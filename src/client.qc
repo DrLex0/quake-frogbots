@@ -765,6 +765,19 @@ void() info_player_deathmatch =
 	self.view_ofs = '80 80 24';
 	self.pickup = pickup_true;
 
+	// Work around poorly positioned spawn points in some maps.
+	// Usually the "unstuck" mechanism in engines handles this, but
+	// sometimes not, and then players or bots get stuck in the floor.
+	if(pointcontents(self.origin + '0 0 -23') == CONTENT_SOLID)
+	{
+		traceline(self.origin, self.origin + '0 0 -24', TRUE, self);
+		if (trace_fraction < 1) {
+			self.origin_z = self.origin_z + trace_endpos_z - self.absmin_z;
+			setorigin (self, self.origin);
+			dprint("Moving info_player_deathmatch out of solid: m", ftos(self.index), "\n");
+		}
+	}
+
 	if (game_enable_runes)
 	{
 		precache_model ("progs/end1.mdl");
