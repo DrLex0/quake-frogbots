@@ -466,6 +466,56 @@ void() CheckAccurateRunUp =
 
 /*
 ============
+CheckWallStrafe
+
+When entering a WALL_STRAFE path, set up parameters to make the
+bot strafe run against the nearest wall at optimal angle for
+maximal speed boost.
+============
+*/
+void() CheckWallStrafe =
+{
+	if (! (new_path_state & WALL_STRAFE))
+		return;
+	if (self.wallstrafe_key)
+		return;
+	local vector angles;
+	// Assume the path vector is parallel to the wall
+	self.run_up_point = linked_marker_.absmin + linked_marker_.view_ofs;
+	dir_move = self.run_up_point - (touch_marker_.absmin + touch_marker_.view_ofs);
+	angles = vectoangles(dir_move);
+	makevectors(angles);
+	// Check whether nearest wall is to the left or right
+	traceline(origin_, origin_ + (80 * v_right), TRUE, self);
+	local float frac_right = trace_fraction;
+	traceline(origin_, origin_ - (80 * v_right), TRUE, self);
+	if (frac_right + trace_fraction >= 2)
+		return;
+
+	// Some weirdness is going on: for real players, optimal angle is about
+	// 8 degrees and will provide 150% speed boost up to 480u/s. For bots it
+	// is different and also differs between Quake and QW.  Quake bots can
+	// achieve 150%, but requires 11.5 degree angle.  In QW, the best we can
+	// get is 140% at 15deg angle, but tends to vary more.  To keep things
+	// more or less consistent between engines, use 15 degrees at all times.
+	if (trace_fraction < frac_right)
+	{
+		self.wallstrafe_key = FORWARD_LEFT;
+		angles_y = angles_y + 15;
+	}
+	else
+	{
+		self.wallstrafe_key = FORWARD_RIGHT;
+		angles_y = angles_y - 15;
+	}
+	angles_x = angles_z = 0;
+	makevectors(angles);
+	self.wallstrafe_dir = v_forward;
+	self.wallstrafe_deadline = time + 3;
+}
+
+/*
+============
 frogbot_marker_touch
 
 The ginormous bot decision logic when touching a new marker.
@@ -890,6 +940,7 @@ void() frogbot_marker_touch =
 	}
 
 	CheckAccurateRunUp();
+	CheckWallStrafe();
 
 	self.linked_marker = linked_marker_;
 	self.path_from_marker = touch_marker_;

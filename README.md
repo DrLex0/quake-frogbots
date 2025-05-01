@@ -112,17 +112,19 @@ However, while working on the tool and testing newly created waypoints, I also n
 
 9. Improved _platform/lift handling,_ especially for button-activated lifts. Bots can wait for a platform to come down to avoid being squished, and can handle exits at multiple floors.
 
-10. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors, of various sizes. (Still only 1 door per map though.)
+10. Bots can _strafe run_ along a wall to boost their speed and make longer jumps.
 
-11. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
-   To override smartness, set the `fb_smartness` cvar to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
+11. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors, of various sizes. (Still only 1 door per map though.)
 
-12. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables.
+12. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
+    To override smartness, set the `fb_smartness` cvar to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
 
-13. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
+13. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables.
 
-14. Created waypoints for some newer maps. Already available: `hohoho2`, `burialb10` and `tox`. Try them, they're fun.  
-Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging.
+14. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
+
+15. Created waypoints for some newer maps. Already available: `hohoho2`, `burialb10` and `tox`. Try them, they're fun.  
+    Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging.
 
 ### Planned
 

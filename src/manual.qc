@@ -142,6 +142,8 @@ void(entity marker) manual_marker_touch =
 					DescriptionMarker("just GO");
 					description = FOCUS_PATH;
 					DescriptionMarker("focused");
+					description = WALL_STRAFE;
+					DescriptionMarker("wall strafe jump");
 					description = EXCLUSIVE_DOOR;
 					DescriptionMarker("exclusive door");
 				}
@@ -1476,6 +1478,8 @@ void(float descbits) PrintDLabel =
 		bprint("\xA1");  // !
 	if (descbits & FOCUS_PATH)
 		bprint("\xC6");  // F
+	if (descbits & WALL_STRAFE)
+		bprint("\xD7");  // W
 	if (descbits & EXCLUSIVE_DOOR)
 		bprint("\xC5");  // E
 }
@@ -1866,6 +1870,11 @@ void() CycleDescriptionMode =
 		bprint("focused path mode ON\n");
 	}
 	else if (path_mode == FOCUS_PATH)
+	{
+		path_mode = WALL_STRAFE;
+		bprint("wall strafe jump mode ON\n");
+	}
+	else if (path_mode == WALL_STRAFE)
 	{
 		path_mode = DM6_DOOR;
 		bprint("dm6 door mode ON\n");

@@ -238,6 +238,7 @@ These steps do not need to be done in this exact order, but you will typically g
      A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to.  
      In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
    - **Focused path mode** (shown as `'F`, number 2 in code) makes the bot look at (focus on) the destination marker of the path. This is useful when walking along tricky thin ledges (example in `monsoon`), or when the bot needs to jump out of water (example in `cmt4`). Without this mode, the bot may be distracted by looking at the next item it wants to pick up, causing it to move inaccurately and fall off the ledge, or face the wrong way to perform the water jump. (Looking at enemies always has priority over this path mode.)
+   - **Wall strafe jump mode** (shown as `'W`, number 8 in code) exploits Quake's weird physics to allow bots to jump across gaps too wide for a normal jump in some situations. More info in the advanced section below.
    - **DM6 door mode** (shown as `‘D’`, number 256 in code) is for getting through doors like in _dm6_ that need to be shot/whacked to open. This is limited by certain constraints and requires extra configuration. More details in the advanced section below.
    - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door or platform. See the advanced section for more info.
 
@@ -453,6 +454,26 @@ The most practical solution in cases like these where markers must only be touch
 If even this would not suffice, you could place extra markers to ‘shield’ the marker from being prematurely touched.
 
 `Narrow` markers are not only useful for ladders, they can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam.
+
+
+### Wall strafe jump
+
+Seasoned players will know that the Quake engine has some weird physics quirks that can be exploited to achieve speeds higher than the typical 320 units/sec limit. One of these tricks is to run along a wall while pressing both forward and strafe keys, and maintaining a certain angle relative to the wall. Although it makes no sense from a real physics point-of-view, running into the wall like this will provide a boost that can reach speeds up to a whopping _480 units/sec,_ which may be useful to cross gaps that are otherwise too wide for a jump.
+
+Waypoints can be set up to rely on this trick by setting _wall strafe jump_ path mode. This requires a sufficiently long wall parallel to the jump direction, and extending at least up to the point from where to jump. The bot will determine whether it needs to strafe left or right by probing for the wall when touching the marker where this path starts. It will then run across the path while simultaneously strafing, and use the path's direction to determine the optimal angle. When it reaches the destination marker, it will jump.
+
+Some hints to improve chances of this working:
+- The path must be parallel to the wall. The simplest way to ensure this, is to place both markers right against the wall.
+- Place the end marker right on the edge from where to jump, to maximize the distance that can be bridged.
+- It may be necessary to use a narrow marker as the starting point to ensure the bot does the wall probe at the right location.
+- It may also be necessary to set _focused path mode_ on the path leading to the start marker, to ensure the bot is already looking mostly in the right direction at the start of the path. Slow path mode may help to give the bot more time to adjust its aim.
+- In truly exotic cases where the maximum speed would be too high, you could deliberately skew the path relative to the wall, to reduce the speed.
+
+Look at `catalyst` (jump towards mega health) for an example.
+
+Bots at lower skill levels will execute this procedure more sloppily and have a higher risk of the jump failing.
+
+Note that this feature does not behave exactly the same as for real players. Bots are only able to achieve up to a 140% speed boost, and there are some subtle differences between Quake and QuakeWorld engines as well.
 
 
 ### Dealing with overlapping markers

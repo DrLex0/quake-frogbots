@@ -18,6 +18,11 @@ BestArrowForDirection
 */
 void() BestArrowForDirection =
 {
+	if (self.wallstrafe_key)
+	{
+		best_arrow = self.wallstrafe_key;
+		return;
+	}
 	makevectors(self.v_angle);
 
 	best_dotproduct = best_arrow = 0;
