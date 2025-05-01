@@ -553,7 +553,10 @@ void() ThinkTime =
 					}
 				}
 
+				// AFAIK this is to aim at the floor instead of directly at enemies,
+				// for splash damage. We don't want this for FOCUS_PATH mode.
 				if (self.weapon == IT_ROCKET_LAUNCHER)
+				if (!(self.path_state & FOCUS_PATH))
 				{
 					if (rel_dist > 96)
 					{
