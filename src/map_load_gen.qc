@@ -13,6 +13,7 @@
 #include "maps/map_ultrav.qc"
 #include "maps/map_ztndm3.qc"
 #include "maps/drlex/map_burialb10.qc"
+#include "maps/drlex/map_catalyst.qc"
 #include "maps/drlex/map_hohoho2.qc"
 #include "maps/drlex/map_tox.qc"
 #include "maps/ktx/map_endif.qc"
@@ -54,21 +55,21 @@ void() SprintMaps =
 {
 	sprint_fb(self, 2, "         a2   aerowalk   aggressr\n");
 	sprint_fb(self, 2, "      amphi     amphi2     bovine\n");
-	sprint_fb(self, 2, "      bsdm6  burialb10       cmt3\n");
-	sprint_fb(self, 2, "       cmt4       del1        dm3\n");
-	sprint_fb(self, 2, "        dm4     dm4ish        dm5\n");
-	sprint_fb(self, 2, "        dm6   dranzdm8       e1m2\n");
-	sprint_fb(self, 2, "     efdm13      efdm8      endif\n");
-	sprint_fb(self, 2, "      eodm3      exdm3       four\n");
-	sprint_fb(self, 2, "   frobodm2   genocide    hohoho2\n");
-	sprint_fb(self, 2, "     lilith    monsoon    oktest1\n");
-	sprint_fb(self, 2, "      pkeg1    povdmm4    q3dm6qw\n");
-	sprint_fb(self, 2, "      rwild    schloss      shady\n");
-	sprint_fb(self, 2, "    shifter      shine      skull\n");
-	sprint_fb(self, 2, "    spinev2      start        thf\n");
-	sprint_fb(self, 2, "        tox     tridm2    trindm2\n");
-	sprint_fb(self, 2, "     ukpak2     ultrav   utressor\n");
-	sprint_fb(self, 2, "     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "      bsdm6  burialb10   catalyst\n");
+	sprint_fb(self, 2, "       cmt3       cmt4       del1\n");
+	sprint_fb(self, 2, "        dm3        dm4     dm4ish\n");
+	sprint_fb(self, 2, "        dm5        dm6   dranzdm8\n");
+	sprint_fb(self, 2, "       e1m2     efdm13      efdm8\n");
+	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
+	sprint_fb(self, 2, "       four   frobodm2   genocide\n");
+	sprint_fb(self, 2, "    hohoho2     lilith    monsoon\n");
+	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
+	sprint_fb(self, 2, "    q3dm6qw      rwild    schloss\n");
+	sprint_fb(self, 2, "      shady    shifter      shine\n");
+	sprint_fb(self, 2, "      skull    spinev2      start\n");
+	sprint_fb(self, 2, "        thf        tox     tridm2\n");
+	sprint_fb(self, 2, "    trindm2     ukpak2     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -136,6 +137,11 @@ float() LoadWaypoints =
 	if (mapname == "burialb10")
 	{
 		map_burialb10();
+		return TRUE;
+	}
+	if (mapname == "catalyst")
+	{
+		map_catalyst();
 		return TRUE;
 	}
 	if (mapname == "hohoho2")
@@ -354,6 +360,8 @@ string(string mname) MapHasWaypoints =
 		return "ztndm3";
 	if (mname == "burialb10")
 		return "burialb10";
+	if (mname == "catalyst")
+		return "catalyst";
 	if (mname == "hohoho2")
 		return "hohoho2";
 	if (mname == "tox")
