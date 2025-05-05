@@ -499,6 +499,8 @@ float(entity marker_P, float marker_D) Display =
 {
 	if (!marker_P)
 		return FALSE;
+	if (path_mode == DISCONNECT_MARKERS)
+		return TRUE;
 	return ((path_mode & marker_D) == path_mode);
 };
 
