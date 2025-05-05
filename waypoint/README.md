@@ -180,7 +180,7 @@ These steps do not need to be done in this exact order, but you will typically g
    - The goal logic is horribly complicated and hard to understand; what follows is what I have learnt from experiments, Mick's guide, and digging in the source code. If someone has better insights, please update this guide.
    - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
    - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and absolutely not when they are directly linked. It _should_ be OK to give items of the same type the same goal across different zones, but I am not sure about this.  
-   - If health or same ammo items are clustered together with direct paths between each other, then **do** give them the same goal number. Also, the larger the cluster of same ammo or health, the more worthwhile it may be, hence may deserve a lower goal number than isolated items of the same kind (but again, goal number preference is weak anyway). But again: _do not_ give different items within the same zone the same goal number.
+   - If health or _same_ ammo items are clustered together with direct paths between each other, then **do** give those same items the same goal number. Also, the larger the cluster of same ammo or health, the more worthwhile it may be, hence may deserve a lower goal number than isolated items of the same kind (but again, goal number preference is weak anyway). But again: _do not_ give different items within the same zone the same goal number.
    - If the total number of items (or item clusters) in a map is small enough that each can have a unique goal number, by all means do so.
    - You will notice that the following items are given high default goals because they are considered less desirable. Of course you can give particular instances of these items (especially the weapons) a different goal if you want:
      * 19 `item_cells`
@@ -202,10 +202,10 @@ These steps do not need to be done in this exact order, but you will typically g
 
 7. **Connect markers:** each marker can have up to 8 outgoing paths the bot may choose from. Normally the tool will create 2-way (bidirectional) paths, unless you enable one-way mode with `J`. Remember that you can use the `R` key to display paths for an active marker.  
    To add a path from marker _x_ to _y_ (and vice versa unless one-way mode):
-   - Start at _x_, optionally press `G` to reset marker mode, then `MOUSE2` for Connect Marker Mode.
-   - The next marker you touch will be linked. If there is any risk of activating the wrong marker on the way, first press `MOUSE2` again to temporarily disable CMM.
-   - Move to marker _y_. If you didn't disable CMM, the link will be made instantly. Otherwise you again need to `MOUSE2`.
-   - Once a path has been added, Connect Mode disables itself, but marker _x_ remains set as static active marker. You can then either make another path from _x_ to a different marker by moving to it and again using `MOUSE2`; or you can deselect _x_ by pressing `TAB` or `G`.
+   - Start at _x_, optionally press `G` to reset marker mode, then `MOUSE2` for Connect Marker Mode (CoMM).
+   - The next marker you touch will be linked. If there is any risk of activating the wrong marker on the way, first press `MOUSE2` again to temporarily disable CoMM.
+   - Move to marker _y_. If you didn't disable CoMM, the link will be made instantly. Otherwise you again need to `MOUSE2`.
+   - Once a path has been added, CoMM disables itself, but marker _x_ remains set as static active marker. You can then either make another path from _x_ to a different marker by moving to it and again using `MOUSE2`; or you can deselect _x_ by pressing `TAB` or `G`.
    - Avoid making paths _towards_ spawn points or one-way teleport destinations, use one-way mode to only go away from them, _because telefrag._
    - Ensure every marker that can be reached in any way (even if only by being flung around by an explosion), has at least one outgoing path, otherwise the bot may get stuck on it.
    - If you added a path by mistake, you can remove it with _disconnect mode,_ see below.  
@@ -215,14 +215,14 @@ These steps do not need to be done in this exact order, but you will typically g
 8. **Teleports:** you must make a one-way connection from each `trigger_teleport` to its corresponding `info_teleport_destination`. (This has become a lot easier in the v2 tool.)
    - It is _essential_ to first enable both NOCLIP with `F2` and closest-marker mode with `F`.
    - Then move into the teleport trigger zone, and ensure with `C` that the `trigger_teleport` marker is selected.
-   - Hit `K`. The trigger now has an outgoing path to its destination (and _only_ it destination, as it should be).  
+   - Hit `K`. The trigger now has an outgoing path to its destination (and _only_ its destination, as it should be).  
      ![Connecting teleports](images/teleport.jpg)
    - If it is a 2-way teleporter, now do the same thing at the other side to connect its trigger to the destination.
    - Teleports are disabled in manual mode, hence toggle with `O` to get teleported to the other side.
    - It doesn't matter whether you assign a `trigger_teleport` the zone it is in, or its destination zone. (I stick with the zone it is in.)
    - A `trigger_teleport` must only have _incoming_ paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).  
-     An `info_teleport_destination` of a _1-way teleporter_ must only have _outgoing_ paths besides its single incoming trigger path _(again… telefrag)._  
-     For a _2-way teleporter_ however, if the destination marker(s) need to be traversed and will be touched when trying to reach the trigger at that end, then the destination marker must also have a path back to that trigger. But, never use destination markers as regular path markers if they are high up in the air and cannot be (easily) touched. Those must only have outgoing paths.
+     An `info_teleport_destination` of a _1-way teleporter_ should preferably only have _outgoing_ paths besides its single incoming trigger path _(again… telefrag)._  
+     For a _2-way teleporter_ however, if the destination marker(s) need to be traversed and will be touched when trying to reach the trigger at that end, then the destination marker _must_ also have a path back to that trigger. But, never use destination markers as regular path markers if they are high up in the air and cannot be (easily) touched. Those must only have outgoing paths.
 
 9. **Special path modes.** You can apply these while making the paths, or afterwards. The modes for a marker's paths can be seen by pressing the `R` key.  
    Same workflow as above, only now you also have to select the **mode** with `V` before making the connection (not all are path modes, some affect display mode). Most of these require _one-way mode_ to be enabled (`J` key).
@@ -461,13 +461,15 @@ If even this would not suffice, you could place extra markers to ‘shield’ th
 
 Seasoned players will know that the Quake engine has some weird physics quirks that can be exploited to achieve speeds higher than the typical 320 units/sec limit. One of these tricks is to run along a wall while pressing both forward and strafe keys, and maintaining a certain angle relative to the wall. Although it makes no sense from a real physics point-of-view, running into the wall like this will provide a boost that can reach speeds up to a whopping _480 units/sec,_ which may be useful to cross gaps that are otherwise too wide for a jump.
 
-Waypoints can be set up to rely on this trick by setting _wall strafe jump_ path mode. This requires a sufficiently long wall parallel to the jump direction, and extending at least up to the point from where to jump. The bot will determine whether it needs to strafe left or right by probing for the wall when touching the marker where this path starts. It will then run across the path while simultaneously strafing, and use the path's direction to determine the optimal angle. When it reaches the destination marker, it will jump.
+Waypoints can be set up to rely on this trick by setting _wall strafe jump_ path mode. This requires a sufficiently long wall parallel to the jump direction, and extending at least up to the point from where to jump. The bot will determine whether it needs to strafe left or right by probing for the nearest wall at the marker where this path starts. It will then run across the path while simultaneously strafing, using the path's direction to determine the optimal angle. When it reaches the marker at the end of the WSJ path, it will jump.
+
+![Wall strafe jump](images/wallstrafe.jpg)
 
 Some hints to improve chances of this working:
 - The path must be parallel to the wall. The simplest way to ensure this, is to place both markers right against the wall.
 - Place the end marker right on the edge from where to jump, to maximize the distance that can be bridged.
-- It may be necessary to use a narrow marker as the starting point to ensure the bot does the wall probe at the right location.
-- It may also be necessary to set _focused path mode_ on the path leading to the start marker, to ensure the bot is already looking mostly in the right direction at the start of the path. Slow path mode may help to give the bot more time to adjust its aim.
+- Use a narrow marker as the starting point of the path, especially for shorter walls.
+- It may also help to set _focused path mode_ on the path leading to the start marker, to ensure the bot is already looking mostly in the right direction at the start of the path. Slow path mode may help to give the bot more time to adjust its aim.
 - In truly exotic cases where the maximum speed would be too high, you could deliberately skew the path relative to the wall, to reduce the speed.
 
 Look at `catalyst` (jump towards mega health) for an example.

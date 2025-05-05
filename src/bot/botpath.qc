@@ -479,16 +479,18 @@ void() CheckWallStrafe =
 		return;
 	if (self.wallstrafe_key)
 		return;
-	local vector angles;
+	local vector angles, probe_pt;
 	// Assume the path vector is parallel to the wall
 	self.run_up_point = linked_marker_.absmin + linked_marker_.view_ofs;
-	dir_move = self.run_up_point - (touch_marker_.absmin + touch_marker_.view_ofs);
+	probe_pt = touch_marker_.absmin + touch_marker_.view_ofs;
+	dir_move = self.run_up_point - probe_pt;
 	angles = vectoangles(dir_move);
 	makevectors(angles);
-	// Check whether nearest wall is to the left or right
-	traceline(origin_, origin_ + (80 * v_right), TRUE, self);
+	// Check whether nearest wall is to the left or right. This could be
+	// precomputed, but only has to happen very sporadically anyway.
+	traceline(probe_pt, probe_pt + (80 * v_right), TRUE, self);
 	local float frac_right = trace_fraction;
-	traceline(origin_, origin_ - (80 * v_right), TRUE, self);
+	traceline(probe_pt, probe_pt - (80 * v_right), TRUE, self);
 	if (frac_right + trace_fraction >= 2)
 		return;
 
