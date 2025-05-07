@@ -30,6 +30,7 @@
 #include "maps/trinca/map_dm4ish.qc"
 #include "maps/trinca/map_dm5.qc"
 #include "maps/trinca/map_dranzdm8.qc"
+#include "maps/trinca/map_e1m5.qc"
 #include "maps/trinca/map_efdm13.qc"
 #include "maps/trinca/map_efdm8.qc"
 #include "maps/trinca/map_eodm3.qc"
@@ -59,17 +60,18 @@ void() SprintMaps =
 	sprint_fb(self, 2, "       cmt3       cmt4       del1\n");
 	sprint_fb(self, 2, "        dm3        dm4     dm4ish\n");
 	sprint_fb(self, 2, "        dm5        dm6   dranzdm8\n");
-	sprint_fb(self, 2, "       e1m2     efdm13      efdm8\n");
-	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
-	sprint_fb(self, 2, "       four   frobodm2   genocide\n");
-	sprint_fb(self, 2, "    hohoho2     lilith    monsoon\n");
-	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
-	sprint_fb(self, 2, "    q3dm6qw      rwild    schloss\n");
-	sprint_fb(self, 2, "      shady    shifter      shine\n");
-	sprint_fb(self, 2, "      skull    spinev2      start\n");
-	sprint_fb(self, 2, "        thf        tox     tridm2\n");
-	sprint_fb(self, 2, "    trindm2     ukpak2     ultrav\n");
-	sprint_fb(self, 2, "   utressor     ztndm3     ztndm6\n");
+	sprint_fb(self, 2, "       e1m2       e1m5     efdm13\n");
+	sprint_fb(self, 2, "      efdm8      endif      eodm3\n");
+	sprint_fb(self, 2, "      exdm3       four   frobodm2\n");
+	sprint_fb(self, 2, "   genocide    hohoho2     lilith\n");
+	sprint_fb(self, 2, "    monsoon    oktest1      pkeg1\n");
+	sprint_fb(self, 2, "    povdmm4    q3dm6qw      rwild\n");
+	sprint_fb(self, 2, "    schloss      shady    shifter\n");
+	sprint_fb(self, 2, "      shine      skull    spinev2\n");
+	sprint_fb(self, 2, "      start        thf        tox\n");
+	sprint_fb(self, 2, "     tridm2    trindm2     ukpak2\n");
+	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
+	sprint_fb(self, 2, "     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -222,6 +224,11 @@ float() LoadWaypoints =
 	if (mapname == "dranzdm8")
 	{
 		map_dranzdm8();
+		return TRUE;
+	}
+	if (mapname == "e1m5")
+	{
+		map_e1m5();
 		return TRUE;
 	}
 	if (mapname == "efdm13")
@@ -394,6 +401,8 @@ string(string mname) MapHasWaypoints =
 		return "dm5";
 	if (mname == "dranzdm8")
 		return "dranzdm8";
+	if (mname == "e1m5")
+		return "e1m5";
 	if (mname == "efdm13")
 		return "efdm13";
 	if (mname == "efdm8")
