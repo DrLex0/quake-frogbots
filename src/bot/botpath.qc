@@ -491,8 +491,6 @@ void() CheckWallStrafe =
 	traceline(probe_pt, probe_pt + (80 * v_right), TRUE, self);
 	local float frac_right = trace_fraction;
 	traceline(probe_pt, probe_pt - (80 * v_right), TRUE, self);
-	if (frac_right + trace_fraction >= 2)
-		return;
 
 	// Some weirdness is going on: for real players, optimal angle is about
 	// 8 degrees and will provide 150% speed boost up to 480u/s. For bots it
@@ -500,7 +498,11 @@ void() CheckWallStrafe =
 	// achieve 150%, but requires 11.5 degree angle.  In QW, the best we can
 	// get is 140% at 15deg angle, but tends to vary more.  To keep things
 	// more or less consistent between engines, use 15 degrees at all times.
-	if (trace_fraction < frac_right)
+	if (frac_right + trace_fraction >= 2)
+	{
+		self.wallstrafe_key = FORWARD;
+	}
+	else if (trace_fraction < frac_right)
 	{
 		self.wallstrafe_key = FORWARD_LEFT;
 		angles_y = angles_y + 15;
@@ -514,6 +516,10 @@ void() CheckWallStrafe =
 	makevectors(angles);
 	self.wallstrafe_dir = v_forward;
 	self.wallstrafe_deadline = time + 3;
+	// Apply the new key immediately. Otherwise it could take several more
+	// frames before BestArrowForDirection first sets it, and this can cause
+	// problems in borderline cases.
+	self.arrow = self.wallstrafe_key;
 }
 
 /*
