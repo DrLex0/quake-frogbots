@@ -149,8 +149,8 @@ void() Calc_G_time_path =
 Calc_G_time_1
 
 Start of path calculations.
-m and m_2 must point to last_marker
-before invoking this for the first time!
+Loops over all markers and sets up things based on waypoint info.
+m and m_2 must point to last_marker before invoking this for the first time!
 ============
 */
 void() Calc_G_time_1 =
@@ -183,6 +183,14 @@ void() Calc_G_time_1 =
 		else if (pointcontents(m.absmin) == CONTENT_LAVA)
 		{
 			m.T = m.T | T_HOTMAGMA;
+		}
+
+		// Force doors open. TODO extend to other triggerable things.
+		if (m.T & T_FIRE_ON_MATCH_START)
+		if (m.classname == "door")
+		{
+			setorigin (m, m.pos2);
+			m.pos1 = m.pos2;
 		}
 
 		m = m.marker_linkrev;

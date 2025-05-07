@@ -193,6 +193,10 @@ void() func_plat =
 	self.state = STATE_BOTTOM;
 
 	self.oldorigin = self.origin;
+#ifdef MANUAL
+	// Allow restoring when toggling T_FIRE_ON_MATCH_START in waypoint tool
+	self.prev_origin = self.pos1;
+#endif
 
 	self.targetname = "";
 

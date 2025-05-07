@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Convert KTX .bot waypoint files into Frogbot v2 files
 (TODO: also do conversion in other direction).
-2025-03, Alexander Thomas aka DrLex.
+2025-03/2025-05, Alexander Thomas aka DrLex.
 
 Released under GPL license."""
 
@@ -17,17 +17,22 @@ KTX_PATHF_TO_V2 = {
     "r": 512,  # rocket jump
     "j": 1024,  # jump ledge
     "w": 2,  # waterjump: treat as focused path
-    "v": 0,  # vertical platform, platform handling in v2 frogbot is automatic
+    "v": 0,  # vertical platform, redundant: platform handling in v2 frogbot is automatic
     "a": 0,  # curljump hint, not sure what it's for
 }
 
 KTX_MARKF_TO_V2 = {
     "u": 1,  # unreachable
     "6": -6,  # is dm6_door
-    "f": 0,  # fire on match start, is hard-coded logic in v2 frogbot
-    "b": 0,  # blocked on STATE_TOP, TODO I might still implement this
-    "t": 0,  # door touchable, not sure what it's for
-    "e": 0,  # escape route, not sure what it's for
+    "f": 128,  # fire on match start, only for 'door' in v2 frogbot, rest is hard-coded logic.
+    # BLOCKED_ON_STATE_TOP: confusing name, actually means door is closed when in STATE_TOP, not
+    # that it is forced to be in that state. TODO might implement this if need arises.
+    "b": 0,
+    # DOOR_TOUCHABLE: not sure why it exists, is practically inverse of untouchable. This makes it
+    # difficult to convert, so let's just ignore it; doors/platforms will have to be manually
+    # checked while converting waypoints.
+    "t": 0,
+    "e": 0,  # escape route, not implemented and I doubt the need for it
     "n": 64,  # untouchable
 }
 
@@ -35,10 +40,12 @@ V2_PATHF_TO_KTX = {
     1: "",  # just GO
     2: "",  # focused
     4: "",  # exclusive door (pseudo)
+    8: "",  # wall strafe jump
     128: "",  # precise jump
     256: "6",  # dm6 door
     512: "r",  # rocket jump
     1024: "j",  # jump ledge
+    2048: "",  # slow down
 }
 
 V2_MARKF_TO_KTX = {
@@ -48,7 +55,10 @@ V2_MARKF_TO_KTX = {
     8: "",  # want biosuit
     16: "",  # narrow
     32: "",  # wait lift
+    # In theory any door-like marker that does not have this flag should get a "t", but
+    # this is all very unclear, again should be manually verified after conversion.
     64: "n",  # untouchable
+    128: "f",  # fire on match start
 }
 
 
@@ -73,6 +83,7 @@ def ktx_to_frog2(
     code_lines = in_stream.readlines()
     section = 0
     item_count = 0
+    mode: int = 0
     print(f"void() map_{map_name} =\n{{", file=out_stream)
     for (i, line) in enumerate(code_lines):
         if section == 0:
@@ -105,7 +116,7 @@ def ktx_to_frog2(
         elif mat := re.match(r"^SetMarkerPathFlags (\d+) (\d+) (.+)", line):
             path_mode = 0
             for flag in list(mat.group(3)):
-                mode: int = KTX_PATHF_TO_V2.get(flag, 0)
+                mode = KTX_PATHF_TO_V2.get(flag, 0)
                 if not mode:
                     print(f"Skipping path mode flag {flag};", file=sys.stderr)
                 path_mode += mode
@@ -118,7 +129,7 @@ def ktx_to_frog2(
         elif mat := re.match(r"^SetMarkerFlag (\d+) (.+)", line):
             mark_mode = 0
             for flag in list(mat.group(2)):
-                mode: int = KTX_MARKF_TO_V2.get(flag, 0)
+                mode = KTX_MARKF_TO_V2.get(flag, 0)
                 if not mode:
                     print(f"Skipping marker mode flag {flag};", file=sys.stderr)
                 elif mode == -6:

@@ -133,6 +133,11 @@ void() func_button =
 
 	self.pos1 = self.origin;
 	self.pos2 = self.pos1 + self.movedir*(fabs(self.movedir*self.size) - self.lip);
+#ifdef MANUAL
+	// Allow restoring when toggling T_FIRE_ON_MATCH_START in waypoint tool
+	self.oldorigin = self.origin;
+	self.prev_origin = self.pos1;
+#endif
 
 	if (self.wait < 0)
 	{

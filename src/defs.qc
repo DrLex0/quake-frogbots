@@ -1647,15 +1647,16 @@ float T_WANTSUIT			= 8;
 float T_NARROW				= 16;
 float T_WAITLIFT			= 32;
 float T_NOTOUCH				= 64;
+float T_FIRE_ON_MATCH_START		= 128;
 // Bits to be saved in waypoint code: sum of all the above
-float SAVED_T				= 127;
+float SAVED_T				= 255;
 
 // auto set values
-float T_LIQUID				= 128;
-float T_NO_AIR				= 256;
-float T_BIOHZD				= 512;
+float T_LIQUID				= 256;
+float T_NO_AIR				= 512;
+float T_BIOHZD				= 1024;
 // You forget, Scott. We're in a volcano. We're surrounded by liquid hot magma.
-float T_HOTMAGMA			= 1024;
+float T_HOTMAGMA			= 2048;
 
 // Whether map provides biosuit or pentagram (regardless of powerups disabled).
 // Used to decide whether to avoid paths in slime or not. Waypoints for a map

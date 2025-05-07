@@ -393,6 +393,11 @@ void() func_door =
 		self.pos2 = self.pos1;
 		self.pos1 = self.origin;
 	}
+#ifdef MANUAL
+	// Allow restoring when toggling T_FIRE_ON_MATCH_START in waypoint tool
+	self.oldorigin = self.origin;
+	self.prev_origin = self.pos1;
+#endif
 
 	self.nextthink = self.ltime + 0.001;
 
@@ -720,6 +725,11 @@ void () func_door_secret =
 		self.pos1 = self.origin + v_right * (self.t_width * (1 - (self.spawnflags & SECRET_1ST_LEFT)));
 		
 	self.pos2 = self.pos1 + v_forward * self.t_length;
+#ifdef MANUAL
+	// Allow restoring when toggling T_FIRE_ON_MATCH_START in waypoint tool
+	self.oldorigin = self.origin;
+	self.prev_origin = self.pos1;
+#endif
 
 	if (self.spawnflags & SECRET_OPEN_ONCE)
 	{
@@ -782,13 +792,13 @@ void () func_door_secret =
 		SetFrB_Props(self);
 	}
 
-// DOOR_OPEN for maps
-// FIXME this is really ugly and should somehow be specified by the map waypoint file
-// but it looks like at least some of these can use the improved dm6_door handling!
+// DOOR_OPEN for maps obsolete hard-coded junk
+// FIXME set T_FIRE_ON_MATCH_START on relevant markers when migrating these waypoints.
+// Looks like at least some of these can use the improved dm6_door handling!
 
 	if (mapname == "dakdm1" ||
 	    mapname == "naked7b2" || mapname == "naked6" ||
-	    mapname == "e1m6" || mapname == "e1m5" || mapname == "egyptele" ||
+	    mapname == "e1m6" || mapname == "egyptele" ||
 	    mapname == "damaul2" || mapname == "filthy")
 	{
 		setorigin (self, self.pos2);

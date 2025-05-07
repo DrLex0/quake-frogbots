@@ -528,6 +528,12 @@ As you can see, pretty complicated, but having bots open these doors and obtain 
 (It should be possible to simplify this whole system because it is overly complicated and needlessly constrained. The bot should simply shoot at doors (or secret switches that open doors) whenever it wants to go through them while the door is closed. There is no need to tie this to specific items or zones.)
 
 
+### Disabling doors/platforms
+
+If a map has a door or platform the bot cannot handle, but it is important for the bot to be able to traverse it, then the door/platform can be forced to be always open/active. Currently this may be necessary for things that require shooting a trigger, because this is not yet implemented for anything else than a single `dm6`-like door.  
+To force a door or platform in its open/active state, set display mode to `type` with the `Z` key, then select `force node activated` mode with the `V` key, and right-click the marker (`NOCLIP` and closest marker mode will make it easier to select the correct marker, which may be inside a wall). The marker should then usually also be made untouchable.
+
+
 ### Become a Frogbot
 Last but not least, you may have noticed the `F4` key which is bound to `TOGGLE FROGBOT`, and it does exactly that. Not only is this very cool because you can actually look through the eyes of a bot, it is also _tremendously useful_ to test how the bot will behave from a certain starting point and configuration in the map. Mistakes in waypoints can be easily spotted by enabling this and watching the bot do its thing.
 

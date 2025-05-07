@@ -1758,6 +1758,28 @@ void() ToggleOneWayMode =
 	}
 };
 
+void() UpdateFireOnStart =
+{
+	if (type_mode & T_FIRE_ON_MATCH_START)
+	{
+		if (active_marker.classname == "door")
+		{
+			setorigin (active_marker, active_marker.pos2);
+			active_marker.pos1 = active_marker.pos2;
+		}
+	}
+	else if(! type_mode)
+	{
+		if (active_marker.classname == "door")
+		if (active_marker.T & T_FIRE_ON_MATCH_START)
+		{
+			active_marker.pos1 = active_marker.prev_origin;
+			active_marker.origin = active_marker.oldorigin;
+			setorigin (active_marker, active_marker.origin);
+		}
+	}
+}
+
 void() ToggleConnectMarkersMode =
 {
 	if (mode & DISPLAY_TYPE)
@@ -1768,9 +1790,11 @@ void() ToggleConnectMarkersMode =
 		{
 			active_marker.T = (active_marker.T | type_mode);
 			bprint("active marker type SET\n");
+			UpdateFireOnStart();
 		}
 		else
 		{
+			UpdateFireOnStart();
 			active_marker.T = active_marker.T - (active_marker.T & SAVED_T);
 			bprint("active marker type CLEARED\n");
 			UpdateBioHzd(active_marker);  // in case T_FORCESLIME was cleared on pre-loaded marker
@@ -1829,6 +1853,11 @@ void() CycleDescriptionMode =
 			bprint("want biosuit node ON\n");
 		}
 		else if (type_mode == T_WANTSUIT)
+		{
+			type_mode = T_FIRE_ON_MATCH_START;
+			bprint("force node activated ON\n");
+		}
+		else if (type_mode == T_FIRE_ON_MATCH_START)
 		{
 			type_mode = T_NOTOUCH;
 			bprint("untouchable node ON\n");
