@@ -1125,22 +1125,30 @@ void() DumpMarkerInfo =
 			bprint(" \"", m.FrB_ID, "\"");
 		bprint(";\n");
 
-		// PEBKAC protection
+		// PEBKAC protection.
 		if (m.P0.T & T_NOTOUCH)
+		if (!(m.D0 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P0.index), "\n");
 		if (m.P1.T & T_NOTOUCH)
+		if (!(m.D1 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P1.index), "\n");
 		if (m.P2.T & T_NOTOUCH)
+		if (!(m.D2 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P2.index), "\n");
 		if (m.P3.T & T_NOTOUCH)
+		if (!(m.D3 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P3.index), "\n");
 		if (m.P4.T & T_NOTOUCH)
+		if (!(m.D4 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P4.index), "\n");
 		if (m.P5.T & T_NOTOUCH)
+		if (!(m.D5 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P5.index), "\n");
 		if (m.P6.T & T_NOTOUCH)
+		if (!(m.D6 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P6.index), "\n");
 		if (m.P7.T & T_NOTOUCH)
+		if (!(m.D7 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P7.index), "\n");
 
 		count_ = count_ + 1;

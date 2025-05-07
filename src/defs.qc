@@ -1582,6 +1582,8 @@ float JUMP_LEDGE		= 1024;
 float SLOW_DOWN			= 2048;
 // Bits to be saved in waypoint code: all the above path modes together
 float SAVED_DESCRIPTION		= 3983;
+// Bits of all pseudo path modes
+float IS_PSEUDO_PATH	= 4;
 
 // auto set values
 float REVERSIBLE		= 16384;
