@@ -531,8 +531,12 @@ The ginormous bot decision logic when touching a new marker.
 */
 void() frogbot_marker_touch =
 {
+	// When the bot deliberately got airborne, ignore markers until landed.
+	// Perhaps we'll want to allow overriding this in certain cases with a marker type flag?
+	// At any rate, a sticky touch must not be ignored, bots may have jumped to activate a switch.
 	if (self.path_state & WAIT_GROUND)
 	if (!(self.flags & FL_ONGROUND))
+	if (!self.sticky_touch)
 		return;
 
 	if (LiftNeedsButton())
