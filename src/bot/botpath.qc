@@ -488,9 +488,9 @@ void() CheckWallStrafe =
 	makevectors(angles);
 	// Check whether nearest wall is to the left or right. This could be
 	// precomputed, but only has to happen very sporadically anyway.
-	traceline(probe_pt, probe_pt + (80 * v_right), TRUE, self);
+	traceline(probe_pt, probe_pt + (64 * v_right), TRUE, self);
 	local float frac_right = trace_fraction;
-	traceline(probe_pt, probe_pt - (80 * v_right), TRUE, self);
+	traceline(probe_pt, probe_pt - (64 * v_right), TRUE, self);
 
 	// Some weirdness is going on: for real players, optimal angle is about
 	// 8 degrees and will provide 150% speed boost up to 480u/s. For bots it
