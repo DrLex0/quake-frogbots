@@ -50,6 +50,7 @@
 #include "maps/trinca/map_trindm2.qc"
 #include "maps/trinca/map_ukpak2.qc"
 #include "maps/trinca/map_utressor.qc"
+#include "maps/trinca/map_ztndm4.qc"
 #include "maps/trinca/map_ztndm6.qc"
 
 void() SprintMaps =
@@ -71,7 +72,7 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      start        thf        tox\n");
 	sprint_fb(self, 2, "     tridm2    trindm2     ukpak2\n");
 	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
-	sprint_fb(self, 2, "     ztndm6\n");
+	sprint_fb(self, 2, "     ztndm4     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -326,6 +327,11 @@ float() LoadWaypoints =
 		map_utressor();
 		return TRUE;
 	}
+	if (mapname == "ztndm4")
+	{
+		map_ztndm4();
+		return TRUE;
+	}
 	if (mapname == "ztndm6")
 	{
 		map_ztndm6();
@@ -441,6 +447,8 @@ string(string mname) MapHasWaypoints =
 		return "ukpak2";
 	if (mname == "utressor")
 		return "utressor";
+	if (mname == "ztndm4")
+		return "ztndm4";
 	if (mname == "ztndm6")
 		return "ztndm6";
 	if (mname == "tridm2")
