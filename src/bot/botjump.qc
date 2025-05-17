@@ -350,10 +350,15 @@ void() SpecialAccurateMoves =
 	}
 	NewVelocityForArrow();
 	if (!(self.path_state & PRECISE_JUMP))
-		return;	
+		return;
 
 	if (touch_dist > 48)  // Only jump when close enough
 		return;
+	local vector d_dest = origin_ - (linked_marker_.absmin + linked_marker_.view_ofs);
+	if (vlen(d_dest) <= 32)
+	if (fabs(d_dest_z) < 1)  // but not when already at the destination waiting for marker touch
+		return;
+
 	if (self.path_state & SLOW_DOWN)
 	{
 		if (vlen(self.velocity) > 150)  // and not moving too fast

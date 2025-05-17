@@ -203,6 +203,8 @@ void() AvoidHazards =
 		{
 			rel_pos = (linked_marker_.absmin + linked_marker_.view_ofs) - self.origin;
 			jumpspeed = new_velocity_z + JUMPSPEED;
+			if (vlen(rel_pos) > 48)
+			if (fabs(rel_pos_z) > 1)  // stop jumping when near destination
 			if ((jumpspeed * jumpspeed * 0.000625) >= rel_pos_z)
 			{
 				self.button2_ = TRUE;
