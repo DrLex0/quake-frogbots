@@ -594,7 +594,7 @@ void() SetFrogbotAngles =
 {
 	if (self.wallstrafe_key)
 	{
-		rel_pos = self.wallstrafe_dir;
+		rel_pos = self.wallstrafe_vec;
 		FrogTrackSimple();
 	}
 	else if (self.path_from_marker.look_here)

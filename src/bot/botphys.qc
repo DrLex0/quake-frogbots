@@ -482,26 +482,36 @@ void() FrogbotPrePhysics1 =
 	{
 		if (self.frogbot)
 		{
-			if (self.movetype == MOVETYPE_STEP)
-				ApplyFriction();
-		#ifdef QUAKE
-			else if (self.player)
+			if (self.wallstrafe_jump)
 			{
-				self.v_angle = self.stored_angle;
-				if (game_qwphysics)
+				// This is the easiest way to ensure bots are not disadvantaged compared to
+				// players. The fudge factor yields similar max speeds as for players.
+				self.velocity = 0.96 * self.wallstrafe_vec;
+				self.wallstrafe_jump = 0;
+			}
+			else
+			{
+				if (self.movetype == MOVETYPE_STEP)
+					ApplyFriction();
+			#ifdef QUAKE
+				else if (self.player)
 				{
-					if (self.waterlevel <= 1)
+					self.v_angle = self.stored_angle;
+					if (game_qwphysics)
 					{
-						if (DoubleFriction())
+						if (self.waterlevel <= 1)
 						{
-							self.velocity = self.postvelocity;
-							double_friction = FALSE;
-							DoFriction();
+							if (DoubleFriction())
+							{
+								self.velocity = self.postvelocity;
+								double_friction = FALSE;
+								DoFriction();
+							}
 						}
 					}
 				}
+			#endif
 			}
-		#endif
 
 			if (self.takedamage)
 			{

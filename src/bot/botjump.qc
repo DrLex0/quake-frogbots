@@ -278,10 +278,8 @@ void() SpecialAccurateMoves =
 		}
 		if (vlen(self.run_up_point - origin_) > 24)
 			return;
-		// Minor hack: restore velocity before friction, because especially in QW,
-		// wall strafe physics do not work as well for bots as for real players;
-		// this makes things a bit more fair.
-		self.velocity = self.oldvelocity;
+		self.wallstrafe_vec = self.velocity;  // See FrogbotPrePhysics1
+		self.wallstrafe_jump = 1;
 		self.wallstrafe_key = 0;
 		self.button2_ = 1;
 		self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;

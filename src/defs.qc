@@ -1615,7 +1615,8 @@ float SLOW_PRECISE			= 2176;
 // wallstrafe also uses run_up_point as target from where to jump
 .float wallstrafe_key;  // when not false, bot is wall strafing
 .float wallstrafe_deadline;
-.vector wallstrafe_dir;
+.float wallstrafe_jump;
+.vector wallstrafe_vec;  // either look angle, or velocity at moment of jump
 
 // runaway markers
 .entity RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7;

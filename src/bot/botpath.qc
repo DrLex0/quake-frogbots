@@ -514,7 +514,7 @@ void() CheckWallStrafe =
 	}
 	angles_x = angles_z = 0;
 	makevectors(angles);
-	self.wallstrafe_dir = v_forward;
+	self.wallstrafe_vec = v_forward;
 	self.wallstrafe_deadline = time + 3;
 	// Apply the new key immediately. Otherwise it could take several more
 	// frames before BestArrowForDirection first sets it, and this can cause

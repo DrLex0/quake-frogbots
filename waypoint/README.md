@@ -478,7 +478,7 @@ Bots at lower skill levels will execute this procedure more sloppily and have a 
 
 If no wall can be probed nearby the starting point of the path, the bot will run straight along the path and jump at the end, without speed boost. This could be an alternative for tricky jumps if there is not enough room for the bot to prepare for a precision jump.
 
-Note that this feature does not behave exactly the same as for real players. Bots are only able to achieve up to a 140% speed boost, and there are some subtle differences between Quake and QuakeWorld engines as well.
+Note that this feature does not behave exactly the same as for real players. Bots may be able to achieve slightly higher or lower speed boosts depending on the situation, and there are some subtle differences between Quake and QuakeWorld engines as well.
 
 
 ### Dealing with overlapping markers

@@ -34,7 +34,9 @@ The list of supported maps is currently much smaller than what used to be bundle
 
 The default mode is FFA, other modes are available. After loading a map, use the `addbot` and `removebot` commands to add or remove bots. Bots will be carried over when changing maps (if the next map is supported of course).
 
-If you want to change the skill level of the bots, you can use the `skilldown` and `skillup` commands, or impulses _114_ and _115_ respectively. The new skill level will only be applied to bots spawned afterwards, not to bots already active in the current game. This does mean you can mix bots of different skill levels in a single game. The simplest way to ensure all bots run at the adjusted skill level, is to reload the map.
+If you want to change the skill level of the bots, you can use the `skilldown` and `skillup` commands, or impulses _114_ and _115_ respectively. The new skill level will only be applied to bots spawned afterwards, not to bots already active in the current game. This means you can mix bots of different skill levels in a single game. The simplest way to ensure all bots run at the adjusted skill level, is to reload the map.
+
+The skill level required to make things a bit challenging, will depend on your own Quake experience, and it also tends to vary per map. Bots tend to be more challenging in smaller maps with multiple floors and teleports, and easier in maps with large open spaces. If you have never played Quake before, you may want to start at level 0 and gradually go up. Seasoned players may want to try level 10. It goes up to 20, at which point the bots have inhumanly fast aim and situational awareness. True hardcore Quake players may still be able to outwit level 20 bots by exploiting their limitations.
 
 As for running the `waypoint` tool to create or edit waypoints, see the README in the `waypoint` directory.
 
