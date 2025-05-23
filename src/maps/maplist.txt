@@ -14,6 +14,7 @@ drlex/map_burialb10.qc
 drlex/map_catalyst.qc
 drlex/map_hohoho2.qc
 drlex/map_tox.qc
+ktx/map_bravado.qc
 ktx/map_endif.qc
 ktx/map_monsoon.qc
 ktx/map_shifter.qc
