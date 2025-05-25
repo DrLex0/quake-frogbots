@@ -100,6 +100,14 @@ void() AddMissingBits =
 		ent.origin = '-310 -293 404';
 		ent.mangle = '25 32 0';
 	}
+	else if (mapname == "dmz1++")
+	{
+		setorigin(m48, '-448 697 -380');  // health pack in wall
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '-198 727 -190';
+		ent.mangle = '26 -115 0';
+	}
 	else if (mapname == "endif")
 	{
 		ent = spawn();

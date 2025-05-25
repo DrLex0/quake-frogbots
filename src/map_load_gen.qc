@@ -14,6 +14,7 @@
 #include "maps/map_ztndm3.qc"
 #include "maps/drlex/map_burialb10.qc"
 #include "maps/drlex/map_catalyst.qc"
+#include "maps/drlex/map_dmz1++.qc"
 #include "maps/drlex/map_hohoho2.qc"
 #include "maps/drlex/map_tox.qc"
 #include "maps/ktx/map_bravado.qc"
@@ -62,18 +63,19 @@ void() SprintMaps =
 	sprint_fb(self, 2, "   catalyst       cmt3       cmt4\n");
 	sprint_fb(self, 2, "       del1        dm3        dm4\n");
 	sprint_fb(self, 2, "     dm4ish        dm5        dm6\n");
-	sprint_fb(self, 2, "   dranzdm8       e1m2       e1m5\n");
-	sprint_fb(self, 2, "     efdm13      efdm8      endif\n");
-	sprint_fb(self, 2, "      eodm3      exdm3       four\n");
-	sprint_fb(self, 2, "   frobodm2   genocide    hohoho2\n");
-	sprint_fb(self, 2, "     lilith    monsoon    oktest1\n");
-	sprint_fb(self, 2, "      pkeg1    povdmm4    q3dm6qw\n");
-	sprint_fb(self, 2, "      rwild    schloss      shady\n");
-	sprint_fb(self, 2, "    shifter      shine      skull\n");
-	sprint_fb(self, 2, "    spinev2      start        thf\n");
-	sprint_fb(self, 2, "        tox     tridm2    trindm2\n");
-	sprint_fb(self, 2, "     ukpak2     ultrav   utressor\n");
-	sprint_fb(self, 2, "     ztndm3     ztndm4     ztndm6\n");
+	sprint_fb(self, 2, "     dmz1++   dranzdm8       e1m2\n");
+	sprint_fb(self, 2, "       e1m5     efdm13      efdm8\n");
+	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
+	sprint_fb(self, 2, "       four   frobodm2   genocide\n");
+	sprint_fb(self, 2, "    hohoho2     lilith    monsoon\n");
+	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
+	sprint_fb(self, 2, "    q3dm6qw      rwild    schloss\n");
+	sprint_fb(self, 2, "      shady    shifter      shine\n");
+	sprint_fb(self, 2, "      skull    spinev2      start\n");
+	sprint_fb(self, 2, "        thf        tox     tridm2\n");
+	sprint_fb(self, 2, "    trindm2     ukpak2     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3     ztndm4\n");
+	sprint_fb(self, 2, "     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -146,6 +148,11 @@ float() LoadWaypoints =
 	if (mapname == "catalyst")
 	{
 		map_catalyst();
+		return TRUE;
+	}
+	if (mapname == "dmz1++")
+	{
+		map_dmz1PLUSPLUS();
 		return TRUE;
 	}
 	if (mapname == "hohoho2")
@@ -381,6 +388,8 @@ string(string mname) MapHasWaypoints =
 		return "burialb10";
 	if (mname == "catalyst")
 		return "catalyst";
+	if (mname == "dmz1++")
+		return "dmz1++";
 	if (mname == "hohoho2")
 		return "hohoho2";
 	if (mname == "tox")

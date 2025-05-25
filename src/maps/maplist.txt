@@ -12,6 +12,7 @@ map_ultrav.qc
 map_ztndm3.qc
 drlex/map_burialb10.qc
 drlex/map_catalyst.qc
+drlex/map_dmz1++.qc
 drlex/map_hohoho2.qc
 drlex/map_tox.qc
 ktx/map_bravado.qc
