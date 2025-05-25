@@ -282,12 +282,13 @@ As stated above, you do not need to wait until the whole map is done. You can al
 
 The code that is spammed to the console when pressing `F1`, is actual QuakeC code that either needs to be added to the Frogbot source and then compiled, or converted into entity fields injected into a `.map` oor `.ent` file to embed the waypoint data in it.
 
-Find your console dump file (often called `condump.txt`) and extract the entire `void() map_mapname {…};` function from the end. Save this to a file called `map_mapname.qc`. The `mapname` must be all lowercase and correspond exactly to the actual map name that is also used for the `map` command.
+Find your console dump file (often called `condump.txt`) and extract the entire `void() map_mapname {…};` function from the end. Save this to a file called `map_mapname.qc`. The `mapname` must be all lowercase and correspond exactly to the actual map name that is also used for the `map` command.  
+If the map has `+` or `-` characters in its name, you must edit the `.qc` file and replace the characters in the line starting with `void() map_…`:
+- `+` must be replaced with `PLUS`;
+- `-` must be replaced with `DASH`.
 
-For the shell freaks, this bit of magic will extract the last waypoint code from the dump:
-```bash
-awk '/void\(\) map_.* =/ {found=NR} END {if (found) for (i=found; i<=NR; i++) print lines[i]} {lines[NR]=$0}' condump.txt
-```
+If you have an environment with `bash, awk, sed` and `perl,` a shell script **getmapdump.sh** is provided that can extract the dump from a Quake log file straight into a new or existing `.qc` file (assuming the dump is the very last part of the log, with nothing coming after it).
+
 Ensure no unwanted newlines are introduced in the code: lines must _only_ be split after a `;`.  
 You _can_ manually edit the waypoint code, like adding a goal or path mode you forgot, removing unwanted paths or path modes, or fixing other things. The format is straightforward.
 

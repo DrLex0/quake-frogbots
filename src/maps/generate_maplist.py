@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the maplist and/or QuakeC code for v2 FrogBot.
 Also acts as a conversion tool for old waypoint files.
-2024-12/2025-04, Alexander Thomas aka DrLex.
+2024-12/2025-05, Alexander Thomas aka DrLex.
 
 Released under GPL license."""
 
@@ -17,6 +17,12 @@ GENERATE_QC = "map_load_gen.qc"
 # SprintMaps() formatting
 COLUMNS = 3
 COL_WIDTH = 10
+
+# For QuakeC-friendly function names
+SAFE_MAP_STRINGS = {
+    '+': 'PLUS',
+    '-': 'DASH',
+}
 
 
 def mapname_from_path(path: str) -> str:
@@ -105,6 +111,11 @@ def load_map_aliases(path: str, map_names: list[str]) -> dict[str, list[str]]:
     return result
 
 
+def quakecify_mapname(mapname: str) -> str:
+    """Inefficient but effective transformation of map name to QuakeC-safe function name string"""
+    return ''.join(SAFE_MAP_STRINGS.get(char, char) for char in mapname)
+
+
 def generate_qc_source(args: argparse.Namespace) -> None:
     """Generates a QC source file ../{GENERATE_QC} for maps listed in args.list_file
     and aliases in args.alias_file."""
@@ -142,7 +153,7 @@ def generate_qc_source(args: argparse.Namespace) -> None:
 
         print("float() LoadWaypoints =\n{", file=qc_file)
         for map_name in map_names:
-            actual_map = reverse_aliases.get(map_name, map_name)
+            actual_map = quakecify_mapname(reverse_aliases.get(map_name, map_name))
             print(
                 f"""\tif (mapname == "{map_name}")
 \t{{
