@@ -16,6 +16,7 @@ float(entity me) near_teammate;
 
 // Moving in right direction to rocket-jump or precise jump?
 // If not, dir_move can be used to adjust direction.
+// rel_pos will contain vector to destination.
 // Argument is maximum allowed deviation angle.
 float(float max_angle) right_direction =
 {
@@ -24,7 +25,8 @@ float(float max_angle) right_direction =
 
 	dir_move = normalize(self.oldvelocity);  // before physics
 	current_dir = vectoyaw(dir_move);
-	dir_move = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	rel_pos = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	dir_move = rel_pos;
 	dir_move_z = 0;
 	dir_move = normalize(dir_move);
 	wish_dir = vectoyaw(dir_move);
@@ -229,18 +231,19 @@ void() a_rocketjump =
 		return;
 	if (!checkground())
 		return;
-	if (!right_direction(60 + 30 * self.bot_inaccuracy))
+	if (!right_direction(50 + 40 * self.bot_inaccuracy))
 	{
 		NewVelocityForArrow();
 		return;
 	}
+	// Now dir_move contains the optimal horizontal direction, and rel_pos the vector to the target
 	NewVelocityForArrow();
 	if (self.items & IT_QUAD)
 	{
 		// Regular RJ logic would totally fail with Quad power, cheat a bit.
 		// Could consider using this same system for regular RJs as well on
 		// highest skill levels where the bot is expected to cheat.
-		dir_move = normalize(linked_marker_.absmin + linked_marker_.view_ofs - origin_);
+		dir_move = normalize(rel_pos);
 		local vector dest_angles = vectoangles(dir_move);
 		new_pitch = dest_angles_x + 12;  // aim a bit higher to help with (l)edges
 		if (new_pitch > 78.75)
@@ -253,6 +256,18 @@ void() a_rocketjump =
 	}
 	else
 	{
+		// Crude heuristics to avoid jumps doomed to fail. Might be improved,
+		// although we will not want to do calculations involving sqrt() here.
+		// Maybe also reduce speed for very short distances, although I haven't
+		// seen any situations yet where this would help.
+		rel_pos_z = 0;
+		rel_dist = vlen(rel_pos);
+		local float velo = vlen(self.velocity);
+		if (velo < 140)
+			return;
+		if (velo < sv_maxspeed)
+		if (rel_dist / velo > 1.5)
+			return;
 		new_pitch = 78.75;
 	}
 	self.real_pitch = new_pitch;
@@ -263,6 +278,7 @@ void() a_rocketjump =
 	self.impulse = 7;
 	self.button0_ = 1;
 	self.button2_ = 1;
+	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 };
 
 // Accurate jumps and/or slow moves  -- DrLex
@@ -335,15 +351,11 @@ void() SpecialAccurateMoves =
 		if (touch_dist < 80)
 			self.precise_speed = 120;
 		else if (touch_dist < 140)
-			self.precise_speed = 200;
-		// don't need to be as accurate while moving slowly as at full speed
-		if (!right_direction(50))
 		{
-			NewVelocityForArrow();
-			return;
+			self.precise_speed = 200;
 		}
 	}
-	else if (!right_direction(20 + 20 * self.bot_inaccuracy))
+	if (!right_direction(20 + 20 * self.bot_inaccuracy))
 	{
 		NewVelocityForArrow();
 		return;
@@ -352,7 +364,7 @@ void() SpecialAccurateMoves =
 	if (!(self.path_state & PRECISE_JUMP))
 		return;
 
-	if (touch_dist > 48)  // Only jump when close enough
+	if (touch_dist > 40)  // Only jump when close enough
 		return;
 	local vector d_dest = origin_ - (linked_marker_.absmin + linked_marker_.view_ofs);
 	if (vlen(d_dest) <= 32)
@@ -371,6 +383,13 @@ void() SpecialAccurateMoves =
 	// Make the jump increasingly perfect with increasing bot skill level
 	self.velocity = (self.bot_inaccuracy * self.velocity) + 
 		(1.0 - self.bot_inaccuracy) * vlen(self.velocity) * dir_move;
+	if (!(self.path_state & SLOW_DOWN))
+	{
+		// For some reason, bots are unable to bridge the widest gaps that players can
+		// still traverse. I gave up trying to figure out what causes this, and just
+		// slap a fudge factor onto the velocity to compensate.
+		self.velocity = 1.25 * self.velocity;
+	}
 	self.button2_ = 1;
 	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 };

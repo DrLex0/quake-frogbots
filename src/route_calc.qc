@@ -297,7 +297,17 @@ float() TravelTime =
 		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxwaterspeed));
 	}
 	else
-		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
+	{
+		if (m_D & WALL_STRAFE)
+		{
+			// Make the bot prefer a WSJ shortcut to an equally long path
+			traveltime = 0.8 * ((vlen(m_P_pos - m_pos) / sv_maxspeed));
+		}
+		else
+		{
+			traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
+		}
+	}
 
 	/* Path calculation modulation hocus pocus -- DrLex
 	 * Add excessive times to paths that require an extra condition
