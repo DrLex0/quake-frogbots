@@ -83,6 +83,14 @@ AddMissingBits
 Hard-coded fixes for certain maps, mostly missing intermission cameras
 ============
 */
+void(entity it, vector offset) MoveItem =
+{
+	it.origin = it.origin + offset;
+	setorigin(it, it.origin);
+	it.virtual_mins = it.virtual_mins + offset;
+	it.virtual_maxs = it.virtual_maxs + offset;
+}
+
 void() AddMissingBits =
 {
 	local entity ent;
@@ -102,11 +110,15 @@ void() AddMissingBits =
 	}
 	else if (mapname == "dmz1++")
 	{
-		setorigin(m48, '-448 697 -380');  // health pack in wall
+		MoveItem(m48, '15 0 6');  // health pack in wall
 		ent = spawn();
 		ent.classname = "info_intermission";
 		ent.origin = '-198 727 -190';
 		ent.mangle = '26 -115 0';
+	}
+	else if (mapname == "e1m4")
+	{
+		MoveItem(m20, '0 0 -444');  // YA does not drop down with platform
 	}
 	else if (mapname == "endif")
 	{
