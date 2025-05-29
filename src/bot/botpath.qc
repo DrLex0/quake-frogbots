@@ -424,7 +424,7 @@ float() WaitOnLift =
 			self.state = self.state - HELP_TEAMMATE;
 	}
 
-	// check if fully on lift - if not then continue moving to linked_marker_
+	// check if fully on lift - if not then continue moving to its center
 	if (self.absmin_x >= touch_marker_.absmin_x)
 	if (self.absmax_x <= touch_marker_.absmax_x)
 	if (self.absmin_y >= touch_marker_.absmin_y)
@@ -433,7 +433,14 @@ float() WaitOnLift =
 		WaitAtTouchMarker();
 		return TRUE;
 	}
-	return FALSE;
+	dir_move = 0.5 * (touch_marker_.absmin + touch_marker_.absmax) - self.origin;
+	dir_move_z = 0;
+	if(vlen(dir_move) > 4)
+	{
+		dir_move = normalize(dir_move);
+		NewVelocityForArrow();
+	}
+	return TRUE;
 };
 
 /*
