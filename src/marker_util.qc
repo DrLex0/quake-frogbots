@@ -182,8 +182,16 @@ void(float prioritize) check_marker =
 	{
 		if (distance > other.touch_distance)
 			return;
-		if (self.absmin_z - 20 >= other.absmin_z)
-			return;
+		// Do not touch markers higher up than the maximum step size that
+		// can be ascended without a jump; unless we're swimming.
+		// Mind that player/bot absmin_z seems to be 1u lower than the actual floor.
+		if (self.absmin_z - 19 > other.absmin_z)
+		{
+			if (!(self.T & T_LIQUID))
+				return;
+			if (other.waterlevel < 3)
+				return;
+		}
 
 		// Give priority to the path destination if it (nearly) overlaps with
 		// the current marker. Otherwise bots may get stuck waiting on a touch
