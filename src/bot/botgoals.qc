@@ -428,6 +428,9 @@ void() UpdateGoal =
 
 	if (best_goal)
 	{
+#ifdef DEBUG_GOALS
+		dprint("   best_score ", ftos(best_score), " for ", best_goal.classname, "\n");
+#endif
 		best_goal_desire = best_goal.saved_goal_desire;
 		best_goal.saved_goal_desire = 0;	// don't pick twice
 		best_goal_time = best_goal.saved_goal_time;
@@ -548,6 +551,9 @@ void() UpdateGoal =
 				EvalGoal2();
 			goal_entity = find(goal_entity, classname, "dynamic_item");
 		}
+#ifdef DEBUG_GOALS
+		dprint("   best_score2 ", ftos(best_score2), " for ", best_goal2.classname, "\n");
+#endif
 
 		goalentity_ = self.goalentity = best_goal2;
 		self.goal_respawn_time = time + best_goal2.saved_respawn_time;

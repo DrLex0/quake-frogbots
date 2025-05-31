@@ -546,6 +546,9 @@ void() frogbot_marker_touch =
 	if (!self.sticky_touch)
 		return;
 
+#ifdef DEBUG_TOUCH
+	dprint("FBMT m", ftos(touch_marker_.index), "; Lm", ftos(linked_marker_.index), "\n");
+#endif
 	if (LiftNeedsButton())
 		return;
 

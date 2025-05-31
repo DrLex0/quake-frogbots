@@ -160,6 +160,9 @@ float() BotAntiFreeze =
 	}
 	else if(time > self.stuck_deadline)
 	{
+#ifdef DEBUG_HAZD
+		dprint("AntiFreeze\n");
+#endif
 		if (self.velocity == '0 0 0')
 		{
 			dir_move_x = random() - 0.5;
@@ -603,6 +606,9 @@ void() AvoidEdge =
 {
 	if (self.path_state & JUST_GO)
 		return;
+#ifdef DEBUG_HAZD
+	dprint("AvoidEdge\n");
+#endif
 	dir_forward = oldvelocity_;
 	dir_forward_z = 0;
 
