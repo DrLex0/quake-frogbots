@@ -86,6 +86,11 @@ void() EvalGoal =
 			return;
 		}
 
+		if(goal_entity.G_ == 1)
+			goal_desire = goal_desire * desire_adj_G1;
+		else if(goal_entity.G_ == 2)
+			goal_desire = goal_desire * desire_adj_G2;
+
 		from_marker = touch_marker_;
 		to_marker = goal_entity.touch_marker;
 		to_marker.zone_marker();
@@ -208,6 +213,11 @@ void() EvalGoal2 =
 
 		if (goal_time2 <= 5)
 		{
+			if(goal_entity.G_ == 1)
+				goal_desire = goal_desire * desire_adj_G1;
+			else if(goal_entity.G_ == 2)
+				goal_desire = goal_desire * desire_adj_G2;
+
 			goal_marker2 = goal_entity.touch_marker;
 
 		// first goal_entity, then best_goal

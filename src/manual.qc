@@ -1076,6 +1076,10 @@ void() SavePaths =
 	}
 	else
 	{
+		if (desire_adj_G1 != 1)
+			bprint("desire_adj_G1=", ftos(desire_adj_G1), ";\n");
+		if (desire_adj_G2 != 1)
+			bprint("desire_adj_G2=", ftos(desire_adj_G2), ";\n");
 		bprint("};\n/* MarkerInfo\n");
 		m = first_marker;
 		self.think = DumpMarkerInfo;

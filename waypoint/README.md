@@ -191,6 +191,7 @@ These steps do not need to be done in this exact order, but you will typically g
      * 24 `item_shells`
    - To help with avoiding overlapping goals, the `,` key cycles between items that share the same goal number, when an item with assigned goal is active. Otherwise it prints the lowest unused goal number.
    - It is possible and valid to assign _no goal at all_ to items. This will _not_ make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a particular Quad or invisibility is too risky and makes the bot an easy target.
+   - If need be, the desire for goals G1 and G2 _can_ be adjusted, see the Advanced section.
 
 5. Go to another zone and repeat steps 1 to 5.
 
@@ -489,6 +490,19 @@ Some maps have markers at the exact same coordinates. I consider this _bad pract
 - In general, _you should not make a path between overlapping markers._ Although the v2 Frogbot has some protections against this, connecting such markers may cause the bot to get temporarily stuck. It makes no sense anyway, there is no path to follow between things at the same coordinates. Just connect both markers to neighbouring markers in the same way (unless one is a spawn, then it should only have outgoing paths).
 - The same goes for markers that do not exactly overlap, but are still very close to each other. If you notice bots getting stuck or yo-yoing between such markers, try removing the connections between them and give them the same incoming and outgoing paths.
 - If an overlapping marker is not an item that can be picked up, it may be better to just make it untouchable (see above).
+
+
+### Overriding goal desires
+
+Frogbot logic for determining the next best item to pick up is pretty complicated. It takes into account a set of hard-coded preferences, the currently owned items, and last but not least, _distance_ to the item. As mentioned before, the bot's preference for items can be tweaked in a very limited way by giving them a different goal numbers. However, there may be cases where the bot simply never decides to fetch a certain item even if it has G1, because it requires taking a rather long detour. An example is the rocket launcher in `dm3`.
+
+To allow working around this, variables `desire_adj_G1` and `desire_adj_G2` are available to tweak desirability of goals G1 and G2. Their default value is 1.0 which means no adjustment. Values above 1.0 make the goal more desirable, below 1.0 less. Finding the right value is a matter of experimenting. Gradually increase the value until the bot starts to take the detour to pick up the item. Don't overdo it, or the bot will become obsessed with the item.  
+The inverse is also possible: values below 1.0 can be used to make the bot less obsessed by a certain item. This is generally not needed. When testing with only a single bot, it may seem overly eager to obtain red armour, but this is often due to the fact that the bot has nothing else to do. Only if you notice during actual games that bots still flock to the RA, its desirability may need to be scaled down.
+
+To modify these variables, add their assignments to the end of the dumped map code, right before the closing “`};`.” Example:
+```
+desire_adj_G1 = 1.6;
+```
 
 
 ### Setting up a shootable door

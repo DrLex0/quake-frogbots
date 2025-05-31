@@ -57,6 +57,9 @@ void() LoadMap =
 	// must be overridden in the waypoint code.
 	door_targetZ = 1;
 
+	// For tweaking desirability of G1 and/or G2, value is a multiplication factor
+	desire_adj_G1 = desire_adj_G2 = 1;
+
 	// For QuakeC n00bs like me:
 	// never do if(clause1 || function()); function is _always_ evaluated.
 	if (has_embedded_wp)

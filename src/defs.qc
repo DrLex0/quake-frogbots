@@ -1676,6 +1676,9 @@ entity dm6_door;
 float door_open_dist;
 float door_targetZ;
 
+float desire_adj_G1;
+float desire_adj_G2;
+
 // state values for clients
 float NOTARGET_ENEMY			= 32;
 float AWARE_SURROUNDINGS		= 128;
@@ -2474,6 +2477,8 @@ float has_embedded_wp;
 .string FrB_door;   // maps to entity dm6_door
 .string FrB_doorD;  // maps to float door_open_dist
 .string FrB_doorZ;  // maps to float door_targetZ
+.string FrB_adj_G1; // maps to desire_adj_G1
+.string FrB_adj_G2; // maps to desire_adj_G2
 // markers
 .string FrB_ID;
 .string FrB_Z;

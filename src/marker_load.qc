@@ -288,7 +288,10 @@ void() ApplyFrB_props =
 	}
 	LSQ();
 
-	// Maybe this should split up with think to avoid a DoS on the engine?
+	// UNTESTED on any realistic map, only on a small test map.
+	// It is possible this will crash on larger maps due to too many operations
+	// in a single function call. In that case it will have to be split up into
+	// chunks with nextthink logic.
 	mk = last_marker;
 	while(mk)
 	{
@@ -321,4 +324,8 @@ void() ApplyFrB_props =
 		door_open_dist = stof(world.FrB_doorD);
 	if (world.FrB_doorZ != "")
 		door_targetZ = stof(world.FrB_doorZ);
+	if (world.FrB_adj_G1 != "")
+		desire_adj_G1 = stof(world.FrB_adj_G1);
+	if (world.FrB_adj_G2 != "")
+		desire_adj_G2 = stof(world.FrB_adj_G2);
 }
