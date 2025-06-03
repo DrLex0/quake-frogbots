@@ -28,6 +28,7 @@ trinca/map_bsdm6.qc
 trinca/map_cmt3.qc
 trinca/map_cmt4.qc
 trinca/map_del1.qc
+trinca/map_dm1.qc
 trinca/map_dm4ish.qc
 trinca/map_dm5.qc
 trinca/map_dranzdm8.qc
