@@ -35,6 +35,26 @@ void() InvalidMap =
 
 /*
 ============
+CountMapEdicts
+
+Sets num_map_load_edicts to the number of non-null edicts
+============
+*/
+void() CountMapEdicts =
+{
+	local entity e;
+	e = nextent(world);
+	num_map_load_edicts = 0;
+	while (e)
+	{
+		if (e.classname)
+			num_map_load_edicts = num_map_load_edicts + 1;
+		e = nextent(e);
+	}
+};
+
+/*
+============
 LoadMap
 
 ============
@@ -74,8 +94,8 @@ void() LoadMap =
 	}
 
 	SetUpItems();
-
 	AddMissingBits();
+	CountMapEdicts();
 };
 
 

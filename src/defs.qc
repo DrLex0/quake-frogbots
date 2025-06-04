@@ -1727,6 +1727,7 @@ float marker_index;
 float item_marker_index;
 entity first_extra_marker;  // world if no extra markers yet
 float que_size;
+float num_map_load_edicts;
 entity m, m_2;
 vector m_pos, m_2_pos;
 vector m_P_pos;
@@ -2266,6 +2267,7 @@ float zone_time;
 float real_yaw_;
 entity bubble;
 entity bubble_spawner;
+float total_bubbles;
 vector org_;
 float rnd1;
 float rnd2;

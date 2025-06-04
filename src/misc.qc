@@ -311,7 +311,10 @@ void() bubble_bob =
 {
 	self.aflag = self.aflag + 1;
 	if (self.aflag == 14)
+	{
+		total_bubbles = total_bubbles - 1;
 		remove_self();
+	}
 	else
 	{
 		if (self.aflag == 4)

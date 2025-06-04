@@ -387,29 +387,37 @@ void() player_die_ax1;
 
 void() DeathBubblesSpawn =
 {
-	if (self.owner.waterlevel == 3)
+	if (self.owner.waterlevel != 3)
 	{
-		bubble = spawn();
-		setmodel (bubble, "progs/s_bubble.spr");
-		setorigin (bubble, self.owner.origin + '0 0 24');
-		bubble.movetype = MOVETYPE_NOCLIP;
-		bubble.velocity = '0 0 15';
-		bubble.nextthink = time + 0.5;
-		bubble.think = bubble_bob;
-		setsize (bubble, '-8 -8 -8', '8 8 8');
-		self.nextthink = time + 0.1;
-		self.think = DeathBubblesSpawn;
-		self.air_finished = self.air_finished + 1;
-		if (self.air_finished >= self.bubble_count)
-			remove_self();
+		remove_self();
+		return;
 	}
+	if (total_bubbles > 48)
+	{
+		remove_self();
+		return;
+	}
+	bubble = spawn();
+	total_bubbles = total_bubbles + 1;
+	setmodel (bubble, "progs/s_bubble.spr");
+	setorigin (bubble, self.owner.origin + '0 0 24');
+	bubble.movetype = MOVETYPE_NOCLIP;
+	bubble.velocity = '0 0 15';
+	bubble.nextthink = time + 0.5;
+	bubble.think = bubble_bob;
+	setsize (bubble, '-8 -8 -8', '8 8 8');
+	self.nextthink = time + 0.1;
+	self.think = DeathBubblesSpawn;
+	self.air_finished = self.air_finished + 1;
+	if (self.air_finished >= self.bubble_count)
+		remove_self();
 };
 
 void(float num_bubbles) DeathBubbles =
 {
 	bubble_spawner = spawn();
 	setorigin (bubble_spawner, self.origin);
-	bubble_spawner.nextthink = time + 0.1;
+	bubble_spawner.nextthink = 0.001;
 	bubble_spawner.think = DeathBubblesSpawn;
 	bubble_spawner.owner = self;
 	bubble_spawner.bubble_count = num_bubbles;
@@ -422,7 +430,10 @@ void() DeathSound =
 	msg_entity = self;
 	if (self.waterlevel == 3)
 	{
-		DeathBubbles(20);
+		if (numberofclients < 9)
+			DeathBubbles(20);
+		else
+			DeathBubbles(8);
 		sound (CHAN_VOICE, "player/h2odeath.wav", 1, ATTN_NONE);
 	}
 	else
@@ -517,13 +528,25 @@ void() GibPlayer =
 	self.flags = self.flags & FL_NOT_ONGROUND;
 	self.avelocity = crandom() * '0 600 0';
 
-	ThrowGib ("progs/gib1.mdl", 10);
-	ThrowGib ("progs/gib2.mdl", 10);
-	ThrowGib ("progs/gib3.mdl", 10);
-	ThrowGib ("progs/gib3.mdl", 3);
-	ThrowGib ("progs/gib3.mdl", 3);
-	if (random() > 0.9)
-		ThrowGib ("progs/eyes.mdl", 2);
+	local float maxgibtime = 10;
+	// reduce gib persistence in complex maps with many clients, otherwise extreme carnage
+	// may cause number of edicts to exceed the rather low maximum of certain engines.
+	// (Maybe a toggle like the good old 'ekg' cheat from ROTT could be implemented
+	// to allow excessive juicy gibbage on engines that can handle it.)
+	if (numberofclients > 8)
+	if (num_map_load_edicts > 350)
+		maxgibtime = 6;
+
+	ThrowGib ("progs/gib1.mdl", maxgibtime);
+	ThrowGib ("progs/gib2.mdl", maxgibtime);
+	ThrowGib ("progs/gib3.mdl", maxgibtime);
+	if (maxgibtime > 6)
+	{
+		ThrowGib ("progs/gib3.mdl", 3);
+		ThrowGib ("progs/gib3.mdl", 3);
+		if (random() > 0.9)
+			ThrowGib ("progs/eyes.mdl", 2);
+	}
 
 	msg_entity = self;
 	if (attacker.classname == "teledeath")
