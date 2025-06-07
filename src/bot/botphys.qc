@@ -195,6 +195,8 @@ void() VelocityForArrow =
 			{
 				if (self.swim_arrow == UP)
 					dir_forward = '0 0 1';
+				else if (self.swim_arrow == FORCE_UP)
+					dir_forward = '0 0 1';
 				else
 					dir_forward = '0 0 -1';
 
@@ -254,6 +256,11 @@ void() VelocityForArrow =
 			{
 				if (self.swim_arrow == UP)
 					dir_forward = normalize(dir_forward + '0 0 0.5');
+				else if (self.swim_arrow == FORCE_UP)
+				{
+					dir_forward_z = 0.5;
+					dir_forward = normalize(dir_forward);
+				}
 				else
 					dir_forward = normalize(dir_forward + '0 0 -0.5');
 			}

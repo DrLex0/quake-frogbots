@@ -100,6 +100,53 @@ void() BotVerticalSwim
 
 /*
 ============
+SwimAwayFromWall
+
+Obstruction avoidance: only if obstruction persists, otherwise
+risk of oscillating in place and eventually drowning
+============
+*/
+float() SwimAwayFromWall =
+{
+	if (self.obstruction_normal == '0 0 0')
+	{
+		self.t_swim_obstruction = 0;
+		return FALSE;
+	}
+	if (! self.t_swim_obstruction)
+	{
+		self.t_swim_obstruction = time + 0.2;
+		return FALSE;
+	}
+	if (time < self.t_swim_obstruction)
+		return FALSE;
+
+	if ((self.obstruction_normal * rel_pos) > 0.5)
+	{
+		dir_move = (-1) * dir_move;
+	}
+
+	traceline (self.origin, self.origin + v_right * 20, TRUE, self);
+	if (trace_fraction != 1)
+	{
+		dir_move = normalize(dir_move);
+		dir_move = normalize(dir_move + ((-32) * v_right * random()));
+	}
+
+	traceline (self.origin, self.origin + v_right * (-20), TRUE, self);
+	if (trace_fraction != 1)
+	{
+		dir_move = normalize(dir_move);
+		dir_move = normalize(dir_move + (32 * v_right * random()));
+	}
+
+	NewVelocityForArrow();
+	self.t_swim_obstruction = 0;
+	return TRUE;
+};
+
+/*
+============
 BotGoUpForAir
 
 Try not to drown.
@@ -113,10 +160,16 @@ float() BotGoUpForAir =
 		return FALSE;
 	if (time > (self.air_finished - 2))
 	{
+		if (self.obstruction_normal != '0 0 0')
+		{
+			dir_move = -1 * self.obstruction_normal;
+			NewVelocityForArrow();
+			return TRUE;
+		}
 		traceline (self.origin, self.origin + '0 0 64', TRUE, self);
 		if (trace_fraction == 1)
 		{
-			self.swim_arrow = UP;
+			self.swim_arrow = FORCE_UP;
 			return TRUE;
 		}
 		new_velocity 	= self.velocity;
@@ -133,7 +186,7 @@ float() BotGoUpForAir =
 			traceline (self.origin, self.origin + '0 0 33', TRUE, self);
 			if (trace_fraction == 1)
 			{
-				self.swim_arrow = UP;
+				self.swim_arrow = FORCE_UP;
 				return TRUE;
 			}
 		}
@@ -185,30 +238,6 @@ float(float f_dist) ForwardProbeMarker =
 	if (trace_ent == self.linked_marker) return TRUE;
 	return (trace_fraction == 1);
 }
-
-void() SwimAwayFromWall =
-{
-	if ((self.obstruction_normal * rel_pos) > 0.5)
-	{
-		dir_move = (-1) * dir_move;	
-	}
-
-	traceline (self.origin, self.origin + v_right * 20, TRUE, self);
-	if (trace_fraction != 1)
-	{
-		dir_move = normalize(dir_move);
-		dir_move = normalize(dir_move + ((-32) * v_right * random()));
-	}
-
-	traceline (self.origin, self.origin + v_right * (-20), TRUE, self);
-	if (trace_fraction != 1)
-	{
-		dir_move = normalize(dir_move);
-		dir_move = normalize(dir_move + (32 * v_right * random()));
-	}
-
-	NewVelocityForArrow();
-};
 
 /*
 ============
@@ -337,21 +366,8 @@ void() FrogWaterMove =
 		VelocityForArrow();
 		return;
 	}
-
-	// Obstruction avoidance: only if obstruction persists, otherwise
-	// risk of oscillating in place and eventually drowning
-	if (self.obstruction_normal != '0 0 0')
-	{
-		if (! self.t_swim_obstruction)
-			self.t_swim_obstruction = time + 0.2;
-		else if (time > self.t_swim_obstruction)
-		{
-			SwimAwayFromWall();
-			self.t_swim_obstruction = 0;
-			return;
-		}
-	}
-	else self.t_swim_obstruction = 0;
+	if (SwimAwayFromWall())
+		return;
 
 	if (touch_marker_)
 	if (touch_marker_.classname == "trigger_teleport")
