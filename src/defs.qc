@@ -1437,6 +1437,7 @@ float BACK_LEFT		= 6;
 float BACK_RIGHT		= 10;
 float UP			= 16;
 float DOWN			= 32;
+float FORCE_UP		= 64;
 
 float JUMPSPEED = 270;
 

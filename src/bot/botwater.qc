@@ -116,7 +116,7 @@ float() BotGoUpForAir =
 		traceline (self.origin, self.origin + '0 0 64', TRUE, self);
 		if (trace_fraction == 1)
 		{
-			self.swim_arrow = UP;
+			self.swim_arrow = FORCE_UP;
 			return TRUE;
 		}
 		new_velocity 	= self.velocity;
@@ -133,7 +133,7 @@ float() BotGoUpForAir =
 			traceline (self.origin, self.origin + '0 0 33', TRUE, self);
 			if (trace_fraction == 1)
 			{
-				self.swim_arrow = UP;
+				self.swim_arrow = FORCE_UP;
 				return TRUE;
 			}
 		}
