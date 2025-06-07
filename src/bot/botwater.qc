@@ -109,6 +109,8 @@ float() BotGoUpForAir =
 {
 	if (self.items & IT_SLIME_PROOF)
 		return FALSE;
+	if ((self.touch_marker.T | self.linked_marker.T) & T_NO_AIR)
+		return FALSE;
 	if (time > (self.air_finished - 2))
 	{
 		traceline (self.origin, self.origin + '0 0 64', TRUE, self);

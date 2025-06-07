@@ -56,7 +56,14 @@ EvalGoal
 */
 void() EvalGoal =
 {
-	goal_entity.desire();
+	if (time < (self.air_finished - 2))
+		goal_entity.desire();
+	else if (self.items & IT_SLIME_PROOF)
+		goal_entity.desire();
+	else if ((goal_entity.T & T_LIQUID) || !goal_entity.index)
+		goal_entity.desire();
+	else  // When about to drown, any marker guaranteed to have air is most desirable
+		goal_desire = 600;
 	goal_entity.saved_goal_desire = goal_desire;
 	if (goal_desire > 0)
 	{
