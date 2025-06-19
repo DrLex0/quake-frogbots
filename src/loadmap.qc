@@ -124,6 +124,13 @@ void() AddMissingBits =
 		ent.origin = '1244 -337 570';
 		ent.mangle = '40 -135 10';
 	}
+	else if (mapname == "dark-terror-ffa")
+	{
+		ent = spawn();
+		ent.classname = "info_intermission";
+		ent.origin = '-840 1330 136';
+		ent.mangle = '30 -36 4';
+	}
 	else if (mapname == "dm4ish")
 	{
 		ent = spawn();
