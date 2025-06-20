@@ -519,6 +519,7 @@ void() CheckWallStrafe =
 		self.wallstrafe_key = FORWARD_RIGHT;
 		angles_y = angles_y - 15;
 	}
+	// Don't keep pitch even when the path is sloped, it degrades max speed
 	angles_x = angles_z = 0;
 	makevectors(angles);
 	self.wallstrafe_vec = v_forward;

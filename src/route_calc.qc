@@ -301,7 +301,7 @@ float() TravelTime =
 		if (m_D & WALL_STRAFE)
 		{
 			// Make the bot prefer a WSJ shortcut to an equally long path
-			traveltime = 0.8 * ((vlen(m_P_pos - m_pos) / sv_maxspeed));
+			traveltime = 0.75 * ((vlen(m_P_pos - m_pos) / sv_maxspeed));
 		}
 		else
 		{
