@@ -185,6 +185,15 @@ void() AddMissingBits =
 		ent.origin = '-1265 358 386';
 		ent.mangle = '-10 -36 0';
 	}
+	else if (mapname == "tridm1")
+	{
+		// For some reason, bots in ezQuake get stuck on this button if it moves less than this distance
+		m55.pos2 = '0 0 -4';
+	}
+	else if (mapname == "trindm1")
+	{
+		m55.pos2 = '0 0 -4';
+	}
 	else if (mapname == "ukpak2")
 	{
 		ent = spawn();
