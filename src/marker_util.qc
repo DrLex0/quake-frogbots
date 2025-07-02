@@ -143,8 +143,12 @@ void(float prioritize) check_marker =
 #endif
 	if (self.T & T_EXCLUSIVE)
 	if (! (other.path_state & EXCLUSIVE_PATH))
+	if (other.path_from_marker != self)
 	{
-		// Ignore exclusive marker unless EXCLUSIVE_DOOR links to an open door
+		// Ignore exclusive marker unless:
+		// - current path originates from it (don't let a distant marker
+		//   hijack the touch just because we're exiting EP mode)
+		// - EXCLUSIVE_DOOR links to an open door
 		if (! self.exclu_door_ent)
 			return;
 		// and bot is not in cooldown period
