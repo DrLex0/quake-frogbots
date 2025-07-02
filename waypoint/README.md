@@ -130,6 +130,7 @@ MARKER TYPES (when DISPLAY-MODE = TYPE)
 (new)	- exclusive node
 (new)	- narrow node
 (new)	- wait lift node
+(new)	- jump hint node
 (new)	- slime island node
 (new)	- want biosuit node
 (new)	- untouchable node
@@ -234,7 +235,8 @@ These steps do not need to be done in this exact order, but you will typically g
      You may not need this often, but without it, getting onto certain small steps is often near impossible because the bot moves too erratically when trying to use ledge jump mode.  
      ![Slow precise jumps in e1m2](images/precise.jpg)
    - **Precise jump mode** (shown as `‘P’`, number 128 in code) will make the bot do extra effort to initiate a jump closer from the location of the marker where this path originates, and also to better aim in the direction of the destination marker. This can be used for tricky jumps that require accuracy, because normal bot movement is rather _sloppy._  
-     Again, the bot will only jump within a distance of 40 units of the start marker. To make this work well, provide a single path towards the jump spot in such a way that the bot is already moving roughly in the right direction when it reaches the marker from where to jump. Otherwise the bot will perform an extra manoeuvre to do a proper run-up (which can fail if there is not enough room).
+     Again, the bot will only jump within a distance of 40 units of the start marker. To make this work well, provide a single path towards the jump spot in such a way that the bot is already moving roughly in the right direction when it reaches the marker from where to jump. Otherwise the bot will perform an extra manoeuvre to do a proper run-up (which can fail if there is not enough room).  
+     A precise jump can be further tuned with a `jump hint` marker, see the Advanced section.
    - **Slow down mode** (shown as `‘S’`, number 2048 in code) will make the bot slow down while near the marker from which this path starts. It is mostly useful to combine with precise jump, but can also be used alone or in combination with just GO mode, to avoid that the bot overshoots its target when making a deep downward jump.
    - **Just GO mode** (shown as `‘!’`, number 1 in code) does what it says: it disables all safety checks in the bot for that path, and just makes it _go._ The most common use case is to override the bot's fall-from-edges mechanism, which sometimes engages inadvertently and prevents the bot from jumping off a ledge. If you see the bot zig-zagging across an edge while it should just jump down, try adding this path mode.  
      A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to.  
@@ -482,6 +484,19 @@ Bots at lower skill levels will execute this procedure more sloppily and have a 
 If no wall can be probed nearby the starting point of the path, the bot will run straight along the path and jump at the end, without speed boost. This could be an alternative for tricky jumps if there is not enough room for the bot to prepare for a precision jump.
 
 Note that this feature does not behave exactly the same as for real players. Bots may be able to achieve slightly higher or lower speed boosts depending on the situation, and there are some subtle differences between Quake and QuakeWorld engines as well.
+
+
+### Air-turning precise jump
+
+Another Quake physics trick allows players to change direction while airborne by using the strafe keys while turning (of course again impossible in the real world without propulsion or aerodynamic manipulation). Bots are able to exploit this trick and will do so when appropriate.
+
+The precise jump path mode will normally cause the bot to jump straight towards the destination marker. A precise jump can be turned into an _air turning jump_ by adding a one-way path from the jump spot towards a `jump hint` node type marker, to indicate the initial jumping direction. Assign the `jump hint` node type to this extra marker by setting display mode to `type` with the `Z` key, then selecting this mode with the `V` key, and right-clicking the marker.
+
+![Air turning jump in Shifter](images/precise2.jpg)
+
+A `jump hint` marker should only have 1 (or perhaps 2) incoming path(s) and no outgoing paths, and must not be used as part of any true path. Its only purpose is to indicate the initial jump direction, this type of marker is automatically untouchable. Unless the jump leads towards an obvious desirable target, it is usually also necessary to combine the precise jump path with _focused path mode_ to ensure the bot makes the required mid-air turn.
+
+This allows the bot to perform trick jumps where a straight jump would have a risk of bumping into an obstacle. Examples can be found in `trindm3` and `shifter`.
 
 
 ### Dealing with overlapping markers

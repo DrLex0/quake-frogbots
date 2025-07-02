@@ -187,6 +187,33 @@ float() BotAntiFreeze =
 
 /*
 ============
+AvoidEdge
+
+============
+*/
+void() AvoidEdge =
+{
+	if (self.path_state & JUST_GO)
+		return;
+#ifdef DEBUG_HAZD
+	dprint("AvoidEdge\n");
+#endif
+	dir_forward = oldvelocity_;
+	dir_forward_z = 0;
+
+	if (dir_forward != '0 0 0')
+	{
+		if (game_lava_cheat)
+		oldvelocity__x = oldvelocity__y = 0;
+		dir_move = (-1) * dir_forward;
+		NewVelocityForArrow();
+		self.arrow_time2 = self.arrow_time;
+	}
+};
+
+
+/*
+============
 AvoidHazards
 
 ============
@@ -451,6 +478,8 @@ void() AvoidHazards =
 			}
 			if (new_fall > fall)
 			{
+				// PJ overrides regular jump logic
+				if (! (self.path_state & PRECISE_JUMP))
 				if (time > self.arrow_time2)
 				{
 					current_fallspot = fall;
@@ -593,31 +622,5 @@ void() AvoidHazards =
 				}
 			}
 		}
-	}
-};
-
-/*
-============
-AvoidEdge
-
-============
-*/
-void() AvoidEdge =
-{
-	if (self.path_state & JUST_GO)
-		return;
-#ifdef DEBUG_HAZD
-	dprint("AvoidEdge\n");
-#endif
-	dir_forward = oldvelocity_;
-	dir_forward_z = 0;
-
-	if (dir_forward != '0 0 0')
-	{
-		if (game_lava_cheat)
-		oldvelocity__x = oldvelocity__y = 0;
-		dir_move = (-1) * dir_forward;
-		NewVelocityForArrow();
-		self.arrow_time2 = self.arrow_time;
 	}
 };

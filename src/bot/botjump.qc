@@ -22,10 +22,15 @@ float(float max_angle) right_direction =
 {
 	local float current_dir, wish_dir, right_dir;
 	local float min_one, min_two;
+	local entity target_m;
 
 	dir_move = normalize(self.oldvelocity);  // before physics
 	current_dir = vectoyaw(dir_move);
-	rel_pos = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	if (self.path_from_marker.jump_direction)
+		target_m = self.path_from_marker.jump_direction;  // T_JUMP_HINT marker
+	else
+		target_m = linked_marker_;
+	rel_pos = target_m.absmin + target_m.view_ofs - origin_;
 	dir_move = rel_pos;
 	dir_move_z = 0;
 	dir_move = normalize(dir_move);
@@ -285,7 +290,7 @@ void() a_rocketjump =
 void() SpecialAccurateMoves =
 {
 	self.precise_speed = 0;
-	if (self.wallstrafe_key)
+	if (self.wallstrafe_key)  // WSJ logic
 	{
 		if (time > self.wallstrafe_deadline)
 		{
@@ -301,7 +306,8 @@ void() SpecialAccurateMoves =
 		self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 		return;
 	}
-	if (self.running_up > 0)
+
+	if (self.running_up > 0)  // Precise jump logic
 	{
 		if (time > self.running_up)
 		{
@@ -383,15 +389,24 @@ void() SpecialAccurateMoves =
 	// Make the jump increasingly perfect with increasing bot skill level
 	self.velocity = (self.bot_inaccuracy * self.velocity) + 
 		(1.0 - self.bot_inaccuracy) * vlen(self.velocity) * dir_move;
-	if (!(self.path_state & SLOW_DOWN))
+	if (self.path_state & SLOW_DOWN)
 	{
+		// Do not clear AP mode for a slow PJ upon jumping,
+		// because it often requires multiple attempts.
+		self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
+	}
+	else
+	{
+		// Clear AP mode, its job here is done
+		self.path_state = (self.path_state - ACCURATE_PATH) | DELIBERATE_AIR_WAIT_GROUND;
 		// For some reason, bots are unable to bridge the widest gaps that players can
 		// still traverse. I gave up trying to figure out what causes this, and just
 		// slap a fudge factor onto the velocity to compensate.
 		self.velocity = 1.25 * self.velocity;
 	}
+	if (self.path_from_marker.jump_direction)
+		self.path_state = self.path_state | AIR_ACCELERATION;
 	self.button2_ = 1;
-	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 };
 
 void() CheckCombatJump =

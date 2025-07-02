@@ -1131,27 +1131,35 @@ void() DumpMarkerInfo =
 
 		// PEBKAC protection.
 		if (m.P0.T & T_NOTOUCH)
+		if (!(m.P0.T & T_JUMP_HINT))
 		if (!(m.D0 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P0.index), "\n");
 		if (m.P1.T & T_NOTOUCH)
+		if (!(m.P1.T & T_JUMP_HINT))
 		if (!(m.D1 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P1.index), "\n");
 		if (m.P2.T & T_NOTOUCH)
+		if (!(m.P2.T & T_JUMP_HINT))
 		if (!(m.D2 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P2.index), "\n");
 		if (m.P3.T & T_NOTOUCH)
+		if (!(m.P3.T & T_JUMP_HINT))
 		if (!(m.D3 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P3.index), "\n");
 		if (m.P4.T & T_NOTOUCH)
+		if (!(m.P4.T & T_JUMP_HINT))
 		if (!(m.D4 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P4.index), "\n");
 		if (m.P5.T & T_NOTOUCH)
+		if (!(m.P5.T & T_JUMP_HINT))
 		if (!(m.D5 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P5.index), "\n");
 		if (m.P6.T & T_NOTOUCH)
+		if (!(m.P6.T & T_JUMP_HINT))
 		if (!(m.D6 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P6.index), "\n");
 		if (m.P7.T & T_NOTOUCH)
+		if (!(m.P7.T & T_JUMP_HINT))
 		if (!(m.D7 & IS_PSEUDO_PATH))
 			bprint("ERROR: m", ftos(m.index), " has path to untouchable m", ftos(m.P7.index), "\n");
 
@@ -1524,7 +1532,7 @@ If mD is a pseudo-path mode, use a bubble instead.
 void(entity e_from, entity e_to, float mD, entity garbage) SpikeIt =
 {
 	entity trail = spawn();
-	if (mD & EXCLUSIVE_DOOR)
+	if ((mD & EXCLUSIVE_DOOR) || (e_to.T & T_JUMP_HINT))
 		setmodel (trail, "progs/s_bubble.spr");
 	else
 		setmodel (trail, "progs/spike.mdl");
@@ -1847,6 +1855,11 @@ void() CycleDescriptionMode =
 			bprint("wait lift node ON\n");
 		}
 		else if (type_mode == T_WAITLIFT)
+		{
+			type_mode = T_JUMP_HINT;
+			bprint("jump hint node ON\n");
+		}
+		else if (type_mode == T_JUMP_HINT)
 		{
 			type_mode = T_FORCESLIME;
 			bprint("slime island node ON\n");

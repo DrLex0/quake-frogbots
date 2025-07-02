@@ -11,7 +11,6 @@
 #include "settings.h"
 
 void() SightMarker;
-void() AvoidEdge;
 void() PlayerBreak;
 void() SetSkill;
 void() frogbot_marker_touch;

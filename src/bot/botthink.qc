@@ -303,6 +303,10 @@ void() ThinkTime =
 				{
 					if (time < self.arrow_time2)
 					{
+						// I don't know what's the point of this logic, especially with its
+						// random factor. At any rate, it messes up precise jumps, hence
+						// definitely disable it in that case. -- DrLex
+						if (! (self.path_state & PRECISE_JUMP))
 						if (random() < 0.5)
 						{
 							linked_marker_ = self.old_linked_marker = self.linked_marker = touch_marker_;

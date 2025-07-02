@@ -168,6 +168,7 @@ void() Calc_G_time_1 =
 		m_pos = m.absmin + m.view_ofs;
 		m.touch_marker = m;
 
+		if (m.T & T_JUMP_HINT) m.T = m.T | T_NOTOUCH;
 		if (m.T & T_FORCESLIME) m.T = m.T | T_BIOHZD;
 		if (m.T & T_WANTSUIT) m.want_suit = "y";
 		content = pointcontents(m_pos + '0 0 4');
@@ -283,6 +284,17 @@ float() TravelTime =
 #ifdef MANUAL
 		// Do not wipe the path in waypoint tool because it must be saved again.
 		// Give 'infinite' time to prevent from interfering with testing as a bot.
+		traveltime = 1000000;
+		return TRUE;
+#else
+		return FALSE;
+#endif
+	}
+
+	if (m_P.T & T_JUMP_HINT)
+	{
+		m.jump_direction = m_P;
+#ifdef MANUAL
 		traveltime = 1000000;
 		return TRUE;
 #else
