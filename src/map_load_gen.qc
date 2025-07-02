@@ -56,6 +56,7 @@
 #include "maps/trinca/map_thf.qc"
 #include "maps/trinca/map_trindm1.qc"
 #include "maps/trinca/map_trindm2.qc"
+#include "maps/trinca/map_trindm3.qc"
 #include "maps/trinca/map_ukpak2.qc"
 #include "maps/trinca/map_utressor.qc"
 #include "maps/trinca/map_ztndm4.qc"
@@ -81,9 +82,10 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    shifter      shine      skull\n");
 	sprint_fb(self, 2, "    spinev2      start        thf\n");
 	sprint_fb(self, 2, "        tox     tridm1     tridm2\n");
-	sprint_fb(self, 2, "    trindm1    trindm2     ukpak2\n");
-	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
-	sprint_fb(self, 2, "     ztndm4     ztndm6\n");
+	sprint_fb(self, 2, "     tridm3    trindm1    trindm2\n");
+	sprint_fb(self, 2, "    trindm3     ukpak2     ultrav\n");
+	sprint_fb(self, 2, "   utressor     ztndm3     ztndm4\n");
+	sprint_fb(self, 2, "     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -368,6 +370,11 @@ float() LoadWaypoints =
 		map_trindm2();
 		return TRUE;
 	}
+	if (mapname == "trindm3")
+	{
+		map_trindm3();
+		return TRUE;
+	}
 	if (mapname == "ukpak2")
 	{
 		map_ukpak2();
@@ -396,6 +403,11 @@ float() LoadWaypoints =
 	if (mapname == "tridm2")
 	{
 		map_trindm2();
+		return TRUE;
+	}
+	if (mapname == "tridm3")
+	{
+		map_trindm3();
 		return TRUE;
 	}
 	return FALSE;
@@ -515,6 +527,8 @@ string(string mname) MapHasWaypoints =
 		return "trindm1";
 	if (mname == "trindm2")
 		return "trindm2";
+	if (mname == "trindm3")
+		return "trindm3";
 	if (mname == "ukpak2")
 		return "ukpak2";
 	if (mname == "utressor")
@@ -527,5 +541,7 @@ string(string mname) MapHasWaypoints =
 		return "tridm1";
 	if (mname == "tridm2")
 		return "tridm2";
+	if (mname == "tridm3")
+		return "tridm3";
 	return "";
 };

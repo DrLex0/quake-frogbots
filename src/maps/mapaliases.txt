@@ -1,2 +1,3 @@
 trindm1 tridm1
 trindm2 tridm2
+trindm3 tridm3
