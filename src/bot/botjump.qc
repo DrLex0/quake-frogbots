@@ -401,8 +401,13 @@ void() SpecialAccurateMoves =
 		self.path_state = (self.path_state - ACCURATE_PATH) | DELIBERATE_AIR_WAIT_GROUND;
 		// For some reason, bots are unable to bridge the widest gaps that players can
 		// still traverse. I gave up trying to figure out what causes this, and just
-		// slap a fudge factor onto the velocity to compensate.
+		// slap a fudge factor onto the velocity to compensate. And of course the factor
+		// differs between regular Quake and QW.
+#ifdef QUAKE
 		self.velocity = 1.25 * self.velocity;
+#else
+		self.velocity = 1.33 * self.velocity;
+#endif
 	}
 	if (self.path_from_marker.jump_direction)
 		self.path_state = self.path_state | AIR_ACCELERATION;
