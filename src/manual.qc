@@ -744,6 +744,57 @@ void() DisconnectMarker =
 	}
 	else
 		bprint("marker was not connected\n");
+
+	if(mode & ONE_WAY)
+		return;
+	if (to_marker.P0 == from_marker)
+	{
+		bprint("reverse path 0 disconnected\n");
+		to_marker.P0 = world;
+		to_marker.D0 = 0;
+	}
+	else if (to_marker.P1 == from_marker)
+	{
+		bprint("reverse path 1 disconnected\n");
+		to_marker.P1 = world;
+		to_marker.D1 = 0;
+	}
+	else if (to_marker.P2 == from_marker)
+	{
+		bprint("reverse path 2 disconnected\n");
+		to_marker.P2 = world;
+		to_marker.D2 = 0;
+	}
+	else if (to_marker.P3 == from_marker)
+	{
+		bprint("reverse path 3 disconnected\n");
+		to_marker.P3 = world;
+		to_marker.D3 = 0;
+	}
+	else if (to_marker.P4 == from_marker)
+	{
+		bprint("reverse path 4 disconnected\n");
+		to_marker.P4 = world;
+		to_marker.D4 = 0;
+	}
+	else if (to_marker.P5 == from_marker)
+	{
+		bprint("reverse path 5 disconnected\n");
+		to_marker.P5 = world;
+		to_marker.D5 = 0;
+	}
+	else if (to_marker.P6 == from_marker)
+	{
+		bprint("reverse path 6 disconnected\n");
+		to_marker.P6 = world;
+		to_marker.D6 = 0;
+	}
+	else if (to_marker.P7 == from_marker)
+	{
+		bprint("reverse path 7 disconnected\n");
+		to_marker.P7 = world;
+		to_marker.D7 = 0;
+	}
 };
 
 void() ClearPathModes =
