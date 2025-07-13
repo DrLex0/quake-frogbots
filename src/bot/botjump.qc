@@ -346,7 +346,21 @@ void() SpecialAccurateMoves =
 	if (self.button2_)
 		return;
 	if (!(self.flags & FL_ONGROUND))
+	{
+		if(self.path_state & PRECISE_JUMP)
+		if(self.path_state & SLOW_DOWN) {
+			// The bot may have lost all velocity in the direction of the target due
+			// to bumping into the wall. Give it a nudge if this is the case.
+			rel_pos = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+			rel_pos_z = 0;
+			dir_move = self.velocity;
+			dir_move_z = 0;
+			if(rel_pos * dir_move < 10) {
+				self.velocity = self.velocity + 32 * normalize(rel_pos);
+			}
+		}
 		return;
+	}
 	local float touch_dist = vlen(origin_ - (self.path_from_marker.absmin + self.path_from_marker.view_ofs));
 
 	// right_direction() sets the ideal direction vector dir_move,
