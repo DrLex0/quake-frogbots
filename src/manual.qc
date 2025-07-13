@@ -99,13 +99,13 @@ Actions to perform when 'touching' a marker in manual mode.
 void(entity marker) manual_marker_touch =
 {
 	// Mimic check_marker behavior, unless when CMM enabled
-	if (self.T & T_NARROW)
+	if (marker.T & T_NARROW)
 	if (! (mode & CLOSEST_MARKER))
 	if (distance > 24)
 		return;
 
 	// Untouchable markers can only be selected in CMM
-	if (self.T & T_NOTOUCH)
+	if (marker.T & T_NOTOUCH)
 	if (! (mode & CLOSEST_MARKER))
 		return;
 
