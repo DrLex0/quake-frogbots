@@ -1,7 +1,7 @@
 // This map does not work well with the bots due to doors that open and close with switches.
 // It is probably for this reason that the waypoints are half-assed and contain mistakes.
 // Exclusive paths could be used, but additional logic would be needed to only touch the switch when door is closed.
-// To make the bots get the Quad, functionality to shoot a switch would be needed.
+// To make the bots get the Quad, functionality to shoot a switch would be needed (2025/07: now possible!)
 // I doubt this is a popular net map anyway, so motivation to work on this is low -- DrLex 2025/02
 void() map_e1m6 = //10.06.04
 {

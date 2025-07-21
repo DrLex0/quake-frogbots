@@ -1944,7 +1944,7 @@ float S_index;
 .float S_;
 
 //
-// tasks
+// tasks, remnant of dm6_door system, maybe useful someday
 //
 .float taskClus1;
 .float Z1_task;
