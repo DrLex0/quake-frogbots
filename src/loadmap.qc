@@ -99,93 +99,49 @@ void(entity it, vector offset) MoveItem =
 	setorigin(it, it.origin);
 	it.virtual_mins = it.virtual_mins + offset;
 	it.virtual_maxs = it.virtual_maxs + offset;
-}
+};
+
+void(vector ori, vector mang) SpawnIntermission =
+{
+	local entity ent;
+	ent = spawn();
+	ent.classname = "info_intermission";
+	ent.origin = ori;
+	ent.mangle = mang;
+};
 
 void() AddMissingBits =
 {
-	local entity ent;
 	if (mapname == "amphi")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '1244 -337 570';
-		ent.mangle = '40 -135 10';
-	}
+		SpawnIntermission('1244 -337 570', '40 -135 10');
 	else if (mapname == "dark-terror-ffa")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '-840 1330 136';
-		ent.mangle = '30 -36 4';
-	}
+		SpawnIntermission('-840 1330 136', '30 -36 4');
 	else if (mapname == "dm4ish")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '-310 -293 404';
-		ent.mangle = '25 32 0';
-	}
+		SpawnIntermission('-310 -293 404', '25 32 0');
 	else if (mapname == "dmz1++")
 	{
 		MoveItem(m48, '15 0 6');  // health pack in wall
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '-198 727 -190';
-		ent.mangle = '26 -115 0';
+		SpawnIntermission('-198 727 -190', '26 -115 0');
 	}
 	else if (mapname == "e1m4")
-	{
 		MoveItem(m20, '0 0 -444');  // YA does not drop down with platform
-	}
+	else if (mapname == "end")
+		m100.touch = null;  // Sabotage Shub's hurt trigger
 	else if (mapname == "endif")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '-227 -732 800';
-		ent.mangle = '54 45 8';
-	}
+		SpawnIntermission('-227 -732 800', '54 45 8');
 	else if (mapname == "four")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '-35 0 11';
-		ent.mangle = '-30 0 0';
-	}
+		SpawnIntermission('-35 0 11', '-30 0 0');
 	else if (mapname == "genocide")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '-592 -563 56';
-		ent.mangle = '28 40 0';
-	}
+		SpawnIntermission('-592 -563 56', '28 40 0');
 	else if(mapname == "oktest1")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '513 -281 1167';
-		ent.mangle = '37 -147 -13';
-	}
+		SpawnIntermission('513 -281 1167', '37 -147 -13');
 	else if (mapname == "thf")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '-1265 358 386';
-		ent.mangle = '-10 -36 0';
-	}
-	else if (mapname == "tridm1")
+		SpawnIntermission('-1265 358 386', '-10 -36 0');
+	else if (mapname == "tridm1" || mapname == "trindm1")
 	{
 		// For some reason, bots in ezQuake get stuck on this button if it moves less than this distance
 		m55.pos2 = '0 0 -4';
 	}
-	else if (mapname == "trindm1")
-	{
-		m55.pos2 = '0 0 -4';
-	}
 	else if (mapname == "ukpak2")
-	{
-		ent = spawn();
-		ent.classname = "info_intermission";
-		ent.origin = '398 -572 353';
-		ent.mangle = '32 -150 5';
-	}
-}
+		SpawnIntermission('398 -572 353', '32 -150 5');
+};
