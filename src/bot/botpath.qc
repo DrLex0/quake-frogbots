@@ -457,12 +457,10 @@ float() WaitAndShootAtTrigger =
 {
 	local entity shoot_tgt = touch_marker_.shoot_me;
 	local float path_requires_shot = FALSE;
+	// Clear this state, it will be set when needed
+	self.state = self.state - (self.state & NEED_SHOOT_AIM);
 	if (new_path_state & NEED_SHOOT)
-	{
 		path_requires_shot = TRUE;
-		// Clear the mode, it will be set when needed
-		new_path_state = new_path_state - NEED_SHOOT;
-	}
 	else if (shoot_tgt)
 	{
 		// We're not on a NEED_SHOOT path. Check whether we should anticipate:
@@ -484,7 +482,7 @@ float() WaitAndShootAtTrigger =
 		return FALSE;
 
 	// Rely on the regular (crude) look system by default. The think logic
-	// will override this with more accurate aiming if NEED_SHOOT mode is set.
+	// will override this with more accurate aiming if NEED_SHOOT_AIM is set.
 	if (self.look_object != self.enemy)
 	{
 		look_object_ = shoot_tgt;
@@ -956,8 +954,8 @@ void() frogbot_marker_touch =
 
 	if (WaitAndShootAtTrigger())
 	{
+		self.state = self.state | NEED_SHOOT_AIM;
 		WaitAtTouchMarker(0.3);
-		self.path_state = NEED_SHOOT;
 		return;
 	}
 	if (WaitOnLift())

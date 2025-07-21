@@ -1692,6 +1692,7 @@ float HURT_SELF				= 1024;
 float CHASE_ENEMY				= 2048;
 float RUNAWAY				= 4096;
 float WAIT					= 8192;
+float NEED_SHOOT_AIM			= 16384;
 
 float NOT_HURT_SELF			= 16776191;
 float NOT_NOTARGET_ENEMY		= 16777183;

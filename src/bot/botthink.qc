@@ -560,7 +560,7 @@ void() ThinkTime =
 				if (self.look_object != self.enemy)
 				{
 					// Exceptions, these will use FrogTrackSimple instead
-					if (self.path_state & NEED_SHOOT)
+					if (self.state & NEED_SHOOT_AIM)
 					{
 						SetFireButton();
 						return;
@@ -568,6 +568,25 @@ void() ThinkTime =
 					if (self.path_from_marker.look_here)
 						return;
 				}
+				// If shootable door closed in front of bot's face, shoot it again
+				if (self.path_state & NEED_SHOOT)
+				if (self.path_from_marker.shoot_me)
+				if (! self.shoot_at_thing)
+				{
+					local entity shoot_tgt = self.path_from_marker.shoot_me;
+					if (shoot_tgt == self.path_from_marker.link_door_ent)
+					if (shoot_tgt.takedamage)
+					{
+						src = origin_ + '0 0 16';
+						makevectors(self.v_angle);
+						traceline(src, src + v_forward*2048, FALSE, self);
+						if (trace_ent == shoot_tgt)
+						{
+							self.shoot_at_thing = TRUE;
+						}
+					}
+				}
+
 				FrogTrackSlow();
 				if (!self.rocketjumping)
 					SetFireButton();
@@ -592,7 +611,7 @@ void() SetFrogbotAngles =
 	}
 	else if (self.look_object != self.enemy)  // don't get distracted while shooting enemies
 	{
-		if (self.path_state & NEED_SHOOT)
+		if (self.state & NEED_SHOOT_AIM)
 		{
 			// The aiming point coincides with the crotch of the marker
 			rel_pos = (self.path_from_marker.shoot_me.absmin + self.path_from_marker.shoot_me.view_ofs) - (self.origin + '0 0 24');
