@@ -150,18 +150,7 @@ void() EvalPath =
 		if (!(description & REVERSIBLE))
 			return;
 	}
- 	if (test_marker == dm6_door)
-	{
-		if (!dm6_door.takedamage)
-			return;	// door open
-	}
 	marker_pos = test_marker.absmin + test_marker.view_ofs;
-
-	if (description & DM6_DOOR)
-	{
-		if (vlen(dm6_door.origin) < door_open_dist)
-			return;	// door not open enough
-	}
 
 	same_dir = self_dir * normalize(marker_pos - origin_);
 	path_score = same_dir + random();
@@ -334,16 +323,18 @@ float() LiftNeedsButton =
 ============
 WaitAtTouchMarker
 
-Forces bot to stick to current touch_marker_ and not stray away too far from it
+Forces bot to stick to current touch_marker_ and not stray away too far from it.
+Parameter is timeout for the marker.
 ============
 */
-void() WaitAtTouchMarker =
+void(float lm_time) WaitAtTouchMarker =
 {
-	linked_marker_ = self.linked_marker = touch_marker_;
+	linked_marker_ = touch_marker_;
+	self.linked_marker = touch_marker_;
 	self.path_from_marker = touch_marker_;
 	SetExclusive();
 	self.path_state = 0;
-	self.linked_marker_time = time + 5;
+	self.linked_marker_time = time + lm_time;
 	self.old_linked_marker = world;
 	dir_move = touch_marker_.absmin + touch_marker_.view_ofs - self.origin;
 	dir_move_z = 0;
@@ -382,7 +373,7 @@ float() WaitOnLift =
 				return FALSE;
 			else
 			{
-				WaitAtTouchMarker();
+				WaitAtTouchMarker(5);
 				return TRUE;
 			}
 		}
@@ -394,7 +385,7 @@ float() WaitOnLift =
 			{
 				if (btn_target.state != STATE_BOTTOM)
 				{
-					WaitAtTouchMarker();
+					WaitAtTouchMarker(5);
 					return TRUE;
 				}
 				btn_target = find (btn_target, targetname, linked_marker_.target);
@@ -405,9 +396,9 @@ float() WaitOnLift =
 	/* Comment from ancient times: "FIXME: should this include doors?"
 	 * DrLex says: probably not, but map makers do use func_door as lifts, which raises
 	 * the question what is a "door". So far I have not seen obvious problems caused
-	 * by considering classname "door" here. Walking across a true closed door like in
-	 * dm6 is OK because it will be in STATE_TOP. If problems do arise with shootable
-	 * doors, an extra test and maybe an extra marker type/path mode will be needed. */
+	 * by considering classname "door" here. Walking across a true closed horizontal door
+	 * like in dm6 may be OK because it will be in STATE_TOP. However, in general it
+	 * is best to just set T_NOTOUCH on doors that should not be part of a true path. */
 	if (touch_marker_.classname != "door")
 		return FALSE;
 	if (deathtype == "squish")
@@ -430,7 +421,7 @@ float() WaitOnLift =
 	if (self.absmin_y >= touch_marker_.absmin_y)
 	if (self.absmax_y <= touch_marker_.absmax_y)
 	{
-		WaitAtTouchMarker();
+		WaitAtTouchMarker(5);
 		return TRUE;
 	}
 	dir_move = 0.5 * (touch_marker_.absmin + touch_marker_.absmax) - self.origin;
@@ -442,6 +433,96 @@ float() WaitOnLift =
 	}
 	return TRUE;
 };
+
+/*
+============
+WaitAndShootAtTrigger
+
+Logic for shootable triggers -- it's complicated.
+Originally this was only implemented for the dm6 door (yes, only that specific door).
+Then it was sort of extended to 1 similar door in any map, but it remained kludgy and limited.
+Now it is generalised to anything that needs to be shot in order to traverse the chosen path.
+Rules:
+- The thing to be shot is set in .shoot_me (from SHOOT_AT pseudo-path).
+  This is _mandatory_ if the path has NEED_SHOOT mode. It may also be set on markers
+  having a path towards another marker that has a NEED_SHOOT path, to allow the bot
+  to already prepare for the shot while approaching the actual NEED_SHOOT spot.
+- The thing to be opened may be set in .linked_door. This is set either from the
+  LINKED_DOOR pseudo-path, or else from SHOOT_AT if it points to a door. 
+  Hence for the typical dm6-like door, .shoot_me == .linked_door.
+Return value indicates whether the bot must wait at touch_marker_ or not.
+============
+*/
+float() WaitAndShootAtTrigger =
+{
+	local entity shoot_tgt = touch_marker_.shoot_me;
+	local float path_requires_shot = FALSE;
+	if (new_path_state & NEED_SHOOT)
+	{
+		path_requires_shot = TRUE;
+		// Clear the mode, it will be set when needed
+		new_path_state = new_path_state - NEED_SHOOT;
+	}
+	else if (shoot_tgt)
+	{
+		// We're not on a NEED_SHOOT path. Check whether we should anticipate:
+		// does next marker have NEED_SHOOT towards zone of our goal entity?
+		// This is only a heuristic, ideally we should test whether the
+		// NEED_SHOOT path is in between here and goal, but too complicated
+		// to implement; the heuristic will usually do the trick.
+		if (! linked_marker_.shoot_targetZ)
+			return FALSE;
+		if (linked_marker_.shoot_targetZ != goalentity_marker.Z_)
+			return FALSE;
+	}
+	else return FALSE;
+
+	local entity link_door = touch_marker_.link_door_ent;
+	// If door is open enough, just continue
+	if (link_door)
+	if (vlen(link_door.origin - link_door.pos2) <= link_door.d_door_open)
+		return FALSE;
+
+	// Rely on the regular (crude) look system by default. The think logic
+	// will override this with more accurate aiming if NEED_SHOOT mode is set.
+	if (self.look_object != self.enemy)
+	{
+		look_object_ = shoot_tgt;
+		self.look_object = look_object_;
+	}
+	else if(! self.look_object)  // not expected to happen in real games, but better be safe
+	{
+		look_object_ = shoot_tgt;
+		self.look_object = look_object_;
+	}
+
+	// If door needs to be shot but is currently unresponsive,
+	// wait unless we're not yet on the NEED_SHOOT path
+	if (shoot_tgt == link_door)
+	if (!link_door.takedamage)
+		return path_requires_shot;
+
+	// Should we execute this more often somewhere else? Seems to work well enough as-is.
+	if (shoot_tgt.takedamage)
+	{
+		// Check whether bot is aiming at the target
+		// This does require careful marker placement for small targets. Aim for the crotch!
+		src = origin_ + '0 0 16';
+		makevectors(self.v_angle);
+		traceline(src, src + v_forward*2048, FALSE, self);
+		if (trace_ent == shoot_tgt)
+		{
+			self.shoot_at_thing = TRUE;
+			self.state = self.state | NOTARGET_ENEMY;
+			// door won't be open immediately, hence wait if path requires it
+			if (link_door)
+				return path_requires_shot;
+			// Fire and forget, continue unconditionally
+			return FALSE;
+		}
+	}
+	return path_requires_shot;
+}
 
 /*
 ============
@@ -873,9 +954,16 @@ void() frogbot_marker_touch =
 		EvalPath();
 	}
 
+	if (WaitAndShootAtTrigger())
+	{
+		WaitAtTouchMarker(0.3);
+		self.path_state = NEED_SHOOT;
+		return;
+	}
 	if (WaitOnLift())
 		return;
 
+	// NOTE: is currently not set anywhere
 	if (self.state & WAIT)
 	{
 		if (!look_object_.client_)
@@ -984,77 +1072,12 @@ void() frogbot_marker_touch =
 // CheckTasks
 //
 
-	// DrLex: generalize dm6_door.
-	// As far as I understand it, the Z1_task property collects all path mode
-	// bits encountered until goalentity_marker if it is in Z1. I extended it to
-	// all zones, clustered so we don't need to test all 24 in the worst case.
-	// Using zone 1 for the things behind the door is the most efficient.
-	if (goalentity_marker.Z_ == door_targetZ)
-	{
-		// This makes one wish that QuakeC would short-circuit && and || operators...
-		local float tZ_behind_door = 0;
-		if (touch_marker_.taskClus1 & DM6_DOOR) {
-			if ((door_targetZ == 1) && (touch_marker_.Z1_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 2) && (touch_marker_.Z2_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 3) && (touch_marker_.Z3_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 4) && (touch_marker_.Z4_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 5) && (touch_marker_.Z5_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 6) && (touch_marker_.Z6_task & DM6_DOOR)) tZ_behind_door = 1;
-		}
-		else if (touch_marker_.taskClus2 & DM6_DOOR) {
-			if ((door_targetZ == 7) && (touch_marker_.Z7_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 8) && (touch_marker_.Z8_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 9) && (touch_marker_.Z9_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 10) && (touch_marker_.Z10_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 11) && (touch_marker_.Z11_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 12) && (touch_marker_.Z12_task & DM6_DOOR)) tZ_behind_door = 1;
-		}
-		else if (touch_marker_.taskClus3 & DM6_DOOR) {
-			if ((door_targetZ == 13) && (touch_marker_.Z13_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 14) && (touch_marker_.Z14_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 15) && (touch_marker_.Z15_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 16) && (touch_marker_.Z16_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 17) && (touch_marker_.Z17_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 18) && (touch_marker_.Z18_task & DM6_DOOR)) tZ_behind_door = 1;
-		}
-		else if (touch_marker_.taskClus4 & DM6_DOOR) {
-			if ((door_targetZ == 19) && (touch_marker_.Z19_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 20) && (touch_marker_.Z20_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 21) && (touch_marker_.Z21_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 22) && (touch_marker_.Z22_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 23) && (touch_marker_.Z23_task & DM6_DOOR)) tZ_behind_door = 1;
-			else if ((door_targetZ == 24) && (touch_marker_.Z24_task & DM6_DOOR)) tZ_behind_door = 1;
-		}
-
-		if (tZ_behind_door)
-		if (dm6_door.takedamage)
-		{
-			direction = normalize(dm6_door.absmin + dm6_door.view_ofs - origin_ - '0 0 40');
-			src = origin_ + '0 0 16';
-
-			traceline (src, src + direction*2048, FALSE, self);
-			if (trace_ent == dm6_door)
-				self.path_state = self.path_state | DM6_DOOR;
-		}
-		else
-		{
-			self.path_state = self.path_state - (self.path_state & DM6_DOOR);
-		}
-	}
-
 	self.state = self.state & NOT_NOTARGET_ENEMY;
 	if (self.flags & FL_ONGROUND)
 	if (self.wasinwater)
 	{
 		self.wasinwater = FALSE;
 		self.state = self.state & NOT_NOTARGET_ENEMY;	
-	}
-	if (self.path_state & DM6_DOOR)
-	{
-		self.state = self.state | NOTARGET_ENEMY;
-		look_object_ = dm6_door;
-		self.look_object = look_object_;
-		return;
 	}
 	if (look_object_.client_)
 		return;
@@ -1063,6 +1086,9 @@ void() frogbot_marker_touch =
 //	BestLook
 //
 
+	if (look_object_)
+	if (look_object_ == touch_marker_.shoot_me)
+		return;
 	if ((self.waterlevel == 2) || (self.waterlevel == 1)) // SOUL
 	{
 		self.look_object = self.linked_marker;

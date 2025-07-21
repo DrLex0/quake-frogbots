@@ -120,53 +120,11 @@ void() EvalGoal =
 			}
 		}
 
-		// DrLex: see remarks in botpath.qc.
-		if (goalentity_marker.Z_ == door_targetZ)
-		{
-			local float tZ_behind_door = 0;
-			if (touch_marker_.taskClus1 & DM6_DOOR) {
-				if ((door_targetZ == 1) && (touch_marker_.Z1_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 2) && (touch_marker_.Z2_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 3) && (touch_marker_.Z3_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 4) && (touch_marker_.Z4_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 5) && (touch_marker_.Z5_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 6) && (touch_marker_.Z6_task & DM6_DOOR)) tZ_behind_door = 1;
-			}
-			else if (touch_marker_.taskClus2 & DM6_DOOR) {
-				if ((door_targetZ == 7) && (touch_marker_.Z7_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 8) && (touch_marker_.Z8_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 9) && (touch_marker_.Z9_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 10) && (touch_marker_.Z10_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 11) && (touch_marker_.Z11_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 12) && (touch_marker_.Z12_task & DM6_DOOR)) tZ_behind_door = 1;
-			}
-			else if (touch_marker_.taskClus3 & DM6_DOOR) {
-				if ((door_targetZ == 13) && (touch_marker_.Z13_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 14) && (touch_marker_.Z14_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 15) && (touch_marker_.Z15_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 16) && (touch_marker_.Z16_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 17) && (touch_marker_.Z17_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 18) && (touch_marker_.Z18_task & DM6_DOOR)) tZ_behind_door = 1;
-			}
-			else if (touch_marker_.taskClus4 & DM6_DOOR) {
-				if ((door_targetZ == 19) && (touch_marker_.Z19_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 20) && (touch_marker_.Z20_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 21) && (touch_marker_.Z21_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 22) && (touch_marker_.Z22_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 23) && (touch_marker_.Z23_task & DM6_DOOR)) tZ_behind_door = 1;
-				else if ((door_targetZ == 24) && (touch_marker_.Z24_task & DM6_DOOR)) tZ_behind_door = 1;
-			}
-
-			if (tZ_behind_door)
-			if (dm6_door.takedamage)
-			if (enemy_ == look_object_)
-			if (!self.invincible_time)
-			if (enemy_.firepower >= 50)
-			{
-				goal_entity.saved_goal_desire = 0;
-				return;
-			}
-		}
+		// There used to be dm6_door logic here that set goal_entity.saved_goal_desire=0
+		// when the goal was in the zone behind the door, and enemy_ == look_object_,
+		// and enemy_.firepower >= 50. I'm not sure if it is worth it doing something
+		// similar for NEED_SHOOT, so far I haven't seen bots being too distracted by
+		// the thing behind the door.  -- DrLex
 
 		goal_entity.saved_respawn_time = goal_entity.goal_respawn_time + (goal_time * prediction_error_ * random()) - time;
 

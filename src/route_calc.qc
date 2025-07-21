@@ -275,15 +275,41 @@ float() TravelTime =
 		traveltime = 0;	// destination is only path
 		return TRUE;
 	}
-	if (m_D & EXCLUSIVE_DOOR)
+	if (m_D & LINKED_DOOR)
 	{
 		// Not a real path, to be combined with exclusive nodes.
 		// m_D must be a door; if it is open then this marker will
 		// allow a touch even when the bot is not on an exclusive path.
-		m.exclu_door_ent = m_P;
+		m.link_door_ent = m_P;
 #ifdef MANUAL
 		// Do not wipe the path in waypoint tool because it must be saved again.
 		// Give 'infinite' time to prevent from interfering with testing as a bot.
+		traveltime = 1000000;
+		return TRUE;
+#else
+		return FALSE;
+#endif
+	}
+
+	if (m_D & NEED_SHOOT)
+	{
+		// Add time penalty to account for shooting and waiting for door to open,
+		// such that if there is a simpler path, the bot will prefer it
+		traveltime = traveltime + 1.5;
+		m.shoot_targetZ = m_P.Z_;
+	}
+	if (m_D & SHOOT_AT)
+	{
+		// Shootable trigger logic. If the door to be opened is also the target of the shot,
+		// then it suffices to make a SHOOT_AT pseudo-path towards it. Otherwise,
+		// the door must be indicated using an LINKED_DOOR pseudo-path.
+		// It is also possible to set a SHOOT_AT not linked to any door; the bot
+		// will then unconditionally shoot at it when entering the path.
+		m.shoot_me = m_P;
+		if (m_P.classname == "door")
+		if (! (m_D & LINKED_DOOR))
+			m.link_door_ent = m_P;
+#ifdef MANUAL
 		traveltime = 1000000;
 		return TRUE;
 #else
@@ -371,7 +397,7 @@ Calc_G_time_2
 Wouldn't it be wonderful if there would be some actual
 documentation about what each of these methods actually do?
 This one is pretty straightforward, but the rest is pure
-headache material.
+headache material. -- DrLex
 ============
 */
 void() Calc_G_time_2 =
@@ -704,6 +730,9 @@ void() Calc_G_time_4_path =
 ============
 Calc_G_time_5_path
 
+Zone stuff.
+The task things are a remnant of the dm6_door system and are unused.
+I left it in, in case it ever is of any use. -- DrLex
 ============
 */
 void() Calc_G_time_5_path =

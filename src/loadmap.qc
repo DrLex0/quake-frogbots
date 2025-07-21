@@ -64,19 +64,6 @@ void() LoadMap =
 	frogbot_loading = map_lacks_waypoints = TRUE;
 	item_marker_index = marker_index;
 
-	// DrLex fix: make dm6_door work outside dm6 as well.
-	// Bots can only use 1 door in a map. The waypoint file must
-	// assign this door's marker to dm6_door.
-	dm6_door = world;
-	// Vector distance dm6_door has to move to be considered open.
-	// Value is good for dm6 and other doors that move about 128 units.
-	// Map waypoint files can override this default.
-	door_open_dist = 67;
-	// The zone behind the door, containing target(s) the bot will
-	// want to open the door for. If different from 1, door_targetZ
-	// must be overridden in the waypoint code.
-	door_targetZ = 1;
-
 	// For tweaking desirability of G1 and/or G2, value is a multiplication factor
 	desire_adj_G1 = desire_adj_G2 = 1;
 

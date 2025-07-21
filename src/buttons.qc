@@ -179,11 +179,11 @@ void() func_button =
 		else
 		{
 			self.touch = button_touch;
-			self.view_ofs = 0.5 * (self.absmax - self.absmin);
-			BecomeMarker(self);
-			SetFrB_Props(self);
-			adjust_view_ofs_z();
 		}
+		self.view_ofs = 0.5 * (self.absmax - self.absmin);
+		BecomeMarker(self);
+		SetFrB_Props(self);
+		adjust_view_ofs_z();
 
 		if (!self.speed)
 			self.speed = 40;

@@ -312,18 +312,15 @@ void() ApplyFrB_props =
 		if (mk.FrB_D6 != "") mk.D6 = stof(mk.FrB_D6);
 		if (mk.FrB_D7 != "") mk.D7 = stof(mk.FrB_D7);
 		if (mk.FrB_oZ != "") mk.view_ofs_z = stof(mk.FrB_oZ);
+		if (mk.FrB_dD != "")
+		{
+			mk.d_door_open = stof(mk.FrB_dD);
+			if (! mk.d_door_open) mk.d_door_open = 10;
+		}
 		if (mk.FrB_T != "") mk.T = stof(mk.FrB_T);
 		mk = mk.marker_linkrev;
 	}
 
-	if (world.FrB_door != "" ) {
-		found = FindFrB_ID(world, world.FrB_door);
-		if(found) dm6_door = found;
-	}
-	if (world.FrB_doorD != "")
-		door_open_dist = stof(world.FrB_doorD);
-	if (world.FrB_doorZ != "")
-		door_targetZ = stof(world.FrB_doorZ);
 	if (world.FrB_adj_G1 != "")
 		desire_adj_G1 = stof(world.FrB_adj_G1);
 	if (world.FrB_adj_G2 != "")

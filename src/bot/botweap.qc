@@ -137,7 +137,7 @@ void() SetFireButton =
 
 	if (look_object_.realteam != self.realteam)
 	{
-		if (self.path_state & DM6_DOOR)
+		if (self.shoot_at_thing)
 		{
 			items_ = self.items;
 			if (self.ammo_shells)
@@ -147,10 +147,28 @@ void() SetFireButton =
 			else if ((items_ & IT_SUPER_NAILGUN) && (self.ammo_nails))
 				desired_weapon = IT_SUPER_NAILGUN;
 			else if ((items_ & IT_LIGHTNING) && (self.ammo_cells))
-				desired_weapon = IT_LIGHTNING;
+			{
+				if (self.waterlevel > 1 && ! (self.items & IT_INVULNERABILITY))
+				{
+					desired_weapon = IT_AXE;  // bot might drown, but at least won't explode
+					self.arrow = FORWARD;
+				}
+				else
+					desired_weapon = IT_LIGHTNING;
+			}
+			else
+			{
+				desired_weapon = IT_AXE;
+				self.arrow = FORWARD;
+			}
 			CheckNewWeapon();
 			if (self.weapon == desired_weapon)
+			{
 				self.button0_ = TRUE;
+				self.shoot_at_thing = FALSE;
+				self.state = self.state & NOT_NOTARGET_ENEMY;
+				return;
+			}
 		}
 		if (self.state & HURT_SELF)
 		{
@@ -624,7 +642,7 @@ SelectWeapon
 */
 void() SelectWeapon =
 {
-	if (self.path_state & DM6_DOOR)
+	if (self.shoot_at_thing)
 		return;
 		
 	if (self.state & HURT_SELF)

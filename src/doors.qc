@@ -792,9 +792,9 @@ void () func_door_secret =
 		SetFrB_Props(self);
 	}
 
-// DOOR_OPEN for maps obsolete hard-coded junk
-// FIXME set T_FIRE_ON_MATCH_START on relevant markers when migrating these waypoints.
-// Looks like at least some of these can use the improved dm6_door handling!
+// DOOR_OPEN for maps; TODO get rid of this obsolete hard-coded junk
+// Set T_FIRE_ON_MATCH_START on relevant markers when migrating these waypoints.
+// But, most if not all can probably be made to work with universal shootable triggers.
 
 	if (mapname == "dakdm1" ||
 	    mapname == "naked7b2" || mapname == "naked6" ||

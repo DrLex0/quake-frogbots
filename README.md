@@ -108,15 +108,15 @@ However, while working on the tool and testing newly created waypoints, I also n
 
 6. Added _exclusive paths_ that allow to make the bot do seemingly smart things by selectively ignoring markers depending on chosen paths, or depending on whether a door is open. This has allowed to upgrade some previously crippled maps to feature-complete waypoints, like `dm5`, `e1m5`, and `ultrav`.
 
-7. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_ bot, it was surprisingly bad at swimming). Bots are more robust against less-than-ideally-placed underwater markers, will no longer get stuck on the water surface for no good reason, and will avoid drowning.
+7. Extended **shootable triggers** from merely the door in `dm6` towards _anything_ that requires shooting a trigger before a path can be traversed. Try `eodm3`.
 
-8. Waypoints through **slime** or **lava** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up the power-up that protects against the hazard. It will desire to pick up the biosuit when it desires to fetch an item from slime. Try `efdm13`.
+8. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_ bot, it was surprisingly bad at swimming). Bots are more robust against less-than-ideally-placed underwater markers, will no longer get stuck on the water surface for no good reason, and will avoid drowning.
 
-9. Improved _platform/lift handling,_ especially for button-activated lifts. Bots can wait for a platform to come down to avoid being squished, and can handle exits at multiple floors.
+9. Waypoints through **slime** or **lava** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up the power-up that protects against the hazard. It will desire to pick up the biosuit when it desires to fetch an item from slime. Try `efdm13`.
 
-10. Bots can _strafe run_ along a wall to boost their speed and make longer jumps.
+10. Improved _platform/lift handling,_ especially for button-activated lifts. Bots can wait for a platform to come down to avoid being squished, and can handle exits at multiple floors.
 
-11. Made _shootable doors_ work across more maps than only _dm6_ (I kept the `dm6_door` name for the sake of legacy and because it's a good example). Works with both horizontal and vertical doors, of various sizes. (Still only 1 door per map though.)
+11. Bots can _strafe run_ along a wall to boost their speed and make longer jumps.
 
 12. Allowed to set bot _‘smartness’_ through a cvar. Default (if zero or not set) is to link smartness to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings.  
     To override smartness, set the `fb_smartness` cvar to a value between 1 to 10, or negative (= dumbest). In classic Frogbot, it was hard-coded at 10.
@@ -132,7 +132,7 @@ However, while working on the tool and testing newly created waypoints, I also n
 
 - Allow embedding and using waypoint data in entity fields of maps, and provide a tool to inject marker data created with the waypoint tool into a `.map` or `.ent` file. This means no more need to recompile qwprogs to add bot support to a map.  
   It will be possible to build a BSP with embedded waypoints, or load them from an `.ent` file in engines that support these.   
-  _(Status: mechanism implemented, PoC works, working on script to inject WP into map/ent.)_
+  _(Status: mechanism implemented, PoC works, needs testing on larger maps, working on script to inject WP into map/ent.)_
 - Add more—ideally all—of Trinca's waypoints, with errors fixed and updated to benefit from the new features.
 - Create new waypoints for some more recent popular maps.
 - Some more documentation, like how the whole thing works at a technical level. Don't expect me to explain all voodoo in `route_calc.qc` though…
@@ -140,7 +140,7 @@ However, while working on the tool and testing newly created waypoints, I also n
 No promises about dates or reaching these goals whatsoever. It is done when it's done. Obviously, if you want to jump in and help: fork and branch this repository, do your thing, and create a pull request.
 
 ### Not really planned, but who knows…
-- Make shootable doors even more universal, and extend to any shootable trigger. Bots should be able to open _any_ door or activate _any_ bridge on _any_ path they want to follow by shooting at a trigger, without having to tie it to specific goals/zones. The current `dm6_door` system is overly complicated.
+
 - Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, but some things are broken. If you want to try this: remember to start a network game, or very weird things will happen when attempting to add a bot in single-player mode. However, one extra feature that the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer. Try it!
 - Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels. Bots also shouldn't do smart things on low smartness settings, like deliberately damaging themselves to be able to pick up armor such that other players cannot, and a level zero bot should have zero advance knowledge of when an item will spawn.
 

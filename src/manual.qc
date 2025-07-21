@@ -123,13 +123,13 @@ void(entity marker) manual_marker_touch =
 				DisconnectMarker();
 			else if (path_mode == CLEAR_PATH_MODES)
 				ClearPathModes();
+			else if (path_mode == LINKED_DOOR && to_marker.classname != "door")
+				bprint("Error: target marker must be a door");
 			else
 			{
 				ConnectMarker();
 				if (mode & ONE_WAY)
 				{
-					description = DM6_DOOR;
-					DescriptionMarker("dm6 door");
 					description = JUMP_LEDGE;
 					DescriptionMarker("jump ledge");
 					description = ROCKET_JUMP;
@@ -144,8 +144,12 @@ void(entity marker) manual_marker_touch =
 					DescriptionMarker("focused");
 					description = WALL_STRAFE;
 					DescriptionMarker("wall strafe jump");
-					description = EXCLUSIVE_DOOR;
-					DescriptionMarker("exclusive door");
+					description = NEED_SHOOT;
+					DescriptionMarker("need shoot");
+					description = SHOOT_AT;
+					DescriptionMarker("shoot at trigger");
+					description = LINKED_DOOR;
+					DescriptionMarker("linked door");
 				}
 				else
 				{
@@ -337,6 +341,50 @@ void() ClearActiveMarker =
 	active_marker.D0 = 0;
 	bprint("Active marker path cleared\n");
 };
+
+/*
+============
+ToggleWaypointRJ
+
+Bot will always want to RJ in waypoint tool, allow toggle
+============
+*/
+void() ToggleWaypointRJ =
+{
+	if (no_rocketjump)
+		{ no_rocketjump = FALSE; bprint("RJ enabled\n"); }
+	else
+		{ no_rocketjump = TRUE; bprint("RJ disabled\n"); }
+}
+
+/*
+============
+SetDoorDOpen
+
+Set d_door_open property on a door marker depending on its current position.
+============
+*/
+void() SetDoorDOpen =
+{
+	if (active_marker.classname != "door")
+	{
+		bprint("Error: no door marker is selected\n");
+		return;
+	}
+	if (active_marker.origin == active_marker.oldorigin)
+	{
+		bprint("Error: door is closed\n");
+		return;
+	}
+	active_marker.d_door_open = rint(vlen(active_marker.origin - active_marker.pos2));
+	if (active_marker.d_door_open)
+		bprint("d_door_open for m", ftos(active_marker.index), " set to ", ftos(active_marker.d_door_open), "\n");
+	else
+	{
+		active_marker.d_door_open = 10;
+		bprint("d_door_open for m", ftos(active_marker.index), " set to default (10)\n");
+	}
+}
 
 /*
 ============
@@ -995,16 +1043,18 @@ void(string field) Save_m_D =
 	}
 };
 
-void() Save_dm6_door =
+void() SaveGlobals =
 {
-	// Doors are no longer specific to dm6, but keep the name to avoid having to change sources
-	bprint("dm6_door=m", ftos(m.index), ";");
-	// Ensure overrides of the defaults are preserved
-	if (door_open_dist != 67)
-		bprint("door_open_dist=", ftos(door_open_dist), ";");
-	if (door_targetZ != 1)
-		bprint("door_targetZ=", ftos(door_targetZ), ";");
-	count_ = 10;
+	if (desire_adj_G1 != 1)
+	{
+		bprint("desire_adj_G1=", ftos(desire_adj_G1), ";\n");
+		count_ = 10;
+	}
+	if (desire_adj_G2 != 1)
+	{
+		bprint("desire_adj_G2=", ftos(desire_adj_G2), ";\n");
+		count_ = 10;
+	}
 };
 
 void() SavePaths =
@@ -1040,8 +1090,13 @@ void() SavePaths =
 		{
 			if (changed_view_ofs_z(m))
 			{
-				bprint("m", ftos(m.index), ".view_ofs_z=",
-					ftos(m.view_ofs_z), ";");
+				bprint("m", ftos(m.index), ".view_ofs_z=", ftos(m.view_ofs_z), ";");
+				count_ = count_ + 1;
+			}
+			if (m.d_door_open)
+			if (m.d_door_open != 10)
+			{
+				bprint("m", ftos(m.index), ".d_door_open=", ftos(m.d_door_open), ";");
 				count_ = count_ + 1;
 			}
 		}
@@ -1099,13 +1154,6 @@ void() SavePaths =
 			m_D = m.D7;
 			Save_m_D("D7");
 		}
-		else if (save_state == 6)
-		{
-			if (m.classname == "door" && m == dm6_door)
-			{
-				Save_dm6_door();
-			}
-		}
 
 		m = m.marker_linkfwd;
 		if (count_ >= 8)
@@ -1118,7 +1166,7 @@ void() SavePaths =
 	if (count_ || pcount)
 		bprint("\n");
 
-	if (save_state < 6)
+	if (save_state < 5)
 	{
 		save_state = save_state + 1;
 		if (save_state >= 4)
@@ -1127,10 +1175,7 @@ void() SavePaths =
 	}
 	else
 	{
-		if (desire_adj_G1 != 1)
-			bprint("desire_adj_G1=", ftos(desire_adj_G1), ";\n");
-		if (desire_adj_G2 != 1)
-			bprint("desire_adj_G2=", ftos(desire_adj_G2), ";\n");
+		SaveGlobals();
 		bprint("};\n/* MarkerInfo\n");
 		m = first_marker;
 		self.think = DumpMarkerInfo;
@@ -1493,6 +1538,10 @@ void() PrintGoal =
 		ftos(rint(active_marker.origin_z)), ")  ");
 	}
 	bprint(active_marker.classname);
+	if (active_marker.classname == "door")
+	if (active_marker.d_door_open)
+	if (active_marker.d_door_open != 10)
+		bprint("  d_d_o ", ftos(active_marker.d_door_open));
 	if (has_embedded_wp && active_marker.FrB_ID != "")
 		bprint(" \"", active_marker.FrB_ID, "\"");
 	bprint("\n");
@@ -1539,8 +1588,6 @@ void(float descbits) PrintDLabel =
 {
 	if (descbits & JUMP_LEDGE)
 		bprint("\xCA");  // J
-	if (descbits & DM6_DOOR)
-		bprint("\xC4");  // D
 	if (descbits & ROCKET_JUMP)
 		bprint("\xD2");  // R
 	if (descbits & PRECISE_JUMP)
@@ -1553,8 +1600,12 @@ void(float descbits) PrintDLabel =
 		bprint("\xC6");  // F
 	if (descbits & WALL_STRAFE)
 		bprint("\xD7");  // W
-	if (descbits & EXCLUSIVE_DOOR)
-		bprint("\xC5");  // E
+	if (descbits & NEED_SHOOT)
+		bprint("\xCE");  // N
+	if (descbits & SHOOT_AT)
+		bprint("\xE8");  // h
+	if (descbits & LINKED_DOOR)
+		bprint("\xE4");  // d
 }
 
 /*
@@ -1583,7 +1634,7 @@ If mD is a pseudo-path mode, use a bubble instead.
 void(entity e_from, entity e_to, float mD, entity garbage) SpikeIt =
 {
 	entity trail = spawn();
-	if ((mD & EXCLUSIVE_DOOR) || (e_to.T & T_JUMP_HINT))
+	if ((mD & IS_PSEUDO_PATH) || (e_to.T & T_JUMP_HINT))
 		setmodel (trail, "progs/s_bubble.spr");
 	else
 		setmodel (trail, "progs/spike.mdl");
@@ -1983,15 +2034,20 @@ void() CycleDescriptionMode =
 	}
 	else if (path_mode == WALL_STRAFE)
 	{
-		path_mode = DM6_DOOR;
-		bprint("dm6 door mode ON\n");
+		path_mode = NEED_SHOOT;
+		bprint("need shoot mode ON\n");
 	}
-	else if (path_mode == DM6_DOOR)
+	else if (path_mode == NEED_SHOOT)
 	{
-		path_mode = EXCLUSIVE_DOOR;
-		bprint("exclusive door mode ON\n");
+		path_mode = SHOOT_AT;
+		bprint("shoot at trigger mode ON\n");
 	}
-	else if (path_mode == EXCLUSIVE_DOOR)
+	else if (path_mode == SHOOT_AT)
+	{
+		path_mode = LINKED_DOOR;
+		bprint("linked door mode ON\n");
+	}
+	else if (path_mode == LINKED_DOOR)
 	{
 		path_mode = REVERSIBLE;
 		bprint("reversible display mode ON\n");
@@ -2317,8 +2373,6 @@ void() PrintDebugInfo =
 	bprint("pos ", vtos(self.origin), " p=", ftos(a_pit), " y=", ftos(a_yaw));
 	if ((mode & STATIC_ACTIVE_MARKER) && active_marker)
 		bprint(" d ", ftos(vlen(self.origin - active_marker.origin)));
-	if (dm6_door)
-		bprint("; dm6_door dist ", ftos(vlen(dm6_door.origin)));
 	bprint("\n");
 	if (has_embedded_wp) bprint("Embedded WP loaded\n");
 	else if (map_lacks_waypoints) bprint("No WP loaded\n");
@@ -2387,6 +2441,10 @@ void() ManualImpulseCommands =
 		TeleportAutoConnect();
 	else if (impulse_ == 161)  // `,`
 		FindNextGoal();
+	else if (impulse_ == 162)  // currently no key
+		ToggleWaypointRJ();
+	else if (impulse_ == 163)  // `.`
+		SetDoorDOpen();
 };
 
 #endif

@@ -130,6 +130,7 @@ void() trigger_multiple_create =
 
 		InitTrigger ();
 
+		local float is_marker = FALSE;
 		if (self.health)
 		{
 			self.max_health = self.health;
@@ -137,11 +138,22 @@ void() trigger_multiple_create =
 			Add_takedamage();
 			self.solid = SOLID_BBOX;
 			setorigin (self, self.origin);	// make sure it links into the world
+			is_marker = TRUE;
 		}
 		else
 		{
 			if ( !(self.spawnflags & SPAWNFLAG_NOTOUCH) )
+			{
 				self.touch = multi_touch;
+				is_marker = TRUE;
+			}
+		}
+		if (is_marker)
+		{
+			self.view_ofs = 0.5 * (self.absmax - self.absmin);
+			BecomeMarker(self);
+			SetFrB_Props(self);
+			adjust_view_ofs_z();
 		}
 	}
 };

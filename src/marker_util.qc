@@ -30,6 +30,9 @@ void(entity marker) BecomeMarker =
 		first_marker = marker;
 	else
 		marker.marker_linkrev.marker_linkfwd = marker;
+	if (marker.classname == "door")
+	if (! marker.d_door_open)
+		marker.d_door_open = 10;  // default
 };
 
 /*
@@ -148,13 +151,13 @@ void(float prioritize) check_marker =
 		// Ignore exclusive marker unless:
 		// - current path originates from it (don't let a distant marker
 		//   hijack the touch just because we're exiting EP mode)
-		// - EXCLUSIVE_DOOR links to an open door
-		if (! self.exclu_door_ent)
+		// - LINKED_DOOR links to an open door
+		if (! self.link_door_ent)
 			return;
 		// and bot is not in cooldown period
 		if (time < other.exclu_door_cooldown)
 			return;
-		if (vlen(self.exclu_door_ent.origin - self.exclu_door_ent.pos2) > 10)
+		if (vlen(self.link_door_ent.origin - self.link_door_ent.pos2) > self.link_door_ent.d_door_open)
 			return;
 	}
 	if (self.T & T_NOTOUCH)
@@ -494,3 +497,49 @@ void() CheckWaterColumn =
 		testplace_z = testplace_z + 16;
 	}
 };
+
+/*
+============
+MarkerHasZoneTask
+
+Remnant of dm6_door system, currently unused.
+Still unclear to me what the Zx_task property really represents, but if anyone
+sees a use for it, this heavily optimised method may come in handy. -- DrLex
+============
+*/
+float(entity marker, float zone, float flag) MarkerHasZoneTask
+{
+	if (marker.taskClus1 & flag) {
+		if (zone == 1) return (marker.Z1_task & flag);
+		if (zone == 2) return (marker.Z2_task & flag);
+		if (zone == 3) return (marker.Z3_task & flag);
+		if (zone == 4) return (marker.Z4_task & flag);
+		if (zone == 5) return (marker.Z5_task & flag);
+		return (marker.Z6_task & flag);
+	}
+	if (marker.taskClus2 & flag) {
+		if (zone == 7) return (marker.Z7_task & flag);
+		if (zone == 8) return (marker.Z8_task & flag);
+		if (zone == 9) return (marker.Z9_task & flag);
+		if (zone == 10) return (marker.Z10_task & flag);
+		if (zone == 11) return (marker.Z11_task & flag);
+		return (marker.Z12_task & flag);
+	}
+	if (marker.taskClus3 & flag) {
+		if (zone == 13) return (marker.Z13_task & flag);
+		if (zone == 14) return (marker.Z14_task & flag);
+		if (zone == 15) return (marker.Z15_task & flag);
+		if (zone == 16) return (marker.Z16_task & flag);
+		if (zone == 17) return (marker.Z17_task & flag);
+		return (marker.Z18_task & flag);
+	}
+	if (marker.taskClus4 & flag) {
+		if (zone == 19) return (marker.Z19_task & flag);
+		if (zone == 20) return (marker.Z20_task & flag);
+		if (zone == 21) return (marker.Z21_task & flag);
+		if (zone == 22) return (marker.Z22_task & flag);
+		if (zone == 23) return (marker.Z23_task & flag);
+		return (marker.Z24_task & flag);
+	}
+	return FALSE;
+}

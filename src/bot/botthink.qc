@@ -533,27 +533,14 @@ void() ThinkTime =
 						rel_pos_z = 0;
 					rel_dist = vlen(rel_pos);
 
-					if (self.path_state & DM6_DOOR)
+					if (rel_dist < 160)
 					{
-						if (dm6_door.takedamage)
-							rel_pos_z = rel_pos_z - 38;
-						else
-						{
-							self.path_state = self.path_state - DM6_DOOR;
-							self.state = self.state & NOT_NOTARGET_ENEMY;
-						}
-					}
-					else
-					{
-						if (rel_dist < 160)
-						{
-							rel_pos2_x = rel_pos_x;
-							rel_pos2_y = rel_pos_y;
-							rel_pos2 = 160 * normalize(rel_pos2);
-							rel_pos_x = rel_pos2_x;
-							rel_pos_y = rel_pos2_y;
-							rel_dist = 160;
-						}
+						rel_pos2_x = rel_pos_x;
+						rel_pos2_y = rel_pos_y;
+						rel_pos2 = 160 * normalize(rel_pos2);
+						rel_pos_x = rel_pos2_x;
+						rel_pos_y = rel_pos2_y;
+						rel_dist = 160;
 					}
 				}
 
@@ -570,18 +557,20 @@ void() ThinkTime =
 					}
 				}
 
-				if (! self.path_from_marker.look_here)
+				if (self.look_object != self.enemy)
 				{
-					FrogTrackSlow();
-					if (!self.rocketjumping)
+					// Exceptions, these will use FrogTrackSimple instead
+					if (self.path_state & NEED_SHOOT)
+					{
 						SetFireButton();
+						return;
+					}
+					if (self.path_from_marker.look_here)
+						return;
 				}
-				else if(self.look_object == self.enemy)
-				{
-					FrogTrackSlow();
-					if (!self.rocketjumping)
-						SetFireButton();
-				}
+				FrogTrackSlow();
+				if (!self.rocketjumping)
+					SetFireButton();
 			}
 		}
 	}
@@ -601,14 +590,21 @@ void() SetFrogbotAngles =
 		rel_pos = self.wallstrafe_vec;
 		FrogTrackSimple();
 	}
-	else if (self.path_from_marker.look_here)
+	else if (self.look_object != self.enemy)  // don't get distracted while shooting enemies
 	{
-		// may be extended to shoot buttons/doors as well
-		if (self.path_state & ROCKET_JUMP)
-		if (self.look_object != self.enemy)  // don't get distracted while shooting enemies
+		if (self.path_state & NEED_SHOOT)
 		{
-			rel_pos = self.path_from_marker.look_here.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs);
+			// The aiming point coincides with the crotch of the marker
+			rel_pos = (self.path_from_marker.shoot_me.absmin + self.path_from_marker.shoot_me.view_ofs) - (self.origin + '0 0 24');
 			FrogTrackSimple();
+		}
+		else if (self.path_state & ROCKET_JUMP)
+		{
+			if (self.path_from_marker.look_here)
+			{
+				rel_pos = self.path_from_marker.look_here.origin - (self.path_from_marker.absmin + self.path_from_marker.view_ofs);
+				FrogTrackSimple();
+			}
 		}
 	}
 

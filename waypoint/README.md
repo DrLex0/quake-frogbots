@@ -74,13 +74,13 @@ O		120	131	TOGGLE MANUAL-MODE
 MOUSE1	3	119	132	SPAWN A MARKER
 G	9	132	142	DEFAULT MARKER-MODE
 F	5	135	144	TOGGLE CLOSEST-MARKER-MODE
-L	0	none	156	CYCLE BETWEEN 4 CLOSEST MARKERS
+L	0	-	156	CYCLE BETWEEN 4 CLOSEST MARKERS
 I	TAB	127	135	TOGGLE STATIC ACTIVE MARKER
 P		128	136	REMOVE ACTIVE MARKER
 H		129	137	DISABLE ACTIVE MARKER
 J	6	130	138	TOGGLE ONEWAY-MODE
 MOUSE2	4	131	139	TOGGLE CONNECT-MARKERS-MODE
-K		none	160	AUTO CONNECT trigger_teleport
+K		-	160	AUTO CONNECT trigger_teleport
 T		137	145	CLEAR ACTIVE MARKER PATHS
 Y		138	146	MOVE ACTIVE MARKER
 U		139	147	VERTICALLY MOVE ACTIVE MARKER
@@ -88,7 +88,7 @@ WHEELUP	2	140	148	INCREASE GOAL/ZONES
 WHEELDN	1	141	149	DECREASE GOAL/ZONES
 ENTER	Q	142	150	SET GOAL/ZONE
 C	8	143	151	PRINT ZONE, GOAL, TYPE
-R		none	157	PRINT/SHOW PATHS
+R		-	157	PRINT/SHOW PATHS
 V	7	144	152	CYCLE PATH-MODES or
 				CYCLE MARKER TYPES
 Z		146	154	CYCLE DISPLAY-MODE
@@ -96,16 +96,18 @@ B		145	153	DISPLAY TRAVELTIME
 X		147	155	DISPLAY REACHABLE
 N		125	133	CHECK ALL GOALS
 M		126	134	CHECK ALL ZONES
-,		none	161	SHOW SAME OR NEXT GOAL
-E		none	159	MOVE TO ACTIVE MARKER
-/		none	158	PRINT COORDINATES & EXTRA INFO
+,		-	161	SHOW SAME OR NEXT GOAL
+.		-	163	SET DOOR OPEN THRESHOLD
+E		-	159	MOVE TO ACTIVE MARKER
+/		-	158	PRINT COORDINATES & EXTRA INFO
 F1		133	143	DUMP WAYPOINT DATA
 F2		?	130	NOCLIP
 F3		?	50	DISABLE DAMAGE FLASH
-F4		none	123	TOGGLE FROGBOT -- CAUTION!
+F4		?	123	TOGGLE FROGBOT -- CAUTION!
 				Read Advanced section first!
 F5		-	-	CONDUMP COMMAND (dump console to file)
 MOUSE3  	-	-	FIRE
+none		-	162	TOGGLE ROCKET JUMPING
 
 PATH MODES
 	- regular path mode (default)
@@ -118,8 +120,9 @@ PATH MODES
 (new)	- just GO mode
 (new)	- focused path mode
 (new)	- wall strafe jump mode
-	- dm6 door-mode
-(new)	- exclusive door mode
+(new)	- need shoot mode
+(new)	- shoot at trigger (pseudo)
+(new)	- linked door (pseudo)
 	- reversible display-mode
 	- water path display-mode
 (new)	- clear all assigned path modes
@@ -243,8 +246,9 @@ These steps do not need to be done in this exact order, but you will typically g
      In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
    - **Focused path mode** (shown as `‘F’`, number 2 in code) makes the bot look at (focus on) the destination marker of the path. This is useful when walking along tricky thin ledges (example in `monsoon`), or when the bot needs to jump out of water (example in `cmt4`). Without this mode, the bot may be distracted by looking at the next item it wants to pick up, causing it to move inaccurately and fall off the ledge, or face the wrong way to perform the water jump. (Looking at enemies always has priority over this path mode.)
    - **Wall strafe jump mode** (shown as `‘W’`, number 8 in code) exploits Quake's weird physics to allow bots to jump across gaps too wide for a normal jump in some situations. More info in the advanced section below.
-   - **DM6 door mode** (shown as `‘D’`, number 256 in code) is for getting through doors like in _dm6_ that need to be shot/whacked to open. This is limited by certain constraints and requires extra configuration. More details in the advanced section below.
-   - **Exclusive door** (shown as `‘E’`, number 128 in code) is a _pseudo path_ mode that must point from an exclusive marker to a door or platform. See the advanced section for more info.
+   - **Need shoot mode** (shown as `‘N’`, number 256 in code) is for paths that require shooting a trigger to be traversable, often a door like in _dm6,_ but the trigger may also be separate from the door. More details in the advanced section below.
+   - **Shoot at** (shown as `‘h’`, number 32 in code) is a _pseudo path_ mode that indicates what object to shoot for _need shoot_ mode. See the advanced section for more info.
+   - **Linked door** (shown as `‘d’`, number 128 in code) is a _pseudo path_ mode that can be combined with _exclusive markers_ or with _need shoot_ mode. See the advanced section for more info.
 
 The path mode selection also affects the display of markers connected to the active marker: when a certain mode is selected, only markers connected through an outgoing path of that type will be shown spinning. (The selection contains 2 pure `display-modes` for certain auto-assigned path types, these cannot be set.)
 
@@ -372,13 +376,13 @@ Also, if the door is already open, we don't want the bot to make the detour via 
 The v2 Frogbot offers a solution for this scenario, consisting of 2 parts:
 1. **Exclusive node** marker type.  
    Set this on the markers of the one-way path going from the switch to the door. As with the other node types, set display mode `Z` to “Display type,” and use `V` to select `exclusive node`. Then activate the marker and right-click (`MOUSE2`).
-2. **Exclusive door** pseudo-path mode.  
-   Connect an `exclusive door` path between the exclusive markers nearest to the door, towards (one of) the door's marker(s). As often, `NOCLIP` and closest marker mode are your friends here because the door marker will likely be inside a wall. Only do this for the exclusive markers closest to the door—if the bot is near the switch anyway, it is better to again push it.
+2. **Linked door** pseudo-path mode.  
+   Connect a `linked door` path between the exclusive markers nearest to the door, towards (one of) the door's marker(s). As often, `NOCLIP` and closest marker mode are your friends here because the door marker will likely be inside a wall. Only do this for the exclusive markers closest to the door—if the bot is near the switch anyway, it is better to again push it.
 
 This works as follows. The bot will:
 - ignore touching an `exclusive node` marker, _unless:_
   - when coming from another marker, following a path that has this exclusive node as its destination;
-  - when this node has an `exclusive door` pseudo-path towards a door marker, and that door is currently open;
+  - when this node has a `linked door` pseudo-path towards a door marker, and that door is currently open;
 - ignore _all_ other markers except the `exclusive node` as soon as it starts following a path towards this node. Because of risk of forever getting stuck, there is a deadline of _3 seconds_ to reach the exclusive node, the bot will resume its usual business if this deadline expires.
 
 When the bot exits an exclusive path, in other words when it decides to move from an exclusive marker towards a non-exclusive marker, the `exclusive door` mechanism is instantly suppressed for 4 seconds, to allow the bot to exit through the same door without being forced back in.
@@ -462,6 +466,35 @@ If even this would not suffice, you could place extra markers to ‘shield’ th
 `Narrow` markers are not only useful for ladders, they can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam.
 
 
+### Shootable doors and triggers
+The old Frogbot supported one single shootable trigger, the door in `dm6`. Even though the logic could be ported to other maps with similar doors, it was very constrained and hard to set up. The bot could open the door only in one direction, and only if it desired to pick up a certain thing behind the door. If the door closed before the bot could get out and the area had no other exit, it got stuck.
+
+The v2 Frogbot replaces this system with _universal shootable triggers._ Bots can now shoot any trigger, be it a door or (secret) switch, whenever they want to cross a path that requires it, in any direction. And remember: anything platform-like is considered a ‘door,’ so this can also be used for bridges etc.
+
+The system relies on multiple path modes, some of which are ‘pseudo’ paths, i.e., they are not actual paths but indicate a relation between markers.
+- `need shoot` path mode must be set on a path that can only be crossed after a trigger has been shot.  
+  For instance, in `dm6`, any paths going through the large door must have this mode. Although this mode typically has to be set on the path going through the obstacle, it may also be set on an earlier path that is then connected to the obstacle via exclusive markers. An example of the latter can be found in the water zone of `eodm3`.
+- `shoot at trigger` pseudo path mode _must_ originate from the same marker from where a `need shoot` path starts.  
+  This pseudo path must end at the object to be shot in order to make the `need shoot` path traversable. In `dm6`, it is the door itself, but it may also be a switch controlling a door.  
+- `linked door` pseudo path mode is optional, it is needed if the door to be opened is different from the trigger to be shot. If both are the same, it suffices to only create a `shoot at trigger` path towards the door.
+- The pseudo paths may also be set on markers that have a direct path towards the marker from where a `need shoot` path starts. This is optional, but recommended because it allows the bot to already prepare for the shot before it reaches the actual waiting spot. (Do not set these paths on even earlier markers, it may have unwanted effects.)
+- For the system to work optimally, both ends of the `need shoot` path must be in different zones.
+
+The following image illustrates both a shootable door, and a door that has to be opened by shooting some other target. (Only the path in 1 direction is shown, the same setup has to be made a second time if the door can be opened from either side.)
+
+![Shootable triggers](images/shoot-triggers.jpg)
+
+**Vertical placement** of the marker representing the target to be shot is important. One can consider the _crotch_ of the marker as the point the bot will aim for. By default, markers are placed on top of their door, and it will be necessary to move them downwards to ensure the door itself is hit by the shots. Enable closest-marker mode (`F`) and NOCLIP (`F2`), and use the `U` key while the marker is selected to move it vertically such that the marker's crotch falls within the door volume. For very small targets, like some small switches, some trial-and-error may be required.
+
+#### Setting optimal open door distance
+By default, the bot will wait until the door or platform has moved within 10 units of its final ‘open’ position, which in practice means “open all the way.” This also applies to linked doors for exclusive markers.  
+In some cases, this is overly conservative, and the bot can already traverse a partially open door. This threshold can be adjusted by setting the `d_door_open` property on the door marker. If a custom value is set, it will be shown as `d_d_o` in the marker info for the door (when using the `C` key).
+
+To set this value from within the waypoint tool, select the door marker (closest-marker mode `F` and NOCLIP `F2` will be helpful), and enable static active marker mode (`TAB` or `I`) to keep it selected even when moving around. Then exit manual mode (`O`), shoot the trigger to open the door (middle mouse button), and quickly re-enter manual mode. Then press the `.` (period) key right at the moment you consider the door open enough for the bot to walk through. (If the door moves too fast for this, you shouldn't even bother, then there is no advantage in setting an exact threshold anyway.)
+
+You should test this using the ‘become Frogbot’ feature (see below), and adjust if needed. The value can be manually tweaked in the waypoint code (look for “`d_door_open=`”). The smallest custom value that can be used, is 1 (but should never be needed), because a value of 0 is treated the same as the default of 10.
+
+
 ### Wall strafe jump
 
 Seasoned players will know that the Quake engine has some weird physics quirks that can be exploited to achieve speeds higher than the typical 320 units/sec limit. One of these tricks is to run along a wall while pressing both forward and strafe keys, and maintaining a certain angle relative to the wall. Although it makes no sense from a real physics point-of-view, running into the wall like this will provide a boost that can reach speeds up to a whopping _480 units/sec,_ which may be useful to cross gaps that are otherwise too wide for a jump.
@@ -475,7 +508,6 @@ Some hints to improve chances of this working:
 - Place the end marker right on the edge from where to jump, to maximize the distance that can be bridged.
 - Use a narrow marker as the starting point of the path, especially for shorter walls.
 - It may also help to set _focused path mode_ on the path leading to the start marker, to ensure the bot is already looking mostly in the right direction at the start of the path. Slow path mode may help to give the bot more time to adjust its aim.
-- In truly exotic cases where the maximum speed would be too high, you could deliberately skew the path relative to the wall, to reduce the speed.
 
 Look at `catalyst` (jump towards mega health) for an example.
 
@@ -521,49 +553,9 @@ desire_adj_G1 = 1.6;
 ```
 
 
-### Setting up a shootable door
-This is for doors like the one in `dm6`. Originally, the Frogbot source had everything hard-coded for this level, it was the only door the bots could handle. This has been extended to handle similar doors in other maps, also vertical ones like the bookcase in `hohoho2`. (For historical reasons, the `dm6_door` name was kept in the source code and the tool.)
-
-This only works under certain conditions:
-- Bots can only handle _one such door per map._ If a map has multiple, you will have to pick the most desirable one. Do not create paths through other doors that do not automatically open when approached, or the bot will get stuck.
-- The bot will only want to open the door if there is something desirable behind it. This also means the bot can only go through the door in that direction.
-- The marker in front of the door and the desirable item _must_ be in a different zone. (If you have not yet created zones, assign _zone 1_ behind the door, it makes things easier.)
-
-This may require loading at least partial waypoint data into the waypoint tool, because if the door is too different from the one in `dm6`, you will need to manually add some values to your waypoint code and then rebuild the tool.
-
-#### Workflow
-1. Assign `dm6 door` mode to the path that goes from outside to beyond the door. Enable _one-way mode,_ and select `dm6 door mode` with `V`. There must be no path in the other direction.  
-   You may now want to dump the code with `F1`.
-
-2. Find the **entity** of the door. It will have a marker standing _on top_ of it, which means that for vertical doors, it will likely be inside a wall. (In that case it may be good to use `U` to move the marker to the middle of the door, although it will usually work as-is.)  
-   Enable NOCLIP (`F2`) and closest-marker (`F`) to easily select the marker. Then, use `C` to print the marker number. In this example, assume it is `m42`. Then, add at the end of the dumped waypoint code, before the closing “`};`”:
-   ```
-   dm6_door=m42;
-   ```
-3. Find the **zone number** of the thing behind the door, which the bot will want to obtain, for instance a mega health. If you haven't started assigning zones yet, or it is easy to change them, by all means use zone 1 for this area, because it's the default and then you can skip the following step. As noted above, it is _essential_ that the zone behind the door differs from the zone from which the bot will be shooting the door.
-
-4. If the zone behind the door is not 1, for instance 7 in this example, you must add another piece of code before the closing “`};`”:
-   ```
-   door_targetZ=7;
-   ```
-5. Now comes the _trickiest part:_ bots need to know when the door is **sufficiently open.** By default, this is when the door has moved _67 units_ from its closed position. For doors similar in size and design as the one in `dm6`, this default will work fine.  
-If the door is much smaller or larger, or moves differently, you will need to override the `door_open_dist` parameter. You could guess, but if you rebuild the waypoint tool with the above parameters added to your waypoint code, you can actually measure inside the tool how far the door has moved.  
-To do this, disable Manual Mode (`O`), shoot the door (`MOUSE3` = scroll wheel button), quickly re-enable MM, and press `/` when you think the door is sufficiently open to walk through. (Smaller doors usually need to be open all the way.)  
-You should then see something like “`dm6_door dist 48.7`.” Round down the number (48 in this example), and add before the closing “`};`”:
-   ```
-   door_open_dist=48;
-   ```
-
-As you can see, pretty complicated, but having bots open these doors and obtain the precious item behind it, makes them more realistic and challenging. Look at `hohoho2` for a full example of all the above.
-
-(Nerdy detail: the lower the zone number you use for the thing behind the door (ideally 1), the more efficient the program will run. But unless you want to run the bots on an ancient machine, this doesn't matter at all of course.)
-
-(Tech note: it should be possible to simplify this whole system because it is overly complicated and needlessly constrained. The bot should simply shoot at doors (or secret switches that open doors) whenever it wants to go through them while the door is closed. There is no need to tie this to specific items or zones.)
-
-
 ### Disabling doors/platforms
 
-If a map has a door or platform the bot cannot handle, but it is important for the bot to be able to traverse it, then the door/platform can be forced to be always open/active. Currently this may be necessary for things that require shooting a trigger, because this is not yet implemented for anything else than a single `dm6`-like door.  
+If a map has a door or platform the bot cannot handle, but it is important for the bot to be able to traverse it, then the door/platform can be forced to be always open/active. The need for this should be much reduced since the introduction of the universal shootable triggers system, but there may still be situations where it is impossible for bots to reliably open doors.  
 To force a door or platform in its open/active state, set display mode to `type` with the `Z` key, then select `force node activated` mode with the `V` key, and right-click the marker (`NOCLIP` and closest marker mode will make it easier to select the correct marker, which may be inside a wall). The marker should then usually also be made untouchable.
 
 

@@ -13,7 +13,7 @@ from typing import TextIO
 
 
 KTX_PATHF_TO_V2 = {
-    "6": 256,  # dm6 door
+    "6": 256,  # dm6 door becomes shootable trigger (needs extra manual conversion)
     "r": 512,  # rocket jump
     "j": 1024,  # jump ledge
     "w": 2,  # waterjump: treat as focused path
@@ -23,7 +23,7 @@ KTX_PATHF_TO_V2 = {
 
 KTX_MARKF_TO_V2 = {
     "u": 1,  # unreachable
-    "6": -6,  # is dm6_door
+    "6": 0,  # dm6_door, obsolete
     "f": 128,  # fire on match start, only for 'door' in v2 frogbot, rest is hard-coded logic.
     # BLOCKED_ON_STATE_TOP: confusing name, actually means door is closed when in STATE_TOP, not
     # that it is forced to be in that state. TODO might implement this if need arises.
@@ -42,7 +42,7 @@ V2_PATHF_TO_KTX = {
     4: "",  # exclusive door (pseudo)
     8: "",  # wall strafe jump
     128: "",  # precise jump
-    256: "6",  # dm6 door
+    256: "",  # needs shootable trigger, former dm6 door, don't convert (yet)
     512: "r",  # rocket jump
     1024: "j",  # jump ledge
     2048: "",  # slow down
@@ -119,6 +119,9 @@ def ktx_to_frog2(
                 mode = KTX_PATHF_TO_V2.get(flag, 0)
                 if not mode:
                     print(f"Skipping path mode flag {flag};", file=sys.stderr)
+                elif flag == "6":
+                    print("WARNING: converting DM6 door flag to NEED_SHOOT, "
+                          "will require further editing", file=sys.stderr)
                 path_mode += mode
             if not path_mode:
                 continue
@@ -132,12 +135,6 @@ def ktx_to_frog2(
                 mode = KTX_MARKF_TO_V2.get(flag, 0)
                 if not mode:
                     print(f"Skipping marker mode flag {flag};", file=sys.stderr)
-                elif mode == -6:
-                    item_count = print_neat_lines(
-                        f"dm6_door=m{mat.group(1)};",
-                        out_stream, item_count, 8
-                    )
-                    mode = 0
                 mark_mode += mode
             if not mark_mode:
                 continue

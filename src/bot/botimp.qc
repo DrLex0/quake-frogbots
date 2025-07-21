@@ -22,15 +22,6 @@ void() PlayerReady;
 #ifdef MANUAL
 void() ToggleManualMode;
 void() ManualImpulseCommands;
-
-// Bot will always want to RJ in waypoint tool, allow toggle
-void() ToggleWaypointRJ =
-{
-	if (no_rocketjump)
-		{ no_rocketjump = FALSE; bprint("RJ enabled\n"); }
-	else
-		{ no_rocketjump = TRUE; bprint("RJ disabled\n"); }
-}
 #endif
 
 /*
@@ -1473,8 +1464,6 @@ void() ImpulseCommands =
 		#ifdef MANUAL
 			else if (impulse_ == 131)
 				ToggleManualMode();
-			else if (impulse_ == 162)
-				ToggleWaypointRJ();
 			else if (manual_mode)
 				ManualImpulseCommands();
 		#endif

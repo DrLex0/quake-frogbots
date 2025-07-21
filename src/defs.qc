@@ -1574,17 +1574,18 @@ float new_path_state;
 // map set values
 float JUST_GO			= 1;
 float FOCUS_PATH		= 2;
-float EXCLUSIVE_DOOR		= 4;
+float LINKED_DOOR		= 4;  // pseudo
 float WALL_STRAFE		= 8;
+float SHOOT_AT			= 16;  // pseudo
 float PRECISE_JUMP		= 128;
-float DM6_DOOR			= 256;
+float NEED_SHOOT			= 256;  // former DM6_DOOR, now more universal
 float ROCKET_JUMP		= 512;
 float JUMP_LEDGE		= 1024;
 float SLOW_DOWN			= 2048;
 // Bits to be saved in waypoint code: all the above path modes together
-float SAVED_DESCRIPTION		= 3983;
+float SAVED_DESCRIPTION		= 4095;
 // Bits of all pseudo path modes
-float IS_PSEUDO_PATH	= 4;
+float IS_PSEUDO_PATH	= 20;
 
 // auto set values
 float REVERSIBLE		= 16384;
@@ -1608,7 +1609,7 @@ float NOT_JUMP_LEDGE			= 16776191;
 float DELIBERATE_AIR_WAIT_GROUND	= 393216;
 float SLOW_PRECISE			= 2176;
 
-.entity exclu_door_ent;  // marker property set by EXCLUSIVE_DOOR path mode
+.entity link_door_ent;  // marker property set by LINKED_DOOR pseudo-path mode
 .float exclu_door_cooldown;  // bot property to prevent it from yo-yoing
 .float running_up;  // > 0: heading towards run_up_point; < 1: from run_up_point to jump position
 .vector run_up_point;
@@ -1674,9 +1675,12 @@ float penta_protection;
 .float exclusive_deadline;
 .entity near_teleport;
 
-entity dm6_door;
-float door_open_dist;
-float door_targetZ;
+// universal shootable triggers
+.entity shoot_me;  // target entity of NEED_SHOOT path
+.float shoot_targetZ;  // zone of the target entity
+.float shoot_at_thing;  // whether conditions to shoot are met
+
+.float d_door_open;  // max distance from pos2 to consider door open enough, default 10
 
 float desire_adj_G1;
 float desire_adj_G2;
@@ -2481,9 +2485,6 @@ float has_embedded_wp;
 
 // world
 .string FrogBotWP;  // global indicator of waypoint presence
-.string FrB_door;   // maps to entity dm6_door
-.string FrB_doorD;  // maps to float door_open_dist
-.string FrB_doorZ;  // maps to float door_targetZ
 .string FrB_adj_G1; // maps to desire_adj_G1
 .string FrB_adj_G2; // maps to desire_adj_G2
 // markers
@@ -2508,6 +2509,7 @@ float has_embedded_wp;
 .string FrB_D6;
 .string FrB_D7;
 .string FrB_oZ;  // view_ofs_z
+.string FrB_dD;  // d_door_open
 //===========================================================================
 
 
