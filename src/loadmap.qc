@@ -129,6 +129,8 @@ void() AddMissingBits =
 		m100.touch = null;  // Sabotage Shub's hurt trigger
 	else if (mapname == "endif")
 		SpawnIntermission('-227 -732 800', '54 45 8');
+	else if (mapname == "filthy")
+		SpawnIntermission('-5 -722 -136', '-12 56 0');
 	else if (mapname == "four")
 		SpawnIntermission('-35 0 11', '-30 0 0');
 	else if (mapname == "genocide")

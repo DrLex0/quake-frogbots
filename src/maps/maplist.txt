@@ -40,6 +40,7 @@ trinca/map_efdm8.qc
 trinca/map_end.qc
 trinca/map_eodm3.qc
 trinca/map_exdm3.qc
+trinca/map_filthy.qc
 trinca/map_four.qc
 trinca/map_genocide.qc
 trinca/map_lilith.qc
