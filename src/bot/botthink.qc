@@ -18,25 +18,6 @@ float(float a) anglemod2;
 
 /*
 ============
-LookDoor
-
-============
-*/
-void() LookDoor =
-{
-	search_item = findradius(self.origin, 300);
-	while(search_item) {
-		if (search_item.classname == "door") {
-			if (search_item.state == STATE_BOTTOM) door_open = 0;
-			else door_open = 1;
-			return;
-		}
-		search_item = search_item.chain;
-	}
-};
-
-/*
-============
 FrogTrackSlow
 
 For slow updates of yaw & pitch movement parameters to make
@@ -440,9 +421,6 @@ void() ThinkTime =
 		if (!game_arena)
 		if (numberofclients == 2)
 			AttackRespawns();
-
-		if (mapname == "povdmm4")
-			LookDoor();
 
 		if (time >= self.fire_nextthink)
 		{

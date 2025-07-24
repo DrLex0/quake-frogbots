@@ -76,14 +76,6 @@ void() EvalGoal =
 			return;
 		}
 
-		if (mapname == "povdmm4")
-		if (!door_open)
-		if (goal_entity.classname == "item_armor2")
-		{
-			goal_entity.saved_goal_desire = 0;
-			return;
-		}
-
 		if (time < goal_entity.touchPlayerTime)
 		if (goal_entity.nextthink > 0)
 		if (goal_entity.touchPlayer.realteam == realteam_)
