@@ -35,7 +35,9 @@ void() SetAttribs =
 	// DrLex: apparently the intention was to make smartness configurable, but this never happened
 	// and was hard-coded to 10, making bots do annoyingly advanced things even on lowest skill
 	// levels. Smartness now varies together with skill up to 10, but can be overridden by setting
-	// cvar 'fb_smartness' to nonzero. For dumbest possible bots, use negative value.
+	// cvar 'fb_custom_smart' to nonzero. For 'dumbest' possible bots, use negative value. There is
+	// still some stuff that should be disabled or toned down at lower smartness levels, for
+	// instance a level 0 bot should not do the HURT_SELF thing.
 	local float smartness;
 
 	skill_ = self.bot_skill;  // 0 to 20
@@ -59,8 +61,8 @@ void() SetAttribs =
 		self.fast_aim = 0;
 		smartness = 3 + 0.7 * skill_;
 	}
-	if (cvar("fb_smartness")) {
-		smartness = cvar("fb_smartness");
+	if (cvar("fb_custom_smart")) {
+		smartness = cvar("fb_custom_smart");
 		if (smartness < 0) smartness = 0;
 		if (smartness > 10) smartness = 10;
 	}
@@ -187,9 +189,11 @@ void() InitParameters =
 
 	if (!temp1)
 	{
-		ds = stof(infokey(world, "d_skill"));
+		ds = cvar("fb_custom_skill");
+		if (! ds) ds = stof(infokey(world, "d_skill"));
 		if (ds) skill = ds;
 		else skill = 10;
+		if (skill < 0) skill = 0;
 		localcmd("\n");	// flush buffer (early Quake versions)
 		localsave(0, 1, 0);
 		localsave(1, 1, 1);
@@ -302,6 +306,11 @@ void() SetSkill =
 	bprint_fb(2, "\"\n");
 	first_ent.bot_skill = skill;
 	SaveTemp1();
+	if (cvar("fb_custom_skill"))
+	{
+		if (skill) cvar_set_("fb_custom_skill", skill);
+		else cvar_set_("fb_custom_skill", -1);
+	}
 };
 
 /*

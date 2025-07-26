@@ -311,6 +311,9 @@ void() ChangeTP =
 void() SkillUp =
 {
 	if (match_in_progress || counting_down) return;
+	local float custom_skill = cvar("fb_custom_skill");
+	if (custom_skill) skill = custom_skill;
+	if (skill < 0) skill = 0;
 	skill = skill + 1;
 	if (skill > 20) skill = 20;
 	SetSkill();
@@ -319,6 +322,8 @@ void() SkillUp =
 void() SkillDown =
 {
 	if (match_in_progress || counting_down) return;
+	local float custom_skill = cvar("fb_custom_skill");
+	if (custom_skill) skill = custom_skill;
 	skill = skill - 1;
 	if (skill < 0) skill = 0;
 	SetSkill();
