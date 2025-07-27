@@ -273,7 +273,17 @@ void() a_rocketjump =
 		if (velo < sv_maxspeed)
 		if (rel_dist / velo > 1.5)
 			return;
-		new_pitch = 78.75;
+		if (self.path_from_marker.rj_angles)
+		{
+			new_pitch = self.path_from_marker.rj_angles_x;
+			if (new_pitch > 78.75)
+				new_pitch = 78.75;
+			self.real_yaw = self.path_from_marker.rj_angles_y;
+			self.yawaccel = 0;
+			self.yawspeed = 0;
+		}
+		else
+			new_pitch = 78.75;
 	}
 	self.real_pitch = new_pitch;
 	self.pitchspeed = 0;

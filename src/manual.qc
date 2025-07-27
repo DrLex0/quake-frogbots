@@ -1091,7 +1091,13 @@ void() SavePaths =
 			if (m.d_door_open != 10)
 			{
 				bprint("m", ftos(m.index), ".d_door_open=", ftos(m.d_door_open), ";");
-				count_ = count_ + 1;
+				count_ = count_ + 2;
+			}
+			if (m.rj_angles)
+			{
+				bprint("m", ftos(m.index), ".rj_angles='", ftos(m.rj_angles_x), " ");
+				bprint(ftos(m.rj_angles_y), " ", ftos(m.rj_angles_z), "';");
+				count_ = count_ + 2;
 			}
 		}
 		else if (save_state == 3)

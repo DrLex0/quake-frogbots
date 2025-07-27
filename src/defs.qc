@@ -1675,6 +1675,8 @@ float penta_protection;
 .float exclusive_deadline;
 .entity near_teleport;
 
+.vector rj_angles;
+
 // universal shootable triggers
 .entity shoot_me;  // target entity of NEED_SHOOT path
 .float shoot_targetZ;  // zone of the target entity

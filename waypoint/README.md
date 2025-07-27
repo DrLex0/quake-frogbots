@@ -433,6 +433,13 @@ For the regular running RJ type: when possible, try to provide only 1 incoming p
 
 Even when their extra accuracy is not needed, the _mortar_ and _cannon_ modes have the advantage that the bot will come to a halt and be standing on solid ground. This makes these jumps a solution when they have to be performed on a staircase or similar structure, where players will actually be prevented from instantly jumping while moving because they are in a ‘falling’ state most of the time. An example is the jump towards the red armour in `aerowalk`.
 
+It is possible to override pitch and yaw angles for the regular type of RJ at the moment of the jump. This is sort of a _hack,_ and should _not_ be done to allow the bots to make jumps that are near impossible for human players. Bots will only perform jumps that have this kind of override starting at skill level 5.  
+This needs to be done manually in the waypoint code itself by setting the `rj_angles` property on the marker from where the RJ starts. The value must be a vector `'pitch yaw 0'`, with yaw between -180 and 180, and pitch cannot exceed 78.75 degrees.  
+For instance if `m42` has an outgoing RJ path that requires a pitch of 70 degrees and a yaw of -64 degrees, this line should be added to the waypoint code:
+```
+m42.rj_angles='70 -64 0';
+```
+
 Mind that there are subtle differences between Quake and QuakeWorld physics, which can cause a jump that works in one engine to fail in the other. Do not create set-ups that are borderline, and verify that the jumps do work in the intended engine.
 
 Bots will only actively plan an RJ when that path is worth following to reach a goal, and there is no alternative path that does not require RJ, even if much longer. In the latter case they might still randomly decide to take an RJ shortcut when happening to pass across the marker, but they will not actively seek out that path.

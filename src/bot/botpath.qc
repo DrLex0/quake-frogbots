@@ -145,6 +145,13 @@ void() EvalPath =
 	if (! (description & JUST_GO))
 		return;
 
+	// Only start doing RJ with custom angles from skill 5 on,
+	// because it is slightly hacky
+	if (description & ROCKET_JUMP)
+	if (touch_marker_.rj_angles)
+	if (self.bot_skill < 5)
+		return;
+
 	if (!path_normal)
 	{
 		if (!(description & REVERSIBLE))
