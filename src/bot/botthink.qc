@@ -673,16 +673,20 @@ void() SetFrogbotAngles =
 	total_yawspeed = yawspeed_ + self.track_yawspeed;
 	if (fabs(total_yawspeed) > self.stop_turn_speed)
 	{
+		// Make bots slow down while turning quickly, stop_turn_speed depends on smartness
 		self.arrow = 0;
 		self.arrow_time = time + frametime;
 		if (total_yawspeed > 540)
 		{
+			// dampen acceleration to avoid risk of endless pirouette
+			self.yawaccel = 0.9 * self.yawaccel;
 			total_yawspeed = 540;
 			if (yawspeed_ > 540)
 				yawspeed_ = 540;
 		}
 		else if (total_yawspeed < -540)
 		{
+			self.yawaccel = 0.9 * self.yawaccel;
 			total_yawspeed = -540;
 			if (yawspeed_ < -540)
 				yawspeed_ = -540;
