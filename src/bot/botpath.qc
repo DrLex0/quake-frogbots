@@ -533,8 +533,9 @@ float() WaitAndShootAtTrigger =
 ============
 CheckAccurateRunUp
 
-When entering a non-slow PRECISE_JUMP path, check whether conditions
+When entering a PRECISE_JUMP path, check whether conditions
 are good for the jump. If not, start the run-up procedure.
+Do not run-up for a slow PJ or the RJ+PJ combo!
 ============
 */
 void() CheckAccurateRunUp =
@@ -542,11 +543,10 @@ void() CheckAccurateRunUp =
 	if (self.running_up)
 		return;
 	if (! (new_path_state & PRECISE_JUMP))
-	{
-		self.running_up = 0;
 		return;
-	}
 	if (new_path_state & SLOW_DOWN)
+		return;
+	if (new_path_state & ROCKET_JUMP)
 		return;
 	if(right_direction(20 + 30 * self.bot_inaccuracy)) // direction already OK, no run-up needed
 		return;
@@ -557,7 +557,7 @@ void() CheckAccurateRunUp =
 		dir_move = touch_marker_.absmin + touch_marker_.view_ofs -
 			(linked_marker_.absmin + linked_marker_.view_ofs);
 	dir_move_z = 0;
-	self.run_up_point = touch_marker_.absmin + touch_marker_.view_ofs + 80 * normalize(dir_move);
+	self.run_up_point = touch_marker_.absmin + touch_marker_.view_ofs + 90 * normalize(dir_move);
 	self.running_up = self.linked_marker_time = time + 2.5;
 }
 

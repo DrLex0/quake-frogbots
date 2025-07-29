@@ -449,6 +449,8 @@ Bots will only actively plan an RJ when that path is worth following to reach a 
 
 The Frogbot uses different logic to navigate underwater due to the ability to move in 3 dimensions. There are additional checks on reachability of destinations. Make sure that connected markers are within visible range and are not obscured by corners or other obstacles. There is robustness against minor obstacles, but don't expect the bot to find its way through a maze with sparsely provided waypoints.
 
+Useful to know is that markers will no longer be touched when they are at least _57 units_ below the player. This way, markers can be placed in liquids near solid ground markers, when it is important that those liquid markers are not touched while walking on the surface.
+
 
 ### Slime and Lava
 

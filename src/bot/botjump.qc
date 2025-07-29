@@ -173,10 +173,11 @@ void() AccurateRJump =
 	rel_dist = vlen(rel_pos);
 	if (rel_dist < 2.5 + 12 * self.bot_inaccuracy)
 	{
+		self.velocity = '0 0 0';
+		self.arrow = 0;
 		if (fabs(angle_error_x) < 1.5 + 12 * self.bot_inaccuracy)
 		if (fabs(angle_error_y) < 1.5 + 12 * self.bot_inaccuracy)
 		{
-			self.velocity = '0 0 0';
 			self.rocketjumping = 1;
 			self.botchose = 1;
 			self.impulse = 7;
@@ -184,8 +185,6 @@ void() AccurateRJump =
 			self.button2_ = 1;
 			return;
 		}
-		self.arrow = 0;
-		self.velocity = '0 0 0';
 		return;
 	}
 	self.precise_speed = 10 + 5 * rel_dist;

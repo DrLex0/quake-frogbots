@@ -122,18 +122,22 @@ void() FrogTrackSimple =
 	angle_error = desired_angle - self.v_angle;
 	angle_error_x = anglemod(angle_error_x);
 	angle_error_y = anglemod(angle_error_y);
-
 	local float speed_factor = 2.5 + self.bot_skill / 4;
-	self.track_pitchspeed = speed_factor * angle_error_x;
-	if (self.track_pitchspeed > 0.71)
-		self.track_pitchspeed = self.track_pitchspeed + 1.5;
-	else if (self.track_pitchspeed < -0.71)
-		self.track_pitchspeed = self.track_pitchspeed - 1.5;
-	self.track_yawspeed = speed_factor * angle_error_y;
-	if (self.track_yawspeed > 0.71)
-		self.track_yawspeed = self.track_yawspeed + 1.5;
-	else if (self.track_yawspeed < -0.71)
-		self.track_yawspeed = self.track_yawspeed - 1.5;
+
+	// Over-engineered dithering around exact aim point
+	if (fabs(angle_error_x) > 2.1)
+		self.track_pitchspeed = speed_factor * angle_error_x;
+	else if (angle_error_x > 0)
+		self.track_pitchspeed = (2 * angle_error_x) + 0.7031 - (1.40625 * random());
+	else
+		self.track_pitchspeed = (2 * angle_error_x) - 0.7031 + (1.40625 * random());
+
+	if (fabs(angle_error_y) > 2.1)
+		self.track_yawspeed = speed_factor * angle_error_y;
+	else if (angle_error_y > 0)
+		self.track_yawspeed = (2 * angle_error_y) + 0.7031 - (1.40625 * random());
+	else
+		self.track_yawspeed = (2 * angle_error_y) - 0.7031 + (1.40625 * random());
 
 	self.pitchspeed = 0;
 	self.yawspeed = 0;
