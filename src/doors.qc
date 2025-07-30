@@ -798,7 +798,6 @@ void () func_door_secret =
 
 	if (mapname == "dakdm1" ||
 	    mapname == "naked7b2" || mapname == "naked6" ||
-	    mapname == "e1m6" || mapname == "egyptele" ||
 	    mapname == "damaul2")
 	{
 		setorigin (self, self.pos2);

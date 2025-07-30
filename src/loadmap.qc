@@ -127,6 +127,8 @@ void() AddMissingBits =
 		MoveItem(m20, '0 0 -444');  // YA does not drop down with platform
 	else if (mapname == "end")
 		m100.touch = null;  // Sabotage Shub's hurt trigger
+	else if (mapname == "egyptele")
+		SpawnIntermission('-3060 -1313 292', '28 -96 -4');
 	else if (mapname == "endif")
 		SpawnIntermission('-227 -732 800', '54 45 8');
 	else if (mapname == "exdm3")
