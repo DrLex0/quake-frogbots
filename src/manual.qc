@@ -1204,6 +1204,7 @@ void() DumpMarkerInfo =
 		if ((m.classname == "trigger_teleport") ||
 			(m.classname == "door") ||
 			(m.classname == "func_button") ||
+			(m.classname == "trigger_multiple") ||
 			(m.classname == "trigger_push"))
 		{
 			// See PrintGoal, take middle of bounding box to represent 'origin'
@@ -1345,6 +1346,7 @@ void() VerMoveActiveMarker =
 		setorigin(active_marker, active_marker.origin);
 	}
 	else if ((active_marker.classname == "func_button") ||
+		(active_marker.classname == "trigger_multiple") ||
 		(active_marker.classname == "trigger_teleport") ||
 		(active_marker.classname == "door") ||
 		(active_marker.classname == "trigger_push"))
@@ -1364,6 +1366,7 @@ void() VerMoveActiveMarker =
 float(entity marker) changed_view_ofs_z =
 {
 	if ((marker.classname == "func_button") ||
+		(marker.classname == "trigger_multiple") ||
 		(marker.classname == "trigger_teleport") ||
 		(marker.classname == "door") ||
 		(marker.classname == "trigger_push"))
@@ -1515,6 +1518,7 @@ void() PrintGoal =
 	if ((active_marker.classname == "trigger_teleport") ||
 	    (active_marker.classname == "door") ||
 	    (active_marker.classname == "func_button") ||
+	    (active_marker.classname == "trigger_multiple") ||
 	    (active_marker.classname == "trigger_push"))
 	{
 		// These markers have no origin because they are brushes.
@@ -1980,6 +1984,11 @@ void() CycleDescriptionMode =
 		{
 			type_mode = T_NOTOUCH;
 			bprint("untouchable node ON\n");
+		}
+		else if (type_mode == T_NOTOUCH)
+		{
+			type_mode = T_AIR_TOUCH;
+			bprint("air touchable node ON\n");
 		}
 		else
 		{

@@ -281,6 +281,9 @@ float() TravelTime =
 		// m_D must be a door; if it is open then this marker will
 		// allow a touch even when the bot is not on an exclusive path.
 		m.link_door_ent = m_P;
+		// Special case, so far only seen in e1m1, we need to actually touch the linked door
+		if (m_D & NEED_SHOOT)
+			return TRUE;
 #ifdef MANUAL
 		// Do not wipe the path in waypoint tool because it must be saved again.
 		// Give 'infinite' time to prevent from interfering with testing as a bot.

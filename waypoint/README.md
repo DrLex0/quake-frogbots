@@ -134,10 +134,11 @@ MARKER TYPES (when DISPLAY-MODE = TYPE)
 (new)	- exclusive node
 (new)	- narrow node
 (new)	- wait lift node
-(new)	- jump hint node
+(new)	- jump hint node (pseudo)
 (new)	- slime island node
 (new)	- want biosuit node
 (new)	- untouchable node
+(new)	- air touchable node
 ```
 
 ## The workflow
@@ -354,6 +355,10 @@ There is also an _untouchable_ marker type. When set, the marker will never prod
 _Be careful:_ an untouchable marker must never have incoming paths, or the bot may orbit around it waiting for a touch that never comes. (It makes no sense either to give it outgoing paths, but that is merely pointless instead of dangerous). Errors will be printed in the `MarkerInfo` section of the waypoint dump when paths towards untouchable markers are detected.  
 The waypoint tool will also ignore untouchable markers unless closest-marker-mode (`F`) is active. This helps to connect paths to the other overlapping marker (and makes it more obvious when a marker is untouchable).
 
+Mind that when a bot has deliberately become airborne, like when jumping up (or down from a ledge), it will ignore any marker touches until it has again touched solid ground. There are some exceptions to this:
+- pushing a switch will always trigger a touch for that switch's marker (unless made untouchable). This allows to push switches by jumping;
+- markers that have been given the `air touchable` node type will always be touched by airborne bots. (The need for this should be very rare.)
+
 
 ### Lifts/elevators with or without buttons
 
@@ -489,7 +494,8 @@ The most practical solution in cases like these where markers must only be touch
 
 If even this would not suffice, you could place extra markers to ‘shield’ the marker from being prematurely touched.
 
-`Narrow` markers are not only useful for ladders, they can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam.
+`Narrow` markers are not only useful for ladders, they can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam.  
+However, be careful with unexpected behaviour: if other regular markers are slightly farther away, the bot may already touch those before reaching a narrow marker in front of them.
 
 
 ### Shootable doors and triggers
