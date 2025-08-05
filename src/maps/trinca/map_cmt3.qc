@@ -1,3 +1,5 @@
+// ALIASES naked7b2
+//   (is practically the same map with insignificant differences)
 // Original 27-01-2005 by Trinca
 // Improvements 2025-04 by DrLex
 // - Allow bots to get the LG if they first get the pentagram

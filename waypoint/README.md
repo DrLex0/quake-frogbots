@@ -324,9 +324,16 @@ To actually deploy the Frogbot progs, this may depend on your Quake engine, but 
 
 As with the waypoint build, if you have access to a `bash` shell, you can also use the provided `build-frogbot` script, and edit it to do everything for you and even put the `pk3` file in your QuakeWorld installation directory.
 
-To resume editing your waypoints, rebuild the waypoint tool `progs.dat` and deploy it (see instructions above), then load the map again.  
+To resume editing your waypoints, rebuild the waypoint tool `progs.dat` and deploy it (see instructions above), then load the map again.
 
 If you want to include waypoints for a certain map in this repository, create a pull request.
+
+#### Map aliases
+If the same map exists under different names, or 2 maps only differ in textures but have otherwise identical geometry and items, then it is possible to mark one map as an _alias_ of the other; this is more efficient than copying the QC files.  
+For instance if `tridm1` is the same map as `trindm1`, then it suffices to add the following line to the `map_trindm1.qc` file, and the `generate_maplist.py` script will do the rest:
+```
+// ALIASES tridm1
+```
 
 ### Method 2: embed waypoints into a `.map` or `.ent` file
 
@@ -438,7 +445,7 @@ For the regular running RJ type: when possible, try to provide only 1 incoming p
 
 Even when their extra accuracy is not needed, the _mortar_ and _cannon_ modes have the advantage that the bot will come to a halt and be standing on solid ground. This makes these jumps a solution when they have to be performed on a staircase or similar structure, where players will actually be prevented from instantly jumping while moving because they are in a ‘falling’ state most of the time. An example is the jump towards the red armour in `aerowalk`.
 
-It is possible to override pitch and yaw angles for the regular type of RJ at the moment of the jump. This is sort of a _hack,_ and should _not_ be done to allow the bots to make jumps that are near impossible for human players. Bots will only perform jumps that have this kind of override starting at skill level 5.  
+It is possible to override pitch and yaw angles for the regular type of RJ at the moment of the jump. This is sort of a _hack,_ and should _not_ be used to allow the bots to make jumps that are near impossible for human players. To keep things fair for novice players, bots will only perform jumps that have this kind of override at skill level 5 or higher.  
 This needs to be done manually in the waypoint code itself by setting the `rj_angles` property on the marker from where the RJ starts. The value must be a vector `'pitch yaw 0'`, with yaw between -180 and 180, and pitch cannot exceed 78.75 degrees.  
 For instance if `m42` has an outgoing RJ path that requires a pitch of 70 degrees and a yaw of -64 degrees, this line should be added to the waypoint code:
 ```

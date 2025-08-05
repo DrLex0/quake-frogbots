@@ -84,16 +84,16 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      endif      eodm3      exdm3\n");
 	sprint_fb(self, 2, "     filthy       four   frobodm2\n");
 	sprint_fb(self, 2, "   genocide    hohoho2     lilith\n");
-	sprint_fb(self, 2, "    monsoon       nova    oktest1\n");
-	sprint_fb(self, 2, "      pkeg1    povdmm4    q3dm6qw\n");
-	sprint_fb(self, 2, "      rwild    schloss      shady\n");
-	sprint_fb(self, 2, "    shifter      shine      skull\n");
-	sprint_fb(self, 2, "    spinev2      start        thf\n");
-	sprint_fb(self, 2, "        tox     tridm1     tridm2\n");
-	sprint_fb(self, 2, "     tridm3    trindm1    trindm2\n");
-	sprint_fb(self, 2, "    trindm3     ukpak2     ultrav\n");
-	sprint_fb(self, 2, "   utressor     ztndm3     ztndm4\n");
-	sprint_fb(self, 2, "     ztndm6\n");
+	sprint_fb(self, 2, "    monsoon   naked7b2       nova\n");
+	sprint_fb(self, 2, "    oktest1      pkeg1    povdmm4\n");
+	sprint_fb(self, 2, "    q3dm6qw      rwild    schloss\n");
+	sprint_fb(self, 2, "      shady    shifter      shine\n");
+	sprint_fb(self, 2, "      skull    spinev2      start\n");
+	sprint_fb(self, 2, "        thf        tox     tridm1\n");
+	sprint_fb(self, 2, "     tridm2     tridm3    trindm1\n");
+	sprint_fb(self, 2, "    trindm2    trindm3     ukpak2\n");
+	sprint_fb(self, 2, "     ultrav   utressor     ztndm3\n");
+	sprint_fb(self, 2, "     ztndm4     ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -433,6 +433,11 @@ float() LoadWaypoints =
 		map_ztndm6();
 		return TRUE;
 	}
+	if (mapname == "naked7b2")
+	{
+		map_cmt3();
+		return TRUE;
+	}
 	if (mapname == "tridm1")
 	{
 		map_trindm1();
@@ -587,6 +592,8 @@ string(string mname) MapHasWaypoints =
 		return "ztndm4";
 	if (mname == "ztndm6")
 		return "ztndm6";
+	if (mname == "naked7b2")
+		return "naked7b2";
 	if (mname == "tridm1")
 		return "tridm1";
 	if (mname == "tridm2")
