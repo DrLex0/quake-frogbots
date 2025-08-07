@@ -16,7 +16,7 @@ GENERATE_QC = "map_load_gen.qc"
 
 # SprintMaps() formatting
 COLUMNS = 3
-COL_WIDTH = 10
+COL_WIDTH = 11
 
 # For QuakeC-friendly function names
 SAFE_MAP_STRINGS = {

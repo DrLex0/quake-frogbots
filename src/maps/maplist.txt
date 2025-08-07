@@ -10,6 +10,7 @@ map_povdmm4.qc
 map_spinev2.qc
 map_ultrav.qc
 map_ztndm3.qc
+drlex/map_aerowalkfrost.qc
 drlex/map_bravadob5.qc
 drlex/map_burialb10.qc
 drlex/map_catalyst.qc
