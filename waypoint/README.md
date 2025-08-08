@@ -618,3 +618,11 @@ You can test rocket jumps if you first pick up the prerequisites (obviously, a R
 The movement of the bot can be influenced in a limited way by pressing movement keys, this may be useful to force the bot to make a mistake and see if it recovers.
 
 If you want to live dangerously and test changes on-the-fly, make it a reflex to first dump your waypoint data to the console and then a file (`F1`, `F5`) before pressing `F4`.
+
+#### Debugging path calculation errors
+If the bot does not seem to want to take an obvious path, it could be because a path has been assigned an erroneous travel time. This will generally mean that the waypoints violate zone assignment guideline 1 as mentioned above. However, it may also occur in some other exotic cases.
+
+Computed travel times between _any_ 2 markers can be shown by fixing one marker to Static Marker mode with `I` or `TAB`, then moving to the other marker, and pressing the `B` key. This only works under the same conditions as for becoming a Frogbot, because path times must have been calculated.  
+A value of 1000000 is considered ‘infinite’ (no connection). Path times may also have a large ‘penalty’ added when the bot is not equipped with the right gear to take that path (for instance rocket jump paths, or paths into slime). Go fetch the gear, and you'll notice the path time drops to normal values.
+
+If, even when considering the penalty system, the `B` key shows an impossibly large travel time between 2 directly connected markers, check whether guideline 1 is not violated. If not, the solution is usually the same anyway: move one of the 2 markers to a different zone.

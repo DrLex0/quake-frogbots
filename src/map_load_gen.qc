@@ -52,6 +52,7 @@
 #include "maps/trinca/map_four.qc"
 #include "maps/trinca/map_genocide.qc"
 #include "maps/trinca/map_lilith.qc"
+#include "maps/trinca/map_naked6.qc"
 #include "maps/trinca/map_oktest1.qc"
 #include "maps/trinca/map_q3dm6qw.qc"
 #include "maps/trinca/map_rwild.qc"
@@ -85,16 +86,17 @@ void() SprintMaps =
 	sprint_fb(self, 2, "         end       endif       eodm3\n");
 	sprint_fb(self, 2, "       exdm3      filthy        four\n");
 	sprint_fb(self, 2, "    frobodm2    genocide     hohoho2\n");
-	sprint_fb(self, 2, "      lilith     monsoon    naked7b2\n");
-	sprint_fb(self, 2, "        nova     oktest1       pkeg1\n");
-	sprint_fb(self, 2, "     povdmm4     q3dm6qw       rwild\n");
-	sprint_fb(self, 2, "     schloss       shady     shifter\n");
-	sprint_fb(self, 2, "       shine       skull     spinev2\n");
-	sprint_fb(self, 2, "       start         thf         tox\n");
-	sprint_fb(self, 2, "      tridm1      tridm2      tridm3\n");
-	sprint_fb(self, 2, "     trindm1     trindm2     trindm3\n");
-	sprint_fb(self, 2, "      ukpak2      ultrav    utressor\n");
-	sprint_fb(self, 2, "      ztndm3      ztndm4      ztndm6\n");
+	sprint_fb(self, 2, "      lilith     monsoon      naked6\n");
+	sprint_fb(self, 2, "    naked7b2        nova     oktest1\n");
+	sprint_fb(self, 2, "       pkeg1     povdmm4     q3dm6qw\n");
+	sprint_fb(self, 2, "       rwild     schloss       shady\n");
+	sprint_fb(self, 2, "     shifter       shine       skull\n");
+	sprint_fb(self, 2, "     spinev2       start         thf\n");
+	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
+	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
+	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
+	sprint_fb(self, 2, "    utressor      ztndm3      ztndm4\n");
+	sprint_fb(self, 2, "      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -359,6 +361,11 @@ float() LoadWaypoints =
 		map_lilith();
 		return TRUE;
 	}
+	if (mapname == "naked6")
+	{
+		map_naked6();
+		return TRUE;
+	}
 	if (mapname == "oktest1")
 	{
 		map_oktest1();
@@ -568,6 +575,8 @@ string(string mname) MapHasWaypoints =
 		return "genocide";
 	if (mname == "lilith")
 		return "lilith";
+	if (mname == "naked6")
+		return "naked6";
 	if (mname == "oktest1")
 		return "oktest1";
 	if (mname == "q3dm6qw")

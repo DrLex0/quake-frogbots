@@ -797,8 +797,6 @@ void () func_door_secret =
 // But, most if not all can probably be made to work with universal shootable triggers.
 
 	if (mapname == "dakdm1" ||
-	    // is actually a subpart of cmt3/naked7b2
-	    mapname == "naked6" ||
 	    // I doubt this one is worth trying:
 	    // - way too large, I bet 350 markers won't suffice (which is probably
 	    //   why it's not even in Trinca's archive)
