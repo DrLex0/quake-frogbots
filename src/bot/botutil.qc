@@ -88,7 +88,7 @@ void() BestArrowForDirection =
 ============
 NewVelocityForArrow
 
-Adjusts self.arrow according to dir_move and if changed, updates velocity
+Adjusts self.arrow according to dir_move and if changed, instantly updates velocity
 ============
 */
 void() NewVelocityForArrow =
@@ -100,6 +100,10 @@ void() NewVelocityForArrow =
 		self.dir_move_ = dir_move;
 		self.arrow = best_arrow;
 		self.arrow_time = time + 0.15;
+		// Don't update velocity in the air, or it would interfere with gravity,
+		// and bots would be able to do things players cannot.
+		if (! (self.flags & FL_ONGROUND))
+			return;
 		self.velocity = oldvelocity_;
 		VelocityForArrow();
 	}
