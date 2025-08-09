@@ -55,6 +55,12 @@ void() multi_trigger =
 	
 		self.think = multi_wait;
 		self.nextthink = time + self.wait;
+
+		// Same as for buttons: only trigger touch when actually being pushed
+		// and prioritize to ensure the bot registers it.
+		// This may not work as expected and in most cases, these markers will
+		// need to be made untouchable, but maybe it comes in handy someday.
+		check_marker(TRUE);
 	}
 };
 

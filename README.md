@@ -37,6 +37,8 @@ Currently, the Frogbot runtime only really works well for _QuakeWorld_ engines, 
 To play against Frogbots, simplest is to start out with [nQuake](https://nquake.com/) which already has everything set up to play against the older version of the Frogbot. The v2 bots are a drop-in replacement.  
 Either:
 - Unzip nQuake's `frogbot.pk3`, replace its `qwprogs.dat` with the one from this repository, and then zip the file again, and ensure the file extension is `pk3`.
+
+Or:
 - Create a new zip archive from the following files in this repository, change the extension to `pk3`, and drop it into ezQuake's `qw` directory. This approach should also work for other engines, if `exec frogbot.cfg` is executed in the main `autoexec.cfg`. (Perhaps the uncompressed files should be copied instead, I am not too familiar with this stuff.)
   - `qwprogs.dat`
   - `frogbot.cfg`
