@@ -114,6 +114,8 @@ void() AddMissingBits =
 {
 	if (mapname == "amphi")
 		SpawnIntermission('1244 -337 570', '40 -135 10');
+	else if (mapname == "dakdm1")
+		SpawnIntermission('-20 -533 -108', '14 45 0');
 	else if (mapname == "dark-terror-ffa")
 		SpawnIntermission('-840 1330 136', '30 -36 4');
 	else if (mapname == "dm4ish")

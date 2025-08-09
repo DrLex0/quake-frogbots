@@ -791,19 +791,4 @@ void () func_door_secret =
 		BecomeMarker(self);
 		SetFrB_Props(self);
 	}
-
-// DOOR_OPEN for maps; TODO get rid of this obsolete hard-coded junk
-// Set T_FIRE_ON_MATCH_START on relevant markers when migrating these waypoints.
-// But, most if not all can probably be made to work with universal shootable triggers.
-
-	if (mapname == "dakdm1" ||
-	    // I doubt this one is worth trying:
-	    // - way too large, I bet 350 markers won't suffice (which is probably
-	    //   why it's not even in Trinca's archive)
-	    // - seems too complicated to be fun, too many gimmicks
-	    mapname == "damaul2")
-	{
-		setorigin (self, self.pos2);
-		self.pos1 = self.pos2;
-	}
 };
