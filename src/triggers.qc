@@ -60,6 +60,8 @@ void() multi_trigger =
 		// and prioritize to ensure the bot registers it.
 		// This may not work as expected and in most cases, these markers will
 		// need to be made untouchable, but maybe it comes in handy someday.
+		if(! other)
+			other = self.enemy;
 		check_marker(TRUE);
 	}
 };
