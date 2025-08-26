@@ -66,5 +66,6 @@ trinca/map_trindm2.qc
 trinca/map_trindm3.qc
 trinca/map_ukpak2.qc
 trinca/map_utressor.qc
+trinca/map_ztndm1.qc
 trinca/map_ztndm4.qc
 trinca/map_ztndm6.qc
