@@ -71,6 +71,7 @@
 #include "maps/trinca/map_ztndm1.qc"
 #include "maps/trinca/map_ztndm2.qc"
 #include "maps/trinca/map_ztndm4.qc"
+#include "maps/trinca/map_ztndm5.qc"
 #include "maps/trinca/map_ztndm6.qc"
 
 void() SprintMaps =
@@ -99,8 +100,8 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      tridm2      tridm3     trindm1\n");
 	sprint_fb(self, 2, "     trindm2     trindm3      ukpak2\n");
 	sprint_fb(self, 2, "      ultrav    utressor      ztndm1\n");
-	sprint_fb(self, 2, "      ztndm2      ztndm3      ztndm4\n");
-	sprint_fb(self, 2, "      ztndm6\n");
+	sprint_fb(self, 2, "      ztndm2      ztndm3 ztndm3frost\n");
+	sprint_fb(self, 2, "      ztndm4      ztndm5      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -460,9 +461,19 @@ float() LoadWaypoints =
 		map_ztndm4();
 		return TRUE;
 	}
+	if (mapname == "ztndm5")
+	{
+		map_ztndm5();
+		return TRUE;
+	}
 	if (mapname == "ztndm6")
 	{
 		map_ztndm6();
+		return TRUE;
+	}
+	if (mapname == "ztndm3frost")
+	{
+		map_ztndm3();
 		return TRUE;
 	}
 	if (mapname == "naked7b2")
@@ -632,8 +643,12 @@ string(string mname) MapHasWaypoints =
 		return "ztndm2";
 	if (mname == "ztndm4")
 		return "ztndm4";
+	if (mname == "ztndm5")
+		return "ztndm5";
 	if (mname == "ztndm6")
 		return "ztndm6";
+	if (mname == "ztndm3frost")
+		return "ztndm3frost";
 	if (mname == "naked7b2")
 		return "naked7b2";
 	if (mname == "tridm1")

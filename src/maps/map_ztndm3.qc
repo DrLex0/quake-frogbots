@@ -1,3 +1,4 @@
+// ALIASES ztndm3frost
 // Original author unknown
 // Tweaks by DrLex 2025-03
 void() map_ztndm3 =
