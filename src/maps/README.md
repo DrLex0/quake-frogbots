@@ -13,7 +13,8 @@ Subfolders are supported, and can be used to facilitate building for a specific 
 
 To use a different maplist file than the default `maplist.txt`, specify it with the `-f` argument.
 
-Because the format of waypoint files has changed compared to the older Frogbot code, waypoint files created with the older waypoint tool must be _transformed._ Do this by enabling the `-t` option of the script, it can't hurt to always enable this because it auto-detects the format.
+Because the format of waypoint files has changed compared to the older Frogbot code, waypoint files created with the older waypoint tool must be _transformed._ Do this by enabling the `-t` option of the script, it can't hurt to always enable this because it auto-detects the format. If the old source file contains any `#include, #ifdef, #endif` lines, erase them before doing the conversion (TODO: let the script do this too).
+
 
 ## Aliases
 
@@ -43,3 +44,16 @@ Or, do all of the above in a single invocation:
 ```bash
 ./generate_maplist.py -vtlg -d drlex ktx trinca
 ```
+
+
+## Special characters in map names
+
+Some characters need special treatment, because they would otherwise conflict with QuakeC source code. However, if you use the `getmapdump.sh` script to extract waypoint code from a Quake log, and then the `generate_maplist.py` script to update the sources, this is all done automatically.
+
+At this time, the following characters must be (and are by the scripts) converted as follows from the original map name to the function name that defines the waypoints:
+- `+` becomes `PLUS`;
+- `-` becomes `DASH`. 
+
+For instance, `dmz1++.bsp` will get a waypoint loading function called `map_dmz1PLUSPLUS`.
+
+More may need to be added if someone wants to make waypoints for maps with other funky characters. However, if you make a new map, and have to choose a file name, by all means **please just stick to the ASCII alphabet, numbers, and underscores.** Don't even think about Unicode in file names, because that is totally out of reach for QuakeC.
