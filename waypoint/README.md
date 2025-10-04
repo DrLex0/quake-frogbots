@@ -335,9 +335,26 @@ For instance if `tridm1` is the same map as `trindm1`, then it suffices to add t
 // ALIASES tridm1
 ```
 
+#### My typical workflow
+This workflow requires a Unix/Linux-like shell environment.
+```bash
+# Launch Quake, open console, `game waypoint`, `map themapname`.
+# Edit waypoints, dump them (F1) and export the console (F5). Then quit Quake.
+# Then, extract waypoint data straight into the appropriate QC file, by running
+# the getmapdump script from within the directory where the Quake console was dumped:
+./getmapdump.sh /path/to/frogbot/src/maps/subdir/map_themapname.qc
+# If the .qc file was newly created, then run from inside the src/maps folder:
+python generate_maplist.py -vglt -d drlex ktx trinca other
+# Then, from inside the main 'src' folder:
+./build-waypoint.sh  # while work is in progress; go back to step 1 and loop until ready.
+./build-frogbot.sh  # when waypoints seem ready enough to test in a real game
+```
+
 ### Method 2: embed waypoints into a `.map` or `.ent` file
 
 **TODO.**
+
+(I have a working proof-of-concept, but the script to inject waypoints into an `ent` or `map` file is unfinished. The actual loading QuakeC logic may also require some work to not crash on maps larger than the small test map I have used so far.)
 
 …
 
