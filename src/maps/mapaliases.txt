@@ -3,3 +3,4 @@ cmt3 naked7b2
 trindm1 tridm1
 trindm2 tridm2
 trindm3 tridm3
+dm-cepheus dm_cepheus

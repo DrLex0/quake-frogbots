@@ -71,3 +71,4 @@ trinca/map_ztndm2.qc
 trinca/map_ztndm4.qc
 trinca/map_ztndm5.qc
 trinca/map_ztndm6.qc
+other/map_dm-cepheus.qc
