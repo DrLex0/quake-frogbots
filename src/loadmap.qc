@@ -118,6 +118,8 @@ void() AddMissingBits =
 		SpawnIntermission('-20 -533 -108', '14 45 0');
 	else if (mapname == "dark-terror-ffa")
 		SpawnIntermission('-840 1330 136', '30 -36 4');
+	else if (mapname == "dranzdm7")
+		SpawnIntermission('-200 -1480 414', '52 -54 0');
 	else if (mapname == "dm4ish")
 		SpawnIntermission('-310 -293 404', '25 32 0');
 	else if (mapname == "dmz1++")

@@ -37,6 +37,7 @@ trinca/map_del1.qc
 trinca/map_dm1.qc
 trinca/map_dm4ish.qc
 trinca/map_dm5.qc
+trinca/map_dranzdm7.qc
 trinca/map_dranzdm8.qc
 trinca/map_e1m1.qc
 trinca/map_e1m3.qc
