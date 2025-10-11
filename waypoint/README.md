@@ -455,6 +455,10 @@ The v2 Frogbot has _3_ rocket jump modes:
 
 Bots at higher skill levels will be quicker and more accurate while preparing accurate rocket jumps.
 
+Beware that the bot's pitch angle is limited to 78.75 degrees, because this limit is usually imposed by QuakeWorld servers. In other words, _the bot cannot (rocket-)jump up perfectly vertically._ Some error _is_ allowed while preparing for the jump, and the smallest margin is 1.5° for a level 20 bot. This means one must not set up an accurate RJ that requires a pitch angle larger than 80°, because the bot will in vain try to achieve the impossible pitch. When debug logging is enabled while loading the map, a warning message will appear if this situation occurs. In that case:
+- try using a cannon instead of mortar type jump; and/or:
+- move either the jumping spot marker or the destination marker (or both) to reduce the pitch angle.
+
 Rocket jumps can be _tricky,_ especially when the destination is a ledge that sticks out. If you notice that bots often smack their head against the bottom of the ledge, it usually means the target marker is too deep into the ledge. In that case, it helps to move the marker, or place an extra marker just on the edge of the ledge, perhaps even slightly above it, to improve the bot's aim. Only make that marker the destination for the rocket jump path, and give it a path to the actual destination on the ledge.
 
 ![Rocket Jump setup](images/rj-headache.jpg)

@@ -252,6 +252,12 @@ void() SetupRJLook =
 	{
 		aim_angles_x = atan2(sqrt(2 * cvar("sv_gravity") * dz), dxy);
 	}
+	// Largest allowed pitch is 78.75 + smallest margin of error for L20 bot = 1.5
+	if (aim_angles_x > 80.25)
+	{
+		dprint("WARNING: excessive precise RJ pitch ", ftos(aim_angles_x), " clipped at m", ftos(m.index), "; jump may not work as expected\n");
+		aim_angles_x = 80;
+	}
 	makevectors (aim_angles);
 	setorigin (m.look_here, m.absmin + m.view_ofs + 48 * v_forward);
 }
