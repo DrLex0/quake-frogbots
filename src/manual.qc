@@ -2312,6 +2312,7 @@ void() FindNextGoal =
 	}
 	else
 	{
+		// Find the next unused goal number.
 		// Oh, the joys of implementing stuff like this in a language without even arrays
 		local float fun_with_bits = 0;
 		marker_ = first_item;
@@ -2373,6 +2374,58 @@ void() FindNextGoal =
 		else
 			bprint("All goal numbers are being used\n");
 	}
+};
+
+/*
+============
+FindNextSameItem
+
+If active marker is item, move to next marker of same item type.
+As usual, NOCLIP is recommended.
+============
+*/
+void() FindNextSameItem =
+{
+	local string cls = active_marker.classname;
+	if (! active_marker || cls == "marker")
+	{
+		// TODO find some other useful functionality for this case
+		bprint("No item selected\n");
+		return;
+	}
+
+	local entity found = world;
+	marker_ = active_marker.marker_linkfwd;
+	while (! found)
+	{
+		if(marker_ == active_marker) {
+			break;
+		}
+		if (marker_.classname == cls)
+		{
+			found = marker_;
+		}
+		marker_ = marker_.marker_linkfwd;
+		if(! marker_)
+		{
+			marker_ = first_marker;
+		}
+	}
+
+	if (! found)
+	{
+		bprint("Only 1 ", cls, " in this map\n");
+		return;
+	}
+	bprint("Next ", cls, " is m", ftos(found.index));
+	if(found.Z_)
+		bprint("  Z", ftos(found.Z_));
+	if(found.G_)
+		bprint("  G", ftos(found.G_));
+	bprint("\n");
+	Deselect(active_marker);
+	active_marker = found;
+	MoveToActiveMarker();
 };
 
 void() PrintDebugInfo =
@@ -2454,6 +2507,8 @@ void() ManualImpulseCommands =
 		ToggleWaypointRJ();
 	else if (impulse_ == 163)  // `.`
 		SetDoorDOpen();
+	else if (impulse_ == 164)  // `;`
+		FindNextSameItem();
 };
 
 #endif

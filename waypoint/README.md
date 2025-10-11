@@ -98,6 +98,7 @@ X		147	155	DISPLAY REACHABLE
 N		125	133	CHECK ALL GOALS
 M		126	134	CHECK ALL ZONES
 ,		-	161	SHOW SAME OR NEXT GOAL
+;		-	164	SHOW NEXT ITEM OF SAME TYPE
 .		-	163	SET DOOR OPEN THRESHOLD
 E		-	159	MOVE TO ACTIVE MARKER
 /		-	158	PRINT COORDINATES & EXTRA INFO
@@ -185,7 +186,7 @@ These steps do not need to be done in this exact order, but you will typically g
 4. Assign **GOALS** to items: things the bot will want to fetch: weapons, ammo, health, powerups. Use the scroll wheel or keys `1` and `2` to select GOAL number and again use `ENTER` or `Q` on the marker.
    - The goal logic is horribly complicated and hard to understand; what follows is what I have learnt from experiments, Mick's guide, and digging in the source code. If someone has better insights, please update this guide.
    - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
-   - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and absolutely not when they are directly linked. It _should_ be OK to give items of the same type the same goal across different zones, but I am not sure about this.  
+   - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and absolutely not when they are directly linked. In large maps, _it is OK_ to give items of the same type the same goal across different zones.
    - If health or _same_ ammo items are clustered together with direct paths between each other, then **do** give those same items the same goal number. Also, the larger the cluster of same ammo or health, the more worthwhile it may be, hence may deserve a lower goal number than isolated items of the same kind (but again, goal number preference is weak anyway). But again: _do not_ give different items within the same zone the same goal number.
    - If the total number of items (or item clusters) in a map is small enough that each can have a unique goal number, by all means do so.
    - You will notice that the following items are given high default goals because they are considered less desirable. Of course you can give particular instances of these items (especially the weapons) a different goal if you want:
@@ -195,7 +196,7 @@ These steps do not need to be done in this exact order, but you will typically g
      * 22 `weapon_nailgun`
      * 23 `item_spikes`
      * 24 `item_shells`
-   - To help with avoiding overlapping goals, the `,` key cycles between items that share the same goal number, when an item with assigned goal is active. Otherwise it prints the lowest unused goal number.
+   - To help with avoiding overlapping goals, the `,` key cycles between items that share the same goal number, when an item with assigned goal is active. Otherwise it prints the lowest unused goal number. The `;` key may also help to loop over items of the same type.
    - It is possible and valid to assign _no goal at all_ to items. This will _not_ make the bot totally ignore them and it may still pick them up when nearby, but it will generally not do any effort to reach the items. This is useful if for instance chasing a particular Quad or invisibility is too risky and makes the bot an easy target.
    - If need be, the desire for goals G1 and G2 _can_ be adjusted, see the Advanced section.
 
