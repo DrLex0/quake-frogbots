@@ -2218,6 +2218,30 @@ void() CheckAllZones =
 
 /*
 ============
+FindZone
+
+Find any marker of the given zone.
+============
+*/
+float(float findZ) FindZone =
+{
+	marker_ = last_marker;
+	while (marker_)
+	{
+		if (marker_.Z_ == findZ)
+		{
+			Deselect(active_marker);
+			active_marker = marker_;
+			MoveToActiveMarker();
+			return TRUE;
+		}
+		marker_ = marker_.marker_linkrev;
+	}
+	return FALSE;
+};
+
+/*
+============
 FindNextSameGoal
 
 Move towards the next item marker that has goal findG (or none if 0),
@@ -2381,6 +2405,7 @@ void() FindNextGoal =
 FindNextSameItem
 
 If active marker is item, move to next marker of same item type.
+Otherwise, find first item with currently selected goal or zone.
 As usual, NOCLIP is recommended.
 ============
 */
@@ -2389,8 +2414,22 @@ void() FindNextSameItem =
 	local string cls = active_marker.classname;
 	if (! active_marker || cls == "marker")
 	{
-		// TODO find some other useful functionality for this case
-		bprint("No item selected\n");
+		if (goal_index > 24)
+		{
+			if (FindZone(goal_index - 24))
+				bprint("m", ftos(active_marker.index), " is in Z", ftos(goal_index - 24), "\n");
+			else
+				bprint("nothing is in Z", ftos(goal_index - 24), "\n");
+		}
+		else if(goal_index)
+		{
+			if (FindNextSameGoal(goal_index, world))
+				bprint("m", ftos(active_marker.index), " has G", ftos(goal_index), "\n");
+			else
+				bprint("no item has G", ftos(goal_index), "\n");
+		}
+		else
+			bprint("No goal or zone number selected\n");
 		return;
 	}
 
@@ -2398,7 +2437,7 @@ void() FindNextSameItem =
 	marker_ = active_marker.marker_linkfwd;
 	while (! found)
 	{
-		if(marker_ == active_marker) {
+		if (marker_ == active_marker) {
 			break;
 		}
 		if (marker_.classname == cls)

@@ -635,7 +635,12 @@ void() frogbot_marker_touch =
 	if (!(self.flags & FL_ONGROUND))
 	if (!(touch_marker_.T & T_AIR_TOUCH))
 	if (!self.sticky_touch)
+	{
+#ifdef DEBUG_TOUCH
+		dprint("FBMT ignoring air touch of m", ftos(touch_marker_.index), "\n");
+#endif
 		return;
+	}
 
 #ifdef DEBUG_TOUCH
 	dprint("FBMT m", ftos(touch_marker_.index), "; Lm", ftos(linked_marker_.index), "\n");
