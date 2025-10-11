@@ -1059,6 +1059,10 @@ void() frogbot_marker_touch =
 		}
 	}
 
+	// Treat push similar to deliberate jump: ignore airborne
+	// marker touches unless they have T_AIR_TOUCH
+	if(touch_marker_.classname == "trigger_push")
+		new_path_state = new_path_state | WAIT_GROUND;
 	self.linked_marker = linked_marker_;
 	self.path_from_marker = touch_marker_;
 	self.path_state = new_path_state;

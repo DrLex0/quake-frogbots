@@ -380,7 +380,7 @@ There is also an _untouchable_ marker type. When set, the marker will never prod
 _Be careful:_ an untouchable marker must never have incoming paths, or the bot may orbit around it waiting for a touch that never comes. (It makes no sense either to give it outgoing paths, but that is merely pointless instead of dangerous). Errors will be printed in the `MarkerInfo` section of the waypoint dump when paths towards untouchable markers are detected.  
 The waypoint tool will also ignore untouchable markers unless closest-marker-mode (`F`) is active. This helps to connect paths to the other overlapping marker (and makes it more obvious when a marker is untouchable).
 
-Mind that when a bot has deliberately become airborne, like when jumping up (or down from a ledge), it will ignore any marker touches until it has again touched solid ground. There are some exceptions to this:
+Mind that when a bot has deliberately become airborne, like when jumping up (or down from a ledge), or getting propelled by a `trigger_push,` it will ignore any marker touches until it has again touched solid ground. There are some exceptions to this:
 - pushing a switch will always trigger a touch for that switch's marker (unless made untouchable). This allows to push switches by jumping;
 - markers that have been given the `air touchable` node type will always be touched by airborne bots. (The need for this should be very rare.)
 
@@ -412,6 +412,8 @@ Remember that selecting platform and button markers will only be feasible in clo
 
 ### Exclusive Markers
 
+Exclusive markers are useful in situations where touching other markers is undesirable until the bot has reached a certain location or performed a certain task.
+
 There may be situations where you want the bot to focus on exclusively following a specific path. For instance, after touching a _switch_ to open a door, the bot has to run from the switch to the door while ignoring any markers not part of this path. The bot must also not react to touching any marker on this path towards the door _unless_ when coming from the switch.  
 An essential part of making the bot push the switch to open the door, is ensuring that the only path going to the door is a _one-way path_ via the switch. If the path from the switch to the door is well-separated from other paths, this is all that is required. Making a path through a switch, means the bot must push the switch before moving to the next marker in the path.
 
@@ -440,8 +442,6 @@ If you look at the `dm5` waypoints or the above diagram, you will notice that 2 
 This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it. It helps a lot to draw a diagram of the markers and how they must be set up, as in the example above.
 
 Mind that a _platform_ is also considered a _door,_ considered ‘open’ in its ‘up’ position, which means that an exclusive marker can also be linked to a platform with _exclusive door_ mode to activate the marker only when the platform is up. This could for instance be used to make the bot move away from under an extended platform, although the `wait lift` mechanism usually suffices for this.
-
-Exclusive markers are useful in each situation where touching other markers is undesirable until the bot has reached a certain location. For instance, the tall ‘jump pads’ in `q3dm6qw` have a risk of the bot touching some other marker before reaching the ‘landing zone,’ and it may then attempt to change its trajectory and crash back to the ground. This can be avoided by connecting the `trigger_push` to an EM placed sufficiently far beyond those other markers.
 
 
 ### Reliable rocket jumps
