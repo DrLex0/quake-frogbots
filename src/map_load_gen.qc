@@ -54,6 +54,7 @@
 #include "maps/trinca/map_four.qc"
 #include "maps/trinca/map_genocide.qc"
 #include "maps/trinca/map_lilith.qc"
+#include "maps/trinca/map_misdm8.qc"
 #include "maps/trinca/map_naked6.qc"
 #include "maps/trinca/map_oktest1.qc"
 #include "maps/trinca/map_q3dm6qw.qc"
@@ -93,18 +94,19 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    egyptele         end       endif\n");
 	sprint_fb(self, 2, "       eodm3       exdm3      filthy\n");
 	sprint_fb(self, 2, "        four    frobodm2    genocide\n");
-	sprint_fb(self, 2, "     hohoho2      lilith     monsoon\n");
-	sprint_fb(self, 2, "      naked6    naked7b2        nova\n");
-	sprint_fb(self, 2, "     oktest1       pkeg1     povdmm4\n");
-	sprint_fb(self, 2, "     q3dm6qw       rwild     schloss\n");
-	sprint_fb(self, 2, "       shady     shifter       shine\n");
-	sprint_fb(self, 2, "       skull     spinev2       start\n");
-	sprint_fb(self, 2, "         thf         tox      tridm1\n");
-	sprint_fb(self, 2, "      tridm2      tridm3     trindm1\n");
-	sprint_fb(self, 2, "     trindm2     trindm3      ukpak2\n");
-	sprint_fb(self, 2, "      ultrav    utressor      ztndm1\n");
-	sprint_fb(self, 2, "      ztndm2      ztndm3 ztndm3frost\n");
-	sprint_fb(self, 2, "      ztndm4      ztndm5      ztndm6\n");
+	sprint_fb(self, 2, "     hohoho2      lilith      misdm8\n");
+	sprint_fb(self, 2, "     monsoon      naked6    naked7b2\n");
+	sprint_fb(self, 2, "        nova     oktest1       pkeg1\n");
+	sprint_fb(self, 2, "     povdmm4     q3dm6qw       rwild\n");
+	sprint_fb(self, 2, "     schloss       shady     shifter\n");
+	sprint_fb(self, 2, "       shine       skull     spinev2\n");
+	sprint_fb(self, 2, "       start         thf         tox\n");
+	sprint_fb(self, 2, "      tridm1      tridm2      tridm3\n");
+	sprint_fb(self, 2, "     trindm1     trindm2     trindm3\n");
+	sprint_fb(self, 2, "      ukpak2      ultrav    utressor\n");
+	sprint_fb(self, 2, "      ztndm1      ztndm2      ztndm3\n");
+	sprint_fb(self, 2, " ztndm3frost      ztndm4      ztndm5\n");
+	sprint_fb(self, 2, "      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -379,6 +381,11 @@ float() LoadWaypoints =
 		map_lilith();
 		return TRUE;
 	}
+	if (mapname == "misdm8")
+	{
+		map_misdm8();
+		return TRUE;
+	}
 	if (mapname == "naked6")
 	{
 		map_naked6();
@@ -627,6 +634,8 @@ string(string mname) MapHasWaypoints =
 		return "genocide";
 	if (mname == "lilith")
 		return "lilith";
+	if (mname == "misdm8")
+		return "misdm8";
 	if (mname == "naked6")
 		return "naked6";
 	if (mname == "oktest1")
