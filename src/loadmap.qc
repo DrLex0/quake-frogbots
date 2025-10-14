@@ -143,6 +143,8 @@ void() AddMissingBits =
 		SpawnIntermission('-35 0 11', '-30 0 0');
 	else if (mapname == "genocide")
 		SpawnIntermission('-592 -563 56', '28 40 0');
+	else if (mapname == "imp1dm6")
+		SpawnIntermission('970 -5 184', '-36 140 0');
 	else if (mapname == "misdm8")
 		SpawnIntermission('-63 -1682 268', '25 52 0');
 	else if(mapname == "oktest1")
