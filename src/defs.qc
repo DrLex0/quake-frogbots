@@ -1604,9 +1604,12 @@ float NO_DODGE			= 2097152;
 float DISCONNECT_MARKERS	= 1048576;
 float CLEAR_PATH_MODES		= 2097152;
 
-// combinations/inverted for convenience & efficiency
+// combinations/inverted for convenience & efficiency;
+// inverses are subtracted from 16777215 (all 24 bits set to 1)
 float NOT_JUMP_LEDGE			= 16776191;
 float DELIBERATE_AIR_WAIT_GROUND	= 393216;
+// inverse of DELIBERATE_AIR_WAIT_GROUND + ROCKET_JUMP; more might be needed
+float REACHED_GROUND			= 16383487;
 float SLOW_PRECISE			= 2176;
 
 .entity link_door_ent;  // marker property set by LINKED_DOOR pseudo-path mode
