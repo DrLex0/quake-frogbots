@@ -225,6 +225,10 @@ void() EvalPath =
 		return;
 
 	best_score = path_score;
+#ifdef DEBUG_EVAL
+	dprint("EvalPath m", ftos(touch_marker_.index), " >m", ftos(test_marker.index), " gem", ftos(goalentity_marker.index));
+	dprint(" bs ", ftos(best_score), " pt ", ftos(path_time), "\n");
+#endif
 	linked_marker_ = test_marker;
 	new_path_state = description;
 };
@@ -322,7 +326,12 @@ float() LiftNeedsButton =
 	if (linked_marker_.classname != "func_button")
 		return FALSE;
 	if (linked_marker_.target == touch_marker_.targetname)
+	{
+#ifdef DEBUG_LIFT
+		dprint("Ignoring lift/door '", linked_marker_.target, "' because needs button\n");
+#endif
 		return TRUE;
+	}
 	return FALSE;
 };
 
@@ -380,6 +389,9 @@ float() WaitOnLift =
 				return FALSE;
 			else
 			{
+#ifdef DEBUG_LIFT
+				dprint("Waiting for lift... play some muzak\n");
+#endif
 				WaitAtTouchMarker(5);
 				return TRUE;
 			}
@@ -392,6 +404,9 @@ float() WaitOnLift =
 			{
 				if (btn_target.state != STATE_BOTTOM)
 				{
+#ifdef DEBUG_LIFT
+					dprint("Waiting for lift... play some muzak\n");
+#endif
 					WaitAtTouchMarker(5);
 					return TRUE;
 				}
@@ -410,6 +425,9 @@ float() WaitOnLift =
 		return FALSE;
 	if (deathtype == "squish")
 		return FALSE;  // don't wait to be squished
+#ifdef DEBUG_LIFT
+	dprint("Touching LIFT/DOOR; Lm", ftos(linked_marker_.index), " state=", ftos(linked_marker_.state), "\n");
+#endif
 
 	if (touch_marker_.state == STATE_TOP)
 		return FALSE;
@@ -428,6 +446,9 @@ float() WaitOnLift =
 	if (self.absmin_y >= touch_marker_.absmin_y)
 	if (self.absmax_y <= touch_marker_.absmax_y)
 	{
+#ifdef DEBUG_LIFT
+		dprint("Bot on LIFT; Lm", ftos(linked_marker_.index), " state=", ftos(touch_marker_.state), "\n");
+#endif
 		WaitAtTouchMarker(5);
 		return TRUE;
 	}
@@ -435,6 +456,9 @@ float() WaitOnLift =
 	dir_move_z = 0;
 	if(vlen(dir_move) > 4)
 	{
+#ifdef DEBUG_LIFT
+		dprint("Centering on LIFT; Lm", ftos(linked_marker_.index), " state=", ftos(touch_marker_.state), "\n");
+#endif
 		dir_move = normalize(dir_move);
 		NewVelocityForArrow();
 	}

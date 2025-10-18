@@ -88,9 +88,7 @@ void() BotVerticalSwim
 {
 	if (! self.linked_marker) return;
 	if ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) < self.origin_z) 
-	{
 		self.swim_arrow = DOWN;
-	}
 	else if ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) >= self.origin_z) 
 	{
 		self.swim_arrow = UP;
@@ -121,6 +119,9 @@ float() SwimAwayFromWall =
 	if (time < self.t_swim_obstruction)
 		return FALSE;
 
+#ifdef DEBUG_WATER
+	dprint("SwimAwayFromWall\n");
+#endif
 	if ((self.obstruction_normal * rel_pos) > 0.5)
 	{
 		dir_move = (-1) * dir_move;
@@ -160,6 +161,9 @@ float() BotGoUpForAir =
 		return FALSE;
 	if (time > (self.air_finished - 2))
 	{
+#ifdef DEBUG_WATER
+		dprint("BotGoUpForAir\n");
+#endif
 		if (self.obstruction_normal != '0 0 0')
 		{
 			dir_move = -1 * self.obstruction_normal;
@@ -180,6 +184,9 @@ float() BotGoUpForAir =
 	
 		if (time > self.air_finished)
 		{
+#ifdef DEBUG_WATER
+			dprint("BotGoUpForAir!\n");
+#endif
 			// time's up!
 			// Origin is 32 units below top, we only have a chance
 			// to find air if we can move up at least 1u
@@ -412,11 +419,17 @@ void() FrogWaterMove =
 		self.velocity = v_forward * sv_maxwaterspeed;
 		self.velocity_override = self.velocity;
 		self.t_velocity_override = time + (64 / sv_maxwaterspeed);
+#ifdef DEBUG_WATER
+		dprint("Water fwd probe override ", ftos(64 / sv_maxwaterspeed), "s\n");
+#endif
 		VelocityForArrow();
 		return;
 	}
 
 	// Don't know what to do, try random stuff
+#ifdef DEBUG_WATER
+	dprint("Water random up/down; Lm", ftos(self.linked_marker.index), "\n");
+#endif
 	if (random() > 0.5)
 	{
 		traceline (self.origin,self.origin + '0 0 33', TRUE, self);

@@ -1452,6 +1452,15 @@ void() ImpulseCommands =
 		self.impulse = 0;
 		ScratchCommands();
 	}
+#ifdef DEBUG_PENTAHACK
+	// Simulate player having picked up pentagram
+	else if (impulse_ == 254) {
+		self.items = self.items | IT_INVULNERABILITY;
+		self.s_PENT = self.s_PENT + 1;
+		self.invincible_time = 1;
+		self.invincible_finished = time + 30;
+	}
+#endif
 	else if (impulse_ < IMP_START1)
 	{
 		if (self.lines)
