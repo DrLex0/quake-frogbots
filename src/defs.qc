@@ -2077,8 +2077,9 @@ entity touch_marker_;
 .float sticky_touch;
 
 // Touched marker at the moment the bot planned its current path, updated at
-// .frogbot_nextthink clock, together with .linked_marker. Use this when it is
-// important to know the parameters for the current bot path state actions.
+// .frogbot_nextthink clock, should in almost every case be updated together
+// with .linked_marker. Use this when it is important to know the parameters
+// for current bot path state actions.
 .entity path_from_marker;
 
 // If set on a marker, indicates direction in which to initiate a (precise) jump

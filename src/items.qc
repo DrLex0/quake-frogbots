@@ -432,6 +432,7 @@ void() armor_touch =
 					// or made less common on lower smartness levels. TODO.
 					other.state = other.state | HURT_SELF;
 					other.linked_marker = self;
+					other.path_from_marker = self;
 					other.path_state = 0;
 					other.linked_marker_time = time + 0.5;
 					other.goal_refresh_time = time + 2 + random();

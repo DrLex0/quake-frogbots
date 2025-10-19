@@ -551,7 +551,7 @@ void() ThinkTime =
 
 				if (self.look_object != self.enemy)
 				{
-					// Exceptions, these will use FrogTrackSimple instead
+					// Exceptions, these will return early and use FrogTrackSimple instead
 					if (self.state & NEED_SHOOT_AIM)
 					{
 						SetFireButton();

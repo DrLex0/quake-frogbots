@@ -547,6 +547,7 @@ float() WaitAndShootAtTrigger =
 			if (link_door)
 				return path_requires_shot;
 			// Fire and forget, continue unconditionally
+			// (in practice, this almost never works, so don't rely on it)
 			return FALSE;
 		}
 	}
