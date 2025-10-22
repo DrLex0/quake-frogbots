@@ -319,20 +319,23 @@ void() SpecialAccurateMoves =
 
 	if (self.running_up > 0)  // Precise jump logic
 	{
-		if (time > self.running_up)
-		{
-			self.running_up = 0;
-			return;
-		}
 		dir_move = self.run_up_point - origin_;
-		if (vlen(dir_move) < 40)  // begin the actual run-up
-			self.running_up = -self.running_up;
+		// Begin the actual run-up when either:
+		// - it takes suspiciously long to reach the run-up spot
+		//   (probably because is inside wall due to tight space);
+		if (time > self.running_up)
+			self.running_up = -(time + 1.0);
+		// - or we did come sufficiently near the spot.
+		else if (vlen(dir_move) < 40)
+			self.running_up = -(time + 1.0);
 		dir_move = normalize(dir_move);
 		NewVelocityForArrow();
 		return;
 	}
 	else if(self.running_up < 0)
 	{
+		// Either something went awry, bot probably fell off a ledge or something;
+		// but we also use this to clear RU state when doing the actual jump.
 		if (time > -self.running_up)
 		{
 			self.running_up = 0;
@@ -408,6 +411,7 @@ void() SpecialAccurateMoves =
 	}
 	else if(vlen(self.velocity) < 260)  // or too slow
 		return;
+	// Keep RU status until actually airborne; the above logic will clear it later on
 	if (self.running_up)
 		self.running_up = -(time + 0.1);
 	// Make the jump increasingly perfect with increasing bot skill level

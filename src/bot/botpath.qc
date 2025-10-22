@@ -583,7 +583,9 @@ void() CheckAccurateRunUp =
 			(linked_marker_.absmin + linked_marker_.view_ofs);
 	dir_move_z = 0;
 	self.run_up_point = touch_marker_.absmin + touch_marker_.view_ofs + 90 * normalize(dir_move);
-	self.running_up = self.linked_marker_time = time + 2.5;
+	// Timeout for reaching the run-up start point: about 2x the time
+	// it should take to traverse 90u distance at full speed
+	self.running_up = time + 0.6;
 }
 
 /*
