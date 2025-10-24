@@ -329,7 +329,8 @@ void() SpecialAccurateMoves =
 		else if (vlen(dir_move) < 40)
 			self.running_up = -(time + 1.0);
 		dir_move = normalize(dir_move);
-		NewVelocityForArrow();
+		if(time > self.arrow_time2)
+			NewVelocityForArrow();
 		return;
 	}
 	else if(self.running_up < 0)
@@ -390,10 +391,12 @@ void() SpecialAccurateMoves =
 	}
 	if (!right_direction(20 + 20 * self.bot_inaccuracy))
 	{
-		NewVelocityForArrow();
+		if(time > self.arrow_time2)
+			NewVelocityForArrow();
 		return;
 	}
-	NewVelocityForArrow();
+	if(time > self.arrow_time2)
+		NewVelocityForArrow();
 	if (!(self.path_state & PRECISE_JUMP))
 		return;
 

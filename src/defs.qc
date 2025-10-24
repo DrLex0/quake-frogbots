@@ -1396,7 +1396,7 @@ void() bf;
 .float button2_;
 .float arrow_time;
 .entity arrow_client;  // who set .arrow_time
-.float arrow_time2;
+.float arrow_time2;  // set when avoiding hazards
 .float enemy_time;
 float enemy_visible;
 .float linked_marker_time;
