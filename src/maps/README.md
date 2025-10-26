@@ -57,3 +57,25 @@ At this time, the following characters must be (and are by the scripts) converte
 For instance, `dmz1++.bsp` will get a waypoint loading function called `map_dmz1PLUSPLUS`.
 
 More may need to be added if someone wants to make waypoints for maps with other funky characters. However, if you make a new map, and have to choose a file name, by all means **please just stick to the ASCII alphabet, numbers, and underscores.** Don't even think about Unicode in file names, because that is totally out of reach for QuakeC.
+
+
+## Random rant inspired by some recent Quake DM maps
+
+The Frogbot is designed to mimic a human player. If it takes hours of tweaking waypoints just to give the bot a mere 60% chance of getting past a certain spot in the map, then this spot will likely also be annoying for human players (unless it is due to a bug in the bot code). Some things I have observed in some recent maps:
+
+- Extremely tricky jumps that require some perfect sequence of bunny hops to reach an essential part of the map, will _not_ make it fun to play for anyone else than the ever shrinking group of veteran players, and will _not_ help to keep newer generations interested in this classic game.  
+  It is perfectly OK to design such things in niche training or competition maps, or add it as a shortcut to give skilled players a _slight_ advantage. But, if your goal is to make a new map that has a chance of joining the ranks of classics like Aerowalk, making the map rely on tricks is a guarantee to thwart that goal.
+
+- Same for tricky geometry, platforms with specific timing, or other things that break the flow of fast-paced deathmatch gameplay. What makes a single-player map fun or challenging, will often make a multiplayer map _annoying._ Arguably the main reason why people still play maps like `dm2` in 2025, is not because of its traps, but rather likely nostalgia, it was one of the very first maps available at all.
+
+- You are making a map for **Quake,** not for _insert-name-of-latest-AAA-game-here._ The engine dates from 1996 and has _limitations,_ which give it one of the fastest gaming experiences possible, combined with a certain aesthetic. Embrace the limitations and respect the aesthetic, instead of trying to “upgrade” it to look like any recent game. The goal of Quake is to _gib opponents,_ not to stand still and gawk at ultra-high res pixels. Getting distracted by eye-candy _will_ and _must_ be punished by getting mercilessly **gibbed.**  
+  Yes, one can enhance the looks of a map through recent advances in some implementations of the game engine, like skyboxes and high-res or transparent textures, but your map must still look good and be playable in simpler engines, or by people who don't want to download a bunch of extra files. Provide sensible fallback textures embedded within the BSP.
+
+- Maps that contain a lot of near-pitch-black zones are _not_ fun and are a lame way to try to make it more challenging. (Note that lighting is irrelevant for bots; they will kick your ass just as hard whether it is hiding in some dark zone or not.) Not being able to see anything is just plain annoying, and gets even more annoying if lethal traps are hidden in the dark zones.
+
+- ‘Secrets’ are OK… but only if they are _not really secrets._ Look at the classic DM maps, and you'll notice that doors or switches which need to be pushed or shot to reach some power-up, are in plain sight, indicated with a visual cue, and triggers are always near the thing they activate. Putting a switch at one end of the map that opens a door at the other end that can only be reached by making a perfect undisturbed run, is fine in a single-player map. In a net map, it is _pointless._
+
+- Some examples:
+  - Good: _Panzer, Nova, Halo, Joi Zite._ All made by _Alice,_ who IMO knows what constitutes a good Quake multiplayer map. My only gripe is that they all look similar; some variation in textures would give each map more of a unique character.
+  - Meh: _Abyssinia_ by _bps,_ looks nice and would be a fine single player map, but is terribly dark, sprawls in all directions, has annoying geometry and traps hidden in dark places. Similar remarks for _Sanctuary of the Silent Scribes_ by _infinity._ Also looks nice, but _way too dark_ overall, large complicated geometry with dead-ends, and reaching certain items requires too much fuss. Again, looks like a SP map hastily promoted to MP.
+  - Bad: _pocket infinity_ by _fourier/infiniti._ Annoying geometry, Quad only reachable by performing speed run tricks, and one of the teleports in the final version is only good for breaking kneecaps. Trying to add bot support to this map seems futile.
