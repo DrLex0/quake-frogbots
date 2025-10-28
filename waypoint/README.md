@@ -85,6 +85,7 @@ K		-	160	AUTO CONNECT trigger_teleport
 T		137	145	CLEAR ACTIVE MARKER PATHS
 Y		138	146	MOVE ACTIVE MARKER
 U		139	147	VERTICALLY MOVE ACTIVE MARKER
+E		-	159	MOVE TO ACTIVE MARKER
 WHEELUP	2	140	148	INCREASE GOAL/ZONES
 WHEELDN	1	141	149	DECREASE GOAL/ZONES
 ENTER	Q	142	150	SET GOAL/ZONE
@@ -100,8 +101,8 @@ M		126	134	CHECK ALL ZONES
 ,		-	161	SHOW SAME OR NEXT GOAL
 ;		-	164	SHOW NEXT ITEM OF SAME TYPE
 .		-	163	SET DOOR OPEN THRESHOLD
-E		-	159	MOVE TO ACTIVE MARKER
 /		-	158	PRINT COORDINATES & EXTRA INFO
+'		-	165	SET CUSTOM INTERMISSION CAMERA
 F1		133	143	DUMP WAYPOINT DATA
 F2		?	130	NOCLIP
 F3		?	50	DISABLE DAMAGE FLASH
@@ -112,34 +113,35 @@ MOUSE3  	-	-	FIRE
 none		-	162	TOGGLE ROCKET JUMPING
 
 PATH MODES
-	- regular path mode (default)
-	- disconnect-mode
-	- jump ledge-mode
-	- rocket jump mode
-(new)	- slow precise jump mode
-(new)	- precise jump mode
-(new)	- slow down mode
-(new)	- just GO mode
-(new)	- focused path mode
-(new)	- wall strafe jump mode
-(new)	- need shoot mode
-(new)	- shoot at trigger (pseudo)
-(new)	- linked door (pseudo)
-	- reversible display-mode
-	- water path display-mode
-(new)	- clear all assigned path modes
+(label - new in v2? - mode)
+        regular path mode (default)
+        disconnect-mode
+J       jump ledge-mode
+R       rocket jump mode
+PS  y   slow precise jump mode
+P   y   precise jump mode
+S   y   slow down mode
+!   y   just GO mode
+F   y   focused path mode
+W   y   wall strafe jump mode
+N   y   need shoot mode
+H   y   shoot at trigger (pseudo)
+D   y   linked door (pseudo)
+        reversible display-mode
+        water path display-mode
+    y   clear all assigned path modes
 
 MARKER TYPES (when DISPLAY-MODE = TYPE)
-	- type mode off / clear marker type (default)
-	- unreachable node
-(new)	- exclusive node
-(new)	- narrow node
-(new)	- wait lift node
-(new)	- jump hint node (pseudo)
-(new)	- slime island node
-(new)	- want biosuit node
-(new)	- untouchable node
-(new)	- air touchable node
+        type mode off / clear marker type (default)
+U       unreachable node
+E   y   exclusive node
+N   y   narrow node
+L   y   wait lift node
+J   y   jump hint node (pseudo)
+S   y   slime island node
+B   y   want biosuit node
+T   y   untouchable node
+A   y   air touchable node
 ```
 
 ## The workflow

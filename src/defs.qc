@@ -2367,6 +2367,11 @@ float NUMBERHARDBOTS = 16;
 float	intermission_running;
 float	intermission_exittime;
 
+// Custom intermission that can be specified in waypoints
+// when lazy or forgetful map makers forgot to set it
+vector interm_origin;
+vector interm_mangle;
+
 entity bodyque_head;
 #ifdef QUAKE
 entity bodyque_entry;
@@ -2518,6 +2523,12 @@ float has_embedded_wp;
 .string FrB_D7;
 .string FrB_oZ;  // view_ofs_z
 .string FrB_dD;  // d_door_open
+.string FrB_iX;  // intermission position;
+.string FrB_iY;  // separate floats due to lack of generally available 'stov'.
+.string FrB_iZ;
+.string FrB_iP;  // intermission pitch, yaw, roll
+.string FrB_iW;
+.string FrB_iR;
 //===========================================================================
 
 

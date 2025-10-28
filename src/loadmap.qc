@@ -67,6 +67,9 @@ void() LoadMap =
 	// For tweaking desirability of G1 and/or G2, value is a multiplication factor
 	desire_adj_G1 = desire_adj_G2 = 1;
 
+	interm_origin = '0 0 0';
+	interm_mangle = '0 0 0';
+
 	// For QuakeC n00bs like me:
 	// never do if(clause1 || function()); function is _always_ evaluated.
 	if (has_embedded_wp)
@@ -90,7 +93,11 @@ void() LoadMap =
 ============
 AddMissingBits
 
-Hard-coded fixes for certain maps, mostly missing intermission cameras
+Hard-coded fixes for certain maps. Most common is lack of intermission camera,
+causing ugly scoreboard backgrounds. Please think of this when creating new maps!
+Missing intermissions should not be coded here, the waypoint tool now has provisions
+to easily configure it.
+This is for remaining special things like moving items or modifying properties.
 ============
 */
 void(entity it, vector offset) MoveItem =
@@ -112,52 +119,20 @@ void(vector ori, vector mang) SpawnIntermission =
 
 void() AddMissingBits =
 {
-	if (mapname == "amphi")
-		SpawnIntermission('1244 -337 570', '40 -135 10');
-	else if (mapname == "dakdm1")
-		SpawnIntermission('-20 -533 -108', '14 45 0');
-	else if (mapname == "dark-terror-ffa")
-		SpawnIntermission('-840 1330 136', '30 -36 4');
-	else if (mapname == "dranzdm7")
-		SpawnIntermission('-200 -1480 414', '52 -54 0');
-	else if (mapname == "dm4ish")
-		SpawnIntermission('-310 -293 404', '25 32 0');
-	else if (mapname == "dmz1++")
+	if (interm_origin || interm_mangle)
+		SpawnIntermission(interm_origin, interm_mangle);
+
+	if (mapname == "dmz1++")
 	{
 		MoveItem(m48, '15 0 6');  // health pack in wall
-		SpawnIntermission('-198 727 -190', '26 -115 0');
 	}
 	else if (mapname == "e1m4")
 		MoveItem(m20, '0 0 -444');  // YA does not drop down with platform
 	else if (mapname == "end")
 		m100.touch = null;  // Sabotage Shub's hurt trigger
-	else if (mapname == "egyptele")
-		SpawnIntermission('-3060 -1313 292', '28 -96 -4');
-	else if (mapname == "endif")
-		SpawnIntermission('-227 -732 800', '54 45 8');
-	else if (mapname == "exdm3")
-		SpawnIntermission('680 -957 290', '27 150 0');
-	else if (mapname == "filthy")
-		SpawnIntermission('-5 -722 -136', '-12 56 0');
-	else if (mapname == "four")
-		SpawnIntermission('-35 0 11', '-30 0 0');
-	else if (mapname == "genocide")
-		SpawnIntermission('-592 -563 56', '28 40 0');
-	else if (mapname == "imp1dm6")
-		SpawnIntermission('970 -5 184', '-36 140 0');
-	else if (mapname == "kjdm12")
-		SpawnIntermission('-410 -1162 524', '38 41 0');
-	else if (mapname == "misdm8")
-		SpawnIntermission('-63 -1682 268', '25 52 0');
-	else if(mapname == "oktest1")
-		SpawnIntermission('513 -281 1167', '37 -147 -13');
-	else if (mapname == "thf")
-		SpawnIntermission('-1265 358 386', '-10 -36 0');
 	else if (mapname == "tridm1" || mapname == "trindm1")
 	{
 		// For some reason, bots in ezQuake get stuck on this button if it moves less than this distance
 		m55.pos2 = '0 0 -4';
 	}
-	else if (mapname == "ukpak2")
-		SpawnIntermission('398 -572 353', '32 -150 5');
 };

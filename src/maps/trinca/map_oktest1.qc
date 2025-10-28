@@ -1,5 +1,5 @@
-//12-05-2005 by Trinca
-// Note by DrLex 2024-12: this is the only map that exceeds m300 (up to m316).
+// Original 12-05-2005 by Trinca
+// Note by DrLex 2024-12: this is ATM the only map that exceeds m300 (up to m319).
 // That's why it is called "Overkill Test1".
 // Fixes by DrLex 2025-03:
 // - split up zones
@@ -281,6 +281,7 @@ m313.P0=m314;m313.P2=m312;m314.P0=m295;m314.P1=m313;m315.P0=m35;m316.P0=m318;
 m317.P0=m35;m317.P1=m237;m318.P0=m257;m319.P0=m231;m319.P1=m233;
 m22.D1=1024;m24.D0=1024;m166.D0=1024;m193.D1=1;m205.D0=1;m255.D0=1024;
 m255.D1=1024;m255.D3=1;m256.D1=1024;m292.D2=1;m303.D3=1;m317.D1=1;
+AddIntermission(513,-281,1167,37,-147,-13);
 };
 /* MarkerInfo
 m1 info_player_deathmatch 1024 3136 32;

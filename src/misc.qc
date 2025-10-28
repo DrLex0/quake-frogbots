@@ -7,6 +7,7 @@
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2007 ParboiL
+	Modifications by DrLex 2025
 */
 
 #include "settings.h"
@@ -468,4 +469,24 @@ void() ambient_swamp2 =
 {
 	precache_sound ("ambience/swamp2.wav");
 	ambientsound (self.origin, "ambience/swamp2.wav", 0.5, ATTN_STATIC);
+};
+
+
+/*
+============
+AddIntermission
+
+Sets parameters for spawning a custom info_intermission.
+It will be actually spawned in LoadMap().
+(Use discrete float arguments due to paranoia about accumulating too many globals.)
+============
+*/
+void(float ix, float iy, float iz, float ipitch, float iyaw, float iroll) AddIntermission =
+{
+	interm_origin_x = ix;
+	interm_origin_y = iy;
+	interm_origin_z = iz;
+	interm_mangle_x = ipitch;
+	interm_mangle_y = iyaw;
+	interm_mangle_z = iroll;
 };

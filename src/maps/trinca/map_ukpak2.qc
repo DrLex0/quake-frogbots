@@ -1,3 +1,5 @@
+// Original author unknown
+// Tweaks by DrLex 2025-04
 void() map_ukpak2 =
 {
 // custom markers start at m56
@@ -131,6 +133,7 @@ m163.P1=m69;m164.P0=m14;m164.P1=m156;
 m67.D1=1024;m68.D1=1024;m80.D0=1024;m81.D0=1024;m82.D0=1024;m123.D3=1024;
 m125.D2=1024;m126.D2=1024;m127.D1=1024;m127.D3=1024;m128.D2=1024;m128.D3=1024;
 m129.D3=1024;m153.D2=512;m156.D2=512;m164.D1=1024;
+AddIntermission(398,-572,353,32,-150,5);
 };
 /* MarkerInfo
 m1 door 0 224 248;

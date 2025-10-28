@@ -48,6 +48,7 @@ m38.P0=m2;m38.P1=m25;m38.P2=m24;m38.P3=m36;m38.P4=m35;m38.P5=m41;
 m39.P0=m2;m39.P1=m37;m39.P2=m40;m39.P3=m41;m40.P0=m39;m40.P1=m2;
 m40.P2=m41;m40.P3=m17;m41.P0=m2;m41.P1=m40;m41.P2=m17;m41.P3=m39;
 m41.P4=m25;m41.P5=m38;
+AddIntermission(278,-639,-266,10,99,-7);
 };
 /* MarkerInfo
 m1 info_player_deathmatch -154 -375 -620;

@@ -1049,6 +1049,17 @@ void() SaveGlobals =
 		bprint("desire_adj_G2=", ftos(desire_adj_G2), ";\n");
 		count_ = 10;
 	}
+	if (interm_origin || interm_mangle)
+	{
+		bprint("AddIntermission(",
+			ftos(interm_origin_x), ",",
+			ftos(interm_origin_y), ",",
+			ftos(interm_origin_z), ",");
+		bprint(ftos(interm_mangle_x), ",",
+			ftos(interm_mangle_y), ",",
+			ftos(interm_mangle_z), ");\n");
+		count_ = 10;
+	}
 };
 
 void() SavePaths =
@@ -1514,6 +1525,26 @@ void() PrintGoal =
 		bprint(", Z", ftos(active_marker.Z_));
 	if (active_marker.G_)
 		bprint(", G", ftos(active_marker.G_));
+	bprint(" ");
+
+	if (active_marker.T & T_UNREACHABLE)
+		bprint("\xD5");  // U
+	if (active_marker.T & T_EXCLUSIVE)
+		bprint("\xC5");  // E
+	if (active_marker.T & T_NARROW)
+		bprint("\xCE");  // N
+	if (active_marker.T & T_WAITLIFT)
+		bprint("\xCC");  // L
+	if (active_marker.T & T_JUMP_HINT)
+		bprint("\xCA");  // J
+	if (active_marker.T & T_FORCESLIME)
+		bprint("\xD3");  // S
+	if (active_marker.T & T_WANTSUIT)
+		bprint("\xC2");  // B
+	if (active_marker.T & T_NOTOUCH)
+		bprint("\xD4");  // T
+	if (active_marker.T & T_AIR_TOUCH)
+		bprint("\xC1");  // A
 
 	if ((active_marker.classname == "trigger_teleport") ||
 	    (active_marker.classname == "door") ||
@@ -1524,7 +1555,7 @@ void() PrintGoal =
 		// These markers have no origin because they are brushes.
 		// Therefore it is important to rely on the view_ofs in general:
 		local vector v_temp = active_marker.absmin + active_marker.view_ofs;
-		bprint("  (",
+		bprint(" (",
 			ftos(rint(v_temp_x)), ",",
 			ftos(rint(v_temp_y)), ",",
 			ftos(rint(v_temp_z)), ") ");
@@ -1536,7 +1567,7 @@ void() PrintGoal =
 	}
 	else
 	{
-		bprint("  (",
+		bprint(" (",
 		ftos(rint(active_marker.origin_x)), ",",
 		ftos(rint(active_marker.origin_y)), ",",
 		ftos(rint(active_marker.origin_z)), ")  ");
@@ -2481,6 +2512,17 @@ void() PrintDebugInfo =
 	else bprint("Compiled WP loaded\n");
 }
 
+void() SetIntermission =
+{
+	interm_origin_x = rint(self.origin_x);
+	interm_origin_y = rint(self.origin_y);
+	interm_origin_z = rint(self.origin_z + 22);  // eyes are 22u above origin
+	interm_mangle_x = rint(self.angles_x * -3);
+	interm_mangle_y = rint(self.angles_y);
+	interm_mangle_z = 0;  // if you want this custom, edit the QC dump
+	bprint("Custom intermission set to ", vtos(interm_origin), "; ", vtos(interm_mangle), "\n");
+}
+
 // DrLex: I had to change all impulses compared to the waypoint tool
 // distributed by Mick, because extra impulses have been added in arena.qc.
 // Skip over 140 and 141 because tied to f_jump and r_jump in botimp.qc.
@@ -2549,6 +2591,8 @@ void() ManualImpulseCommands =
 		SetDoorDOpen();
 	else if (impulse_ == 164)  // `;`
 		FindNextSameItem();
+	else if (impulse_ == 165)  // `'`
+		SetIntermission();
 };
 
 #endif

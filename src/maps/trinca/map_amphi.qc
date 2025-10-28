@@ -49,6 +49,7 @@ m45.P0=m20;m46.P0=m13;m47.P0=m21;m48.P0=m22;m49.P0=m23;m50.P0=m24;
 m51.P0=m25;
 m2.D0=1024;m7.D1=129;m17.D0=512;m19.D0=512;m20.D0=512;m22.D0=512;
 m23.D0=512;m29.D1=129;m30.D0=129;
+AddIntermission(1244,-337,570,40,-135,10);
 };
 /* MarkerInfo
 m1 info_player_deathmatch 1283 -1247 89;
