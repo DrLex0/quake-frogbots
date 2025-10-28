@@ -2327,9 +2327,10 @@ void() FindNextGoal =
 		if (FindNextSameGoal(lastG, active_marker))
 		{
 			if (active_marker == last_active)
-				bprint("Only item with G", ftos(lastG), " is m", ftos(active_marker.index), "\n");
+				bprint("Only item with G");
 			else
-				bprint("Next item with G", ftos(lastG), " is m", ftos(active_marker.index), "\n");
+				bprint("Next item with G");
+			bprint(ftos(lastG), " is m", ftos(active_marker.index), "  ", active_marker.classname, "\n");
 		}
 		else
 			bprint("Something impossible happened\n");
@@ -2424,7 +2425,7 @@ void() FindNextSameItem =
 		else if(goal_index)
 		{
 			if (FindNextSameGoal(goal_index, world))
-				bprint("m", ftos(active_marker.index), " has G", ftos(goal_index), "\n");
+				bprint("m", ftos(active_marker.index), "  ", active_marker.classname, " has G", ftos(goal_index), "\n");
 			else
 				bprint("no item has G", ftos(goal_index), "\n");
 		}
