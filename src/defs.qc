@@ -1608,8 +1608,11 @@ float CLEAR_PATH_MODES		= 2097152;
 // inverses are subtracted from 16777215 (all 24 bits set to 1)
 float NOT_JUMP_LEDGE			= 16776191;
 float DELIBERATE_AIR_WAIT_GROUND	= 393216;
-// inverse of DELIBERATE_AIR_WAIT_GROUND + ROCKET_JUMP; more might be needed
-float REACHED_GROUND			= 16383487;
+// inverse of path states related to being airborne:
+// DELIBERATE_AIR_WAIT_GROUND + ROCKET_JUMP + AIR_ACCELERATION
+// Don't clear JUMP states, because bots may need to jump multiple times
+//   to touch the next marker if the first jump did not succeed.
+float REACHED_GROUND			= 15334911;
 float SLOW_PRECISE			= 2176;
 
 .entity link_door_ent;  // marker property set by LINKED_DOOR pseudo-path mode

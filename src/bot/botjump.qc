@@ -225,6 +225,12 @@ void() a_rocketjump =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 		return;
+	if (self.path_state & WAIT_GROUND)
+	{
+		// Bot has landed. Clear air-related states, including RJ
+		self.path_state = self.path_state & REACHED_GROUND;
+		return;
+	}
 	if (self.path_from_marker.look_here)
 	{
 		AccurateRJump();
