@@ -70,47 +70,47 @@ A marker will be _touched_ when the bot comes sufficiently near it, and even if 
 
 These are the bindings provided by the `autoexec.cfg`. Of course you are free to modify them. Unless your memory is flawless, you will want to print out this list, or have it on a second monitor while running the waypoint tool.
 ```
-KEY	ALTKEY	OLD_IMP	NEW_IMP	FUNCTION
-O		120	131	TOGGLE MANUAL-MODE
-MOUSE1	3	119	132	SPAWN A MARKER
-G	9	132	142	DEFAULT MARKER-MODE
-F	5	135	144	TOGGLE CLOSEST-MARKER-MODE
-L	0	-	156	CYCLE BETWEEN 4 CLOSEST MARKERS
-I	TAB	127	135	TOGGLE STATIC ACTIVE MARKER
-P		128	136	REMOVE ACTIVE MARKER
-H		129	137	DISABLE ACTIVE MARKER
-J	6	130	138	TOGGLE ONEWAY-MODE
-MOUSE2	4	131	139	TOGGLE CONNECT-MARKERS-MODE
-K		-	160	AUTO CONNECT trigger_teleport
-T		137	145	CLEAR ACTIVE MARKER PATHS
-Y		138	146	MOVE ACTIVE MARKER
-U		139	147	VERTICALLY MOVE ACTIVE MARKER
-E		-	159	MOVE TO ACTIVE MARKER
-WHEELUP	2	140	148	INCREASE GOAL/ZONES
-WHEELDN	1	141	149	DECREASE GOAL/ZONES
-ENTER	Q	142	150	SET GOAL/ZONE
-C	8	143	151	PRINT ZONE, GOAL, TYPE
-R		-	157	PRINT/SHOW PATHS
-V	7	144	152	CYCLE PATH-MODES or
-				CYCLE MARKER TYPES
-Z		146	154	CYCLE DISPLAY-MODE
-B		145	153	DISPLAY TRAVELTIME
-X		147	155	DISPLAY REACHABLE
-N		125	133	CHECK ALL GOALS
-M		126	134	CHECK ALL ZONES
-,		-	161	SHOW SAME OR NEXT GOAL
-;		-	164	SHOW NEXT ITEM OF SAME TYPE
-.		-	163	SET DOOR OPEN THRESHOLD
-/		-	158	PRINT COORDINATES & EXTRA INFO
-'		-	165	SET CUSTOM INTERMISSION CAMERA
-F1		133	143	DUMP WAYPOINT DATA
-F2		?	130	NOCLIP
-F3		?	50	DISABLE DAMAGE FLASH
-F4		?	123	TOGGLE FROGBOT -- CAUTION!
-				Read Advanced section first!
-F5		-	-	CONDUMP COMMAND (dump console to file)
-MOUSE3  	-	-	FIRE
-none		-	162	TOGGLE ROCKET JUMPING
+KEY     ALTKEY  OLD_IMP NEW_IMP FUNCTION
+O               120     131     TOGGLE MANUAL-MODE
+MOUSE1  3       119     132     SPAWN A MARKER
+G       9       132     142     DEFAULT MARKER-MODE
+F       5       135     144     TOGGLE CLOSEST-MARKER-MODE
+L       0       -       156     CYCLE BETWEEN 4 CLOSEST MARKERS
+I       TAB     127     135     TOGGLE STATIC ACTIVE MARKER
+P               128     136     REMOVE ACTIVE MARKER
+H               129     137     DISABLE ACTIVE MARKER
+J       6       130     138     TOGGLE ONEWAY-MODE
+MOUSE2  4       131     139     TOGGLE CONNECT-MARKERS-MODE
+K               -       160     AUTO CONNECT trigger_teleport
+T               137     145     CLEAR ACTIVE MARKER PATHS
+Y               138     146     MOVE ACTIVE MARKER
+U               139     147     VERTICALLY MOVE ACTIVE MARKER
+E               -       159     MOVE TO ACTIVE MARKER
+WHEELUP 2       140     148     INCREASE GOAL/ZONES
+WHEELDN 1       141     149     DECREASE GOAL/ZONES
+ENTER   Q       142     150     SET GOAL/ZONE
+C       8       143     151     PRINT ZONE, GOAL, TYPE
+R               -       157     PRINT/SHOW PATHS
+V       7       144     152     CYCLE PATH-MODES or
+                                CYCLE MARKER TYPES
+Z               146     154     CYCLE DISPLAY-MODE
+B               145     153     DISPLAY TRAVELTIME
+X               147     155     DISPLAY REACHABLE
+N               125     133     CHECK ALL GOALS
+M               126     134     CHECK ALL ZONES
+,               -       161     SHOW SAME OR NEXT GOAL
+;               -       164     SHOW NEXT ITEM OF SAME TYPE
+.               -       163     SET DOOR OPEN THRESHOLD
+/               -       158     PRINT COORDINATES & EXTRA INFO
+'               -       165     SET CUSTOM INTERMISSION CAMERA
+F1              133     143     DUMP WAYPOINT DATA
+F2              ?       130     NOCLIP
+F3              ?       50      DISABLE DAMAGE FLASH
+F4              ?       123     TOGGLE FROGBOT -- CAUTION!
+                                Read Advanced section first!
+F5              -       -       CONDUMP COMMAND (dump console to file)
+MOUSE3          -       -       FIRE
+none            -       162     TOGGLE ROCKET JUMPING
 
 PATH MODES
 (label - new in v2? - mode)
