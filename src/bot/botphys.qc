@@ -145,6 +145,10 @@ void() VelocityForArrow =
 
 					if (!(self.flags & FL_ONGROUND))
 					{
+						// This simulates classic Quake air movement logic, with v_forward acting
+						// as the 'wishdir'. TODO: allow overriding turning_speed through waypoint
+						// config. Also, should have option to delay initiating the turn to clear
+						// nearby walls first. Maybe add intentional errors on low skill levels.
 						velocity_hor_angle_y = vectoyaw(hor_velocity) + (turning_speed * frametime);
 						makevectors(velocity_hor_angle);
 
