@@ -324,6 +324,7 @@ float() LiftNeedsButton =
 	if (touch_marker_.state != STATE_BOTTOM)
 		return FALSE;  // already activated
 	if (linked_marker_.classname != "func_button")
+	if (linked_marker_.classname != "trigger_multiple")
 		return FALSE;
 	if (linked_marker_.target == touch_marker_.targetname)
 	{
