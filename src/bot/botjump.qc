@@ -447,7 +447,13 @@ void() SpecialAccurateMoves =
 #endif
 	}
 	if (self.path_from_marker.jump_direction)
+	{
 		self.path_state = self.path_state | AIR_ACCELERATION;
+		if (self.path_from_marker.airstrafe_delay)
+		{
+			self.arrow_time2 = time + self.path_from_marker.airstrafe_delay;
+		}
+	}
 	self.button2_ = 1;
 };
 

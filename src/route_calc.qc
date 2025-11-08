@@ -329,6 +329,10 @@ float() TravelTime =
 	if (m_P.T & T_JUMP_HINT)
 	{
 		m.jump_direction = m_P;
+		if (m_D & SLOW_DOWN)
+			m.airstrafe_delay = 0.125;
+		else
+			m.airstrafe_delay = 0;
 #ifdef MANUAL
 		traveltime = 1000000;
 		return TRUE;

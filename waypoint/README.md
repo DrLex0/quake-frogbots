@@ -584,13 +584,17 @@ Note that this feature does not behave exactly the same as for real players. Bot
 
 ### Air-turning precise jump
 
-Another Quake physics trick allows players to change direction while airborne by using the strafe keys while turning (of course again impossible in the real world without propulsion or aerodynamic manipulation). Bots are able to exploit this trick and will do so when appropriate.
+Another Quake physics trick, often called _“air strafing,”_ allows players to follow a curved trajectory while airborne, by simultaneously turning and strafing in the same direction (of course again impossible in the real world without propulsion or aerodynamic manipulation). Bots are able to exploit this trick and will do so when appropriate.
 
-The precise jump path mode will normally cause the bot to jump straight towards the destination marker. A precise jump can be turned into an _air turning jump_ by adding a one-way path from the jump spot towards a `jump hint` node type marker, to indicate the initial jumping direction. Assign the `jump hint` node type to this extra marker by setting display mode to `type` with the `Z` key, then selecting this mode with the `V` key, and right-clicking the marker.
+The _precise jump_ path mode will normally cause the bot to jump straight towards the destination marker. A precise jump can be turned into an _air turning jump_ by adding a one-way path from the jump spot towards a `jump hint` node type marker, to indicate the initial jumping direction. Assign the `jump hint` node type to this extra marker by setting display mode to `type` with the `Z` key, then selecting this mode with the `V` key, and right-clicking the marker.
 
 ![Air turning jump in Shifter](images/precise2.jpg)
 
-A `jump hint` marker should only have 1 (or perhaps 2) incoming path(s) and no outgoing paths, and must not be used as part of any true path. Its only purpose is to indicate the initial jump direction, this type of marker is automatically untouchable. Unless the jump leads towards an obvious desirable target, it is usually also necessary to combine the precise jump path with _focused path mode_ to ensure the bot makes the required mid-air turn.
+Setting up these jumps may be tricky and require some trial-and-error. Things to keep in mind:
+- A `jump hint` marker should only have 1 (or perhaps 2) incoming path(s) and no outgoing paths, and cannot be used as part of any true path. Its only purpose is to indicate the initial jump direction; this type of marker is automatically untouchable.
+- The bot will normally start to air strafe immediately after jumping. This may be problematic if there is a wall nearby that first needs to be cleared: the bot may turn too soon and bump into the wall. If this is the case, set `slow down` mode on the pseudo-path towards the `jump hint` marker to postpone air strafing for about 40 units distance after jumping.
+- Any marker can have only 1 pseudo-path towards 1 `jump hint` marker. (In the unlikely case multiple precise jumps from the same spot in different directions would ever be needed, you may need to work around this by using multiple markers and exclusive paths).
+- Although only cosmetic, it is recommended to combine the precise jump path with _focused path mode_ to provide for a more realistic view when watching bots in first-person mode.
 
 This allows the bot to perform trick jumps where a straight jump would have a risk of bumping into an obstacle. Examples can be found in `trindm3` and `shifter`.
 
