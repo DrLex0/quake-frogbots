@@ -408,6 +408,8 @@ Maps often feature lifts that require a **button press.** This is a bit more com
 
 The image shows optional extra paths in dotted lines: you may want to allow the bot to jump down the ‘elevator shaft’ by making the path between platform and destination 2-way, and provide an extra 1-way path from the platform to outside.
 
+Some lifts rely on a `trigger_multiple` instead of a button, all the above applies as well in this case—just treat the trigger marker as the button.
+
 _Multi-floor_ elevators are possible when providing paths from the platform to multiple markers, although whether the bot will actually be able to get off at intermediate floors, may depend on map design. See the `oktest` map for an example of a multi-floor elevator (the bot will jump off half-way through if it wants the mega-health).
 
 Remember that selecting platform and button markers will only be feasible in closest-marker mode (`F`), possibly with `NOCLIP` enabled (`F2`). Double-check that you connected what you intended.
