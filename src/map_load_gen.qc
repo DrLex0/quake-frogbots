@@ -31,6 +31,7 @@
 #include "maps/trinca/map_aggressr.qc"
 #include "maps/trinca/map_amphi.qc"
 #include "maps/trinca/map_baldm6.qc"
+#include "maps/trinca/map_baldm7.qc"
 #include "maps/trinca/map_bovine.qc"
 #include "maps/trinca/map_bsdm6.qc"
 #include "maps/trinca/map_cmt3.qc"
@@ -87,34 +88,34 @@ void() SprintMaps =
 {
 	sprint_fb(self, 2, "          a2  aerowalk aerowalkfrost\n");
 	sprint_fb(self, 2, "    aggressr       amphi      amphi2\n");
-	sprint_fb(self, 2, "      arena3      baldm6      bovine\n");
-	sprint_fb(self, 2, "     bravado   bravadob5       bsdm6\n");
-	sprint_fb(self, 2, "   burialb10    catalyst        cmt3\n");
-	sprint_fb(self, 2, "        cmt4  dakdm1 dark-terror-ffa\n");
-	sprint_fb(self, 2, "     debello        del1  dm-cepheus\n");
-	sprint_fb(self, 2, "         dm1         dm3         dm4\n");
-	sprint_fb(self, 2, "      dm4ish         dm5         dm6\n");
-	sprint_fb(self, 2, "  dm_cepheus      dmz1++    dranzdm7\n");
-	sprint_fb(self, 2, "    dranzdm8        e1m1        e1m2\n");
-	sprint_fb(self, 2, "        e1m3        e1m4        e1m5\n");
-	sprint_fb(self, 2, "      efdm13       efdm8    egyptele\n");
-	sprint_fb(self, 2, "         end       endif       eodm3\n");
-	sprint_fb(self, 2, "       exdm3      filthy        four\n");
-	sprint_fb(self, 2, "    frobodm2    genocide     hohoho2\n");
-	sprint_fb(self, 2, "     imp1dm6        jvx1      kjdm12\n");
-	sprint_fb(self, 2, "      lilith      misdm8     monsoon\n");
-	sprint_fb(self, 2, "      naked6    naked7b2        nova\n");
-	sprint_fb(self, 2, "     oktest1       pkeg1     povdmm4\n");
-	sprint_fb(self, 2, "     q3dm6qw       rwild     schloss\n");
-	sprint_fb(self, 2, "       shady     shifter       shine\n");
-	sprint_fb(self, 2, "       skull     spinev2       start\n");
-	sprint_fb(self, 2, "    strmland         thf         tox\n");
-	sprint_fb(self, 2, "      tridm1      tridm2      tridm3\n");
-	sprint_fb(self, 2, "     trindm1     trindm2     trindm3\n");
-	sprint_fb(self, 2, "      ukpak2      ultrav    utressor\n");
-	sprint_fb(self, 2, "      ztndm1      ztndm2      ztndm3\n");
-	sprint_fb(self, 2, " ztndm3frost      ztndm4      ztndm5\n");
-	sprint_fb(self, 2, "      ztndm6\n");
+	sprint_fb(self, 2, "      arena3      baldm6      baldm7\n");
+	sprint_fb(self, 2, "      bovine     bravado   bravadob5\n");
+	sprint_fb(self, 2, "       bsdm6   burialb10    catalyst\n");
+	sprint_fb(self, 2, "        cmt3        cmt4      dakdm1\n");
+	sprint_fb(self, 2, " dark-terror-ffa     debello    del1\n");
+	sprint_fb(self, 2, "  dm-cepheus         dm1         dm3\n");
+	sprint_fb(self, 2, "         dm4      dm4ish         dm5\n");
+	sprint_fb(self, 2, "         dm6  dm_cepheus      dmz1++\n");
+	sprint_fb(self, 2, "    dranzdm7    dranzdm8        e1m1\n");
+	sprint_fb(self, 2, "        e1m2        e1m3        e1m4\n");
+	sprint_fb(self, 2, "        e1m5      efdm13       efdm8\n");
+	sprint_fb(self, 2, "    egyptele         end       endif\n");
+	sprint_fb(self, 2, "       eodm3       exdm3      filthy\n");
+	sprint_fb(self, 2, "        four    frobodm2    genocide\n");
+	sprint_fb(self, 2, "     hohoho2     imp1dm6        jvx1\n");
+	sprint_fb(self, 2, "      kjdm12      lilith      misdm8\n");
+	sprint_fb(self, 2, "     monsoon      naked6    naked7b2\n");
+	sprint_fb(self, 2, "        nova     oktest1       pkeg1\n");
+	sprint_fb(self, 2, "     povdmm4     q3dm6qw       rwild\n");
+	sprint_fb(self, 2, "     schloss       shady     shifter\n");
+	sprint_fb(self, 2, "       shine       skull     spinev2\n");
+	sprint_fb(self, 2, "       start    strmland         thf\n");
+	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
+	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
+	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
+	sprint_fb(self, 2, "    utressor      ztndm1      ztndm2\n");
+	sprint_fb(self, 2, "      ztndm3 ztndm3frost      ztndm4\n");
+	sprint_fb(self, 2, "      ztndm5      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -272,6 +273,11 @@ float() LoadWaypoints =
 	if (mapname == "baldm6")
 	{
 		map_baldm6();
+		return TRUE;
+	}
+	if (mapname == "baldm7")
+	{
+		map_baldm7();
 		return TRUE;
 	}
 	if (mapname == "bovine")
@@ -626,6 +632,8 @@ string(string mname) MapHasWaypoints =
 		return "amphi";
 	if (mname == "baldm6")
 		return "baldm6";
+	if (mname == "baldm7")
+		return "baldm7";
 	if (mname == "bovine")
 		return "bovine";
 	if (mname == "bsdm6")
