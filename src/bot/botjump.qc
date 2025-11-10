@@ -315,6 +315,15 @@ void() SpecialAccurateMoves =
 		}
 		if (vlen(self.run_up_point - origin_) > 24)
 			return;
+		if (self.run_up_point == linked_marker_.absmin + linked_marker_.view_ofs)
+		{
+#ifdef DEBUG_TOUCH
+			dprint("Ensuring sticky touch of WSJ point m", ftos(linked_marker_.index), "\n");
+#endif
+			self.touch_marker = linked_marker_;
+			self.sticky_touch = TRUE;
+		}
+
 		self.wallstrafe_vec = self.velocity;  // See FrogbotPrePhysics1
 		self.wallstrafe_jump = 1;
 		self.wallstrafe_key = 0;
