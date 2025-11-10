@@ -256,7 +256,7 @@ These steps do not need to be done in this exact order, but you will typically g
    - **Wall strafe jump mode** (shown as `‘W’`, number 8 in code) exploits Quake's weird physics to allow bots to jump across gaps too wide for a normal jump in some situations. More info in the advanced section below.
    - **Need shoot mode** (shown as `‘N’`, number 256 in code) is for paths that require shooting a trigger to be traversable, often a door like in _dm6,_ but the trigger may also be separate from the door. More details in the advanced section below.
    - **Shoot at** (shown as `‘h’`, number 32 in code) is a _pseudo path_ mode that indicates what object to shoot for _need shoot_ mode. See the advanced section for more info.
-   - **Linked door** (shown as `‘d’`, number 128 in code) is a _pseudo path_ mode that can be combined with _exclusive markers_ or with _need shoot_ mode. See the advanced section for more info.
+   - **Linked door** (shown as `‘d’`, number 4 in code) is a _pseudo path_ mode that can be combined with _exclusive markers_ or with _need shoot_ mode. See the advanced section for more info.
 
 The path mode selection also affects the display of markers connected to the active marker: when a certain mode is selected, only markers connected through an outgoing path of that type will be shown spinning. (The selection contains 2 pure `display-modes` for certain auto-assigned path types, these cannot be set.)
 
@@ -439,11 +439,12 @@ This works as follows. The bot will:
   - when this node has a `linked door` pseudo-path towards a door marker, and that door is currently open;
 - ignore _all_ other markers except the `exclusive node` as soon as it starts following a path towards this node. Because of risk of forever getting stuck, there is a deadline of _3 seconds_ to reach the exclusive node, the bot will resume its usual business if this deadline expires.
 
-When the bot exits an exclusive path, in other words when it decides to move from an exclusive marker towards a non-exclusive marker, the `exclusive door` mechanism is instantly suppressed for 4 seconds, to allow the bot to exit through the same door without being forced back in.
-
 ![The dm5 door path setup](images/dm5-paths.jpg)
 
-If you look at the `dm5` waypoints or the above diagram, you will notice that 2 extra exclusive markers with paths towards the door have been placed to make bots approaching from other directions immediately go through the door when someone else has opened it for them. Same for `ultrav`.  
+If you look at the `dm5` waypoints or the above diagram, you will notice that 2 extra exclusive markers with `linked door` have been placed to make bots approaching from other directions immediately go through the door when someone else has opened it for them. Same for `ultrav`.  
+When adding such exclusive markers with `linked door,` it is important to provide **outgoing paths** from those markers towards nearby normal markers, to allow the bot to continue on its path when it touches such an EM while it has no intention of going through the door. If you forget to do this, you may see the bot attempting to exit the exclusive zone and then being “sucked back in” and being unable to exit the area. Again, see `dm5` as example.  
+To reduce clutter in work-in-progress, it is recommended to first set up, test, and tweak only the paths between exclusive markers. When everything looks good, add extra outgoing paths on markers that have a linked door.
+
 This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it. It helps a lot to draw a diagram of the markers and how they must be set up, as in the example above.
 
 Mind that a _platform_ is also considered a _door,_ considered ‘open’ in its ‘up’ position, which means that an exclusive marker can also be linked to a platform with _exclusive door_ mode to activate the marker only when the platform is up. This could for instance be used to make the bot move away from under an extended platform, although the `wait lift` mechanism usually suffices for this.

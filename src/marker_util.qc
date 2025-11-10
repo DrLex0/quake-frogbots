@@ -154,9 +154,6 @@ void(float prioritize) check_marker =
 		// - LINKED_DOOR links to an open door
 		if (! self.link_door_ent)
 			return;
-		// and bot is not in cooldown period
-		if (time < other.exclu_door_cooldown)
-			return;
 		if (vlen(self.link_door_ent.origin - self.link_door_ent.pos2) > self.link_door_ent.d_door_open)
 			return;
 	}

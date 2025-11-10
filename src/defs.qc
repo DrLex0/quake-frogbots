@@ -1616,7 +1616,7 @@ float REACHED_GROUND			= 15334911;
 float SLOW_PRECISE			= 2176;
 
 .entity link_door_ent;  // marker property set by LINKED_DOOR pseudo-path mode
-.float exclu_door_cooldown;  // bot property to prevent it from yo-yoing
+
 .float running_up;  // > 0: heading towards run_up_point; < 1: from run_up_point to jump position
 // coordinates to first run towards while preparing for precision jump;
 // also used in wallstrafe logic as target from where to jump.
