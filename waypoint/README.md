@@ -424,14 +424,14 @@ An essential part of making the bot push the switch to open the door, is ensurin
 
 ![The dm5 problem](images/dm5-problem.jpg)
 
-In a map like `dm5` however, this does not suffice because the paths going to and coming from the switch share the same narrow bridge. Normal bot behaviour is to re-evaluate paths each time a marker is touched. If we would simply create a loop with 2 one-way paths, then when running towards the switch and touching a marker on the return path, the only allowed path is back and vice versa. In other words, the bot would keep yo-yoing between markers from both paths, and go nowhere.  
+In a map like `dm5` however, this does not suffice because the paths going to and coming from the switch share the same narrow bridge. Normal bot behaviour is to touch every marker and re-evaluate paths each time a marker is touched. If we would simply create a loop with 2 one-way paths, then when running towards the switch and touching a marker on the return path, the only allowed path is back and vice versa. In other words, the bot would keep yo-yoing between markers from both paths, and go nowhere.  
 Also, if the door is already open, we don't want the bot to make the detour via the switch.
 
 The v2 Frogbot offers a solution for this scenario, consisting of 2 parts:
 1. **Exclusive node** marker type.  
    Set this on the markers of the one-way path going from the switch to the door. As with the other node types, set display mode `Z` to “Display type,” and use `V` to select `exclusive node`. Then activate the marker and right-click (`MOUSE2`).
 2. **Linked door** pseudo-path mode.  
-   Connect a `linked door` path between the exclusive markers nearest to the door, towards (one of) the door's marker(s). As often, `NOCLIP` and closest marker mode are your friends here because the door marker will likely be inside a wall. Only do this for the exclusive markers closest to the door—if the bot is near the switch anyway, it is better to again push it.
+   Connect a `linked door` path from the exclusive markers nearest to the door, towards the door's marker (or one of them, if there are multiple). As often, `NOCLIP` and closest marker mode are your friends here because the door marker will likely be inside a wall. Only do this for the exclusive markers closest to the door—if the bot is near the switch anyway, it is better to again go push it.
 
 This works as follows. The bot will:
 - ignore touching an `exclusive node` marker, _unless:_
@@ -443,7 +443,7 @@ This works as follows. The bot will:
 
 If you look at the `dm5` waypoints or the above diagram, you will notice that 2 extra exclusive markers with `linked door` have been placed to make bots approaching from other directions immediately go through the door when someone else has opened it for them. Same for `ultrav`.  
 When adding such exclusive markers with `linked door,` it is important to provide **outgoing paths** from those markers towards nearby normal markers, to allow the bot to continue on its path when it touches such an EM while it has no intention of going through the door. If you forget to do this, you may see the bot attempting to exit the exclusive zone and then being “sucked back in” and being unable to exit the area. Again, see `dm5` as example.  
-To reduce clutter in work-in-progress, it is recommended to first set up, test, and tweak only the paths between exclusive markers. When everything looks good, add extra outgoing paths on markers that have a linked door.
+To reduce work-in-progress clutter, it is recommended to first set up, test, and tweak only the setup needed to enter and exit the special zone. Only when everything looks good, add the extra outgoing paths on markers that have a linked door, to prevent bots from inadvertently being sucked into the zone when they merely wanted to continue on their path.
 
 This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it. It helps a lot to draw a diagram of the markers and how they must be set up, as in the example above.
 
