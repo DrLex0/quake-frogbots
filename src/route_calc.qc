@@ -300,13 +300,7 @@ float() TravelTime =
 #endif
 	}
 
-	if (m_D & NEED_SHOOT)
-	{
-		// Add time penalty to account for shooting and waiting for door to open,
-		// such that if there is a simpler path, the bot will prefer it
-		traveltime = traveltime + 1.5;
-		m.shoot_targetZ = m_P.Z_;
-	}
+	// Pseudo-paths, must be ignored at runtime
 	if (m_D & SHOOT_AT)
 	{
 		// Shootable trigger logic. If the door to be opened is also the target of the shot,
@@ -325,7 +319,6 @@ float() TravelTime =
 		return FALSE;
 #endif
 	}
-
 	if (m_P.T & T_JUMP_HINT)
 	{
 		m.jump_direction = m_P;
@@ -349,16 +342,24 @@ float() TravelTime =
 	}
 	else
 	{
-		if (m_D & WALL_STRAFE)
-		{
-			// Make the bot prefer a WSJ shortcut to an equally long path
-			traveltime = 0.75 * ((vlen(m_P_pos - m_pos) / sv_maxspeed));
-		}
-		else
-		{
-			traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
-		}
+		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxspeed));
 	}
+
+	// Time penalties or boosts
+	if (m_D & NEED_SHOOT)
+	{
+		m.shoot_targetZ = m_P.Z_;
+		// Add time penalty to account for shooting and waiting for door to open,
+		// such that if there is a simpler path, the bot will prefer it
+		traveltime = traveltime + 1.5;
+	}
+	// Make bots prefer paths with a speed boost: push or WSJ.
+	// Factor is total wet-finger guess, main purpose is to make bots
+	// prefer these over an equally long path without the boosts.
+	if (m.classname == "trigger_push")
+		traveltime = 0.75 * traveltime;
+	else if (m_D & WALL_STRAFE)
+		traveltime = 0.75 * traveltime;
 
 	/* Path calculation modulation hocus pocus -- DrLex
 	 * Add excessive times to paths that require an extra condition
