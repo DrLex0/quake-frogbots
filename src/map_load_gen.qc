@@ -17,6 +17,7 @@
 #include "maps/drlex/map_bravadob5.qc"
 #include "maps/drlex/map_burialb10.qc"
 #include "maps/drlex/map_catalyst.qc"
+#include "maps/drlex/map_dad2.qc"
 #include "maps/drlex/map_dark-terror-ffa.qc"
 #include "maps/drlex/map_dmz1++.qc"
 #include "maps/drlex/map_e1m4.qc"
@@ -91,31 +92,31 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      arena3      baldm6      baldm7\n");
 	sprint_fb(self, 2, "      bovine     bravado   bravadob5\n");
 	sprint_fb(self, 2, "       bsdm6   burialb10    catalyst\n");
-	sprint_fb(self, 2, "        cmt3        cmt4      dakdm1\n");
-	sprint_fb(self, 2, " dark-terror-ffa     debello    del1\n");
-	sprint_fb(self, 2, "  dm-cepheus         dm1         dm3\n");
-	sprint_fb(self, 2, "         dm4      dm4ish         dm5\n");
-	sprint_fb(self, 2, "         dm6  dm_cepheus      dmz1++\n");
-	sprint_fb(self, 2, "    dranzdm7    dranzdm8        e1m1\n");
-	sprint_fb(self, 2, "        e1m2        e1m3        e1m4\n");
-	sprint_fb(self, 2, "        e1m5      efdm13       efdm8\n");
-	sprint_fb(self, 2, "    egyptele         end       endif\n");
-	sprint_fb(self, 2, "       eodm3       exdm3      filthy\n");
-	sprint_fb(self, 2, "        four    frobodm2    genocide\n");
-	sprint_fb(self, 2, "     hohoho2     imp1dm6        jvx1\n");
-	sprint_fb(self, 2, "      kjdm12      lilith      misdm8\n");
-	sprint_fb(self, 2, "     monsoon      naked6    naked7b2\n");
-	sprint_fb(self, 2, "        nova     oktest1       pkeg1\n");
-	sprint_fb(self, 2, "     povdmm4     q3dm6qw       rwild\n");
-	sprint_fb(self, 2, "     schloss       shady     shifter\n");
-	sprint_fb(self, 2, "       shine       skull     spinev2\n");
-	sprint_fb(self, 2, "       start    strmland         thf\n");
-	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
-	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
-	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
-	sprint_fb(self, 2, "    utressor      ztndm1      ztndm2\n");
-	sprint_fb(self, 2, "      ztndm3 ztndm3frost      ztndm4\n");
-	sprint_fb(self, 2, "      ztndm5      ztndm6\n");
+	sprint_fb(self, 2, "        cmt3        cmt4        dad2\n");
+	sprint_fb(self, 2, "      dakdm1 dark-terror-ffa debello\n");
+	sprint_fb(self, 2, "        del1  dm-cepheus         dm1\n");
+	sprint_fb(self, 2, "         dm3         dm4      dm4ish\n");
+	sprint_fb(self, 2, "         dm5         dm6  dm_cepheus\n");
+	sprint_fb(self, 2, "      dmz1++    dranzdm7    dranzdm8\n");
+	sprint_fb(self, 2, "        e1m1        e1m2        e1m3\n");
+	sprint_fb(self, 2, "        e1m4        e1m5      efdm13\n");
+	sprint_fb(self, 2, "       efdm8    egyptele         end\n");
+	sprint_fb(self, 2, "       endif       eodm3       exdm3\n");
+	sprint_fb(self, 2, "      filthy        four    frobodm2\n");
+	sprint_fb(self, 2, "    genocide     hohoho2     imp1dm6\n");
+	sprint_fb(self, 2, "        jvx1      kjdm12      lilith\n");
+	sprint_fb(self, 2, "      misdm8     monsoon      naked6\n");
+	sprint_fb(self, 2, "    naked7b2        nova     oktest1\n");
+	sprint_fb(self, 2, "       pkeg1     povdmm4     q3dm6qw\n");
+	sprint_fb(self, 2, "       rwild     schloss       shady\n");
+	sprint_fb(self, 2, "     shifter       shine       skull\n");
+	sprint_fb(self, 2, "     spinev2       start    strmland\n");
+	sprint_fb(self, 2, "         thf         tox      tridm1\n");
+	sprint_fb(self, 2, "      tridm2      tridm3     trindm1\n");
+	sprint_fb(self, 2, "     trindm2     trindm3      ukpak2\n");
+	sprint_fb(self, 2, "      ultrav    utressor      ztndm1\n");
+	sprint_fb(self, 2, "      ztndm2      ztndm3 ztndm3frost\n");
+	sprint_fb(self, 2, "      ztndm4      ztndm5      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -203,6 +204,11 @@ float() LoadWaypoints =
 	if (mapname == "catalyst")
 	{
 		map_catalyst();
+		return TRUE;
+	}
+	if (mapname == "dad2")
+	{
+		map_dad2();
 		return TRUE;
 	}
 	if (mapname == "dark-terror-ffa")
@@ -604,6 +610,8 @@ string(string mname) MapHasWaypoints =
 		return "burialb10";
 	if (mname == "catalyst")
 		return "catalyst";
+	if (mname == "dad2")
+		return "dad2";
 	if (mname == "dark-terror-ffa")
 		return "dark-terror-ffa";
 	if (mname == "dmz1++")
