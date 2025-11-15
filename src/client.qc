@@ -1374,6 +1374,9 @@ void() PlayerPostThink_apply =
 					msg_entity = self;
 					if (self.invisible_time == 1)
 					{
+#ifdef MANUAL
+						if (!manual_mode)
+#endif
 						sprint_fb(self, 2, "Ring of Shadows magic is fading\n");
 						sound (CHAN_AUTO, "items/inv2.wav", 1, ATTN_NORM);
 					}
@@ -1403,6 +1406,9 @@ void() PlayerPostThink_apply =
 					msg_entity = self;
 					if (self.invincible_time == 1)
 					{
+#ifdef MANUAL
+						if (!manual_mode)
+#endif
 						sprint_fb(self, 2, "Protection is almost burned out\n");
 						sound (CHAN_AUTO, "items/protect2.wav", 1, ATTN_NORM);
 
@@ -1431,10 +1437,16 @@ void() PlayerPostThink_apply =
 					msg_entity = self;
 					if (self.super_time == 1)
 					{
+#ifdef MANUAL
+						if (!manual_mode) {
+#endif
 						if (quad_factor == 8)
 							sprint_fb(self, 2, "OctaPower is wearing off\n");
 						else
 							sprint_fb(self, 2, "Quad Damage is wearing off\n");
+#ifdef MANUAL
+						}
+#endif
 						sound (CHAN_AUTO, "items/damage2.wav", 1, ATTN_NORM);
 
 					}
@@ -1472,6 +1484,9 @@ void() PlayerPostThink_apply =
 					msg_entity = self;
 					if (self.rad_time == 1)
 					{
+#ifdef MANUAL
+						if (!manual_mode)
+#endif
 						sprint_fb(self, 2, "Air supply in Biosuit expiring\n");
 						sound (CHAN_AUTO, "items/suit2.wav", 1, ATTN_NORM);
 					}
