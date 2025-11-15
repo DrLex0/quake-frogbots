@@ -12,7 +12,9 @@
 
 void() VelocityForArrow;
 void() NewVelocityForArrow;
+float(float a) anglemod;
 float(entity me) near_teammate;
+
 
 // Moving in right direction to rocket-jump or precise jump?
 // If not, dir_move can be used to adjust direction.
@@ -104,32 +106,48 @@ float() checkground =
 	return (trace_fraction != 1);
 };
 
-// try to escape death with a RJ
+// Try to escape death with a RJ.
+// If currently touching an unreachable marker, and linked marker is not unreachable,
+// assume it's the best way out. Otherwise pick the nearest non-unreachable marker.
 void() lava_jump =
 {
-	local entity e, pt;
-	local float bdist, byaw;
+	local entity e, way_out;
+	local float ldist, bdist, byaw;
 
+	// Dumb bots will simply let themselves be fried
+	if (self.bot_smartness < 5.5)
+		return;
+
+	// Don't care about Quad, this is a last ditch effort,
+	// the extra blast might help to escape if it doesn't kill us
 	if (!(self.items & IT_ROCKET_LAUNCHER))
 		return;
 	if (!self.ammo_rockets)
 		return;
 
-	bdist = 1001;
-	pt = self;
-	e = self;
-	e = findradius(e.origin,1000);
-	while(e) {
-		if (e.classname == "marker") {
-			if (vlen(t.origin - e.origin) < bdist) {
-				bdist = vlen(t.origin - e.origin);
-				pt = e;
+	way_out = world;
+	if (self.path_from_marker.T & T_UNREACHABLE)
+	if (! (linked_marker_.T & T_UNREACHABLE))
+		way_out = linked_marker_;
+	if (! way_out)
+	{
+		bdist = 501;
+		e = findradius(self.origin, 500);
+		while(e) {
+			if (e.fl_marker)
+			if (!(e.T & T_DO_NOT_WANT))
+			{
+				ldist = vlen(self.origin - e.origin);
+				if (ldist < bdist) {
+					bdist = ldist;
+					way_out = e;
+				}
 			}
+			e = e.chain;
 		}
-		e = e.chain;
 	}
-	byaw = vectoyaw(t.origin);
-	self.real_yaw = (360 - byaw);
+	byaw = vectoyaw(way_out.absmin + way_out.view_ofs - self.origin);
+	self.real_yaw = anglemod(byaw + 180);
 	self.yawaccel = 0;
 	self.yawspeed = 0;
 

@@ -1670,6 +1670,9 @@ float T_BIOHZD				= 4096;
 // You forget, Scott. We're in a volcano. We're surrounded by liquid hot magma.
 float T_HOTMAGMA			= 8192;
 
+// combinations for convenience/efficiency
+float T_DO_NOT_WANT			= 65;  // T_UNREACHABLE + T_NOTOUCH
+
 // Whether map provides biosuit or pentagram (regardless of powerups disabled).
 // Used to decide whether to avoid paths in slime or not. Waypoints for a map
 // without protective items should never have (long) paths in slime.
