@@ -137,7 +137,7 @@ Numerous problems have been fixed and new features have been added.
 14. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
 
 15. Created waypoints for previously unavailable maps, for instance `hohoho2`, `catalyst`, `burialb10`, `dmz1++`, `e1m4`, `tox`, and more.   
-    Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging.
+    Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging. Or try `e1m1,` which is now feature-complete, secrets and all.
 
 
 ## What is the difference with the KTX Frogbot?

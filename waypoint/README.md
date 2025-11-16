@@ -216,8 +216,9 @@ These steps do not need to be done in this exact order, but you will typically g
    - The next marker you touch will be linked. If there is any risk of activating the wrong marker on the way, first press `MOUSE2` again to temporarily disable CoMM.
    - Move to marker _y_. If you didn't disable CoMM, the link will be made instantly. Otherwise you again need to `MOUSE2`.
    - Once a path has been added, CoMM disables itself, but marker _x_ remains set as static active marker. You can then either make another path from _x_ to a different marker by moving to it and again using `MOUSE2`; or you can deselect _x_ by pressing `TAB` or `G`.
-   - Avoid making paths _towards_ spawn points or one-way teleport destinations, use one-way mode to only go away from them, _because telefrag._
+   - Avoid making paths _towards_ one-way teleport destinations, see remarks below. Same for spawn point markers not worth running towards because they are somewhere in a corner.
    - Ensure every marker that can be reached in any way (even if only by being flung around by an explosion), has at least one outgoing path, otherwise the bot may get stuck on it.
+   - Do not make regular paths towards markers high up in the air. See the Troubleshooting section for more details.
    - If you added a path by mistake, you can remove it with _disconnect mode,_ see below.  
 
    ![Showing path info](images/paths.jpg)
@@ -233,7 +234,7 @@ These steps do not need to be done in this exact order, but you will typically g
 
    Teleport path hygiene:
    - A `trigger_teleport` must only have _incoming_ paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).
-   - An `info_teleport_destination` of a _1-way teleporter_ should preferably only have _outgoing_ paths besides its single incoming trigger path _(again… telefrag)._  
+   - An `info_teleport_destination` of a _1-way teleporter_ should preferably only have _outgoing_ paths besides its single incoming trigger path. Using such markers as part of a regular route, incurs an unnecessary  _telefrag_ risk.  
      For a _2-way teleporter_ however, if the destination marker(s) need to be traversed and will be touched when trying to reach the trigger at that end, then the destination marker _must_ also have a path back to that trigger.
    - Never use destination markers as regular path markers if they are high up in the air and cannot be (easily) touched. Those must only have outgoing paths, which should only really go towards the marker(s) very near the point where the bot will end up after being teleported.
 
@@ -289,7 +290,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - If you notice the bot going nowhere, randomly moving around while looking at the ceiling or floor, or running into a wall, most likely a nearby marker has an invalid path towards a marker in another room. Check paths with the `R` key, and delete invalid paths in both directions if they go through walls, ceilings or floors.
   - This may also be caused by a marker at the other side of a wall being touched, because walls are transparent to the touch mechanism. Place enough markers at both sides of thin walls, using the wall as a mirror for marker positions.
   - Another possibility is that a zone is too large or scattered. Ensure zones consist of markers clustered together, and that each marker within a zone can be reached from every other marker in that zone without having to exit the zone.
-- If the bot keeps _‘orbiting’_ around a marker, most likely it is waiting in vain for the marker to be touched. Usually this happens with markers that float up in the air, often teleport destinations or spawn points. Do not make paths towards such untouchable markers. Only give these outgoing paths for the cases where they do get touched (of course a teleport destination also needs an incoming path from its teleport trigger).
+- If the bot keeps _‘orbiting’_ around a marker, most likely it is waiting in vain for the marker to be touched. Usually this happens with markers that float up in the air, often teleport destinations or `info_player_deathmatch` spawn points. Check that markers are easily touchable by disabling closest marker mode (`F`). Do not make paths towards such untouchable markers. Only give them outgoing paths for the cases where they do get touched. (Of course a teleport destination always needs an incoming path from its teleport trigger.)
 
 
 ## Adding your waypoint data to Frogbot and/or waypoint build
