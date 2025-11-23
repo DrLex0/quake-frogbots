@@ -338,7 +338,8 @@ float() TravelTime =
 	if ((m.T & T_LIQUID) || (m_P.T & T_LIQUID))
 	{
 		m_D = m_D | WATER_PATH;
-		traveltime = ((vlen(m_P_pos - m_pos) / sv_maxwaterspeed));
+		// Ideally should discern between waterlevel 2 and 3, but meh
+		traveltime = ((vlen(m_P_pos - m_pos) / max_water2speed));
 	}
 	else
 	{
@@ -360,6 +361,9 @@ float() TravelTime =
 		traveltime = 0.75 * traveltime;
 	else if (m_D & WALL_STRAFE)
 		traveltime = 0.75 * traveltime;
+	// Penalty for slowing down around marker of slow path
+	else if (m_D & SLOW_DOWN)
+		traveltime = 0.5 + traveltime;
 
 	/* Path calculation modulation hocus pocus -- DrLex
 	 * Add excessive times to paths that require an extra condition
@@ -389,16 +393,16 @@ float() TravelTime =
 			SetupRJLook();
 	}
 
-	// We want the bot to accurately aim both for the destination
-	// of a PRECISE_JUMP or SLOW path, as well as its starting point.
-	if (m_D & SLOW_PRECISE)
+	/* We want the bot to accurately aim for:
+	 * - the starting point of a PRECISE_JUMP, SLOW or NARROW path,
+	 * - the destination of such paths.
+	 * The starting point criterion is conservative. We cannot know whether
+	 * the bot will pick a special path until it has touched the marker,
+	 * hence always prepare for it. */
+	if (m_D & SLOW_PRECISE_NARROW)
 		m_D = m_D | ACCURATE_PATH;
-	else if(SLOW_PRECISE & 
+	else if(SLOW_PRECISE_NARROW &
 		(m_P.D0 | m_P.D1 | m_P.D2 | m_P.D3 | m_P.D4 | m_P.D5 | m_P.D6 | m_P.D7))
-		m_D = m_D | ACCURATE_PATH;
-	// We also want accuracy if the target marker is narrow,
-	// because the touch zone will be small
-	else if(m_P.T & T_NARROW)
 		m_D = m_D | ACCURATE_PATH;
 
 	return TRUE;

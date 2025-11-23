@@ -111,8 +111,8 @@ Numerous problems have been fixed and new features have been added.
    - fixed various bugs, for instance the old tool would often crash after deleting a marker;
    - waypoint output format is now deterministic and mostly sorted in a sensible way.
 
-4. Added _precision jump mode_ for paths. The ordinary ledge jump mode is too crude for certain jumps, bots would often jump around way too erratically. The new modes enable jumps where accuracy matters. The bot will automatically retreat and do a run-up when necessary. The jump can also be combined with a new _slow path mode_ to reliably jump onto small ledges/steps like in the yellow armor zone of `e1m2`.  
-   There are other new path modes and marker types that allow to better handle specific situations.
+4. Added _precision jump mode_ for paths. The ordinary ledge jump mode is too crude for certain jumps, bots would often jump around way too erratically. The new modes enable jumps where accuracy matters. The bot will automatically retreat and do a run-up when necessary. The jump can also be combined with a new _slow path mode_ to reliably jump onto small ledges/steps like in the yellow armor zone of `e1m2`, or can be given an initial direction to perform an air strafe.  
+   Next to this, other new path modes and marker types have been added to better handle specific situations, like smoothly getting through narrow openings.
 
 5. Fixed the pretty much broken _rocket jump_ system. Bots will now rocket-jump much more often, and plan paths that include RJs, if of course the conditions for a RJ are satisfied. Next to the regular running RJ, there are also slower ‘mortar’ and ‘cannon’ RJ modes for when accuracy is crucial.
 
@@ -136,8 +136,8 @@ Numerous problems have been fixed and new features have been added.
 
 14. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
 
-15. Created waypoints for previously unavailable maps, for instance `hohoho2`, `catalyst`, `burialb10`, `dmz1++`, `e1m4`, `tox`, and more.   
-    Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging. Or try `e1m1,` which is now feature-complete, secrets and all.
+15. Created waypoints for previously unavailable maps, for instance `hohoho2`, `catalyst`, `burialb10`, `dmz1++`, `e1m4`, `tox`, and more.  
+    Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging. Or try `e1m1,` which is now feature-complete, secrets and all. I have high quality standards: waypoints are only committed to this repository after I have watched bots running on them without any obvious problems.
 
 
 ## What is the difference with the KTX Frogbot?
