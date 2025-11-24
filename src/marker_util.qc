@@ -195,6 +195,9 @@ void(float prioritize) check_marker =
 		// for accurate path mode, it could mess up accuracy.
 		if (other.touch_marker == other.linked_marker)
 		if (other.touch_distance - distance < 20)
+		// Beware: multiple touches for the same marker may be registered within
+		// the same frame. Do not ignore a better touch of the linked marker.
+		if (self != other.linked_marker)
 		if (! (other.path_state & ACCURATE_PATH))
 			return;
 	}
