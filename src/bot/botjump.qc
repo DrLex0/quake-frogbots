@@ -438,7 +438,7 @@ float() NarrowPathLogic =
 		// - already moving mostly in direction of linked marker
 		// - assuming unchanged velocity, will bot pass the touched marker close enough
 		if (vlen(rel_pos) > 10)  // markers not too near in XY plane (and avoid zero division)
-		if (fabs(test_dist / vlen(rel_pos)) < 1)  // path not too vertical
+		if (fabs(test_dist / vlen(rel_pos)) < 2)  // path not too vertical
 		if (right_direction(16))
 		{
 			local vector vnorm;
