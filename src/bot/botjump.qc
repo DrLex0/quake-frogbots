@@ -225,7 +225,7 @@ void() a_rocketjump =
 
 	if (pre_game && counting_down)
 		return;
-	if (self.path_from_marker.T & T_NARROW)
+	if (self.path_state & NARROW_PATH)
 	if (self.narrow_path_state)
 		return;
 
@@ -552,9 +552,9 @@ void() SpecialAccurateMoves =
 	}
 	if (NarrowPathLogic())
 		return;
-	// This auto path mode is set on each path with PRECISE_JUMP or SLOW_DOWN,
-	// and each path leading to a marker that has any such outgoing path;
-	// also if the path leads to a T_NARROW marker.
+	// This auto path mode is set on each path with PRECISE_JUMP, SLOW_DOWN,
+	// NARROW_PATH, and each path leading to a marker that has any such
+	// outgoing path.
 	if (!(self.path_state & ACCURATE_PATH))
 		return;
 	if (self.path_state & ROCKET_JUMP)

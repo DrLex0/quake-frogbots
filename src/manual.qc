@@ -1527,8 +1527,6 @@ void() PrintGoal =
 		bprint("\xD5");  // U
 	if (active_marker.T & T_EXCLUSIVE)
 		bprint("\xC5");  // E
-	if (active_marker.T & T_NARROW) // TRASHME
-		bprint("\xCE");  // N
 	if (active_marker.T & T_WAITLIFT)
 		bprint("\xCC");  // L
 	if (active_marker.T & T_JUMP_HINT)
@@ -1980,11 +1978,6 @@ void() CycleDescriptionMode =
 			bprint("exclusive node ON\n");
 		}
 		else if (type_mode == T_EXCLUSIVE)
-		{
-			type_mode = T_NARROW;
-			bprint("narrow node ON\n");
-		}
-		else if (type_mode == T_NARROW)
 		{
 			type_mode = T_WAITLIFT;
 			bprint("wait lift node ON\n");

@@ -1657,14 +1657,13 @@ float T_UNREACHABLE			= 1;
 float T_FORCESLIME			= 2;
 float T_EXCLUSIVE			= 4;
 float T_WANTSUIT			= 8;
-float T_NARROW				= 16; // TODO obliterate, becomes T_AIR_TOUCH
+float T_AIR_TOUCH			= 16;
 float T_WAITLIFT			= 32;
 float T_NOTOUCH				= 64;
 float T_FIRE_ON_MATCH_START		= 128;
 float T_JUMP_HINT			= 256;
-float T_AIR_TOUCH			= 512; // TODO move to 16
 // Bits to be saved in waypoint code: sum of all the above
-float SAVED_T				= 1023; // TODO 511
+float SAVED_T				= 511;
 
 // auto set values
 float T_LIQUID				= 1024;
