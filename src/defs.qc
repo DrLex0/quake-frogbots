@@ -1577,6 +1577,7 @@ float FOCUS_PATH		= 2;
 float LINKED_DOOR		= 4;  // pseudo
 float WALL_STRAFE		= 8;
 float SHOOT_AT			= 16;  // pseudo
+float NARROW_PATH		= 32;
 float PRECISE_JUMP		= 128;
 float NEED_SHOOT			= 256;  // former DM6_DOOR, now more universal
 float ROCKET_JUMP		= 512;
@@ -1613,7 +1614,9 @@ float DELIBERATE_AIR_WAIT_GROUND	= 393216;
 // Don't clear JUMP states, because bots may need to jump multiple times
 //   to touch the next marker if the first jump did not succeed.
 float REACHED_GROUND			= 15334911;
+float AIR_PATH_MODES		= 1441792;  // DELIBERATE_AIR_WAIT_GROUND + AIR_ACCELERATION
 float SLOW_PRECISE			= 2176;
+float SLOW_PRECISE_NARROW	= 2208;
 
 .entity link_door_ent;  // marker property set by LINKED_DOOR pseudo-path mode
 
@@ -1654,14 +1657,13 @@ float T_UNREACHABLE			= 1;
 float T_FORCESLIME			= 2;
 float T_EXCLUSIVE			= 4;
 float T_WANTSUIT			= 8;
-float T_NARROW				= 16;
+float T_AIR_TOUCH			= 16;
 float T_WAITLIFT			= 32;
 float T_NOTOUCH				= 64;
 float T_FIRE_ON_MATCH_START		= 128;
 float T_JUMP_HINT			= 256;
-float T_AIR_TOUCH			= 512;
 // Bits to be saved in waypoint code: sum of all the above
-float SAVED_T				= 1023;
+float SAVED_T				= 511;
 
 // auto set values
 float T_LIQUID				= 1024;
@@ -2094,6 +2096,12 @@ entity touch_marker_;
 // When combined with jump_direction, delays air strafing activation
 .float airstrafe_delay;
 
+// When on a NARROW_PATH:
+// 0: converged
+// 1: initializing
+// 2: homing in
+.float narrow_path_state;
+
 .float color_;
 .float teamcolor;
 .float bot_skill;  // from 0 to 20, bots should try to remain human-like below 10
@@ -2129,10 +2137,14 @@ float sv_accelerate_frametime;
 float timelimit;
 float fraglimit;
 float sv_maxspeed;
-float sv_maxwaterspeed;
+float max_water2speed;
+float max_water3speed;
 float half_sv_maxspeed;
 float inv_sv_maxspeed;
 float sv_maxstrafespeed;
+float slow_waterspeed;
+float slow_landspeed1;
+float slow_landspeed2;
 float quad_factor;
 
 float sv_friction;

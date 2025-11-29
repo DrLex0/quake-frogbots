@@ -4,6 +4,7 @@
 // - bots can activate and use bridge
 // - improved paths
 // - tweaked goals
+// Updated narrow markers to paths 2025-11
 void() map_naked6 =
 {
 // custom markers start at m34
@@ -40,7 +41,7 @@ G1(m1);G18(m3);G18(m4);G20(m5);G15(m6);G13(m7);G11(m10);G4(m11);
 G3(m12);G2(m13);G7(m15);G14(m16);G16(m18);G5(m19);G17(m24);G17(m25);
 G8(m26);G9(m28);G6(m29);G6(m30);G10(m31);G12(m32);G12(m33);
 m8.view_ofs_z=25;m17.view_ofs_z=15;
-m9.T=64;m52.T=16;m53.T=16;m54.T=16;m55.T=16;m95.T=4;m96.T=4;
+m9.T=64;m95.T=4;m96.T=4;
 m1.P0=m62;m1.P1=m63;m1.P2=m66;m1.P3=m65;m1.P4=m67;m2.P0=m65;
 m2.P1=m66;m3.P0=m51;m3.P1=m4;m3.P2=m52;m3.P3=m8;m3.P4=m9;
 m4.P0=m3;m4.P1=m50;m4.P2=m49;m4.P3=m52;m5.P0=m6;m5.P1=m69;
@@ -96,8 +97,9 @@ m97.P5=m53;
 m3.D3=16;m3.D4=4;m10.D2=1;m10.D3=256;m10.D4=16;m10.D5=4;
 m11.D1=1;m11.D3=16;m11.D4=4;m13.D2=1024;m35.D4=1024;m36.D4=1024;
 m37.D4=1024;m38.D2=1024;m50.D6=16;m50.D7=4;m51.D3=1;m51.D4=1280;
-m51.D5=16;m51.D6=4;m51.D7=1;m52.D3=1024;m52.D4=16;m52.D5=4;
-m53.D2=1024;m54.D2=1024;m55.D3=1024;m94.D3=16;m94.D4=4;m95.D0=1024;
+m51.D5=16;m51.D6=4;m51.D7=1;m52.D0=32;m52.D3=1056;m52.D4=16;
+m52.D5=4;m53.D1=32;m53.D2=1056;m54.D1=32;m54.D2=1056;m55.D2=32;
+m55.D3=1056;m94.D3=16;m94.D4=4;m95.D0=1024;
 };
 /* MarkerInfo
 m1 weapon_rocketlauncher -992 48 -496;

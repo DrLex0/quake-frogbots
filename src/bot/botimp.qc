@@ -262,7 +262,11 @@ void() InitParameters =
 		sv_maxstrafespeed = sv_maxspeed;
 	}
 
-	sv_maxwaterspeed = sv_maxspeed * 0.7;
+	max_water2speed = sv_maxspeed * 0.7;  // normally 224
+	max_water3speed = sv_maxspeed * 0.58125;  // normally 186
+	slow_waterspeed = max_water2speed * 0.5;  // normally 112
+	slow_landspeed1 = sv_maxspeed * 0.375;  // normally 120
+	slow_landspeed2 = sv_maxspeed * 0.625;  // normally 200
 	half_sv_maxspeed = sv_maxspeed * 0.5;
 	inv_sv_maxspeed = 1 / sv_maxspeed;
 

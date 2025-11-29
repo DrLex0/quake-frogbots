@@ -14,6 +14,8 @@ void() VelocityForArrow;
 void() NewVelocityForArrow;
 float(float a) anglemod;
 float(entity me) near_teammate;
+void() MarkerUnTouch;
+void(float force) CheckAccurateRunUp;
 
 
 // Moving in right direction to rocket-jump or precise jump?
@@ -26,12 +28,18 @@ float(float max_angle) right_direction =
 	local float min_one, min_two;
 	local entity target_m;
 
-	dir_move = normalize(self.oldvelocity);  // before physics
-	current_dir = vectoyaw(dir_move);
 	if (self.path_from_marker.jump_direction)
-		target_m = self.path_from_marker.jump_direction;  // T_JUMP_HINT marker
+	{
+		if (self.path_state & PRECISE_JUMP)
+			target_m = self.path_from_marker.jump_direction;  // T_JUMP_HINT marker
+		else
+			target_m = linked_marker_;
+	}
 	else
 		target_m = linked_marker_;
+
+	dir_move = normalize(self.oldvelocity);  // before physics
+	current_dir = vectoyaw(dir_move);
 	rel_pos = target_m.absmin + target_m.view_ofs - origin_;
 	dir_move = rel_pos;
 	dir_move_z = 0;
@@ -217,6 +225,9 @@ void() a_rocketjump =
 
 	if (pre_game && counting_down)
 		return;
+	if (self.path_state & NARROW_PATH)
+	if (self.narrow_path_state)
+		return;
 
 	if (self.waterlevel > 1)
 	if (pointcontents(origin_ + '0 0 -24') == CONTENT_LAVA)
@@ -320,37 +331,58 @@ void() a_rocketjump =
 	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 };
 
-// Accurate jumps and/or slow moves  -- DrLex
-void() SpecialAccurateMoves =
-{
-	self.precise_speed = 0;
-	if (self.wallstrafe_key)  // WSJ logic
-	{
-		if (time > self.wallstrafe_deadline)
-		{
-			self.wallstrafe_key = 0;
-			return;
-		}
-		if (vlen(self.run_up_point - origin_) > 24)
-			return;
-		if (self.run_up_point == linked_marker_.absmin + linked_marker_.view_ofs)
-		{
-#ifdef DEBUG_TOUCH
-			dprint("Ensuring sticky touch of WSJ point m", ftos(linked_marker_.index), "\n");
-#endif
-			self.touch_marker = linked_marker_;
-			self.sticky_touch = TRUE;
-		}
+/*
+All the *Logic() functions return TRUE if any remaning special moves logic must be skipped.
+*/
 
-		self.wallstrafe_vec = self.velocity;  // See FrogbotPrePhysics1
-		self.wallstrafe_jump = 1;
+// Overrides everything else as long as .wallstrafe_key is set.
+// Marker touch will also be suppressed. Ensure deadlines are checked.
+float() WallStrafeJumpLogic =
+{
+	if (! self.wallstrafe_key)
+		return FALSE;
+	if (time > self.wallstrafe_deadline)
+	{
 		self.wallstrafe_key = 0;
-		self.button2_ = 1;
-		self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
-		return;
+		return TRUE;
 	}
 
-	if (self.running_up > 0)  // Precise jump logic
+	// Narrow path logic will be suppressed, do the relevant bit here
+	if (self.path_state & NARROW_PATH)
+	{
+		rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
+		rel_pos_z = 0;
+		if (vlen(rel_pos) > 16 + 8 * self.bot_inaccuracy)
+		{
+			dir_move = normalize(rel_pos);
+			NewVelocityForArrow();
+			return TRUE;
+		}
+		// homed in: start actual wall strafe, refresh deadline
+		self.path_state = self.path_state - NARROW_PATH;
+		self.wallstrafe_deadline = time + 3;
+		self.arrow = self.wallstrafe_key;
+	}
+
+	if (vlen(self.run_up_point - origin_) > 24)
+		return TRUE;
+
+#ifdef DEBUG_TOUCH
+	dprint("WSJ: sticky touch of jump spot m", ftos(linked_marker_.index), "\n");
+#endif
+	self.touch_marker = linked_marker_;
+	self.sticky_touch = TRUE;
+	self.wallstrafe_vec = self.velocity;  // Hack, see FrogbotPrePhysics1
+	self.wallstrafe_jump = 1;
+	self.wallstrafe_key = 0;
+	self.button2_ = 1;
+	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
+	return TRUE;
+};
+
+float() PreciseRunUpLogic =
+{
+	if (self.running_up > 0)
 	{
 		dir_move = self.run_up_point - origin_;
 		// Begin the actual run-up when either:
@@ -364,26 +396,165 @@ void() SpecialAccurateMoves =
 		dir_move = normalize(dir_move);
 		if(time > self.arrow_time2)
 			NewVelocityForArrow();
-		return;
+		return TRUE;
 	}
-	else if(self.running_up < 0)
+	if(self.running_up < 0)
 	{
 		// Either something went awry, bot probably fell off a ledge or something;
 		// but we also use this to clear RU state when doing the actual jump.
 		if (time > -self.running_up)
 		{
 			self.running_up = 0;
-			return;
+			return TRUE;
 		}
 	}
+	return FALSE;
+};
+
+// narrow_path_state:
+// - 0: converged or disabled
+// - 1: initializing
+// - 2: homing in on touch marker
+float() NarrowPathLogic =
+{
+	if (! (self.path_state & NARROW_PATH))
+		return FALSE;
+	if (! self.narrow_path_state)
+		return FALSE;
+
+	local float test_dist;
+	if (self.narrow_path_state < 2)
+	{
+		// Skip init until landed
+		if (!(self.flags & FL_ONGROUND))
+			return TRUE;
+
+		rel_pos = linked_marker_.absmin + linked_marker_.view_ofs - (self.path_from_marker.absmin + self.path_from_marker.view_ofs);
+		test_dist = rel_pos_z;
+		rel_pos_z = 0;
+
+		// Check whether we can avoid losing speed by skipping homing:
+		// - narrow path is sufficiently horizontal
+		// - already moving mostly in direction of linked marker
+		// - assuming unchanged velocity, will bot pass the touched marker close enough
+		if (vlen(rel_pos) > 10)  // markers not too near in XY plane (and avoid zero division)
+		if (fabs(test_dist / vlen(rel_pos)) < 2)  // path not too vertical
+		if (right_direction(16))
+		{
+			local vector vnorm;
+			local float vec_length;
+			rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
+			rel_pos_z = 0;  // stick to 2D to keep things simple
+			vnorm = self.oldvelocity;
+			vnorm_z = 0;
+			vnorm = normalize(vnorm);
+			// Compute how close bot will come to the marker
+			vec_length = rel_pos * vnorm;
+			if (vec_length > 0)  // otherwise bot has already overshot the marker
+			{
+				vec_length = vlen(rel_pos - vec_length * vnorm);
+				// A bit stricter than when homing, due to extra uncertainty
+				if (self.path_state & SLOW_DOWN)
+					test_dist = 7 + 8 * self.bot_inaccuracy;
+				else
+					test_dist = 12 + 8 * self.bot_inaccuracy;
+				if(vec_length < test_dist)
+				{
+					self.narrow_path_state = 0;
+					self.look_object = look_object_ = linked_marker_;
+					return FALSE;
+				}
+			}
+		}
+		self.narrow_path_state = 2;
+	}
+
+	if (!(self.flags & FL_ONGROUND))
+	{
+		// Again airborne? Must have fallen off ledge; stop homing
+#ifdef DEBUG_TOUCH
+		dprint("Narrow path homing stopped because airborne\n");
+#endif
+		self.narrow_path_state = 0;
+		return TRUE;
+	}
+
+	// Home in on the touched marker
+	rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
+	if (rel_pos_z > 48)
+	{
+		// Failsafe against weird situations; abort the whole thing. In normal gameplay,
+		// markers should only be touched when the player is at most 18u below them,
+		// hence in theory a smaller value would be safe, but in practice use 48 to protect
+		// against weirdness of Quake touch logic. In experiments, I have seen markers getting
+		// touched even 80u higher, but should not happen when normally running around.
+#ifdef DEBUG_TOUCH
+		dprint("Narrow path aborted because unexpected dZ=", ftos(rel_pos_z), "\n");
+#endif
+		MarkerUnTouch();
+		return TRUE;
+	}
+	rel_pos_z = 0;
+	rel_dist = vlen(rel_pos);
+	if (self.path_state & SLOW_DOWN)
+		test_dist = 10 + 8 * self.bot_inaccuracy;
+	else
+		test_dist = 16 + 8 * self.bot_inaccuracy;
+	if (rel_dist < test_dist)
+	{
+		self.narrow_path_state = 0;
+		self.arrow = 0;
+		self.arrow_time = 0;
+		self.arrow_time2 = 0;
+		self.look_object = look_object_ = linked_marker_;
+		// Cap velocity to ensure bot is not dashing past the marker in undesired direction
+		if (self.path_state & SLOW_DOWN)
+		{
+			if(vlen(self.velocity) > slow_landspeed1)
+				self.velocity = slow_landspeed1 * normalize(self.velocity);
+		}
+		else if(vlen(self.velocity) > slow_landspeed2)
+			self.velocity = slow_landspeed2 * normalize(self.velocity);
+		return TRUE;
+	}
+	self.precise_speed = 120 + 3 * (rel_dist - 16);
+	if (self.path_state & SLOW_DOWN)
+	{
+		local float max_speed;
+		if (rel_dist < 80) max_speed = slow_landspeed1;
+		else if (rel_dist < 140) max_speed = slow_landspeed2;
+		if (self.precise_speed > max_speed)
+		self.precise_speed = max_speed;
+	}
+	dir_move = normalize(rel_pos);
+	NewVelocityForArrow();
+	return TRUE;
+};
+
+// Accurate jumps and/or slow moves  -- DrLex
+void() SpecialAccurateMoves =
+{
+	self.precise_speed = 0;
+	if (WallStrafeJumpLogic())
+		return;
+	if (PreciseRunUpLogic())
+		return;
 
 	if (! self.path_from_marker)
 		return;
 	if (self.waterlevel > 1)
+	{
+		// only special move applicable under water is slow path
+		if (self.path_state & SLOW_DOWN)
+		if (vlen(origin_ - (self.path_from_marker.absmin + self.path_from_marker.view_ofs)) < 80)
+			self.precise_speed = slow_waterspeed;
 		return;
-	// This auto path mode is set on each path with PRECISE_JUMP or SLOW_DOWN,
-	// and each path leading to a marker that has any such outgoing path;
-	// also if the path leads to a T_NARROW marker.
+	}
+	if (NarrowPathLogic())
+		return;
+	// This auto path mode is set on each path with PRECISE_JUMP, SLOW_DOWN,
+	// NARROW_PATH, and each path leading to a marker that has any such
+	// outgoing path.
 	if (!(self.path_state & ACCURATE_PATH))
 		return;
 	if (self.path_state & ROCKET_JUMP)
@@ -416,10 +587,10 @@ void() SpecialAccurateMoves =
 	{
 		// slow down near path start
 		if (touch_dist < 80)
-			self.precise_speed = 120;
+			self.precise_speed = slow_landspeed1;
 		else if (touch_dist < 140)
 		{
-			self.precise_speed = 200;
+			self.precise_speed = slow_landspeed2;
 		}
 	}
 	if (!right_direction(20 + 20 * self.bot_inaccuracy))
@@ -433,26 +604,55 @@ void() SpecialAccurateMoves =
 	if (!(self.path_state & PRECISE_JUMP))
 		return;
 
+	local vector d_test = self.path_from_marker.absmin + self.path_from_marker.view_ofs - self.origin;
+	if (d_test_z > 40)  // Bot likely missed jump and fell off a ledge; abort the whole thing
+		return MarkerUnTouch();
+
 	if (touch_dist > 40)  // Only jump when close enough
+	{
+		if (! (self.path_state & SLOW_DOWN))
+		if (normalize(self.velocity) * normalize(d_test) < -0.5)
+		{
+			// Passed the jump spot without jumping; restart run-up
+			touch_marker_ = self.path_from_marker;
+			self.running_up = 0;
+			self.velocity = '0 0 0';
+			self.arrow = 0;
+			CheckAccurateRunUp(TRUE);
+		}
 		return;
-	local vector d_dest = origin_ - (linked_marker_.absmin + linked_marker_.view_ofs);
-	if (vlen(d_dest) <= 32)
-	if (fabs(d_dest_z) < 1)  // but not when already at the destination waiting for marker touch
+	}
+	d_test = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	if (vlen(d_test) <= 32)
+	if (fabs(d_test_z) < 1)  // but not when already at the destination waiting for marker touch
 		return;
 
+	local float velo = vlen(self.velocity);
 	if (self.path_state & SLOW_DOWN)
 	{
-		if (vlen(self.velocity) > 150)  // and not moving too fast
+		if (velo > half_sv_maxspeed)  // and not moving too fast
 			return;
 	}
-	else if(vlen(self.velocity) < 260)  // or too slow
+	else if (velo < 0.8 * sv_maxspeed)  // or too slow
+	{
+ 		if (self.obstruction_normal != '0 0 0')
+ 		{
+ 			// When obstructed, restart run-up
+			d_test_z = 0;
+			if (self.obstruction_normal * normalize(d_test) > 0.5)
+			{
+				touch_marker_ = self.path_from_marker;
+				CheckAccurateRunUp(TRUE);
+			}
+ 		}
 		return;
+	}
 	// Keep RU status until actually airborne; the above logic will clear it later on
 	if (self.running_up)
 		self.running_up = -(time + 0.1);
 	// Make the jump increasingly perfect with increasing bot skill level
 	self.velocity = (self.bot_inaccuracy * self.velocity) + 
-		(1.0 - self.bot_inaccuracy) * vlen(self.velocity) * dir_move;
+		(1.0 - self.bot_inaccuracy) * velo * dir_move;
 	if (self.path_state & SLOW_DOWN)
 	{
 		// Do not clear AP mode for a slow PJ upon jumping,

@@ -15,7 +15,6 @@
 void() ConnectMarker;
 void() DisconnectMarker;
 void() ClearPathModes;
-void(string print_string) DescriptionMarker;
 void() SaveCoords;
 void() SavePaths;
 void() DumpMarkerInfo;
@@ -89,6 +88,65 @@ void(entity marker) CheckReachable =
 	self = test_enemy;
 };
 
+
+/*
+============
+Helper routines for printing path mode assignments
+============
+*/
+void(string print_string, float path_number) PrintDescription =
+{
+	bprint("marker ", print_string, " on path ", ftos(path_number), "\n");
+};
+
+void(float descr, string print_string) DescriptionMarker =
+{
+	if (path_mode & descr)
+	{
+		if (from_marker.P0 == to_marker)
+		{
+			PrintDescription(print_string, 0);
+			from_marker.D0 = (from_marker.D0 | descr);
+		}
+		else if (from_marker.P1 == to_marker)
+		{
+			PrintDescription(print_string, 1);
+			from_marker.D1 = (from_marker.D1 | descr);
+		}
+		else if (from_marker.P2 == to_marker)
+		{
+			PrintDescription(print_string, 2);
+			from_marker.D2 = (from_marker.D2 | descr);
+		}
+		else if (from_marker.P3 == to_marker)
+		{
+			PrintDescription(print_string, 3);
+			from_marker.D3 = (from_marker.D3 | descr);
+		}
+		else if (from_marker.P4 == to_marker)
+		{
+			PrintDescription(print_string, 4);
+			from_marker.D4 = (from_marker.D4 | descr);
+		}
+		else if (from_marker.P5 == to_marker)
+		{
+			PrintDescription(print_string, 5);
+			from_marker.D5 = (from_marker.D5 | descr);
+		}
+		else if (from_marker.P6 == to_marker)
+		{
+			PrintDescription(print_string, 6);
+			from_marker.D6 = (from_marker.D6 | descr);
+		}
+		else if (from_marker.P7 == to_marker)
+		{
+			PrintDescription(print_string, 7);
+			from_marker.D7 = (from_marker.D7 | descr);
+		}
+	}
+};
+
+
 /*
 ============
 manual_marker_touch
@@ -124,26 +182,17 @@ void(entity marker) manual_marker_touch =
 				ConnectMarker();
 				if (mode & ONE_WAY)
 				{
-					description = JUMP_LEDGE;
-					DescriptionMarker("jump ledge");
-					description = ROCKET_JUMP;
-					DescriptionMarker("rocket jump");
-					description = PRECISE_JUMP;
-					DescriptionMarker("precise jump");
-					description = SLOW_DOWN;
-					DescriptionMarker("slow down");
-					description = JUST_GO;
-					DescriptionMarker("just GO");
-					description = FOCUS_PATH;
-					DescriptionMarker("focused");
-					description = WALL_STRAFE;
-					DescriptionMarker("wall strafe jump");
-					description = NEED_SHOOT;
-					DescriptionMarker("need shoot");
-					description = SHOOT_AT;
-					DescriptionMarker("shoot at trigger");
-					description = LINKED_DOOR;
-					DescriptionMarker("linked door");
+					DescriptionMarker(JUMP_LEDGE, "jump ledge");
+					DescriptionMarker(ROCKET_JUMP, "rocket jump");
+					DescriptionMarker(PRECISE_JUMP, "precise jump");
+					DescriptionMarker(SLOW_DOWN, "slow down");
+					DescriptionMarker(JUST_GO, "just GO");
+					DescriptionMarker(NARROW_PATH, "narrow");
+					DescriptionMarker(FOCUS_PATH, "focused");
+					DescriptionMarker(WALL_STRAFE, "wall strafe jump");
+					DescriptionMarker(NEED_SHOOT, "need shoot");
+					DescriptionMarker(SHOOT_AT, "shoot at trigger");
+					DescriptionMarker(LINKED_DOOR, "linked door");
 				}
 				else
 				{
@@ -913,59 +962,6 @@ void() TeleportAutoConnect =
 };
 
 
-void(string print_string, float path_number) PrintDescription =
-{
-	bprint("marker ", print_string, " on path ", ftos(path_number), "\n");
-};
-
-void(string print_string) DescriptionMarker =
-{
-	if (path_mode & description)
-	{
-		if (from_marker.P0 == to_marker)
-		{
-			PrintDescription(print_string, 0);
-			from_marker.D0 = (from_marker.D0 | description);
-		}
-		else if (from_marker.P1 == to_marker)
-		{
-			PrintDescription(print_string, 1);
-			from_marker.D1 = (from_marker.D1 | description);
-		}
-		else if (from_marker.P2 == to_marker)
-		{
-			PrintDescription(print_string, 2);
-			from_marker.D2 = (from_marker.D2 | description);
-		}
-		else if (from_marker.P3 == to_marker)
-		{
-			PrintDescription(print_string, 3);
-			from_marker.D3 = (from_marker.D3 | description);
-		}
-		else if (from_marker.P4 == to_marker)
-		{
-			PrintDescription(print_string, 4);
-			from_marker.D4 = (from_marker.D4 | description);
-		}
-		else if (from_marker.P5 == to_marker)
-		{
-			PrintDescription(print_string, 5);
-			from_marker.D5 = (from_marker.D5 | description);
-		}
-		else if (from_marker.P6 == to_marker)
-		{
-			PrintDescription(print_string, 6);
-			from_marker.D6 = (from_marker.D6 | description);
-		}
-		else if (from_marker.P7 == to_marker)
-		{
-			PrintDescription(print_string, 7);
-			from_marker.D7 = (from_marker.D7 | description);
-		}
-	}
-};
-
-
 /*
 ============
 Waypoint saving routines begin here
@@ -1531,8 +1527,6 @@ void() PrintGoal =
 		bprint("\xD5");  // U
 	if (active_marker.T & T_EXCLUSIVE)
 		bprint("\xC5");  // E
-	if (active_marker.T & T_NARROW)
-		bprint("\xCE");  // N
 	if (active_marker.T & T_WAITLIFT)
 		bprint("\xCC");  // L
 	if (active_marker.T & T_JUMP_HINT)
@@ -1631,6 +1625,8 @@ void(float descbits) PrintDLabel =
 		bprint("\xD3");  // S
 	if (descbits & JUST_GO)
 		bprint("\xA1");  // !
+	if (descbits & NARROW_PATH)
+		bprint("\xBD");  // =
 	if (descbits & FOCUS_PATH)
 		bprint("\xC6");  // F
 	if (descbits & WALL_STRAFE)
@@ -1983,11 +1979,6 @@ void() CycleDescriptionMode =
 		}
 		else if (type_mode == T_EXCLUSIVE)
 		{
-			type_mode = T_NARROW;
-			bprint("narrow node ON\n");
-		}
-		else if (type_mode == T_NARROW)
-		{
 			type_mode = T_WAITLIFT;
 			bprint("wait lift node ON\n");
 		}
@@ -2064,6 +2055,11 @@ void() CycleDescriptionMode =
 	}
 	else if (path_mode == JUST_GO)
 	{
+		path_mode = NARROW_PATH;
+		bprint("narrow path mode ON\n");
+	}
+	else if (path_mode == NARROW_PATH)
+	{
 		path_mode = FOCUS_PATH;
 		bprint("focused path mode ON\n");
 	}
@@ -2089,6 +2085,11 @@ void() CycleDescriptionMode =
 	}
 	else if (path_mode == LINKED_DOOR)
 	{
+		path_mode = CLEAR_PATH_MODES;
+		bprint("clear all assigned path modes ON\n");
+	}
+	else if (path_mode == CLEAR_PATH_MODES)
+	{
 		path_mode = REVERSIBLE;
 		bprint("reversible display mode ON\n");
 	}
@@ -2096,11 +2097,6 @@ void() CycleDescriptionMode =
 	{
 		path_mode = WATER_PATH;
 		bprint("water path display mode ON\n");
-	}
-	else if (path_mode == WATER_PATH)
-	{
-		path_mode = CLEAR_PATH_MODES;
-		bprint("clear all assigned path modes ON\n");
 	}
 	else
 	{

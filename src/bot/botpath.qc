@@ -14,6 +14,23 @@ float() able_rj;
 void() NewVelocityForArrow;
 float(float max_angle) right_direction;
 
+
+/*
+============
+MarkerUnTouch
+
+Clears currently touched marker, forces to look for nearest touchable marker
+============
+*/
+void() MarkerUnTouch = 
+{
+	self.touch_marker = self.path_from_marker = world;
+	// Clear path states except air-related, to preserve air moves until touch
+	self.path_state = self.path_state & AIR_PATH_MODES;
+	self.narrow_path_state = 0;
+	self.linked_marker_time = 0;
+};
+
 /*
 ============
 AdjustTravelPenalties
@@ -349,6 +366,7 @@ void(float lm_time) WaitAtTouchMarker =
 	self.path_from_marker = touch_marker_;
 	SetExclusive();
 	self.path_state = 0;
+	self.narrow_path_state = 0;
 	self.linked_marker_time = time + lm_time;
 	self.old_linked_marker = world;
 	dir_move = touch_marker_.absmin + touch_marker_.view_ofs - self.origin;
@@ -562,18 +580,21 @@ are good for the jump. If not, start the run-up procedure.
 Do not run-up for a slow PJ or the RJ+PJ combo!
 ============
 */
-void() CheckAccurateRunUp =
+void(float force) CheckAccurateRunUp =
 {
 	if (self.running_up)
 		return;
-	if (! (new_path_state & PRECISE_JUMP))
-		return;
-	if (new_path_state & SLOW_DOWN)
-		return;
-	if (new_path_state & ROCKET_JUMP)
-		return;
-	if(right_direction(20 + 30 * self.bot_inaccuracy)) // direction already OK, no run-up needed
-		return;
+	if (! force)
+	{
+		if (! (new_path_state & PRECISE_JUMP))
+			return;
+		if (new_path_state & SLOW_DOWN)
+			return;
+		if (new_path_state & ROCKET_JUMP)
+			return;
+		if (right_direction(20 + 30 * self.bot_inaccuracy)) // direction already OK, no run-up needed
+			return;
+	}
 	if (touch_marker_.jump_direction)
 		dir_move = touch_marker_.absmin + touch_marker_.view_ofs -
 			(touch_marker_.jump_direction.absmin + touch_marker_.jump_direction.view_ofs);
@@ -640,6 +661,10 @@ void() CheckWallStrafe =
 	makevectors(angles);
 	self.wallstrafe_vec = v_forward;
 	self.wallstrafe_deadline = time + 3;
+	// Setting NP on a WS path will postpone activation until the
+	// bot is confirmed to be near enough the start of the path.
+	if (new_path_state & NARROW_PATH)
+		return;
 	// Apply the new key immediately. Otherwise it could take several more
 	// frames before BestArrowForDirection first sets it, and this can cause
 	// problems in borderline cases.
@@ -667,6 +692,9 @@ void() frogbot_marker_touch =
 #endif
 		return;
 	}
+	// Ensure nothing disturbs WSJ, it will trigger sticky touch of the jump spot marker
+	if (self.wallstrafe_key)
+		return;
 
 #ifdef DEBUG_TOUCH
 	dprint("FBMT m", ftos(touch_marker_.index), "; Lm", ftos(linked_marker_.index), "\n");
@@ -700,6 +728,7 @@ void() frogbot_marker_touch =
 					linked_marker_ = self.linked_marker = goalentity_;
 					self.path_from_marker = touch_marker_;
 					SetExclusive();
+					self.narrow_path_state = 0;
 					self.linked_marker_time = time + 5;
 					self.old_linked_marker = touch_marker_;
 					return;
@@ -717,9 +746,15 @@ void() frogbot_marker_touch =
 			to_marker = linked_marker_;
 			if (ExistsPath())
 			{
+				// accidental touch of intermediate marker: just continue.
+				if (new_path_state & NARROW_PATH)
+				if (! (self.path_state & NARROW_PATH))
+					// Should not happen with properly set up waypoints,
+					// disable NP logic just to be sure.
+					self.narrow_path_state = 0;
 				self.path_state = new_path_state;
 				self.path_from_marker = touch_marker_;
-				return;	// intermediate marker
+				return;
 			}
 		}
 
@@ -1098,11 +1133,16 @@ void() frogbot_marker_touch =
 	if (self.path_state & WALL_STRAFE)
 	if (!(self.flags & FL_ONGROUND))
 		new_path_state = new_path_state | DELIBERATE_AIR_WAIT_GROUND;
+	// Init or clear narrow path logic
+	if (new_path_state & NARROW_PATH)
+		self.narrow_path_state = 1;
+	else
+		self.narrow_path_state = 0;
 
 	self.linked_marker = linked_marker_;
 	self.path_from_marker = touch_marker_;
 	self.path_state = new_path_state;
-	CheckAccurateRunUp();
+	CheckAccurateRunUp(FALSE);
 	CheckWallStrafe();
 	SetExclusive();
 
@@ -1137,6 +1177,11 @@ void() frogbot_marker_touch =
 	if ((self.waterlevel == 2) || (self.waterlevel == 1)) // SOUL
 	{
 		self.look_object = self.linked_marker;
+		return;
+	}
+	if (self.path_state & NARROW_PATH)
+	{
+		self.look_object = look_object_ = touch_marker_;
 		return;
 	}
 	if (self.path_state & FOCUS_PATH)

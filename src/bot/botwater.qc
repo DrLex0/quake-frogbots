@@ -416,11 +416,11 @@ void() FrogWaterMove =
 	if (ForwardProbeMarker(64))
 	{
 		// marker is just behind a corner: force move forward
-		self.velocity = v_forward * sv_maxwaterspeed;
+		self.velocity = v_forward * max_water3speed;
 		self.velocity_override = self.velocity;
-		self.t_velocity_override = time + (64 / sv_maxwaterspeed);
+		self.t_velocity_override = time + (64 / max_water3speed);
 #ifdef DEBUG_WATER
-		dprint("Water fwd probe override ", ftos(64 / sv_maxwaterspeed), "s\n");
+		dprint("Water fwd probe override ", ftos(64 / max_water3speed), "s\n");
 #endif
 		VelocityForArrow();
 		return;

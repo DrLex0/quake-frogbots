@@ -1,5 +1,5 @@
 // Waypoints by DrLex, 2025-05
-// Tweaked lift 2025-11
+// Tweaked lift, converted narrow marker to path 2025-11
 void() map_catalyst =
 {
 // custom markers start at m50
@@ -38,8 +38,7 @@ G13(m18);G13(m19);G13(m20);G13(m21);G5(m22);G3(m23);G16(m32);G16(m33);
 G12(m34);G10(m35);G12(m36);G12(m37);G20(m38);G18(m43);G17(m46);G9(m47);
 G11(m48);G14(m49);
 m24.view_ofs_z=25;m29.view_ofs_z=25;m30.view_ofs_z=25;m41.view_ofs_z=17;
-m41.T=32;m70.T=1;m71.T=1;m72.T=1;m73.T=1;m75.T=16;m103.T=1;m104.T=1;
-m105.T=1;
+m41.T=32;m70.T=1;m71.T=1;m72.T=1;m73.T=1;m103.T=1;m104.T=1;m105.T=1;
 m1.P0=m94;m1.P1=m95;m1.P2=m17;m2.P0=m63;m2.P1=m101;m3.P0=m69;
 m3.P1=m15;m4.P0=m58;m4.P1=m59;m4.P2=m12;m5.P0=m43;m5.P1=m80;
 m6.P0=m42;m6.P1=m77;m6.P2=m22;m7.P0=m50;m7.P1=m51;m8.P0=m95;
@@ -95,7 +94,7 @@ m102.P0=m100;m102.P1=m98;m102.P2=m64;m103.P0=m15;m103.P1=m69;m104.P0=m105;
 m105.P0=m68;m106.P0=m34;m106.P1=m63;
 m8.D2=2048;m10.D0=1;m10.D1=1;m17.D4=1024;m21.D2=1;m23.D2=2049;
 m44.D2=1024;m53.D0=1024;m53.D4=1024;m53.D5=512;m65.D2=129;m66.D2=129;
-m75.D1=8;m77.D3=1024;m83.D2=2048;m102.D2=1;
+m75.D1=40;m77.D3=1024;m83.D2=2048;m102.D2=1;
 };
 /* MarkerInfo
 m1 info_player_deathmatch 844 -312 234;

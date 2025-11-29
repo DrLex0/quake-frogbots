@@ -174,15 +174,6 @@ void(float prioritize) check_marker =
 
 	// Take the nearest touching marker (except see below)
 	distance = vlen(self.absmin + self.view_ofs - other.origin);
-	// While narrow marker is start of current path, treat as normal, otherwise endless loop risk
-	if (self.T & T_NARROW)
-	if (other.path_from_marker != self)
-#ifdef MANUAL
-	// Similar: once touched, treat as normal to decide when to release touch
-	if (!manual_mode || self != active_marker)
-#endif
-	if (distance > 24)
-		return;
 	if (!prioritize)
 	{
 		if (distance > other.touch_distance)
@@ -204,6 +195,9 @@ void(float prioritize) check_marker =
 		// for accurate path mode, it could mess up accuracy.
 		if (other.touch_marker == other.linked_marker)
 		if (other.touch_distance - distance < 20)
+		// Beware: multiple touches for the same marker may be registered within
+		// the same frame. Do not ignore a better touch of the linked marker.
+		if (self != other.linked_marker)
 		if (! (other.path_state & ACCURATE_PATH))
 			return;
 	}

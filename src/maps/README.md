@@ -59,6 +59,12 @@ For instance, `dmz1++.bsp` will get a waypoint loading function called `map_dmz1
 More may need to be added if someone wants to make waypoints for maps with other funky characters. However, if you make a new map, and have to choose a file name, by all means **please just stick to the ASCII alphabet, numbers, and underscores.** Don't even think about Unicode in file names, because that is totally out of reach for QuakeC.
 
 
+# Universal remarks for anyone making Quake maps
+
+- Don't forget to add at least 1 `info_intermission`. Otherwise players will likely see the scoreboard from somewhere inside a wall, making the author of the map seem like an amateur.
+- Please also add an `info_player_start,` even though your map is not meant for single-player. It makes it easier to explore the map in any Quake engine.
+
+
 ## Random rant inspired by some recent Quake DM maps
 
 The Frogbot is designed to mimic a human player. If it takes hours of tweaking waypoints just to give the bot a mere 60% chance of getting past a certain spot in the map, then this spot will likely also be annoying for human players (unless it is due to a bug in the bot code). Some things I have observed in some recent maps:
@@ -78,4 +84,4 @@ The Frogbot is designed to mimic a human player. If it takes hours of tweaking w
 - Some examples:
   - Good: _Panzer, Nova, Halo, Joi Zite._ All made by _Alice,_ who IMO knows what constitutes a good Quake multiplayer map. My only gripe is that they all look similar; some variation in textures would give each map more of a unique character.
   - Meh: _Abyssinia_ by _bps,_ looks nice and would be a fine single player map, but is terribly dark, sprawls in all directions, has annoying geometry and traps hidden in dark places. Similar remarks for _Sanctuary of the Silent Scribes_ by _infinity._ Also looks nice, but _way too dark_ overall, large complicated geometry with dead-ends, and reaching certain items requires too much fuss. Again, looks like a SP map hastily promoted to MP.
-  - Bad: _pocket infinity_ by _fourier/infiniti._ Annoying geometry, Quad only reachable by performing speed run tricks, and one of the teleports in the final version is only good for breaking kneecaps. Trying to add bot support to this map seems futile.
+  - Ugh: _pocket infinity_ by _fourier/infiniti._ Annoying geometry, Quad only reachable by performing speed run tricks after pushing a button, and one of the teleports in the final version is only good for breaking kneecaps unless one knows that it requires air strafing. This is OK as a trick map, not as a regular net map that could invite new players to Quake.

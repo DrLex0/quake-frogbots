@@ -14,11 +14,14 @@ void() VelocityForArrow;
 ============
 BestArrowForDirection
 
+Sets best_arrow to the optimal arrow keys to steer towards
+dir_move (which must be a unit vector)
 ============
 */
 void() BestArrowForDirection =
 {
 	if (self.wallstrafe_key)
+	if (! (self.path_state & NARROW_PATH))
 	{
 		best_arrow = self.wallstrafe_key;
 		return;
