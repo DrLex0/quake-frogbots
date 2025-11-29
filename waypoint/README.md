@@ -255,7 +255,7 @@ These steps do not need to be done in this exact order, but you will typically g
      A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to.  
      In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
    - **Narrow path mode** (shown as `‘=’`, number 32 in code) makes the bot do effort to align itself to this path before proceeding, this is useful to get through narrow openings or walk/climb on narrow structures like ladders. See the Advanced section for details.
-   - **Focused path mode** (shown as `‘F’`, number 2 in code) makes the bot look at (focus on) the destination marker of the path. This is useful when walking along tricky thin ledges (example in `monsoon`), or when the bot needs to jump out of water (example in `cmt4`). Without this mode, the bot may be distracted by looking at the next item it wants to pick up, causing it to move inaccurately and fall off the ledge, or face the wrong way to perform the water jump. (Looking at enemies always has priority over this path mode.)
+   - **Focused path mode** (shown as `‘F’`, number 2 in code) makes the bot look at (focus on) the destination marker of the path. It is recommended to set this on every path where the bot has to jump out of water (example in `cmt4`). It is also useful for walking along tricky thin ledges (example in `tox`). It may also help to make certain jumps more reliable (example in `aerowalk`). Without this mode, the bot may be distracted by looking at the next item it wants to pick up, causing it to move inaccurately and face the wrong way to perform the water jump, or fall off the ledge. (Looking at enemies always has priority over this path mode.)
    - **Wall strafe jump mode** (shown as `‘W’`, number 8 in code) exploits Quake's weird physics to allow bots to jump across gaps too wide for a normal jump in some situations. More info in the advanced section below.
    - **Need shoot mode** (shown as `‘N’`, number 256 in code) is for paths that require shooting a trigger to be traversable, often a door like in _dm6,_ but the trigger may also be separate from the door. More details in the advanced section below.
    - **Shoot at** (shown as `‘h’`, number 32 in code) is a _pseudo path_ mode that indicates what object to shoot for _need shoot_ mode. See the advanced section for more info.
@@ -376,7 +376,7 @@ Converting embedded waypoints back to QuakeC code format is simple: load the map
 
 ### Unreachable and untouchable markers
 
-This is optional, but can prevent the bot from doing certain dumb things. Markers can be flagged as being **unreachable,** which means the bot should avoid getting near them. Bots will avoid making jumps that end up near an unreachable marker. The bot will also totally ignore items flagged as unreachable, no matter how juicy they may seem.
+This is optional, but can prevent the bot from getting stuck or doing certain dumb things. Markers can be flagged as being **unreachable,** which means the bot should avoid getting near them. Bots will avoid making jumps that end up near an unreachable marker. The bot will also totally ignore items flagged as unreachable, no matter how juicy they may seem.
 
 To set a marker as unreachable: set display mode `Z` to “Display type,” and use `V` to select `unreachable node`. Then activate the marker and right-click (`MOUSE2`).
 
@@ -384,6 +384,8 @@ If there are lava or slime pits, or deadly traps, it is a good idea to place som
 In **lava pits** shallow enough to allow jumping, you may add rocket-jump paths to give the bot a better chance of escaping. If the pit is too deep for jumping, making outgoing paths is generally useless and could interfere with the bot's emergency escape mechanism, which will attempt to rocket-jump towards a nearby safe marker. You can add one-way paths as hints for the best spot to aim for, but such paths should not have any special mode assigned to them.
 
 There is also an **untouchable** marker type. When set, the marker will never produce a touch event. As mentioned above, it is recommended to set this on intermediate `trigger_push` markers. It can also be used on markers that overlap with other markers and are redundant. For instance if an `info_player_deathmatch` is on top of an item marker, it makes sense to just disable touch on the spawn marker and only use the item for paths.  
+In general it is also recommended to make `trigger_multiple` markers untouchable, to ensure they do not interfere with paths. Usually these triggers will be activated anyway at the right moment when the bot follows a trajectory that goes through them, and making them an explicit part of the path offers no benefits. Only if a `trigger_multiple` is an essential part of a path, like acting as a lift button, must it be touchable.
+
 _Be careful:_ an untouchable marker must never have incoming paths, or the bot may orbit around it waiting for a touch that never comes. (It makes no sense either to give it outgoing paths, but that is merely pointless instead of dangerous). Errors will be printed in the `MarkerInfo` section of the waypoint dump when paths towards untouchable markers are detected.  
 The waypoint tool will also ignore untouchable markers unless closest-marker-mode (`F`) is active. This helps to connect paths to the other overlapping marker (and makes it more obvious when a marker is untouchable).
 
@@ -527,11 +529,12 @@ Some maps simulate _ladders_ by means of what is basically the steepest possible
 
 If the bot can approach the ladder from its sides, just placing a marker in front of it and connecting it to the top marker, may be problematic. Due to the coarseness of the touch mechanism, the lower marker may already be touched long before the bot is truly in front of the ladder. The bot will then already try to aim for the top of the ladder, fruitlessly attempting to climb up the wall.
 
-The most practical solution in cases like these where the bot must first ensure to come very close to a marker before proceeding on a certain path, is to assign `narrow` mode to that path, in this case the path going up the ladder. As usual, set one-way path mode with the `J` key, then select this mode with the `V` key, and right-click the marker. For additional accuracy, you can also set slow path mode on this path.
+The most practical solution in cases like these where the bot must first ensure to come very close to a marker before proceeding on a certain path, is to assign `narrow` mode to that path, in this case the path going up the ladder. As usual, set one-way path mode with the `J` key, then select this mode with the `V` key, and right-click the marker. For additional accuracy, you can add _slow_ mode to this path.
 
 ![Ladder markers](images/ladder.jpg)
 
-`Narrow` path mode is not only useful for ladders, it can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam. However, don't use this mode unnecessarily, because it can cause the bot to slow down to satisfy the proximity requirement. To reduce the risk of the bot slowing down, try to encourage the bot to already be aligned to the narrow path before it touches the marker.  
+`Narrow` path mode is not only useful for ladders, it can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam. Do not place the starting point of the narrow path inside the door or on top of the narrow beam, place it slightly before, such that the bot is aligned _before_ navigating the obstacle.  
+However, don't use this mode unnecessarily, because it can cause the bot to slow down to satisfy the proximity requirement. To reduce the risk of the bot slowing down, try to encourage the bot to already be aligned to the narrow path before it touches the marker.  
 Also, narrow paths are useless under water, where the swimming logic handles obstacles.
 
 
@@ -574,8 +577,8 @@ Waypoints can be set up to rely on this trick by setting _wall strafe jump_ path
 
 Some hints to improve chances of this working:
 - The path must be parallel to the wall. The simplest way to ensure this, is to place both markers right against the wall.
-- Place the end marker right on the edge from where to jump, to maximize the distance that can be bridged.
-- If the available wall segment is short, also assign `narrow` mode to the path to get the most out of it.
+- Place the end marker right on the edge from where to jump, to maximize the distance that can be bridged. This marker should only have 1 incoming and 1 outgoing path, and should be made _exclusive_ if there is any risk of touching it while not wall strafing.
+- If the available wall segment is short, also assign `narrow` mode to the path to make the bot come closer to the start point and get the most from the limited space.
 - It may also help to set _focused path mode_ on the path leading to the start marker, to ensure the bot is already looking mostly in the right direction at the start of the path. Slow path mode may help to give the bot more time to adjust its aim.
 
 Look at `catalyst` (jump towards mega health) for an example.

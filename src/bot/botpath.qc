@@ -584,15 +584,17 @@ void(float force) CheckAccurateRunUp =
 {
 	if (self.running_up)
 		return;
-	if (! (new_path_state & PRECISE_JUMP))
-		return;
-	if (new_path_state & SLOW_DOWN)
-		return;
-	if (new_path_state & ROCKET_JUMP)
-		return;
-	if (right_direction(20 + 30 * self.bot_inaccuracy)) // direction already OK, no run-up needed
 	if (! force)
-		return;
+	{
+		if (! (new_path_state & PRECISE_JUMP))
+			return;
+		if (new_path_state & SLOW_DOWN)
+			return;
+		if (new_path_state & ROCKET_JUMP)
+			return;
+		if (right_direction(20 + 30 * self.bot_inaccuracy)) // direction already OK, no run-up needed
+			return;
+	}
 	if (touch_marker_.jump_direction)
 		dir_move = touch_marker_.absmin + touch_marker_.view_ofs -
 			(touch_marker_.jump_direction.absmin + touch_marker_.jump_direction.view_ofs);
@@ -658,6 +660,7 @@ void() CheckWallStrafe =
 	angles_x = angles_z = 0;
 	makevectors(angles);
 	self.wallstrafe_vec = v_forward;
+	self.wallstrafe_deadline = time + 3;
 	// Setting NP on a WS path will postpone activation until the
 	// bot is confirmed to be near enough the start of the path.
 	if (new_path_state & NARROW_PATH)
@@ -665,7 +668,6 @@ void() CheckWallStrafe =
 	// Apply the new key immediately. Otherwise it could take several more
 	// frames before BestArrowForDirection first sets it, and this can cause
 	// problems in borderline cases.
-	self.wallstrafe_deadline = time + 3;
 	self.arrow = self.wallstrafe_key;
 }
 
@@ -690,6 +692,9 @@ void() frogbot_marker_touch =
 #endif
 		return;
 	}
+	// Ensure nothing disturbs WSJ, it will trigger sticky touch of the jump spot marker
+	if (self.wallstrafe_key)
+		return;
 
 #ifdef DEBUG_TOUCH
 	dprint("FBMT m", ftos(touch_marker_.index), "; Lm", ftos(linked_marker_.index), "\n");

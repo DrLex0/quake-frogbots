@@ -335,10 +335,17 @@ void() a_rocketjump =
 All the *Logic() functions return TRUE if any remaning special moves logic must be skipped.
 */
 
+// Overrides everything else as long as .wallstrafe_key is set.
+// Marker touch will also be suppressed. Ensure deadlines are checked.
 float() WallStrafeJumpLogic =
 {
 	if (! self.wallstrafe_key)
 		return FALSE;
+	if (time > self.wallstrafe_deadline)
+	{
+		self.wallstrafe_key = 0;
+		return TRUE;
+	}
 
 	// Narrow path logic will be suppressed, do the relevant bit here
 	if (self.path_state & NARROW_PATH)
@@ -351,28 +358,21 @@ float() WallStrafeJumpLogic =
 			NewVelocityForArrow();
 			return TRUE;
 		}
+		// homed in: start actual wall strafe, refresh deadline
 		self.path_state = self.path_state - NARROW_PATH;
 		self.wallstrafe_deadline = time + 3;
 		self.arrow = self.wallstrafe_key;
 	}
 
-	if (time > self.wallstrafe_deadline)
-	{
-		self.wallstrafe_key = 0;
-		return TRUE;
-	}
 	if (vlen(self.run_up_point - origin_) > 24)
 		return TRUE;
-	if (self.run_up_point == linked_marker_.absmin + linked_marker_.view_ofs)
-	{
-#ifdef DEBUG_TOUCH
-		dprint("Ensuring sticky touch of WSJ point m", ftos(linked_marker_.index), "\n");
-#endif
-		self.touch_marker = linked_marker_;
-		self.sticky_touch = TRUE;
-	}
 
-	self.wallstrafe_vec = self.velocity;  // See FrogbotPrePhysics1
+#ifdef DEBUG_TOUCH
+	dprint("WSJ: sticky touch of jump spot m", ftos(linked_marker_.index), "\n");
+#endif
+	self.touch_marker = linked_marker_;
+	self.sticky_touch = TRUE;
+	self.wallstrafe_vec = self.velocity;  // Hack, see FrogbotPrePhysics1
 	self.wallstrafe_jump = 1;
 	self.wallstrafe_key = 0;
 	self.button2_ = 1;
@@ -422,15 +422,23 @@ float() NarrowPathLogic =
 	if (! self.narrow_path_state)
 		return FALSE;
 
+	local float test_dist;
 	if (self.narrow_path_state < 2)
 	{
 		// Skip init until landed
 		if (!(self.flags & FL_ONGROUND))
 			return TRUE;
 
-		// Check whether:
-		// - already moving mostly in the right direction of the linked marker
+		rel_pos = linked_marker_.absmin + linked_marker_.view_ofs - (self.path_from_marker.absmin + self.path_from_marker.view_ofs);
+		test_dist = rel_pos_z;
+		rel_pos_z = 0;
+
+		// Check whether we can avoid losing speed by skipping homing:
+		// - narrow path is sufficiently horizontal
+		// - already moving mostly in direction of linked marker
 		// - assuming unchanged velocity, will bot pass the touched marker close enough
+		if (vlen(rel_pos) > 10)  // markers not too near in XY plane (and avoid zero division)
+		if (fabs(test_dist / vlen(rel_pos)) < 1)  // path not too vertical
 		if (right_direction(16))
 		{
 			local vector vnorm;
@@ -446,7 +454,11 @@ float() NarrowPathLogic =
 			{
 				vec_length = vlen(rel_pos - vec_length * vnorm);
 				// A bit stricter than when homing, due to extra uncertainty
-				if(vec_length < 12 + 8 * self.bot_inaccuracy)
+				if (self.path_state & SLOW_DOWN)
+					test_dist = 7 + 8 * self.bot_inaccuracy;
+				else
+					test_dist = 12 + 8 * self.bot_inaccuracy;
+				if(vec_length < test_dist)
 				{
 					self.narrow_path_state = 0;
 					self.look_object = look_object_ = linked_marker_;
@@ -484,7 +496,11 @@ float() NarrowPathLogic =
 	}
 	rel_pos_z = 0;
 	rel_dist = vlen(rel_pos);
-	if (rel_dist < 16 + 8 * self.bot_inaccuracy)
+	if (self.path_state & SLOW_DOWN)
+		test_dist = 10 + 8 * self.bot_inaccuracy;
+	else
+		test_dist = 16 + 8 * self.bot_inaccuracy;
+	if (rel_dist < test_dist)
 	{
 		self.narrow_path_state = 0;
 		self.arrow = 0;
@@ -599,6 +615,9 @@ void() SpecialAccurateMoves =
 		{
 			// Passed the jump spot without jumping; restart run-up
 			touch_marker_ = self.path_from_marker;
+			self.running_up = 0;
+			self.velocity = '0 0 0';
+			self.arrow = 0;
 			CheckAccurateRunUp(TRUE);
 		}
 		return;
