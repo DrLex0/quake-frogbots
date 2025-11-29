@@ -4,7 +4,8 @@
 // - bots will now get the Quad
 // - path tweaks, added some RJs
 // - note that button m55 needs fix to avoid stuck bots
-// 2025-11: tweak linked door exclusive markers, MH jump
+// 2025-11: tweak linked door exclusive markers, MH jump,
+//   convert narrow marker to path
 void() map_trindm1 =
 {
 // custom markers start at m58
@@ -47,8 +48,8 @@ G3(m21);G14(m22);G17(m27);G17(m28);G7(m29);G7(m30);G8(m31);G13(m32);
 G13(m33);G21(m34);G21(m35);G21(m36);G12(m38);G10(m39);G10(m40);G22(m41);
 G22(m42);G22(m43);G18(m44);G18(m45);G15(m46);G11(m47);G9(m48);
 m56.view_ofs_z=25;
-m51.T=64;m52.T=64;m53.T=64;m55.T=64;m118.T=4;m119.T=4;m120.T=4;m121.T=16;
-m122.T=4;m123.T=4;m124.T=320;m125.T=4;
+m51.T=64;m52.T=64;m53.T=64;m55.T=64;m118.T=4;m119.T=4;m120.T=4;m122.T=4;
+m123.T=4;m124.T=320;m125.T=4;
 m1.P0=m70;m1.P1=m72;m1.P2=m71;m2.P0=m71;m2.P1=m72;m3.P0=m94;
 m3.P1=m96;m3.P2=m71;m3.P3=m121;m4.P0=m69;m4.P1=m86;m5.P0=m110;
 m6.P1=m98;m7.P0=m8;m7.P1=m31;m7.P2=m74;m8.P0=m73;m8.P1=m7;
@@ -114,7 +115,7 @@ m2.D0=1024;m2.D1=1024;m3.D2=1024;m18.D1=1024;m19.D0=1024;m20.D2=1024;
 m40.D2=1024;m58.D4=512;m60.D4=512;m71.D7=512;m72.D4=512;m84.D5=1024;
 m89.D2=2048;m93.D3=1024;m94.D5=1024;m94.D6=1024;m107.D0=2;m108.D2=1024;
 m108.D3=130;m109.D2=2049;m113.D1=2049;m114.D1=2;m117.D0=2;m118.D0=1;
-m118.D1=4;m119.D1=4;m120.D3=4;m121.D1=1;m122.D0=4;m123.D0=4;
+m118.D1=4;m119.D1=4;m120.D3=4;m121.D1=33;m122.D0=4;m123.D0=4;
 m125.D0=1;
 };
 /* MarkerInfo
