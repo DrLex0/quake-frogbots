@@ -490,3 +490,28 @@ void(float ix, float iy, float iz, float ipitch, float iyaw, float iroll) AddInt
 	interm_mangle_y = iyaw;
 	interm_mangle_z = iroll;
 };
+
+/*
+============
+Warn about custom .ent files. nQuake may be shipped with some files containing these entities
+and other existing extra entities that will crash the game when a bot tries to spawn.
+This will not avoid a crash, but at least gives a better hint at what to do than a stack trace.
+============
+*/
+void() info_monster_start =
+{
+	bad_ent_detected = TRUE;
+	remove(self);
+};
+
+void() trigger_custom_monsterjump =
+{
+	bad_ent_detected = TRUE;
+	remove(self);
+};
+
+void() trigger_custom_teleport =
+{
+	bad_ent_detected = TRUE;
+	remove(self);
+};

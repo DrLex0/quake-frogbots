@@ -48,6 +48,15 @@ void() MakeMOTD =
 	motd.attack_finished = time + 7;
 };
 
+void() CheckBadEnts =
+{
+	if (bad_ent_detected)
+	{
+		dprint ("\n≈““œ“∫ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, will almost certainly crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+		sprint_fb(self, 2, "\n≈““œ“∫ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, will almost certainly crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+	}
+}
+
 #ifdef ARENA
 void() AliasesTime =
 {
@@ -77,6 +86,7 @@ void() StuffAliases =
 		self.k_stuff = 1;
 		aliases3();
 		sprint_fb(self, 2, "Commands downloaded\n");
+		CheckBadEnts();
 	}
 };
 #endif

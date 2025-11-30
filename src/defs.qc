@@ -2513,6 +2513,8 @@ float RA_time;
 float enemy_time_squared;
 .void end_remove_fieldnames_;
 
+float bad_ent_detected;
+
 //===========================================================================
 // Embedded waypoint data in BSPs  -- DrLex
 float has_embedded_wp;
