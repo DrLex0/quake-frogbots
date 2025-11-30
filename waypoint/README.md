@@ -231,6 +231,7 @@ These steps do not need to be done in this exact order, but you will typically g
    - If it is a 2-way teleporter, now do the same thing at the other side to connect its trigger to the destination.
    - Teleports are disabled in manual mode, hence toggle with `O` to get teleported to the other side.
    - It doesn't matter whether you assign a `trigger_teleport` the zone it is in, or its destination zone. (I stick with the zone it is in.)
+   - The `K` key can also be used on destination markers, in which case it will send you back to one of the triggers that leads to that destination (requires NOCLIP to work reliably).
 
    Teleport path hygiene:
    - A `trigger_teleport` must only have _incoming_ paths besides its single outgoing destination path (other outgoing paths would be pointless and could mess up path planning).

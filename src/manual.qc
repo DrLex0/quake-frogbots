@@ -20,6 +20,8 @@ void() SavePaths;
 void() DumpMarkerInfo;
 float(entity marker) changed_view_ofs_z;
 void() ZoneInfo;
+void() MoveToActiveMarker;
+
 void() AdjustTravelPenalties;
 
 /*
@@ -946,9 +948,30 @@ void() TeleportAutoConnect =
 {
 	if (!active_marker)
 		return;
+	if (active_marker.classname == "info_teleport_destination")
+	{
+		local entity marker_orig = active_marker;
+		marker_ = find(world, target, marker_orig.targetname);
+		if (!marker_)
+		{
+			bprint("no trigger_teleport has this marker as its destination!\n");
+			return;
+		}
+		Deselect(active_marker);
+		active_marker = marker_;
+		bprint("trigger_teleport m", ftos(marker_.index), " leads to destination m", ftos(marker_orig.index), "\n");
+		MoveToActiveMarker();
+		marker_ = find(marker_, target, marker_orig.targetname);
+		while (marker_ != world)
+		{
+			bprint("  m", ftos(marker_.index), " also leads to destination m", ftos(marker_orig.index), "\n");
+			marker_ = find(marker_, target, marker_orig.targetname);
+		}
+		return;
+	}
 	if (active_marker.classname != "trigger_teleport")
 	{
-		bprint("active marker is not a trigger_teleport\n");
+		bprint("active marker is not a trigger_teleport or destination\n");
 		return;
 	}
 	if (!active_marker.enemy)

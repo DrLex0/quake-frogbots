@@ -59,6 +59,25 @@ For instance, `dmz1++.bsp` will get a waypoint loading function called `map_dmz1
 More may need to be added if someone wants to make waypoints for maps with other funky characters. However, if you make a new map, and have to choose a file name, by all means **please just stick to the ASCII alphabet, numbers, and underscores.** Don't even think about Unicode in file names, because that is totally out of reach for QuakeC.
 
 
+# Hints for converting old waypoints
+
+Waypoints exist for the older Frogbot versions and can be readily converted using the `generate_maplist.py` script. However, usually the waypoints will require extra clean-up to fix flaws and bring them up-to-date with the v2 features.
+
+The last known older Frogbot builds had almost 380 waypoints, most of which were made by Trinca. The quality varies, which I assume to be for the most part due to the awkwardness of the old waypoint tool. It lacked good ways to visualise paths, and made connecting teleports a pain. Moreover, there was no clear guide, for instance how to assign goals and what not to do when assigning zones. The only guide I know of was Mick's, and although a good starting point, it was still rather basic.
+
+A checklist of things I usually have to fix when converting old waypoints:
+- **Teleports.** See the instructions in the waypoint tool README. The `K` key is now your friend, when used on teleport triggers, it will set the single correct outgoing path and drop the others. What it won't fix, is bad assignment of incoming paths, you must check and fix this yourself.
+- **Unwanted paths.** The old waypoint tool made it hard to detect superfluous paths, especially if a far away marker got accidentally connected. Use the `R` key, and if you see unexpected markers being listed, or the spikes flying through walls and ceilings, then it means incorrect paths need to be removed (unless they are teleport markers).
+- **Markers without zone or goal.** The `N` and `M` keys are your friend here. This will especially be the case for `trigger_push` and `trigger_multiple`, because the old Frogbot did not create markers for these.
+  - For `trigger_push`: it is always best to remove any existing kludge with manual markers, and make the one-way path go through the (first) push marker (making any others on the same trajectory untouchable), than to leave the existing kludge in place.
+  - For `trigger_multiple`: in most cases they should be untouchable, but sometimes not, see the README.
+- **Goal assignment.** Unfortunately one of the harder things to get right. In some maps, the waypoint maker obviously just ran around and incremented goal numbers, which is not a good way of working. It is often better to just go through all items again, than to try to nudge the existing goal assignments. Things to keep in mind:
+  - give the lowest goal numbers to the most important things (mind that power-ups are useless without decent weapons, hence the better weapons should be considered most important);
+  - only same type items directly linked and close together within the same zone, should get the same goal number; otherwise ensure that different items within the same zone all have different goals, and preferably give same type items in the same zone different goals if not clustered;
+  - never ever give important items (ammo, powerups) the same goal within the same zone as other items!
+- **Zones.** This is generally OK, but sometimes you will find overly large or scattered zones. Again, ensure zones follow the guidelines from the waypoint README.
+
+
 # Universal remarks for anyone making Quake maps
 
 - Don't forget to add at least 1 `info_intermission`. Otherwise players will likely see the scoreboard from somewhere inside a wall, making the author of the map seem like an amateur.
