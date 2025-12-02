@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the maplist and/or QuakeC code for v2 FrogBot.
 Also acts as a conversion tool for old waypoint files.
-2024-12/2025-05, Alexander Thomas aka DrLex.
+2024-12/2025-12, Alexander Thomas aka DrLex.
 
 Released under GPL license."""
 
@@ -226,9 +226,10 @@ def transform_qc_files(args: argparse.Namespace) -> None:
                 qc_file.seek(0)
                 qc_file.write("".join(code_lines))
                 qc_file.truncate()
-            if args.verbose:
-                print(f"File {map_file} " +
-                      ("has been transformed!" if changed else "does not need transforming"))
+            if changed and args.verbose:
+                print(f"File {map_file} has been transformed!")
+            elif not changed and args.verbose > 1:
+                print(f"File {map_file} does not need transforming")
             if desc_changed:
                 print(f"WARNING: obsolete path descriptions have been removed from {map_file}",
                       file=sys.stderr)
@@ -242,8 +243,8 @@ def main():
         "Inside the QC file, there must be a definition for void() map_mapname.qc, and "
         "mapname must be lowercase.")
     )
-    parser.add_argument('-v', '--verbose', action='store_true',
-        help="verbose output.")
+    parser.add_argument('-v', '--verbose', action='count', default=0,
+        help="verbose output. Repeat for more verbosity.")
     parser.add_argument('-l', '--make_list', action='store_true',
         help="generate a maplist.txt file with all waypoint source files in this directory. "
              "You can edit this file afterwards to select only the desired maps. "
@@ -267,25 +268,27 @@ def main():
 
     if args.verbose:
         print("Verbose output enabled")
+    if args.verbose > 1:
+        print("Extra verbosity enabled")
 
-    dome_something = False
+    done_something = False
     if args.make_list or ((args.generate or args.transform)
                           and not os.path.exists(args.list_file)):
         if args.verbose:
             print(("Overwriting" if os.path.exists(args.list_file) else "Creating new") +
                   f" list file {args.list_file}")
         generate_listfile(args)
-        dome_something = True
+        done_something = True
 
     if args.transform:
         transform_qc_files(args)
-        dome_something = True
+        done_something = True
 
     if args.generate:
         generate_qc_source(args)
-        dome_something = True
+        done_something = True
 
-    if not dome_something:
+    if not done_something:
         print("Run the script with -lg to generate files. Use --help for more info.")
 
 
