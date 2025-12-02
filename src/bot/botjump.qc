@@ -467,6 +467,7 @@ float() NarrowPathLogic =
 			}
 		}
 		self.narrow_path_state = 2;
+		self.look_object = look_object_ = self.path_from_marker;
 	}
 
 	if (!(self.flags & FL_ONGROUND))
@@ -476,6 +477,7 @@ float() NarrowPathLogic =
 		dprint("Narrow path homing stopped because airborne\n");
 #endif
 		self.narrow_path_state = 0;
+		self.look_object = look_object_ = linked_marker_;
 		return TRUE;
 	}
 
@@ -520,11 +522,16 @@ float() NarrowPathLogic =
 	self.precise_speed = 120 + 3 * (rel_dist - 16);
 	if (self.path_state & SLOW_DOWN)
 	{
-		local float max_speed;
-		if (rel_dist < 80) max_speed = slow_landspeed1;
-		else if (rel_dist < 140) max_speed = slow_landspeed2;
-		if (self.precise_speed > max_speed)
-		self.precise_speed = max_speed;
+		if (rel_dist < 80)
+		{
+			if (self.precise_speed > slow_landspeed1)
+				self.precise_speed = slow_landspeed1;
+		}
+		else if (rel_dist < 140)
+		{
+			if (self.precise_speed > slow_landspeed2)
+				self.precise_speed = slow_landspeed2;
+		}
 	}
 	dir_move = normalize(rel_pos);
 	NewVelocityForArrow();
@@ -605,8 +612,13 @@ void() SpecialAccurateMoves =
 		return;
 
 	local vector d_test = self.path_from_marker.absmin + self.path_from_marker.view_ofs - self.origin;
-	if (d_test_z > 40)  // Bot likely missed jump and fell off a ledge; abort the whole thing
+	if (d_test_z > 48)  // Bot likely missed jump and fell off a ledge; abort the whole thing
+	{
+#ifdef DEBUG_TOUCH
+		dprint("Precise jump aborted because unexpected dZ=", ftos(d_test_z), "\n");
+#endif
 		return MarkerUnTouch();
+	}
 
 	if (touch_dist > 40)  // Only jump when close enough
 	{

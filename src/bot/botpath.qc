@@ -1176,17 +1176,17 @@ void() frogbot_marker_touch =
 		return;
 	if ((self.waterlevel == 2) || (self.waterlevel == 1)) // SOUL
 	{
-		self.look_object = self.linked_marker;
+		self.look_object = linked_marker_;
 		return;
 	}
 	if (self.path_state & NARROW_PATH)
 	{
-		self.look_object = look_object_ = touch_marker_;
+		self.look_object = look_object_ = linked_marker_;
 		return;
 	}
 	if (self.path_state & FOCUS_PATH)
 	{
-		self.look_object = look_object_ = self.linked_marker;
+		self.look_object = look_object_ = linked_marker_;
 		return;
 	}
 
