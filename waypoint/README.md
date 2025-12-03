@@ -140,6 +140,7 @@ L   y   wait lift node
 J   y   jump hint node (pseudo)
 S   y   slime island node
 B   y   want biosuit node
+F   y   force node activated
 T   y   untouchable node
 A   y   air touchable node
 ```

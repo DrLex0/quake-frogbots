@@ -1558,6 +1558,8 @@ void() PrintGoal =
 		bprint("\xD3");  // S
 	if (active_marker.T & T_WANTSUIT)
 		bprint("\xC2");  // B
+	if (active_marker.T & T_FIRE_ON_MATCH_START)
+		bprint("\xC6");  // F
 	if (active_marker.T & T_NOTOUCH)
 		bprint("\xD4");  // T
 	if (active_marker.T & T_AIR_TOUCH)
