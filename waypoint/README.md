@@ -666,3 +666,18 @@ Computed travel times between _any_ 2 markers can be shown by fixing one marker 
 A value of 1000000 is considered ‘infinite’ (no connection). Path times may also have a large ‘penalty’ added when the bot is not equipped with the right gear to take that path (for instance rocket jump paths, or paths into slime). Go fetch the gear, and you'll notice the path time drops to normal values.
 
 If, even when considering the penalty system, the `B` key shows an impossibly large travel time between 2 directly connected markers, check whether guideline 1 is not violated. If not, the solution is usually the same anyway: move one of the 2 markers to a different zone.
+
+#### Advanced debugging
+When the bot acts strange and you cannot figure out why, it may be useful to enable more debug output in the console, by defining certain macros while compiling the waypoint tool.  
+Add `-D` followed by the flag to the `fteqcc` invocation to enable the macro. For convenience, any extra parameters passed to the `build-waypoint.sh` script are also passed to `fteqcc`.  
+For instance, to enable `DEBUG_TOUCH`:
+```
+fteqcc.bin -DDEBUG_TOUCH etc…
+# or:
+./build-waypoint.sh -DDEBUG_TOUCH
+```
+Then, inside the waypoint tool, use `developer 1` in the console to view the extra messages.
+
+The most useful debug macros are:
+- `DEBUG_TOUCH`: this is useful enough that you may want to enable it at all times, it will print all marker touch events together with what was the linked marker (i.e. the marker the bot wanted to touch). This can reveal unexpected marker touches.
+- `DEBUG_HAZD`: prints when some of the hazard avoidance mechanisms engage. For instance if you see `AvoidEdge` while the bot is supposed to just jump down, adding `just GO` to the path may help.
