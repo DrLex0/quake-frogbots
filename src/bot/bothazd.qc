@@ -317,8 +317,10 @@ void() AvoidHazards =
 			{
 				if (new_velocity_z >= 0)
 					ledge_backup = ((new_velocity_z * new_velocity_z * 0.000625) < rel_pos_z);	// 0.000625 = 0.5 / sv_gravity
-				else
+				else {
 					ledge_backup = (rel_pos_z > 0);
+					self.path_state = self.path_state | AIR_ACCELERATION | WAIT_GROUND;
+				}
 				if (ledge_backup)
 				{
 					if (self.ledge_backup_time)
