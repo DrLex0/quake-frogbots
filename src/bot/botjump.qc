@@ -411,10 +411,6 @@ float() PreciseRunUpLogic =
 	return FALSE;
 };
 
-// narrow_path_state:
-// - 0: converged or disabled
-// - 1: initializing
-// - 2: homing in on touch marker
 float() NarrowPathLogic =
 {
 	if (! (self.path_state & NARROW_PATH))
@@ -472,14 +468,19 @@ float() NarrowPathLogic =
 
 	if (!(self.flags & FL_ONGROUND))
 	{
-		// Again airborne? Must have fallen off ledge; stop homing
+		// If (again) airborne for more than a few frames: must have fallen off ledge; stop homing
+		self.narrow_path_state = self.narrow_path_state + 1;
+		if (self.narrow_path_state > 8)
+		{
 #ifdef DEBUG_TOUCH
-		dprint("Narrow path homing stopped because airborne\n");
+			dprint("Narrow path homing stopped because airborne\n");
 #endif
-		self.narrow_path_state = 0;
-		self.look_object = look_object_ = linked_marker_;
+			self.narrow_path_state = 0;
+			self.look_object = look_object_ = linked_marker_;
+		}
 		return TRUE;
 	}
+	self.narrow_path_state = 2;
 
 	// Home in on the touched marker
 	rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;

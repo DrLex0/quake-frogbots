@@ -2097,9 +2097,10 @@ entity touch_marker_;
 .float airstrafe_delay;
 
 // When on a NARROW_PATH:
-// 0: converged
-// 1: initializing
-// 2: homing in
+// - 0: converged or disabled
+// - 1: initializing
+// - 2: homing in on touch marker
+// - 3+: became airborne while homing
 .float narrow_path_state;
 
 .float color_;
