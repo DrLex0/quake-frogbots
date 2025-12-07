@@ -586,7 +586,8 @@ void() SpecialAccurateMoves =
 		}
 		return;
 	}
-	local float touch_dist = vlen(origin_ - (self.path_from_marker.absmin + self.path_from_marker.view_ofs));
+	local vector v_touch = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
+	local float touch_dist = vlen(v_touch);
 
 	// right_direction() sets the ideal direction vector dir_move,
 	// NewVelocityForArrow() will try to better match this direction
@@ -611,19 +612,18 @@ void() SpecialAccurateMoves =
 	if (!(self.path_state & PRECISE_JUMP))
 		return;
 
-	local vector d_test = self.path_from_marker.absmin + self.path_from_marker.view_ofs - self.origin;
-	if (d_test_z > 48)  // Bot likely missed jump and fell off a ledge; abort the whole thing
+	if (v_touch_z > 48)  // Bot likely missed jump and fell off a ledge; abort the whole thing
 	{
 #ifdef DEBUG_TOUCH
-		dprint("Precise jump aborted because unexpected dZ=", ftos(d_test_z), "\n");
+		dprint("Precise jump aborted because unexpected dZ=", ftos(v_touch_z), "\n");
 #endif
 		return MarkerUnTouch();
 	}
 
-	if (touch_dist > 40)  // Only jump when close enough
+	if (touch_dist > 40)  // Only jump when close enough...
 	{
 		if (! (self.path_state & SLOW_DOWN))
-		if (normalize(self.velocity) * normalize(d_test) < -0.5)
+		if (normalize(self.velocity) * normalize(v_touch) < -0.5)
 		{
 			// Passed the jump spot without jumping; restart run-up
 			touch_marker_ = self.path_from_marker;
@@ -634,9 +634,15 @@ void() SpecialAccurateMoves =
 		}
 		return;
 	}
-	d_test = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
-	if (vlen(d_test) <= 32)
-	if (fabs(d_test_z) < 1)  // but not when already at the destination waiting for marker touch
+	local vector v_link = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	// ... but not when:
+	// - already at the destination waiting for marker touch
+	if (fabs(v_link_z) < 2)
+	if (vlen(v_link) <= 32)
+		return;
+	// - already on the ledge the bot wanted to jump on
+	if (v_touch_z < -18)
+	if (v_link_z <= 18)
 		return;
 
 	local float velo = vlen(self.velocity);
@@ -650,8 +656,8 @@ void() SpecialAccurateMoves =
  		if (self.obstruction_normal != '0 0 0')
  		{
  			// When obstructed, restart run-up
-			d_test_z = 0;
-			if (self.obstruction_normal * normalize(d_test) > 0.5)
+			v_link_z = 0;
+			if (self.obstruction_normal * normalize(v_link) > 0.5)
 			{
 				touch_marker_ = self.path_from_marker;
 				CheckAccurateRunUp(TRUE);
