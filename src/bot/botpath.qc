@@ -248,6 +248,7 @@ void() EvalPath =
 #endif
 	linked_marker_ = test_marker;
 	new_path_state = description;
+	new_airstrafe = path_R;
 };
 
 /*
@@ -754,6 +755,8 @@ void() frogbot_marker_touch =
 					self.narrow_path_state = 0;
 				self.path_state = new_path_state;
 				self.path_from_marker = touch_marker_;
+				// Keep any air strafing override from the original marker, given
+				// that touching the intermediate marker was not intentional
 				return;
 			}
 		}
@@ -957,6 +960,7 @@ void() frogbot_marker_touch =
 		{
 			description = 0;
 			path_time = 0;
+			path_R = 0;
 			EvalPath();
 		}
 	}
@@ -966,6 +970,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D0;
 		path_time = touch_marker_.P0_time;
+		path_R = touch_marker_.R0;
 		EvalPath();
 	}
 
@@ -974,6 +979,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D1;
 		path_time = touch_marker_.P1_time;
+		path_R = touch_marker_.R1;
 		EvalPath();
 	}
 
@@ -982,6 +988,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D2;
 		path_time = touch_marker_.P2_time;
+		path_R = touch_marker_.R2;
 		EvalPath();
 	}
 
@@ -990,6 +997,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D3;
 		path_time = touch_marker_.P3_time;
+		path_R = touch_marker_.R3;
 		EvalPath();
 	}
 
@@ -998,6 +1006,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D4;
 		path_time = touch_marker_.P4_time;
+		path_R = touch_marker_.R4;
 		EvalPath();
 	}
 
@@ -1006,6 +1015,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D5;
 		path_time = touch_marker_.P5_time;
+		path_R = touch_marker_.R5;
 		EvalPath();
 	}
 
@@ -1014,6 +1024,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D6;
 		path_time = touch_marker_.P6_time;
+		path_R = touch_marker_.R6;
 		EvalPath();
 	}
 
@@ -1022,6 +1033,7 @@ void() frogbot_marker_touch =
 	{
 		description = touch_marker_.D7;
 		path_time = touch_marker_.P7_time;
+		path_R = touch_marker_.R7;
 		EvalPath();
 	}
 
@@ -1138,10 +1150,16 @@ void() frogbot_marker_touch =
 		self.narrow_path_state = 1;
 	else
 		self.narrow_path_state = 0;
+	// Enforce air strafing if path has rotation override
+	if (new_airstrafe)
+		new_path_state = new_path_state | AIR_ACCELERATION;
 
 	self.linked_marker = linked_marker_;
 	self.path_from_marker = touch_marker_;
 	self.path_state = new_path_state;
+	self.airstrafe_override = new_airstrafe;
+	// Air strafing is a skill, hence add skill-dependent error
+	self.airstrafe_inaccuracy = (random() - 0.5) * 144 * self.bot_inaccuracy;
 	CheckAccurateRunUp(FALSE);
 	CheckWallStrafe();
 	SetExclusive();

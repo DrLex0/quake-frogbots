@@ -609,6 +609,21 @@ Setting up these jumps may be tricky and require some trial-and-error. Things to
 
 This allows the bot to perform trick jumps where a straight jump would have a risk of bumping into an obstacle. Examples can be found in `trindm3` and `shifter`.
 
+#### Overriding air strafe rotation
+
+In most cases, the bot is able to automatically calculate an appropriate rotational speed to perform an air strafe. Some extremely tricky jumps may require a specific speed that cannot be calculated. An example can be found in `baldm6` for the downward jump towards the mega health.  
+A _fixed yaw rate_ can be imposed on paths for cases like this. Due to this being needed only very rarely, no effort has been made to make this easily configurable. The yaw speed override must be manually added to the generated waypoint code as follows:
+
+1. Make a guess at the required rotational speed. It must be between -270 and 270. A _leftwards_ (counter-clockwise) turn has a _positive_ value, a _rightwards_ (clockwise) turn a _negative_ value.
+2. Find the marker and its path number for the path that represents the air strafing jump. For instance, if the path goes from `m176` to `m40` and the waypoint code contains: `m176.P0=m40;`, then `0` is the path number.
+3. If the desired yaw speed is `S`, the marker has index `N`, and the path number is `M`, add this at the end of the QC code: `mN.RM=S;`
+   - For instance, in `baldm6,` marker 176 needs a speed of 224 on path 0, hence this statement needs to be added: `m176.R0=244;`
+4. Try it out and tweak; a lot of trial-and-error will be inevitable. Ensure the bot is not bumping into a wall or ceiling during the air strafe, or it will definitely fail.
+
+Bots have a skill-dependent inaccuracy on air strafing. Because of this, it is best to raise the skill level to 20 while validating (`impulse 115`), to eliminate random errors. Still, even a level 20 bot may sometimes fail at very tricky jumps due to timing, but should succeed most of the time if the jump is correctly set up.
+
+This does not only apply to precise jumps; any path where the bot gets airborne can be given an `R` value to enforce air strafing at a specific yaw rate.
+
 
 ### Dealing with overlapping markers
 

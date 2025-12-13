@@ -407,15 +407,6 @@ void() teleport_touch =
 			play_teleport(other);
 			other.angles = t.mangle;
 
-			if (other.frogbot)
-			{
-// other.angles holds crosshair position
-				other.real_pitch = other.angles_x;
-				other.real_yaw = other.angles_y;
-			}
-			else
-				other.fixangle = TRUE;		// turn this way immediately		
-
 		#ifdef QUAKE
 			if (!game_qwphysics)
 				other.teleport_time = time + 0.7;
@@ -428,7 +419,26 @@ void() teleport_touch =
 
 			other.flags = other.flags & FL_NOT_ONGROUND;
 
-			other.frogbot_nextthink = time;
+			if (other.frogbot)
+			{
+// other.angles holds crosshair position
+				other.real_pitch = other.angles_x;
+				other.real_yaw = other.angles_y;
+				// QW has different scheduling for physics calculations, causing
+				// .velocity to be messed up by VelocityForArrow. Solution: one-shot
+				// velocity_override. Strictly spoken not needed in QUAKE, may cause
+				// 1 frame difference between both engines, but meh.
+				other.velocity_override = extra_velocity;
+				other.t_velocity_override = -1;
+				// Also reset keys to avoid mess in next frames
+				other.arrow = 0;
+				other.arrow_time = time + 0.1;
+				// Force immediate path evaluation, especially important
+				// for air strafes like when exiting m11 in aerowalk
+				other.frogbot_nextthink = time;
+			}
+			else
+				other.fixangle = TRUE;		// turn this way immediately
 
 			if (other.linked_marker == self)
 				other.linked_marker = t;

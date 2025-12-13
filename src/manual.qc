@@ -1056,6 +1056,21 @@ void(string field) Save_m_D =
 	}
 };
 
+void(float rVal, string field) Save_m_R =
+{
+	if (rVal)
+	{
+		bprint("m", ftos(m.index), ".", field, "=", ftos(rVal), ";");
+		count_ = count_ + 1;
+		pcount = pcount + 1;
+		if (pcount >= 6)
+		{
+			bprint("\n");
+			pcount = 0;
+		}
+	}
+};
+
 void() SaveGlobals =
 {
 	if (desire_adj_G1 != 1)
@@ -1162,27 +1177,35 @@ void() SavePaths =
 			m_P = m.P0;
 			m_D = m.D0;
 			Save_m_D("D0");
+			Save_m_R(m.R0, "R0");
 			m_P = m.P1;
 			m_D = m.D1;
 			Save_m_D("D1");
+			Save_m_R(m.R1, "R1");
 			m_P = m.P2;
 			m_D = m.D2;
 			Save_m_D("D2");
+			Save_m_R(m.R2, "R2");
 			m_P = m.P3;
 			m_D = m.D3;
 			Save_m_D("D3");
+			Save_m_R(m.R3, "R3");
 			m_P = m.P4;
 			m_D = m.D4;
 			Save_m_D("D4");
+			Save_m_R(m.R4, "R4");
 			m_P = m.P5;
 			m_D = m.D5;
 			Save_m_D("D5");
+			Save_m_R(m.R5, "R5");
 			m_P = m.P6;
 			m_D = m.D6;
 			Save_m_D("D6");
+			Save_m_R(m.R6, "R6");
 			m_P = m.P7;
 			m_D = m.D7;
 			Save_m_D("D7");
+			Save_m_R(m.R7, "R7");
 		}
 
 		m = m.marker_linkfwd;

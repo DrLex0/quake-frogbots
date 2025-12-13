@@ -37,12 +37,13 @@ void() SetAttribs =
 	// levels. Smartness now varies together with skill up to 10, but can be overridden by setting
 	// cvar 'fb_custom_smart' to nonzero. For 'dumbest' possible bots, use negative value. There is
 	// still some stuff that should be disabled or toned down at lower smartness levels, for
-	// instance a level 0 bot should not do the HURT_SELF thing.
+	// instance dumbest bots should not do the HURT_SELF thing or anticipate item spawns.
 	local float smartness;
 
 	skill_ = self.bot_skill;  // 0 to 20
+	// inaccuracy goes from 1 to 0 and rolls off quickly with increasing skill
 	self.bot_inaccuracy = 0.05 * (20 - skill_);
-	self.bot_inaccuracy = self.bot_inaccuracy * self.bot_inaccuracy;  // 0 to 1
+	self.bot_inaccuracy = self.bot_inaccuracy * self.bot_inaccuracy * self.bot_inaccuracy;
 
 	if (game_show_rules)
 	{

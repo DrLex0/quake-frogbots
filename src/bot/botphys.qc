@@ -81,6 +81,10 @@ Sets self.velocity according to current state and the value of self.arrow.
 */
 void() VelocityForArrow =
 {
+	// This global is used further down the line; must reset to avoid
+	// that value from previous bot leaks to other bot in client loop
+	turning_speed = self.airstrafe_override;
+
 	if (self.path_state & ROCKET_JUMP)
 	if (self.path_from_marker.look_here)
 	if (self.rocketjumping || ! (self.flags & FL_ONGROUND))
@@ -89,11 +93,15 @@ void() VelocityForArrow =
 		return;
 	}
 
-	turning_speed = 0;
-
-	if(self.t_velocity_override)
+	if (self.t_velocity_override == -1)
 	{
-		if(time < self.t_velocity_override)
+		self.velocity = self.velocity_override;
+		self.t_velocity_override = 0;
+		return;
+	}
+	else if (self.t_velocity_override)
+	{
+		if (time < self.t_velocity_override)
 		{
 			self.velocity = self.velocity_override;
 			return;
@@ -101,21 +109,18 @@ void() VelocityForArrow =
 		self.t_velocity_override = 0;
 	}
 
-#ifdef QUAKE
-	if (time >= self.teleport_time)
+	// first check air circle turning
+	if (!self.waterlevel)
 	{
-#endif
-
-		// first check air circle turning
-		if (!self.waterlevel)
+		if (time > self.arrow_time2)
 		{
-			if (time > self.arrow_time2)
-			{
-				hor_velocity = self.velocity;
-				hor_velocity_z = 0;
-				hor_speed = vlen(hor_velocity);
+			hor_velocity = self.velocity;
+			hor_velocity_z = 0;
+			hor_speed = vlen(hor_velocity);
 
-				if ((hor_speed > 100) || (self.path_state & AIR_ACCELERATION))
+			if ((hor_speed > 100) || (self.path_state & AIR_ACCELERATION))
+			{
+				if (! turning_speed)  // not overridden: auto-calculate
 				{
 					hor_normal_vec_x = 0 - self.velocity_y;
 					hor_normal_vec_y = self.velocity_x;
@@ -129,59 +134,66 @@ void() VelocityForArrow =
 					if (vec_prod != 0)
 						turning_speed = 114.59156 * hor_speed *
 							(rel_pos * hor_normal_vec) / vec_prod;	// 114.59156 = 360 / PI
+				}
 
-					if (fabs(turning_speed) > 270)
+
+				// Clamp rotation to avoid excessive values that cause negative acceleration.
+				// However, when adding intentional inaccuracy, allow going beyond the sane
+				// range to mimic unskilled human players.
+				if (fabs(turning_speed) > 270)
+				{
+					if (self.path_state & AIR_ACCELERATION)
 					{
-						if (self.path_state & AIR_ACCELERATION)
-						{
-							if (turning_speed > 0)
-								turning_speed = 270;
-							else
-								turning_speed = -270;
-						}
+						if (turning_speed > 0)
+							turning_speed = 270 + self.airstrafe_inaccuracy;
 						else
-							turning_speed = 0;
+							turning_speed = -270 + self.airstrafe_inaccuracy;
 					}
+					else  // If no intent to air strafe, give up 
+						turning_speed = 0;
+				}
+				else
+					turning_speed = turning_speed + self.airstrafe_inaccuracy;
 
-					if (!(self.flags & FL_ONGROUND))
+				if (!(self.flags & FL_ONGROUND))
+				{
+					// This simulates classic Quake air movement logic, with v_forward acting
+					// as the 'wishdir'. TODO: allow overriding turning_speed through waypoint
+					// config. Maybe add intentional inaccuracy on low skill levels.
+					velocity_hor_angle_y = vectoyaw(hor_velocity) + (turning_speed * frametime);
+					makevectors(velocity_hor_angle);
+
+					desired_accel = (v_forward * hor_speed) - hor_velocity;
+
+					dir_forward = normalize(desired_accel);
+					accel_forward = vlen(desired_accel);
+
+					if (accel_forward > max_accel_forward)
+						accel_forward = max_accel_forward;
+
+					velocity_forward = self.velocity * dir_forward;
+
+					if ((velocity_forward + accel_forward) > 30)
 					{
-						// This simulates classic Quake air movement logic, with v_forward acting
-						// as the 'wishdir'. TODO: allow overriding turning_speed through waypoint
-						// config. Maybe add intentional inaccuracy on low skill levels.
-						velocity_hor_angle_y = vectoyaw(hor_velocity) + (turning_speed * frametime);
-						makevectors(velocity_hor_angle);
-
-						desired_accel = (v_forward * hor_speed) - hor_velocity;
-
-						dir_forward = normalize(desired_accel);
-						accel_forward = vlen(desired_accel);
-
-						if (accel_forward > max_accel_forward)
-							accel_forward = max_accel_forward;
-
-						velocity_forward = self.velocity * dir_forward;
-
-						if ((velocity_forward + accel_forward) > 30)
-						{
-							accel_forward = 30 - velocity_forward;
-							if (accel_forward < 0)
-								accel_forward = 0;
-						}
-
-						self.velocity = self.velocity + (accel_forward * dir_forward);
-						return;
+						accel_forward = 30 - velocity_forward;
+						if (accel_forward < 0)
+							accel_forward = 0;
 					}
+
+					self.velocity = self.velocity + (accel_forward * dir_forward);
+					return;
 				}
 			}
 		}
-
-		arrow_ = self.arrow;
-#ifdef QUAKE
 	}
-	else
+
+	arrow_ = self.arrow;
+
+#ifdef QUAKE
+	// NetQuake suppresses going backwards immediately after exiting a teleport. QW does not.
+	// Note that teleport_time is also used somewhere in waterjump logic, but we don't do that here.
+	if (time < self.teleport_time)
 	{
-		if (self.flags & FL_WATERJUMP)
-			return;
 		arrow_ = self.arrow - (self.arrow & BACK);
 	}
 #endif
@@ -271,6 +283,7 @@ void() VelocityForArrow =
 			current_maxspeed = 0.7 * current_maxspeed;
 		}
 	}
+
 	// Slow down for accurate movements
 	if (self.precise_speed && current_maxspeed > self.precise_speed)
 		current_maxspeed = self.precise_speed;

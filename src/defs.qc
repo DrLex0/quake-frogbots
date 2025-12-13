@@ -1567,6 +1567,14 @@ float m_D;
 .float path_state;
 float new_path_state;
 
+// air strafe rotation override can be set per path with nonzero value
+.float R0, R1, R2, R3, R4, R5, R6, R7;
+
+.float airstrafe_override;
+.float airstrafe_inaccuracy;
+float path_R;
+float new_airstrafe;
+
 //
 // path_state/path_mode values for paths
 //
@@ -2462,7 +2470,7 @@ float no_bots_stuck;
 .float stuck_deadline;
 .float water_unstuck_retry;
 .vector velocity_override;
-.float t_velocity_override;
+.float t_velocity_override;  // special value -1 means: next time VelocityForArrow runs
 .float t_swim_obstruction;
 
 // hit wall in flight prediction AI
@@ -2529,22 +2537,9 @@ float has_embedded_wp;
 .string FrB_Z;
 .string FrB_g;  // lowercase to make it sort below ID in editors like TrenchBroom
 .string FrB_T;
-.string FrB_P0;
-.string FrB_P1;
-.string FrB_P2;
-.string FrB_P3;
-.string FrB_P4;
-.string FrB_P5;
-.string FrB_P6;
-.string FrB_P7;
-.string FrB_D0;
-.string FrB_D1;
-.string FrB_D2;
-.string FrB_D3;
-.string FrB_D4;
-.string FrB_D5;
-.string FrB_D6;
-.string FrB_D7;
+.string FrB_P0, FrB_P1, FrB_P2, FrB_P3, FrB_P4, FrB_P5, FrB_P6, FrB_P7;
+.string FrB_D0, FrB_D1, FrB_D2, FrB_D3, FrB_D4, FrB_D5, FrB_D6, FrB_D7;
+.string FrB_R0, FrB_R1, FrB_R2, FrB_R3, FrB_R4, FrB_R5, FrB_R6, FrB_R7;
 .string FrB_oZ;  // view_ofs_z
 .string FrB_dD;  // d_door_open
 .string FrB_iX;  // intermission position;

@@ -311,6 +311,14 @@ void() ApplyFrB_props =
 		if (mk.FrB_D5 != "") mk.D5 = stof(mk.FrB_D5);
 		if (mk.FrB_D6 != "") mk.D6 = stof(mk.FrB_D6);
 		if (mk.FrB_D7 != "") mk.D7 = stof(mk.FrB_D7);
+		if (mk.FrB_R0 != "") mk.R0 = stof(mk.FrB_R0);
+		if (mk.FrB_R1 != "") mk.R1 = stof(mk.FrB_R1);
+		if (mk.FrB_R2 != "") mk.R2 = stof(mk.FrB_R2);
+		if (mk.FrB_R3 != "") mk.R3 = stof(mk.FrB_R3);
+		if (mk.FrB_R4 != "") mk.R4 = stof(mk.FrB_R4);
+		if (mk.FrB_R5 != "") mk.R5 = stof(mk.FrB_R5);
+		if (mk.FrB_R6 != "") mk.R6 = stof(mk.FrB_R6);
+		if (mk.FrB_R7 != "") mk.R7 = stof(mk.FrB_R7);
 		if (mk.FrB_oZ != "") mk.view_ofs_z = stof(mk.FrB_oZ);
 		if (mk.FrB_dD != "")
 		{
