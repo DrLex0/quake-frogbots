@@ -669,9 +669,16 @@ void() SpecialAccurateMoves =
 	// Keep RU status until actually airborne; the above logic will clear it later on
 	if (self.running_up)
 		self.running_up = -(time + 0.1);
-	// Make the jump increasingly perfect with increasing bot skill level
-	self.velocity = (self.bot_inaccuracy * self.velocity) + 
-		(1.0 - self.bot_inaccuracy) * velo * dir_move;
+	// Make the jump increasingly perfect with increasing bot skill level.
+	hor_velocity = self.velocity;
+	hor_velocity_z = 0;
+	dir_move = vlen(hor_velocity) * normalize(
+		self.bot_inaccuracy * normalize(hor_velocity) +
+		(1.0 - self.bot_inaccuracy) * dir_move
+	);
+	// Must preserve vertical velocity for jumps on a slope
+	dir_move_z = self.velocity_z;
+	self.velocity = dir_move;
 	if (self.path_state & SLOW_DOWN)
 	{
 		// Do not clear AP mode for a slow PJ upon jumping,

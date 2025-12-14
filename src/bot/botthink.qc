@@ -558,6 +558,7 @@ void() ThinkTime =
 						return;
 					}
 					if (self.path_from_marker.look_here)
+					if (self.path_state & ROCKET_JUMP)
 						return;
 				}
 				// If shootable door closed in front of bot's face, shoot it again
