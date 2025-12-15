@@ -1668,10 +1668,11 @@ float T_WANTSUIT			= 8;
 float T_AIR_TOUCH			= 16;
 float T_WAITLIFT			= 32;
 float T_NOTOUCH				= 64;
-float T_FIRE_ON_MATCH_START		= 128;
+float T_FIRE_ON_MATCH_START	= 128;
 float T_JUMP_HINT			= 256;
+float T_DANGER				= 512;
 // Bits to be saved in waypoint code: sum of all the above
-float SAVED_T				= 511;
+float SAVED_T				= 1023;
 
 // auto set values
 float T_LIQUID				= 1024;

@@ -143,6 +143,7 @@ B   y   want biosuit node
 F   y   force node activated
 T   y   untouchable node
 A   y   air touchable node
+D   y   danger node
 ```
 
 ## The workflow
@@ -623,6 +624,16 @@ A _fixed yaw rate_ can be imposed on paths for cases like this. Due to this bein
 Bots have a skill-dependent inaccuracy on air strafing. Because of this, it is best to raise the skill level to 20 while validating (`impulse 115`), to eliminate random errors. Still, even a level 20 bot may sometimes fail at very tricky jumps due to timing, but should succeed most of the time if the jump is correctly set up.
 
 This does not only apply to precise jumps; any path where the bot gets airborne can be given an `R` value to enforce air strafing at a specific yaw rate.
+
+
+### The Danger Zone
+
+Bots anticipate the spawning of items, and may already come near the item several seconds before it actually spawns (‘camp’ it). In some maps like `hohoho`, this is problematic because desirable items are placed inside zones with _hurt_ triggers (`trigger_hurt`). In other maps, coming near the spawn point before the item has actually spawned, may be counter-productive, like in `baldm7` where being sucked into the push pipe too early is a waste of time.
+
+To keep bots from already entering a dangerous zone before the item they want to obtain is available, set the `danger node` type on markers inside the undesirable/dangerous zone. If, like in `baldm7`, anticipating the spawning of an item is pointless, but entering its zone is not really dangerous and could be useful as a shortcut, then only set this type on the item itself. The bot will still not want to move to that specific marker while the item isn't there, so unless the move is forced (like through a push), a ‘bypass’ may need to be provided to allow the bot to get past it.
+
+To set the `danger node` type on a marker: set display mode to `type` with the `Z` key, then select this mode with the `V` key, and right-click the marker.  
+Usually this type does not need to be set on markers in lava or slime, unless the liquid has unusual placement. Look at how the bot behaves, and set the type only if necessary.
 
 
 ### Dealing with overlapping markers

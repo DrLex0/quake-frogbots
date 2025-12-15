@@ -1587,6 +1587,8 @@ void() PrintGoal =
 		bprint("\xD4");  // T
 	if (active_marker.T & T_AIR_TOUCH)
 		bprint("\xC1");  // A
+	if (active_marker.T & T_DANGER)
+		bprint("\xC4");  // D
 
 	if ((active_marker.classname == "trigger_teleport") ||
 	    (active_marker.classname == "door") ||
@@ -2059,6 +2061,11 @@ void() CycleDescriptionMode =
 		{
 			type_mode = T_AIR_TOUCH;
 			bprint("air touchable node ON\n");
+		}
+		else if (type_mode == T_AIR_TOUCH)
+		{
+			type_mode = T_DANGER;
+			bprint("danger node ON\n");
 		}
 		else
 		{

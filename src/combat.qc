@@ -159,6 +159,10 @@ void() T_Damage =
 				DamageFlash();
 		}
 
+#ifdef MANUAL
+		// Suppress hurt pushing player around while editing
+		if ((targ.preferences & PREF_FLASH) || ! manual_mode)
+#endif
 		// figure momentum add
 		if (inflictor)
 		{

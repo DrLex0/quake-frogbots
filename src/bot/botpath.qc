@@ -146,6 +146,16 @@ void() DropTravelPenalties =
 ============
 EvalPath
 
+Evaluates path going from touch_marker_ to test_marker.
+Relies on global variables:
+- description: description flags for new path
+- path_time: time value for the path
+- path_R: airstrafe override for path
+Updates variables if path scores better than previous:
+- best_score (higher is better)
+- linked_marker_
+- new_path_state
+- new_airstrafe 
 ============
 */
 void() EvalPath =
@@ -160,6 +170,12 @@ void() EvalPath =
 	if (! (touch_marker_.T & T_WAITLIFT))
 	if (! (test_marker.T & T_WAITLIFT))
 	if (! (description & JUST_GO))
+		return;
+
+	if (test_marker.T & T_DANGER)
+	if (! (touch_marker_.T & T_DANGER))
+	if (goalentity_marker)
+	if (goalentity_marker.nextthink)
 		return;
 
 	// Only start doing RJ with custom angles from skill 5 on,
@@ -957,6 +973,7 @@ void() frogbot_marker_touch =
 		test_marker = touch_marker_;
 		if (test_marker)
 		if (self.watertype != CONTENT_LAVA)  // not a good idea
+		if (! (test_marker.T & T_DANGER))  // neither
 		{
 			description = 0;
 			path_time = 0;

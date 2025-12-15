@@ -118,7 +118,13 @@ void() EvalGoal =
 		// similar for NEED_SHOOT, so far I haven't seen bots being too distracted by
 		// the thing behind the door.  -- DrLex
 
-		goal_entity.saved_respawn_time = goal_entity.goal_respawn_time + (goal_time * prediction_error_ * random()) - time;
+		local float new_saved_time = goal_entity.goal_respawn_time + (goal_time * prediction_error_ * random()) - time;
+		// Limit anticipation of items in danger zones. Otherwise bots could arrive
+		// early and become a sitting duck due to waiting logic in EvalPath.
+		if (to_marker.T & T_DANGER)
+		if (goal_entity.nextthink)
+			new_saved_time = new_saved_time + goal_entity.nextthink - time - 2;
+		goal_entity.saved_respawn_time = new_saved_time;
 
 		if (goal_time < goal_entity.saved_respawn_time)
 			goal_time = goal_entity.saved_respawn_time;
