@@ -20,6 +20,7 @@ drlex/map_dark-terror-ffa.qc
 drlex/map_dmz1++.qc
 drlex/map_doomed.qc
 drlex/map_e1m4.qc
+drlex/map_hohoho.qc
 drlex/map_hohoho2.qc
 drlex/map_north.qc
 drlex/map_nova.qc
