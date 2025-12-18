@@ -18,7 +18,6 @@ float	SPAWNFLAG_NOTOUCH = 1;
 void() AddToQue;
 void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
-void(entity mk) SetFrB_Props;
 
 // the wait time has passed, so set back up for another activation
 void() multi_wait =
@@ -160,7 +159,6 @@ void() trigger_multiple_create =
 		{
 			self.view_ofs = 0.5 * (self.absmax - self.absmin);
 			BecomeMarker(self);
-			SetFrB_Props(self);
 			adjust_view_ofs_z();
 		}
 	}
@@ -495,7 +493,6 @@ void() GetSource =
 		self.touch = destination_touch;
 		self.flags = FL_ITEM;
 		BecomeMarker(self);
-		SetFrB_Props(self);
 		setsize (self, '-65 -65 -24', '65 65 32');
 		self.view_ofs = '80 80 24';
 		self.pickup = pickup_true;
@@ -563,7 +560,6 @@ void() trigger_teleport =
 		self.view_ofs = 0.5 * (self.absmax - self.absmin);
 		adjust_view_ofs_z();
 		BecomeMarker(self);
-		SetFrB_Props(self);
 
 		self.nextthink = 0.001;
 		self.think = GetDest;
@@ -703,7 +699,6 @@ void() trigger_push =
 
 		adjust_view_ofs_z();
 		BecomeMarker(self);
-		SetFrB_Props(self);
 	}
 };
 

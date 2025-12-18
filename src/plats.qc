@@ -21,7 +21,6 @@ float PLAT_LOW_TRIGGER = 1;
 void() AddToQue;
 void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
-void(entity mk) SetFrB_Props;
 
 void() plat_spawn_inside_trigger =
 {
@@ -204,7 +203,6 @@ void() func_plat =
 	self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 	adjust_view_ofs_z();
 	BecomeMarker(self);
-	SetFrB_Props(self);
 };
 
 //============================================================================
@@ -318,7 +316,6 @@ void() func_train_find =
 		self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 		adjust_view_ofs_z();
 		BecomeMarker(self);
-		SetFrB_Props(self);
 	}
 };
 

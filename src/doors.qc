@@ -20,7 +20,6 @@ float DOOR_TOGGLE = 32;
 void() AddToQue;
 void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
-void(entity mk) SetFrB_Props;
 
 /*
 
@@ -495,7 +494,6 @@ void() func_door =
 		self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 		adjust_view_ofs_z();
 		BecomeMarker(self);
-		SetFrB_Props(self);
 	}
 };
 
@@ -789,6 +787,5 @@ void () func_door_secret =
 		self.view_ofs_z = self.absmax_z - self.absmin_z + 23;
 		adjust_view_ofs_z();
 		BecomeMarker(self);
-		SetFrB_Props(self);
 	}
 };

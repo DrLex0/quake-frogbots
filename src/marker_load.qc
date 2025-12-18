@@ -105,13 +105,15 @@ void() AddToQue =
 ============
 AddToTmpQue
 
-Queue for waypoint-only markers added after entity markers.
+Queue for embedded waypoint-only markers added after entity markers.
 To keep behavior consistent between compiled and embedded waypoints,
 this list must preserve ordering.
 ============
 */
 void() AddToTmpQue
 {
+	if (! first_extra_marker)
+		first_extra_marker = self;
 	if (last_tmp_marker)
 		last_tmp_marker.next = self;
 	else
@@ -170,14 +172,26 @@ void() LSQ =
 ============
 SetFrB_Props
 
-Applies Frogbot entity annotations embedded in BSP
+Applies Frogbot entity annotations embedded in BSP/ent files.
+This must only be done after LSQ(), because it may shift markers.
+The Z function relies on marker references, hence the list of
+markers must be final.
 ============
 */
+entity (entity start_ent, string val) FindFrB_ID =
+{
+	local entity found = find(start_ent, FrB_ID, val);
+	if (found) return found;
+	dprint("ERROR: no FrB_ID='", val, "' found\n");
+	error(FROG_ID_ERR);
+	return world;  // make compiler shut up
+}
+
 void(entity mk) SetFrB_Props =
 {
-	if (! has_embedded_wp) return;
-
 	local string zone, goal;
+	local entity found;
+
 	if (mk.FrB_Z != "") {
 		zone = mk.FrB_Z;
 		if (zone == "1") Z1(mk);
@@ -242,15 +256,43 @@ void(entity mk) SetFrB_Props =
 			error(FROG_ID_ERR);
 		}
 	}
-}
 
-entity (entity start_ent, string val) FindFrB_ID =
-{
-	local entity found = find(start_ent, FrB_ID, val);
-	if (found) return found;
-	dprint("ERROR: no FrB_ID='", val, "' found\n");
-	error(FROG_ID_ERR);
-	return world;  // make compiler shut up
+	if (mk.FrB_oZ != "") mk.view_ofs_z = stof(mk.FrB_oZ);
+	if (mk.FrB_dD != "")
+	{
+		mk.d_door_open = stof(mk.FrB_dD);
+		if (! mk.d_door_open) mk.d_door_open = 10;
+	}
+
+	if (mk.FrB_T != "") mk.T = stof(mk.FrB_T);
+
+	// Don't error on missing paths, they will simply be ignored
+	if (mk.FrB_P0 != "") { found = FindFrB_ID(world, mk.FrB_P0); if(found) mk.P0 = found; }
+	if (mk.FrB_P1 != "") { found = FindFrB_ID(world, mk.FrB_P1); if(found) mk.P1 = found; }
+	if (mk.FrB_P2 != "") { found = FindFrB_ID(world, mk.FrB_P2); if(found) mk.P2 = found; }
+	if (mk.FrB_P3 != "") { found = FindFrB_ID(world, mk.FrB_P3); if(found) mk.P3 = found; }
+	if (mk.FrB_P4 != "") { found = FindFrB_ID(world, mk.FrB_P4); if(found) mk.P4 = found; }
+	if (mk.FrB_P5 != "") { found = FindFrB_ID(world, mk.FrB_P5); if(found) mk.P5 = found; }
+	if (mk.FrB_P6 != "") { found = FindFrB_ID(world, mk.FrB_P6); if(found) mk.P6 = found; }
+	if (mk.FrB_P7 != "") { found = FindFrB_ID(world, mk.FrB_P7); if(found) mk.P7 = found; }
+
+	if (mk.FrB_D0 != "") mk.D0 = stof(mk.FrB_D0);
+	if (mk.FrB_D1 != "") mk.D1 = stof(mk.FrB_D1);
+	if (mk.FrB_D2 != "") mk.D2 = stof(mk.FrB_D2);
+	if (mk.FrB_D3 != "") mk.D3 = stof(mk.FrB_D3);
+	if (mk.FrB_D4 != "") mk.D4 = stof(mk.FrB_D4);
+	if (mk.FrB_D5 != "") mk.D5 = stof(mk.FrB_D5);
+	if (mk.FrB_D6 != "") mk.D6 = stof(mk.FrB_D6);
+	if (mk.FrB_D7 != "") mk.D7 = stof(mk.FrB_D7);
+
+	if (mk.FrB_R0 != "") mk.R0 = stof(mk.FrB_R0);
+	if (mk.FrB_R1 != "") mk.R1 = stof(mk.FrB_R1);
+	if (mk.FrB_R2 != "") mk.R2 = stof(mk.FrB_R2);
+	if (mk.FrB_R3 != "") mk.R3 = stof(mk.FrB_R3);
+	if (mk.FrB_R4 != "") mk.R4 = stof(mk.FrB_R4);
+	if (mk.FrB_R5 != "") mk.R5 = stof(mk.FrB_R5);
+	if (mk.FrB_R6 != "") mk.R6 = stof(mk.FrB_R6);
+	if (mk.FrB_R7 != "") mk.R7 = stof(mk.FrB_R7);
 }
 
 /*
@@ -279,6 +321,8 @@ void() ApplyFrB_props =
 	mk = first_tmp_marker;
 	while(mk)
 	{
+		// testplayerstart spawn has already set up most of the things, now
+		// do remaining bits that N() would do for compiled waypoints.
 		self = mk;
 		AddToQue();
 		BecomeMarker(mk);
@@ -288,47 +332,19 @@ void() ApplyFrB_props =
 	}
 	LSQ();
 
-	// UNTESTED on any realistic map, only on a small test map.
-	// It is possible this will crash on larger maps due to too many operations
-	// in a single function call. In that case it will have to be split up into
-	// chunks with nextthink logic.
+	// Apply the equivalent of G(), Z() invocations, path data, and marker properties.
+	// I had feared this could crash on larger maps due to too many operations in a
+	// single function call. However, even e1m4 passes the test.
+	// Should it ever become an issue anyway, this loop will have to be split up into
+	// chunks with nextthink, and must ensure that route calc only starts afterwards.
 	mk = last_marker;
 	while(mk)
 	{
-		if (mk.FrB_P0 != "") { found = FindFrB_ID(world, mk.FrB_P0); if(found) mk.P0 = found; }
-		if (mk.FrB_P1 != "") { found = FindFrB_ID(world, mk.FrB_P1); if(found) mk.P1 = found; }
-		if (mk.FrB_P2 != "") { found = FindFrB_ID(world, mk.FrB_P2); if(found) mk.P2 = found; }
-		if (mk.FrB_P3 != "") { found = FindFrB_ID(world, mk.FrB_P3); if(found) mk.P3 = found; }
-		if (mk.FrB_P4 != "") { found = FindFrB_ID(world, mk.FrB_P4); if(found) mk.P4 = found; }
-		if (mk.FrB_P5 != "") { found = FindFrB_ID(world, mk.FrB_P5); if(found) mk.P5 = found; }
-		if (mk.FrB_P6 != "") { found = FindFrB_ID(world, mk.FrB_P6); if(found) mk.P6 = found; }
-		if (mk.FrB_P7 != "") { found = FindFrB_ID(world, mk.FrB_P7); if(found) mk.P7 = found; }
-		if (mk.FrB_D0 != "") mk.D0 = stof(mk.FrB_D0);
-		if (mk.FrB_D1 != "") mk.D1 = stof(mk.FrB_D1);
-		if (mk.FrB_D2 != "") mk.D2 = stof(mk.FrB_D2);
-		if (mk.FrB_D3 != "") mk.D3 = stof(mk.FrB_D3);
-		if (mk.FrB_D4 != "") mk.D4 = stof(mk.FrB_D4);
-		if (mk.FrB_D5 != "") mk.D5 = stof(mk.FrB_D5);
-		if (mk.FrB_D6 != "") mk.D6 = stof(mk.FrB_D6);
-		if (mk.FrB_D7 != "") mk.D7 = stof(mk.FrB_D7);
-		if (mk.FrB_R0 != "") mk.R0 = stof(mk.FrB_R0);
-		if (mk.FrB_R1 != "") mk.R1 = stof(mk.FrB_R1);
-		if (mk.FrB_R2 != "") mk.R2 = stof(mk.FrB_R2);
-		if (mk.FrB_R3 != "") mk.R3 = stof(mk.FrB_R3);
-		if (mk.FrB_R4 != "") mk.R4 = stof(mk.FrB_R4);
-		if (mk.FrB_R5 != "") mk.R5 = stof(mk.FrB_R5);
-		if (mk.FrB_R6 != "") mk.R6 = stof(mk.FrB_R6);
-		if (mk.FrB_R7 != "") mk.R7 = stof(mk.FrB_R7);
-		if (mk.FrB_oZ != "") mk.view_ofs_z = stof(mk.FrB_oZ);
-		if (mk.FrB_dD != "")
-		{
-			mk.d_door_open = stof(mk.FrB_dD);
-			if (! mk.d_door_open) mk.d_door_open = 10;
-		}
-		if (mk.FrB_T != "") mk.T = stof(mk.FrB_T);
+		SetFrB_Props(mk);
 		mk = mk.marker_linkrev;
 	}
 
+	// Apply worldspawn properties
 	if (world.FrB_adj_G1 != "")
 		desire_adj_G1 = stof(world.FrB_adj_G1);
 	if (world.FrB_adj_G2 != "")
@@ -336,6 +352,7 @@ void() ApplyFrB_props =
 	// In theory we don't need this when loading from .ent files, because it
 	// would be simpler to add an info_intermission entity. However, this would
 	// not be preserved if the waypoints are converted to QC format.
+	// Please map makers, just add an intermission camera to begin with!
 	if (world.FrB_iX != "")
 	{
 		interm_origin_x = stof(world.FrB_iX);

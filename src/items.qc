@@ -30,7 +30,6 @@ void() AssignVirtualGoal;
 void() marker_touch;
 void() LocateDynamicItem;
 void(entity marker) BecomeMarker;
-void(entity mk) SetFrB_Props;
 
 /*
 ============
@@ -142,7 +141,6 @@ void() StartItem =
 	self.solid = SOLID_TRIGGER;
 	self.flags = FL_ITEM;
 	BecomeMarker(self);
-	SetFrB_Props(self);
 };
 
 /*

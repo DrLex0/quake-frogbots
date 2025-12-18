@@ -17,7 +17,6 @@ void() button_return;
 void() AddToQue;
 void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
-void(entity mk) SetFrB_Props;
 
 void() button_wait =
 {
@@ -182,7 +181,6 @@ void() func_button =
 		}
 		self.view_ofs = 0.5 * (self.absmax - self.absmin);
 		BecomeMarker(self);
-		SetFrB_Props(self);
 		adjust_view_ofs_z();
 
 		if (!self.speed)

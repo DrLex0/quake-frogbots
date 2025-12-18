@@ -55,7 +55,6 @@ void(entity tgt) say_ouchie;
 void() AddToQue;
 void() AddToTmpQue;
 void(entity marker) BecomeMarker;
-void(entity mk) SetFrB_Props;
 void() FrogWaterMove;
 void() CheckWaterPathState;
 void() CheckBotStuckInLiquid;
@@ -721,7 +720,7 @@ void() info_player_start2 =
 	remove_self();
 };
 
-/* Hijack this entity to represent Frogbot markers embedded in BSP.
+/* Hijack this entity to represent Frogbot markers embedded in BSP/ENT.
 To keep things sane and consistent with how the waypoint tool manages
 markers, preserve the distinction between entity and extra markers.
 Keep them in a separate queue, append to the main queue later.
@@ -736,7 +735,6 @@ void() testplayerstart =
 	AddToTmpQue();
 	self.classname = "marker";
 	self.flags = FL_ITEM;
-	SetFrB_Props(self);
 	self.solid = SOLID_TRIGGER;
 	self.touch = marker_touch;
 	self.view_ofs = '80 80 24';
@@ -760,7 +758,6 @@ void() info_player_deathmatch =
 	self.touch = marker_touch;
 	self.flags = FL_ITEM;
 	BecomeMarker(self);
-	SetFrB_Props(self);
 	setsize (self, '-65 -65 -24', '65 65 32');
 	self.view_ofs = '80 80 24';
 	self.pickup = pickup_true;
