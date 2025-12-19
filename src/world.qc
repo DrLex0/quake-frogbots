@@ -314,10 +314,14 @@ void() worldspawn =
 	if (world.FrogBotWP != "") {
 		if (cvar("sv_frog_only_builtin"))
 			dprint("Frogbot: sv_frog_only_builtin, ignoring embedded map waypoints\n");
-		else
+		else if(world.FrogBotWP == "1")
 		{
 			has_embedded_wp = TRUE;
 			dprint("Frogbot: using map embedded waypoints\n");
+		}
+		else  // ERROR
+		{
+			dprint("Frogbot: ≈““œ“∫ unsupported embedded waypoint version ", world.FrogBotWP, "\n");
 		}
 	}
 	marker_load_state = 1;
