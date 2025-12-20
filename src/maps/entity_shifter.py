@@ -2,13 +2,13 @@
 """Script to update waypoint files when their map BSP file has been modified by
 adding or removing entities since the waypoints were made. This requires the indices
 of the markers to be shifted up/down.
-2025-03, Alexander Thomas aka DrLex.
 
 Restrictions on input files, deviating from this will cause a mess:
 - lines with comments and lines with marker commands must be strictly separated
 - each line with marker commands must end in ";"
 - any occurrence of 'm' followed by an integer represents a marker and will also be shifted
 
+Alexander Thomas aka DrLex. Created 2025-03, last change 2025-12.
 Released under GPL license."""
 
 import argparse
@@ -88,6 +88,7 @@ def shift_file(args: argparse.Namespace, out_file: IO[str]) -> None:
 
     lines = args.infile.readlines()
     in_comment = False
+    cmds_removed = 0
     for line in lines:
         sline = line.rstrip("\n")
         if mat := re.match(r"\s*/\*", sline):
@@ -126,8 +127,12 @@ def shift_file(args: argparse.Namespace, out_file: IO[str]) -> None:
             new_cmd = shift_cmd(cmd, shift_from, offset, delete_from, delete_to)
             if new_cmd:
                 new_cmds.append(new_cmd)
+            else:
+                cmds_removed += 1
         if new_cmds:
             print(";".join(new_cmds) + ";", file=out_file)
+    if cmds_removed and args.verbose:
+        print(f"Removed {cmds_removed} commands related to removed marker(s)", file=sys.stderr)
 
 
 def main():
@@ -137,13 +142,14 @@ def main():
         "or deleted in a BSP after waypoints were created. Use a positive offset when items "
         "were added, negative when deleted. When offset is negative, removed markers and paths "
         "will also be deleted from the waypoints. Load and re-dump modified data in the tool to "
-        "clean up. (Do not use this to delete custom markers, use the waypoint tool for that.)"))
+        "clean up. (NO NOT use this to delete custom markers, use the waypoint tool for that.)"))
     parser.add_argument('-v', '--verbose', action='store_true',
                         help="verbose output")
     parser.add_argument('-o', '--offset', type=int, default=1,
                         help="offset to apply to marker indexes starting at from_idx, in other "
                         "words the number of entities that have been added or deleted at that "
-                        "point. Default 1.")
+                        "point. A negative value will delete existing markers and paths that "
+                        "overlap with the shifted values. Default 1.")
     # Cannot use FileType('w') here, or the input file would be destroyed if same as output
     parser.add_argument('-f', '--outfile', type=str, default="",
                         help="output file path. Default is to print output on stdout.")
@@ -164,7 +170,7 @@ def main():
         print("ERROR: input and output file cannot be the same!", file=sys.stderr)
         sys.exit(2)
     out_file: IO[str] = (
-        open(args.outfile, 'w', encoding='iso8859_15')
+        open(args.outfile, 'w', encoding='iso8859_15')  # pylint: disable=consider-using-with
         if args.outfile
         else sys.stdout
     )
