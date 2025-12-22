@@ -176,7 +176,20 @@ void() EvalPath =
 	if (! (touch_marker_.T & T_DANGER))
 	if (goalentity_marker)
 	if (goalentity_marker.nextthink)
+	{
+		// In case it would be the only way out
+		if (best_score > 999)
+		{
+#ifdef DEBUG_EVAL
+			dprint("EvalPath m", ftos(touch_marker_.index), " >m", ftos(test_marker.index), " gem", ftos(goalentity_marker.index), " danger path best so far\n");
+#endif
+			best_score = 999;
+			linked_marker_ = test_marker;
+			new_path_state = description;
+			new_airstrafe = path_R;
+		}
 		return;
+	}
 
 	// Only start doing RJ with custom angles from skill 5 on,
 	// because it is slightly hacky
