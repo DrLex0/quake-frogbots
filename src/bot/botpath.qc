@@ -1180,8 +1180,10 @@ void() frogbot_marker_touch =
 		self.narrow_path_state = 1;
 	else
 		self.narrow_path_state = 0;
-	// Enforce air strafing if path has rotation override
+	// Enforce air strafing if path has rotation override or marker is air touchable
 	if (new_airstrafe)
+		new_path_state = new_path_state | AIR_ACCELERATION;
+	else if(touch_marker_.T & T_AIR_TOUCH)
 		new_path_state = new_path_state | AIR_ACCELERATION;
 
 	self.linked_marker = linked_marker_;

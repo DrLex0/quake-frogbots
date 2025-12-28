@@ -209,7 +209,7 @@ void() AccurateRJump =
 			self.impulse = 7;
 			self.button0_ = 1;
 			self.button2_ = 1;
-			self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
+			self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND | JUST_GO;
 			return;
 		}
 		return;
