@@ -792,9 +792,10 @@ void() UpdateWeapons =
 			self.desire_supershotgun = 20 - firepower_;
 
 		if (self.desire_supershotgun >= self.desire_nails)
-			self.desire_nailgun = self.desire_supernailgun = self.desire_supershotgun;
+			self.desire_nailgun = self.desire_supershotgun;
 		else
-			self.desire_nailgun = self.desire_supernailgun = self.desire_nails;
+			self.desire_nailgun = self.desire_nails;
+		self.desire_supernailgun = 2.5 * self.desire_nailgun;
 
 		if (self.desire_supershotgun < self.desire_shells)
 			self.desire_supershotgun = self.desire_shells;

@@ -71,7 +71,6 @@ You _can_ manually edit the waypoint code, like swapping zone numbers, editing g
 
 So, now you have this dump of waypoint code. What to do with it?
 
-
 ### Method 1: Build waypoints into Frogbot/waypoint progs
 
 This is the **classic method,** and is appropriate for maps that are considered _final._
@@ -175,6 +174,7 @@ This is a highly evolved version of Mick's guide, which should now be considered
 If you want to create waypoints for a map, I advise to first get familiar with that map. Ideally, play the map with human opponents, although you can also learn a lot by observing it being played. In general, making waypoints is also a great way to get to know the map much better.  
 The nice thing about the waypoint tool though, is that _it runs inside Quake,_ and one can also explore maps in it, and try out jumps and such.
 
+
 ## How the Frogbot works, in a nutshell
 
 The Frogbot relies on **markers** to navigate the map. Bots can only run or jump from one marker to another in (usually) a straight line. Markers are connected through _paths._ Each time a bot _touches_ a marker, it will select the best outgoing path to reach its current goal.
@@ -187,6 +187,9 @@ Markers are automatically generated for several entities in a map:
 However, those alone don't suffice. _Extra markers_ must be added to guide the bots past corners, obstacles, etc. Then markers must be divided into **zones,** and the items that can be picked up must be given **goal** numbers to indicate (weak) preference. Last but not least, connections must be created between markers to tell the bot what **paths** can be followed, optionally with special **mode** descriptions for some of those connections. Markers can also have special **types.**
 
 A marker will be _touched_ when the bot comes sufficiently near it, and even if the bot did not plan to reach that marker, it will re-evaluate its trajectory whenever it touches any marker (unless in exclusive mode, as explained in the advanced section). This is important to remember: don't just assume bots will only run between markers that have connections between them. More details in the advanced section.
+
+Markers have an _index:_ the index for `m123` is 123. The lowest indices are used by map entities, followed by custom added markers. (In previous editions of the Frogbot, indices for custom markers could change when loading existing waypoints and then saving them, even when making no changes at all. The v2 waypoint tool has a deterministic way of saving waypoint data and will not only preserve existing indices, it also saves waypoint code in a standard ordering to make it much easier to track changes. When importing waypoints from an older version, data will be reordered, but indices will stay the same.)
+
 
 ## Key bindings
 
@@ -280,7 +283,7 @@ After loading the map, it looks like you're in a regular Quake game with no oppo
 
 **Markers** are represented by the _Quake guy._ Inactive markers have the shotgun, the active marker wields the axe. Rotating markers indicate a relation to the current marker, depending on the current view mode. The default is to show markers to which the active marker has an outgoing path.
 
-By default, the tool will activate markers in the same way as in the game, i.e., when you're close enough to pick up something or trigger an action. Usually, you will want to enable the tool's custom **Closest-Marker-Mode** with `F`. CMM makes it generally easier to select markers. When markers are really close to each other or overlap, CMM also allows to cycle between the 4 nearest with the `L` or `0` (zero) key.
+By default, the tool will activate markers in the same way as in the game, i.e., when you're close enough to pick up something or trigger an action. Often, it is more convenient to switch to the tool's **Closest-Marker-Mode** with `F`. CMM makes it generally easier to select markers, especially special ones like teleport triggers. When markers are really close to each other or overlap, CMM also allows to cycle between the 4 nearest with the `L` or `0` (zero) key.
 
 ### Useful keys for displaying info
 - `Z` changes the display mode, which is useful to verify things. For instance path display mode (the default) will make all other markers spin that are part of the active marker's outgoing paths.
@@ -302,8 +305,9 @@ These steps do not need to be done in this exact order, but you will typically g
      1. going from one marker to another within the same zone _must not_ require passing through another zone's markers: moving between markers of the same zone must only involve following paths within the zone;
      2. markers within a zone must be within a reasonably short travel time, no more than a few seconds;
      3. do not create zones that are one elongated chain of markers, split those up into shorter chains;
-     4. if going from marker _B_ to _A_ takes much longer than going from _A_ to _B,_ for instance _A→B_ is a simple jump, _B→A_ requires taking staircases, elevators, swimming, … then A and B must be in different zones;
+     4. if going from marker _B_ to _A_ takes much longer than going from _A_ to _B,_ for instance _A→B_ is a simple jump, _B→A_ requires taking staircases, elevators, swimming, … then A and B should probably be in different zones;
      5. _doors_ should usually be treated as zone borders, and secret doors (that need to be shot to open) _must_ separate different zones (see advanced section).
+   - Giving each zone a _convex shape_ will ensure most of the above guidelines are satisfied, but it is not a strict requirement. Do expect problems when creating weird intertwined concave zones.
 
 3. Add extra markers where needed for constructing paths such that bots won't get stuck on geometry: move to the spot and `MOUSE1`. Do not overdo this, but don't leave huge gaps between markers either.  
    Remember to also assign a zone to the new markers. If a zone number is currently selected, new markers automatically get this zone.  
@@ -311,9 +315,9 @@ These steps do not need to be done in this exact order, but you will typically g
 
 4. Assign **GOALS** to items: things the bot will want to fetch: weapons, ammo, health, powerups. Use the scroll wheel or keys `1` and `2` to select GOAL number and again use `ENTER` or `Q` on the marker.
    - The goal logic is horribly complicated and hard to understand; what follows is what I have learnt from experiments, Mick's guide, and digging in the source code. If someone has better insights, please update this guide.
-   - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal (possibly even 24), and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
-   - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and absolutely not when they are directly linked. In large maps, _it is OK_ to give items of the same type the same goal across different zones.
-   - If health or _same_ ammo items are clustered together with direct paths between each other, then **do** give those same items the same goal number. Also, the larger the cluster of same ammo or health, the more worthwhile it may be, hence may deserve a lower goal number than isolated items of the same kind (but again, goal number preference is weak anyway). But again: _do not_ give different items within the same zone the same goal number.
+   - The bot will have a very _weak_ preference for **lower** goal numbers, making their values more like _suggestions._ The bot has its own logic for preferring items, and only when there is ambiguity between the best scoring items, the one with the lower `G` number will win. For instance, the bot will desire to pick up Red Armour when available. If it is better to first pick up Yellow or even Green armour before chasing the RA, you should give the RA a very high goal, and the other a very low goal, to tweak this preference. Other example: a Mega Health not easily accessible may require a very low goal number to make the bot want to fetch it. It depends on the map layout, and you may need to experiment a bit.
+   - Mick recommends **not to reuse the lowest goal numbers,** and this seems generally good advice. I would add that one should especially not give the same low goal number to _different_ weapons or powerups, certainly not when they are in the same zone and _absolutely not_ when they are directly linked. In large maps, _it is OK_ to give items of the same type the same goal across different zones.
+   - If health or _same_ ammo items are clustered together with _direct_ paths between each other, then **do** give those same items the same goal number. Also, the larger the cluster of same ammo or health, the more worthwhile it may be, hence may deserve a lower goal number than isolated items of the same kind (but again, goal number preference is weak anyway). But again: _do not_ give different items within the same zone the same goal number.
    - If the total number of items (or item clusters) in a map is small enough that each can have a unique goal number, by all means do so.
    - You will notice that the following items are given high default goals because they are considered less desirable. Of course you can give particular instances of these items (especially the weapons) a different goal if you want:
      * 19 `item_cells`
@@ -387,14 +391,15 @@ These steps do not need to be done in this exact order, but you will typically g
    - **Shoot at** (shown as `‘h’`, number 32 in code) is a _pseudo path_ mode that indicates what object to shoot for _need shoot_ mode. See the advanced section for more info.
    - **Linked door** (shown as `‘d’`, number 4 in code) is a _pseudo path_ mode that can be combined with _exclusive markers_ or with _need shoot_ mode. See the advanced section for more info.
 
-The path mode selection also affects the display of markers connected to the active marker: when a certain mode is selected, only markers connected through an outgoing path of that type will be shown spinning. (The selection contains 2 pure `display-modes` for certain auto-assigned path types, these cannot be set.)
+The path mode selection also affects the display of markers connected to the active marker: when a certain mode is selected, only markers connected through an outgoing path of that type will be shown spinning. (The selection contains 2 pure `display-modes` for certain auto-assigned path types, these cannot be set.)  
+Specific modes cannot be individually removed from a path, the only way to remove a path mode is with the `clear all assigned path modes` option, and then reassigning any desired modes. One-way mode is not required for this `clear` operation, but it does only remove modes in 1 direction.
 
 At regular moments, and especially when you're done, use `F1` to dump the waypoint code to console. If you didn't run with `-condebug`, you must then use `condump` to write the console log to a file. The `autoexec` binds this to `F5` (think QuickSave).
 
 ### General Remarks
 - Guideline 1 for assigning markers to zones is really important; if violated, path planning may not work as expected. For instance, if `m42` is in `Z1` and `m43` is in `Z2`, and you want to add a marker that is _only_ connected to `m43`, not to `m42` nor any other `Z1` marker, then this new marker _must_ be in `Z2`, _not_ in `Z1`.  
   ![Keep zones together](images/zone-markers.jpg)
-- Although _Closest Marker Mode_ (`F` key) makes it easier to select markers, you should disable it from time to time to ensure you are not creating paths towards markers that cannot be touched in the actual game. If a marker is floating up in the air, which is often the case for teleport destinations, check whether it activates when approaching it with CMM disabled. If not (immediately), do not create paths towards it. (You may and probably should create outgoing paths, just in case the marker does get activated.)
+- Although _Closest-Marker-Mode_ (`F` key) makes it easier to select markers, you should disable it from time to time to ensure you are not creating paths towards markers that cannot be touched in the actual game. If a marker is floating up in the air, which is often the case for teleport destinations, check whether it activates when approaching it with CMM disabled. If not (immediately), do not create paths towards it. (You may and probably should create outgoing paths, just in case the marker does get activated.)
 - Remember that bots will react to _any_ marker they ‘touch,’ not only the next one on their path (unless they are in exclusive mode).  
   Also, the touch mechanism is pretty _coarse._ When running between 2 markers that are not extremely far away from each other, the target marker will usually already be touched at the half-way point. The bot will then stop moving towards that marker and change its direction towards the next planned marker. This can make it seem as if the bot is cutting corners on paths with sharp angles. When it is important for the bot to follow a specific curve, you may need to place extra markers, or move markers farther away from obstacles to keep the bot from bumping into them.
 - You can ‘lock’ the active marker in Static Marker mode with `I` or `TAB`, allowing to move to other markers without activating them. It is also useful to watch the paths animation (`R`) from a distance, or check how far you are from the marker with the `/` key.
@@ -403,11 +408,11 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - At any time when you are confused about what marker mode you're in, press `G` to reset. (The only thing this does not reset, is closest marker mode.)
 - Moving an existing marker is preferable over deleting it and making a new one. Static marker mode (`I` or `TAB`) is your friend here.
 - Paths through _push zones_ must be _one-way_ for obvious reasons. The old Frogbot did not create markers for push brushes, but the v2 Frogbot does. Some maps have push zones consisting of multiple segments, meaning there will be multiple markers. In that case you should not connect all those markers, it suffices to make a path to the first `trigger_push` marker, and then a path from that marker to the exit. Any `trigger_push` markers on the way can be left unconnected and should be given `untouchable` marker type. Also, vertically move the first push marker such that it is at the same height as the floor. See `aerowalk` for an example.
-- Moving markers vertically (`U`) can also be used on `func_button`, `teleport_trigger`, `trigger_push`, and `door` markers, but not on other non-manually created markers like weapons.
+- Moving markers vertically (`U`) can also be used on `func_button, teleport_trigger, trigger_push, trigger_multiple,` and `door` markers, but not on other non-manually created markers like weapons.
 - It is possible to apply multiple modes to a path, but some combinations make no sense.
-- The Frogbot can exploit Quake engine tricks like real players (strafe + turn) to change direction while in the air. This means you may create jumps that rely on such tricks, but make sure to verify they work with an acceptable success rate.
-- Markers have an _index:_ the index for `m123` is 123. Lower indices are used by map entities. In previous editions of the Frogbot, indices for custom markers could change when loading existing waypoints and then saving them, even when making no changes at all. The v2 waypoint tool has a deterministic way of saving waypoint data and will not only preserve existing indices, it also saves waypoint code in a standard ordering to make it much easier to track changes. (When importing waypoints from an older version, data will be reordered, but indices will stay the same.)
+- The Frogbot can exploit Quake engine tricks like real players (strafe + turn) to change direction while in the air. This means you may create jumps that rely on such tricks, but make sure to verify they work with an acceptable success rate. More details in the _advanced_ section.
 - Goal assignments will be omitted from waypoint data if they do not deviate from the default. Therefore you will never see `G23(m42)` in the waypoint dump if `m42` is a box of spikes.
+- Items of the same type will only be treated as a cluster if they are directly connected. Some maps place a weapon in between 2 ammo packs, or an item in between 2 health packs. In such cases, either add direct paths between the same-type items, or give them a different goal number.
 - I don't really know the purpose of the _‘display reachable’_ tool. It requires static active marker mode (`I` or `TAB`), and will try to trace a path towards the first marker you're ‘touching’ after activating this mode. It will fail if there is an obstacle, or the distance is “too far,” whatever that means.  
   It has nothing to do with unreachable marker flag (see advanced section).  
   Although markers can be placed further apart than what this tool considers too far, it is still a good guideline for maximum marker distance.
@@ -516,9 +521,9 @@ The v2 Frogbot has _3_ rocket jump modes:
 
 Bots at higher skill levels will be quicker and more accurate while preparing accurate rocket jumps.
 
-For some accurate jumps, the fact that the bot will purely ‘drift’ may cause problems. If the bot collides with a wall before reaching the destination ledge, it may end up moving purely vertically and never get on the ledge. The simplest solution in this case is to place an _air touchable_ marker near the apex of the jump, with a one-way path towards the destination marker. The bot will resume actively steering towards the ledge when touching this extra marker.
+For some accurate jumps, the fact that the bot will passively ‘drift’ may cause problems. If the bot collides with a wall before reaching the destination ledge, it may end up moving purely vertically and never get on the ledge. The simplest solution in this case is to place an _air touchable_ marker near the apex of the jump, with a one-way path towards the destination marker. The bot will resume actively steering towards the ledge when touching this extra marker.
 
-Beware that the bot's pitch angle is limited to 78.75 degrees, because this limit is usually imposed by QuakeWorld servers. In other words, _the bot cannot (rocket-)jump up perfectly vertically._ Some error _is_ allowed while preparing for the jump, and the smallest margin is 1.5° for a level 20 bot. This means one must not set up an accurate RJ that requires a pitch angle larger than 80°, because the bot will in vain try to achieve the impossible pitch. When debug logging is enabled while loading the map, a warning message will appear if this situation occurs. In that case:
+Beware that the bot's pitch angle for these jumps is limited to 78.75 degrees, because this limit is usually imposed by QuakeWorld servers. In other words, _the bot cannot (rocket-)jump up perfectly vertically._ Some error _is_ allowed while preparing for the jump, and the smallest margin is 1.5° for a level 20 bot. This means one must not set up an accurate RJ that requires a pitch angle larger than 80°, because the bot will in vain try to achieve the impossible pitch. When debug logging is enabled while loading the map, a warning message will appear if this situation occurs. In that case:
 - try using a cannon instead of mortar type jump; and/or:
 - move either the jumping spot marker or the destination marker (or both) to reduce the pitch angle.
 
@@ -584,7 +589,7 @@ The most practical solution in cases like these where the bot must first ensure 
 
 ![Ladder markers](images/ladder.jpg)
 
-`Narrow` path mode is not only useful for ladders, it can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam. Do not place the starting point of the narrow path inside the door or on top of the narrow beam, place it slightly before, such that the bot is aligned _before_ navigating the obstacle.  
+`Narrow` path mode is not only useful for ladders, it can also help to guide the bot through narrow openings or ensure it is in the right position to start walking across a narrow beam. Do not place the starting point of the narrow path inside the door or on top of the narrow beam: place it slightly before, such that the bot is aligned _before_ navigating the obstacle.  
 However, don't use this mode unnecessarily, because it can cause the bot to slow down to satisfy the proximity requirement. To reduce the risk of the bot slowing down, try to encourage the bot to already be aligned to the narrow path before it touches the marker.  
 Also, narrow paths are useless under water, where the swimming logic handles obstacles.
 
