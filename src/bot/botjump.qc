@@ -394,11 +394,11 @@ float() PreciseRunUpLogic =
 		else if (vlen(dir_move) < 40)
 			self.running_up = -(time + 1.0);
 		dir_move = normalize(dir_move);
-		if(time > self.arrow_time2)
+		if (time > self.arrow_time2)
 			NewVelocityForArrow();
 		return TRUE;
 	}
-	if(self.running_up < 0)
+	if (self.running_up < 0)
 	{
 		// Either something went awry, bot probably fell off a ledge or something;
 		// but we also use this to clear RU state when doing the actual jump.
@@ -419,6 +419,8 @@ float() NarrowPathLogic =
 		return FALSE;
 
 	local float test_dist;
+	local vector vec_touch;
+	vec_touch = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
 	if (self.narrow_path_state < 2)
 	{
 		// Skip init until landed
@@ -439,7 +441,7 @@ float() NarrowPathLogic =
 		{
 			local vector vnorm;
 			local float vec_length;
-			rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
+			rel_pos = vec_touch;
 			rel_pos_z = 0;  // stick to 2D to keep things simple
 			vnorm = self.oldvelocity;
 			vnorm_z = 0;
@@ -454,7 +456,7 @@ float() NarrowPathLogic =
 					test_dist = 7 + 8 * self.bot_inaccuracy;
 				else
 					test_dist = 12 + 8 * self.bot_inaccuracy;
-				if(vec_length < test_dist)
+				if (vec_length < test_dist)
 				{
 					self.narrow_path_state = 0;
 					self.look_object = look_object_ = linked_marker_;
@@ -462,8 +464,19 @@ float() NarrowPathLogic =
 				}
 			}
 		}
+		// Focus on touched marker while homing if not yet near it, otherwise on linked marker
+		if (vlen(vec_touch) < 32)
+			self.look_object = look_object_ = linked_marker_;
+		else if (vlen(vec_touch) > 48)
+			self.look_object = look_object_ = self.path_from_marker;
+		else
+		{
+			if (self.path_state & SLOW_DOWN)
+				self.look_object = look_object_ = self.path_from_marker;
+			else
+				self.look_object = look_object_ = linked_marker_;
+		}
 		self.narrow_path_state = 2;
-		self.look_object = look_object_ = self.path_from_marker;
 	}
 
 	if (!(self.flags & FL_ONGROUND))
@@ -483,8 +496,7 @@ float() NarrowPathLogic =
 	self.narrow_path_state = 2;
 
 	// Home in on the touched marker
-	rel_pos = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
-	if (rel_pos_z > 48)
+	if (vec_touch_z > 48)
 	{
 		// Failsafe against weird situations; abort the whole thing. In normal gameplay,
 		// markers should only be touched when the player is at most 18u below them,
@@ -492,11 +504,12 @@ float() NarrowPathLogic =
 		// against weirdness of Quake touch logic. In experiments, I have seen markers getting
 		// touched even 80u higher, but should not happen when normally running around.
 #ifdef DEBUG_TOUCH
-		dprint("Narrow path aborted because unexpected dZ=", ftos(rel_pos_z), "\n");
+		dprint("Narrow path aborted because unexpected dZ=", ftos(vec_touch_z), "\n");
 #endif
 		MarkerUnTouch();
 		return TRUE;
 	}
+	rel_pos = vec_touch;
 	rel_pos_z = 0;
 	rel_dist = vlen(rel_pos);
 	if (self.path_state & SLOW_DOWN)
@@ -513,10 +526,10 @@ float() NarrowPathLogic =
 		// Cap velocity to ensure bot is not dashing past the marker in undesired direction
 		if (self.path_state & SLOW_DOWN)
 		{
-			if(vlen(self.velocity) > slow_landspeed1)
+			if (vlen(self.velocity) > slow_landspeed1)
 				self.velocity = slow_landspeed1 * normalize(self.velocity);
 		}
-		else if(vlen(self.velocity) > slow_landspeed2)
+		else if (vlen(self.velocity) > slow_landspeed2)
 			self.velocity = slow_landspeed2 * normalize(self.velocity);
 		return TRUE;
 	}
@@ -573,15 +586,15 @@ void() SpecialAccurateMoves =
 		return;
 	if (!(self.flags & FL_ONGROUND))
 	{
-		if(self.path_state & PRECISE_JUMP)
-		if(self.path_state & SLOW_DOWN) {
+		if (self.path_state & PRECISE_JUMP)
+		if (self.path_state & SLOW_DOWN) {
 			// The bot may have lost all velocity in the direction of the target due
 			// to bumping into the wall. Give it a nudge if this is the case.
 			rel_pos = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
 			rel_pos_z = 0;
 			dir_move = self.velocity;
 			dir_move_z = 0;
-			if(rel_pos * dir_move < 10) {
+			if (rel_pos * dir_move < 10) {
 				self.velocity = self.velocity + 32 * normalize(rel_pos);
 			}
 		}
@@ -604,11 +617,11 @@ void() SpecialAccurateMoves =
 	}
 	if (!right_direction(20 + 20 * self.bot_inaccuracy))
 	{
-		if(time > self.arrow_time2)
+		if (time > self.arrow_time2)
 			NewVelocityForArrow();
 		return;
 	}
-	if(time > self.arrow_time2)
+	if (time > self.arrow_time2)
 		NewVelocityForArrow();
 	if (!(self.path_state & PRECISE_JUMP))
 		return;
