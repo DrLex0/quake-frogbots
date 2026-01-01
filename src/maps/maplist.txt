@@ -69,6 +69,7 @@ trinca/map_misdm8.qc
 trinca/map_naked6.qc
 trinca/map_oktest1.qc
 trinca/map_pkeg2.qc
+trinca/map_pro-dm4.qc
 trinca/map_q3dm6qw.qc
 trinca/map_rwild.qc
 trinca/map_schloss.qc

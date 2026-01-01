@@ -761,3 +761,4 @@ Then, inside the waypoint tool, use `developer 1` in the console to view the ext
 The most useful debug macros are:
 - `DEBUG_TOUCH`: this is useful enough that you may want to enable it at all times, it will print all marker touch events together with what was the linked marker (i.e. the marker the bot wanted to touch). This can reveal unexpected marker touches.
 - `DEBUG_HAZD`: prints when some of the hazard avoidance mechanisms engage. For instance if you see `AvoidEdge` while the bot is supposed to just jump down, adding `just GO` to the path may help.
+- `DEBUG_OBSTRUCT`: prints when the bot collides with something while airborne, including origin coordinates at that moment. This can be useful when trying to make a tricky jump work where it is crucial that the bot does not bump into anything.

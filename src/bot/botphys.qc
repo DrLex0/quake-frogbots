@@ -33,6 +33,9 @@ void() obstruction =
 	if ((!self.waterlevel) || (self.flags & FL_WATERJUMP))
 	{
 		self.obstruction_normal = '0 0 0';
+#ifdef DEBUG_OBSTRUCT
+			dprint("Air obstruction ", vtos(self.origin), "\n");
+#endif
 		return;
 	}
 
