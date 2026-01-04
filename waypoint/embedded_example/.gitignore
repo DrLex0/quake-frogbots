@@ -1,0 +1,4 @@
+*-compile.map
+*.log
+*.prt
+*.texinfo.json
