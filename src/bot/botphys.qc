@@ -76,6 +76,92 @@ void() obstruction =
 
 /*
 ============
+TryAirStrafe
+
+Simulates air strafing if possible. Returns whether air strafing is performed or not.
+============
+*/
+float() TryAirStrafe =
+{
+	hor_velocity = self.velocity;
+	hor_velocity_z = 0;
+	hor_speed = vlen(hor_velocity);
+
+	if (hor_speed <= 100)
+	if (! (self.path_state & AIR_ACCELERATION))
+		return FALSE;
+
+	if (! turning_speed)  // not overridden: auto-calculate
+	{
+		hor_normal_vec_x = 0 - self.velocity_y;
+		hor_normal_vec_y = self.velocity_x;
+		// (hor_normal_vec_z = 0;)
+		hor_normal_vec = normalize(hor_normal_vec);
+
+		rel_pos = (self.linked_marker.absmin + self.linked_marker.view_ofs) - self.origin;
+		rel_pos_z = 0;
+
+		local float vec_prod = rel_pos * rel_pos;
+		if (vec_prod != 0)
+			turning_speed = 114.59156 * hor_speed *
+				(rel_pos * hor_normal_vec) / vec_prod;	// 114.59156 = 360 / PI
+	}
+
+	// Clamp rotation to avoid excessive values that cause negative acceleration.
+	// However, when adding intentional inaccuracy, allow going beyond the sane
+	// range to mimic unskilled human players.
+	if (fabs(turning_speed) > 270)
+	{
+		if (self.path_state & AIR_ACCELERATION)
+		{
+			if (turning_speed > 0)
+				turning_speed = 270 + self.airstrafe_inaccuracy;
+			else
+				turning_speed = -270 + self.airstrafe_inaccuracy;
+		}
+		else  // If no intent to air strafe, give up 
+			turning_speed = 0;
+	}
+	else
+		turning_speed = turning_speed + self.airstrafe_inaccuracy;
+
+	if (self.flags & FL_ONGROUND)
+		return FALSE;
+
+	// Air strafing needs at least some speed. Fall back to regular
+	// arrow key movement if it still allows accelerating.
+	if (hor_speed < 29.5)
+		return FALSE;
+
+	// This simulates classic Quake air movement logic, with v_forward acting
+	// as the 'wishdir'. TODO: allow overriding turning_speed through waypoint
+	// config. Maybe add intentional inaccuracy on low skill levels.
+	velocity_hor_angle_y = vectoyaw(hor_velocity) + (turning_speed * frametime);
+	makevectors(velocity_hor_angle);
+
+	desired_accel = (v_forward * hor_speed) - hor_velocity;
+
+	dir_forward = normalize(desired_accel);
+	accel_forward = vlen(desired_accel);
+
+	if (accel_forward > max_accel_forward)
+		accel_forward = max_accel_forward;
+
+	velocity_forward = self.velocity * dir_forward;
+
+	if ((velocity_forward + accel_forward) > 30)
+	{
+		accel_forward = 30 - velocity_forward;
+		if (accel_forward < 0)
+			accel_forward = 0;
+	}
+
+	self.velocity = self.velocity + (accel_forward * dir_forward);
+	return TRUE;
+}
+
+/*
+============
 VelocityForArrow
 
 self is a Frogbot.
@@ -114,81 +200,9 @@ void() VelocityForArrow =
 
 	// first check air circle turning
 	if (!self.waterlevel)
-	{
-		if (time > self.arrow_time2)
-		{
-			hor_velocity = self.velocity;
-			hor_velocity_z = 0;
-			hor_speed = vlen(hor_velocity);
-
-			if ((hor_speed > 100) || (self.path_state & AIR_ACCELERATION))
-			{
-				if (! turning_speed)  // not overridden: auto-calculate
-				{
-					hor_normal_vec_x = 0 - self.velocity_y;
-					hor_normal_vec_y = self.velocity_x;
-					// (hor_normal_vec_z = 0;)
-					hor_normal_vec = normalize(hor_normal_vec);
-
-					rel_pos = (self.linked_marker.absmin + self.linked_marker.view_ofs) - self.origin;
-					rel_pos_z = 0;
-
-					local float vec_prod = rel_pos * rel_pos;
-					if (vec_prod != 0)
-						turning_speed = 114.59156 * hor_speed *
-							(rel_pos * hor_normal_vec) / vec_prod;	// 114.59156 = 360 / PI
-				}
-
-
-				// Clamp rotation to avoid excessive values that cause negative acceleration.
-				// However, when adding intentional inaccuracy, allow going beyond the sane
-				// range to mimic unskilled human players.
-				if (fabs(turning_speed) > 270)
-				{
-					if (self.path_state & AIR_ACCELERATION)
-					{
-						if (turning_speed > 0)
-							turning_speed = 270 + self.airstrafe_inaccuracy;
-						else
-							turning_speed = -270 + self.airstrafe_inaccuracy;
-					}
-					else  // If no intent to air strafe, give up 
-						turning_speed = 0;
-				}
-				else
-					turning_speed = turning_speed + self.airstrafe_inaccuracy;
-
-				if (!(self.flags & FL_ONGROUND))
-				{
-					// This simulates classic Quake air movement logic, with v_forward acting
-					// as the 'wishdir'. TODO: allow overriding turning_speed through waypoint
-					// config. Maybe add intentional inaccuracy on low skill levels.
-					velocity_hor_angle_y = vectoyaw(hor_velocity) + (turning_speed * frametime);
-					makevectors(velocity_hor_angle);
-
-					desired_accel = (v_forward * hor_speed) - hor_velocity;
-
-					dir_forward = normalize(desired_accel);
-					accel_forward = vlen(desired_accel);
-
-					if (accel_forward > max_accel_forward)
-						accel_forward = max_accel_forward;
-
-					velocity_forward = self.velocity * dir_forward;
-
-					if ((velocity_forward + accel_forward) > 30)
-					{
-						accel_forward = 30 - velocity_forward;
-						if (accel_forward < 0)
-							accel_forward = 0;
-					}
-
-					self.velocity = self.velocity + (accel_forward * dir_forward);
-					return;
-				}
-			}
-		}
-	}
+	if (time > self.arrow_time2)
+	if (TryAirStrafe())
+		return;
 
 	arrow_ = self.arrow;
 
