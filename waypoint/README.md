@@ -228,6 +228,7 @@ M               126     134     CHECK ALL ZONES
 .               -       163     SET DOOR OPEN THRESHOLD
 /               -       158     PRINT COORDINATES & EXTRA INFO
 '               -       165     SET CUSTOM INTERMISSION CAMERA
+-               -       166     FORCE NEXT GOAL MARKER(S)
 F1              133     143     DUMP WAYPOINT DATA
 F2              ?       130     NOCLIP
 F3              ?       50      DISABLE DAMAGE FLASH
@@ -738,6 +739,9 @@ You can test rocket jumps if you first pick up the prerequisites (obviously, a R
 The movement of the bot can be influenced in a limited way by pressing movement keys, this may be useful to force the bot to make a mistake and see if it recovers.
 
 If you want to live dangerously and test changes on-the-fly, make it a reflex to first dump your waypoint data to the console and then a file (`F1`, `F5`) before pressing `F4`.
+
+#### Forcing goals
+To test whether the bot correctly tackles a specific path, goals can be overridden with impulse 166, bound to the `-` key in the default config. For instance, to force the bot to run to a certain marker, hit the `-` key while this marker is selected. A second marker can then also be set, to ensure the bot will follow a specific path. This makes testing tricky jumps and such way less cumbersome than letting the bot do its thing and waiting until it takes that path.
 
 #### Debugging path calculation errors
 If the bot does not seem to want to take an obvious path, it could be because a path has been assigned an erroneous travel time. This will generally mean that the waypoints violate zone assignment guideline 1 as mentioned above. However, it may also occur in some other exotic cases.

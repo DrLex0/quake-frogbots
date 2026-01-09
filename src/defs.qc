@@ -2561,6 +2561,8 @@ float manual_mode;
 float goal_index;
 float alt_marker_idx;
 entity active_marker;
+entity goal_override1;
+entity goal_override2;
 
 .entity display;
 

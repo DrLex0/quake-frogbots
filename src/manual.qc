@@ -279,7 +279,7 @@ void() SpawnNewMarker =
 	marker_index = marker_index + 1;
 	marker_.index = marker_index;
 	UpdateBioHzd(marker_);
-}
+};
 
 void() RemoveActiveMarker =
 {
@@ -334,7 +334,7 @@ void() CleanUpTemporaries =
 		remove(marker_);
 		marker_ = find(marker_, classname, "fb_disposable");
 	}
-}
+};
 
 void() DisableActiveMarker =
 {
@@ -400,7 +400,7 @@ void() ToggleWaypointRJ =
 		{ no_rocketjump = FALSE; bprint("RJ enabled\n"); }
 	else
 		{ no_rocketjump = TRUE; bprint("RJ disabled\n"); }
-}
+};
 
 /*
 ============
@@ -429,7 +429,45 @@ void() SetDoorDOpen =
 		active_marker.d_door_open = 10;
 		bprint("d_door_open for m", ftos(active_marker.index), " set to default (10)\n");
 	}
-}
+};
+
+/*
+===========
+SetGoalOverride
+
+Force bot to go through specific sequence of up to 2 markers
+============
+*/
+void() SetGoalOverride =
+{
+	local float clear = FALSE;
+	if (! active_marker) clear = TRUE;
+	else if(active_marker == goal_override2) clear = TRUE;
+	else if(! goal_override2 && active_marker == goal_override1) clear = TRUE;
+	if (clear)
+	{
+		goal_override1 = goal_override2 = world;
+		bprint("Goal overrides cleared\n");
+		return;
+	}
+
+	if (goal_override2)
+	{
+		goal_override1 = goal_override2;
+		goal_override2 = active_marker;
+		bprint("Goal overrides shifted: first m", ftos(goal_override1.index), ", then m", ftos(goal_override2.index), "\n");
+	}
+	else if (goal_override1)
+	{
+		goal_override2 = active_marker;
+		bprint("Goal override added: first m", ftos(goal_override1.index), ", then m", ftos(goal_override2.index), "\n");
+	}
+	else
+	{
+		goal_override1 = active_marker;
+		bprint("Goal override set: m", ftos(goal_override1.index), "\n");
+	}
+};
 
 /*
 ============
@@ -521,7 +559,7 @@ Causes marker to spin around its axis
 void(entity marker) SpinMarkerDisplay =
 {
 	marker.display.angles_y = (marker.display.angles_y + (frametime * 90));
-}
+};
 
 /*
 ============
@@ -1324,7 +1362,7 @@ void() DumpMarkerInfo =
 	bprint("*/\n\n");
 	m = last_marker;
 	remove_self();  // removes save_position
-}
+};
 /*
 ============
 Waypoint saving routines end here
@@ -1687,7 +1725,7 @@ void(float descbits) PrintDLabel =
 		bprint("\xE8");  // h
 	if (descbits & LINKED_DOOR)
 		bprint("\xE4");  // d
-}
+};
 
 /*
 ============
@@ -1701,7 +1739,7 @@ void() SpikeItDone =
 	if (self.previous)
 		remove(self.previous);
 	remove(self);
-}
+};
 
 /*
 ============
@@ -1751,7 +1789,7 @@ void(entity e_from, entity e_to, float mD, float delay) SpikeItDelayed =
 	delay_me.D0 = mD;
 	delay_me.think = SpikeDelayedGo;
 	delay_me.nextthink = time + delay;
-}
+};
 
 /*
 ============
@@ -1890,7 +1928,7 @@ void() PrintPathInfo =
 	}
 	if (! p_count) bprint(" none\n\n");
 	else bprint(" [", ftos(p_count), "]\n\n");
-}
+};
 
 /*
 ============
@@ -1973,7 +2011,7 @@ void() UpdateFireOnStart =
 			setorigin (active_marker, active_marker.origin);
 		}
 	}
-}
+};
 
 void() ToggleConnectMarkersMode =
 {
@@ -2175,7 +2213,7 @@ void() CycleAltMarker =
 	{
 		bprint("next nearest ", ftos(alt_marker_idx), "\n");
 	}
-}
+};
 
 void() DefaultMarkerMode =
 {
@@ -2253,7 +2291,7 @@ void() MoveToActiveMarker =
 		return;
 	}
 	setorigin(self, (((active_marker.absmin + active_marker.view_ofs) + '0 0 22') - self.view_ofs));
-}
+};
 
 /*
 ============
@@ -2384,7 +2422,7 @@ void() CheckAllGoals =
 		bprint("Goal missing\n");
 	else
 		bprint("Goals completed\n");
-}
+};
 
 /*
 ============
@@ -2561,7 +2599,7 @@ void() PrintDebugInfo =
 	if (has_embedded_wp) bprint("Embedded WP loaded\n");
 	else if (map_lacks_waypoints) bprint("No WP loaded\n");
 	else bprint("Compiled WP loaded\n");
-}
+};
 
 void() SetIntermission =
 {
@@ -2572,7 +2610,7 @@ void() SetIntermission =
 	interm_mangle_y = rint(self.angles_y);
 	interm_mangle_z = 0;  // if you want this custom, edit the QC dump
 	bprint("Custom intermission set to ", vtos(interm_origin), "; ", vtos(interm_mangle), "\n");
-}
+};
 
 // DrLex: I had to change all impulses compared to the waypoint tool
 // distributed by Mick, because extra impulses have been added in arena.qc.
@@ -2644,6 +2682,8 @@ void() ManualImpulseCommands =
 		FindNextSameItem();
 	else if (impulse_ == 165)  // `'`
 		SetIntermission();
+	else if (impulse_ == 166)  // `-`
+		SetGoalOverride();
 };
 
 #endif

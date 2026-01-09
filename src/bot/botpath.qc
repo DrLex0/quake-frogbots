@@ -741,6 +741,17 @@ void() frogbot_marker_touch =
 		self.path_state = self.path_state - EXCLUSIVE_PATH;
 	self.sticky_touch = FALSE;
 
+#ifdef MANUAL
+	if (goal_override1)
+	if (touch_marker_ == goal_override1)
+	{
+		bprint("Forced goal m", ftos(goal_override1.index), " reached\n");
+		goal_override1 = goal_override2;
+		goal_override2 = world;
+		goalentity_ = self.goalentity = goal_override1;
+	}
+#endif
+
 	if (linked_marker_ == touch_marker_)
 	{
 		if (goalentity_ == touch_marker_)

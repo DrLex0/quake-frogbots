@@ -247,6 +247,14 @@ UpdateGoal
 void() UpdateGoal =
 {
 	self.goal_refresh_time = time + 2 + random();
+#ifdef MANUAL
+	if (goal_override1)
+	{
+		goalentity_ = self.goalentity = goal_override1;
+		self.goal_respawn_time = time;
+		return;
+	}
+#endif
 	prediction_error_ = self.prediction_error;
 	best_score = 0;
 	best_goal = world;
