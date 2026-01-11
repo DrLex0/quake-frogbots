@@ -278,27 +278,21 @@ class WaypParser:
         self.n_cache: list[str] = []
         self.first_custom_index: int = 0
         # Global map properties
-        self.dm6_door: int = 0
-        self.door_open_dist: int = 0
-        self.door_targetz: int = 0
         self.desire_adj_g1: float = 0.0
         self.desire_adj_g2: float = 0.0
+        self.force_raspawn: float = 0.0
         self.intermission: tuple[float, ...] | None = None  # (X, Y, Z, P, W, R)
         if filepath:
             self.load_wp()
 
     def __str__(self) -> str:
         output = ""
-        if self.dm6_door:
-            output += f" dm6_door={self.dm6_door}"
-        if self.door_open_dist:
-            output += f" door_open_dist={self.door_open_dist}"
-        if self.door_targetz:
-            output += f" door_targetZ={self.door_targetz}"
         if self.desire_adj_g1:
             output += f" desire_adj_G1={self.desire_adj_g1}"
         if self.desire_adj_g2:
             output += f" desire_adj_G2={self.desire_adj_g2}"
+        if self.force_raspawn:
+            output += f" force_raspawn={self.force_raspawn}"
         if self.intermission:
             output += f" intermission={self.intermission}"
         return output
@@ -423,16 +417,12 @@ class WaypParser:
             m_rval = int(walrus.group(3))
             r_array = [m_rval if i == m_rnum else 0 for i in range(8)]
             self.set_marker(m_index, r_values=r_array)
-        elif walrus := re.match(r"dm6_door=m(\d+)", statem):
-            self.dm6_door = int(walrus.group(1))
-        elif walrus := re.match(r"door_open_dist=(\d+)", statem):
-            self.door_open_dist = int(walrus.group(1))
-        elif walrus := re.match(r"door_targetZ=(\d+)", statem):
-            self.door_targetz = int(walrus.group(1))
-        elif walrus := re.match(r"desire_adj_G1=([\d.]+)", statem):
+        elif walrus := re.match(r"desire_adj_G1= *([\d.]+)", statem):
             self.desire_adj_g1 = float(walrus.group(1))
-        elif walrus := re.match(r"desire_adj_G2=([\d.]+)", statem):
+        elif walrus := re.match(r"desire_adj_G2= *([\d.]+)", statem):
             self.desire_adj_g2 = float(walrus.group(1))
+        elif walrus := re.match(r"force_raspawn= *([\d.]+)", statem):
+            self.force_raspawn = int(walrus.group(1))
         elif walrus := re.match(
             r"AddIntermission\(([\d.-]+),([\d.-]+),([\d.-]+),"
             r"([\d.-]+),([\d.-]+),([\d.-]+)\)",
@@ -701,6 +691,8 @@ def inject_waypoints(
             worldspawn.properties["FrB_adj_G1"] = str(parsed_wp.desire_adj_g1)
         if parsed_wp.desire_adj_g2:
             worldspawn.properties["FrB_adj_G2"] = str(parsed_wp.desire_adj_g2)
+        if parsed_wp.force_raspawn:
+            worldspawn.properties["FrB_raspawn"] = str(parsed_wp.force_raspawn)
         if parsed_wp.intermission:
             x, y, z, p, w, r = parsed_wp.intermission
             worldspawn.properties["FrB_iX"] = str(x)

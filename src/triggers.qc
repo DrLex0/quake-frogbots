@@ -482,7 +482,6 @@ void() GetSource =
 #ifndef ARENA
 	if (find (world, target, self.targetname))
 	{
-#endif
 	// this does nothing, just serves as a target spot
 		self.mangle = self.angles;
 		self.angles = '0 0 0';
@@ -496,10 +495,27 @@ void() GetSource =
 		setsize (self, '-65 -65 -24', '65 65 32');
 		self.view_ofs = '80 80 24';
 		self.pickup = pickup_true;
-#ifndef ARENA
 	}
 	else
 		remove_self();
+
+#else
+	// Always spawn all i_t_d in ARENA to allow raspawn, but do not create markers for those
+	self.mangle = self.angles;
+	self.angles = '0 0 0';
+	self.model = "";
+	self.origin = self.origin + '0 0 27';
+
+	if (find (world, target, self.targetname))
+	{
+		self.solid = SOLID_TRIGGER;
+		self.touch = destination_touch;
+		self.flags = FL_ITEM;
+		BecomeMarker(self);
+		setsize (self, '-65 -65 -24', '65 65 32');
+		self.view_ofs = '80 80 24';
+		self.pickup = pickup_true;
+	}
 #endif
 };
 

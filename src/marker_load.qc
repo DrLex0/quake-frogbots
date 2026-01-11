@@ -349,6 +349,8 @@ void() ApplyFrB_props =
 		desire_adj_G1 = stof(world.FrB_adj_G1);
 	if (world.FrB_adj_G2 != "")
 		desire_adj_G2 = stof(world.FrB_adj_G2);
+	if (world.FrB_raspawn != "")
+		force_raspawn = stof(world.FrB_raspawn);
 	// In theory we don't need this when loading from .ent files, because it
 	// would be simpler to add an info_intermission entity. However, this would
 	// not be preserved if the waypoints are converted to QC format.

@@ -33,6 +33,7 @@ ktx/map_shifter.qc
 trinca/map_a2.qc
 trinca/map_aggressr.qc
 trinca/map_amphi.qc
+trinca/map_arenazap.qc
 trinca/map_baldm6.qc
 trinca/map_baldm7.qc
 trinca/map_bovine.qc

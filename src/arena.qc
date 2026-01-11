@@ -2096,11 +2096,14 @@ void() set_a_spawn =
 {
 	a_spawn = "info_player_deathmatch";
 	if (!game_raspawn)
+	if (!force_raspawn)
 		return;
 	if (game_arena)
 	if (self.invisible)
 		return;
-	a_spawn = "info_teleport_destination";
+	spawn_pos = find (world, classname, "info_teleport_destination");
+	if (spawn_pos)
+		a_spawn = "info_teleport_destination";
 };
 
 // PutClientInServer(), check if should becomeinvisible

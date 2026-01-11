@@ -1121,6 +1121,11 @@ void() SaveGlobals =
 		bprint("desire_adj_G2=", ftos(desire_adj_G2), ";\n");
 		count_ = 10;
 	}
+	if (force_raspawn)
+	{
+		bprint("force_raspawn=", ftos(force_raspawn), ";\n");
+		count_ = 10;
+	}
 	if (interm_origin || interm_mangle)
 	{
 		bprint("AddIntermission(",

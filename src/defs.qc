@@ -1706,8 +1706,10 @@ float penta_protection;
 
 .float d_door_open;  // max distance from pos2 to consider door open enough, default 10
 
+// Global map values that can be set in waypoint code
 float desire_adj_G1;
 float desire_adj_G2;
+float force_raspawn;  // set to 1 in arena maps only playable with raspawn
 
 // state values for clients
 float NOTARGET_ENEMY			= 32;
@@ -2530,9 +2532,10 @@ float bad_ent_detected;
 float has_embedded_wp;
 
 // world
-.string FrogBotWP;  // global indicator of waypoint presence
-.string FrB_adj_G1; // maps to desire_adj_G1
-.string FrB_adj_G2; // maps to desire_adj_G2
+.string FrogBotWP;   // global indicator of waypoint presence
+.string FrB_adj_G1;  // maps to desire_adj_G1
+.string FrB_adj_G2;  // maps to desire_adj_G2
+.string FrB_raspawn; // maps to force_raspawn
 // markers
 .string FrB_ID;
 .string FrB_Z;
