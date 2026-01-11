@@ -1628,6 +1628,8 @@ float SLOW_PRECISE_NARROW	= 2208;
 
 .entity link_door_ent;  // marker property set by LINKED_DOOR pseudo-path mode
 
+.float special_p_jump;  // 0: regular, 1: positive v_z, 2: negative v_z, 3: unconditional
+
 .float running_up;  // > 0: heading towards run_up_point; < 1: from run_up_point to jump position
 // coordinates to first run towards while preparing for precision jump;
 // also used in wallstrafe logic as target from where to jump.

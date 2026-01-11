@@ -5,7 +5,7 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2000-2001 DMSouL
 	Copyright (C) 2000-2007 ParboiL
-	Improvements by DrLex 2024-2025
+	Improvements by DrLex 2024-2026
 */
 
 #include "../settings.h"
@@ -88,7 +88,7 @@ void() AdjustTravelPenalties =
 		if (traveltime < 2000) traveltime = traveltime - 1000;
 		else traveltime = traveltime - 1998;
 	}
-}
+};
 
 /*
 ============
@@ -119,7 +119,7 @@ void() AdjustPathTimePenalty
 	if (path_time < 2000)
 	if (able_rj())
 		path_time = path_time - 1000;
-}
+};
 
 /*
 ============
@@ -140,7 +140,7 @@ void() DropTravelPenalties =
 	if (traveltime >= 3000) return;
 	if (traveltime < 2000) traveltime = traveltime - 1000;
 	else traveltime = traveltime - 2000;
-}
+};
 
 /*
 ============
@@ -406,7 +406,7 @@ void(float lm_time) WaitAtTouchMarker =
 		dir_move = normalize(dir_move);
 		NewVelocityForArrow();
 	}
-}
+};
 
 /*
 ============
@@ -599,7 +599,38 @@ float() WaitAndShootAtTrigger =
 		}
 	}
 	return path_requires_shot;
-}
+};
+
+/*
+============
+CheckSpecialPJump
+
+Return what value self.special_p_jump should have
+============
+*/
+float() CheckSpecialPJump =
+{
+	if (! touch_marker_.jump_direction)
+	{
+		// Also set unconditional mode if linked marker has no well-defined XY direction
+		dir_move = linked_marker_.absmin + linked_marker_.view_ofs -
+			(touch_marker_.absmin + touch_marker_.view_ofs);
+		if (fabs(dir_move_x) < 8)
+		if (fabs(dir_move_y) < 8)
+			return 3;  // skip all direction checks
+		return 0;  // regular
+	}
+	dir_move = touch_marker_.jump_direction.absmin + touch_marker_.jump_direction.view_ofs -
+		(touch_marker_.absmin + touch_marker_.view_ofs);
+	if (fabs(dir_move_x) < 8)
+	if (fabs(dir_move_y) < 8)
+		return 3;  // skip all direction checks
+	if (dir_move_z > 32)
+		return 1;  // require positive Z speed
+	if (dir_move_z < -32)
+		return 2;  // require negative Z speed
+	return 0;  // regular
+};
 
 /*
 ============
@@ -608,6 +639,7 @@ CheckAccurateRunUp
 When entering a PRECISE_JUMP path, check whether conditions
 are good for the jump. If not, start the run-up procedure.
 Do not run-up for a slow PJ or the RJ+PJ combo!
+'force' can be used to re-start a failed run-up.
 ============
 */
 void(float force) CheckAccurateRunUp =
@@ -616,15 +648,22 @@ void(float force) CheckAccurateRunUp =
 		return;
 	if (! force)
 	{
+		self.special_p_jump = 0;
 		if (! (new_path_state & PRECISE_JUMP))
 			return;
 		if (new_path_state & SLOW_DOWN)
 			return;
 		if (new_path_state & ROCKET_JUMP)
 			return;
+		self.special_p_jump = CheckSpecialPJump();
+		if (self.special_p_jump)
+			return;
 		if (right_direction(20 + 30 * self.bot_inaccuracy)) // direction already OK, no run-up needed
 			return;
 	}
+	else if(self.special_p_jump)
+		return;
+
 	if (touch_marker_.jump_direction)
 		dir_move = touch_marker_.absmin + touch_marker_.view_ofs -
 			(touch_marker_.jump_direction.absmin + touch_marker_.jump_direction.view_ofs);
@@ -636,7 +675,7 @@ void(float force) CheckAccurateRunUp =
 	// Timeout for reaching the run-up start point: about 2x the time
 	// it should take to traverse 90u distance at full speed
 	self.running_up = time + 0.6;
-}
+};
 
 /*
 ============
@@ -699,7 +738,7 @@ void() CheckWallStrafe =
 	// frames before BestArrowForDirection first sets it, and this can cause
 	// problems in borderline cases.
 	self.arrow = self.wallstrafe_key;
-}
+};
 
 /*
 ============

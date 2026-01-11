@@ -5,13 +5,14 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 2001 Justice
 	Copyright (C) 2000-2007 ParboiL
-	Improvements by DrLex 2025/01-02
+	Improvements by DrLex 2025-2026
 */
 
 #include "../settings.h"
 
 void() VelocityForArrow;
 void() NewVelocityForArrow;
+void() SetArrowForLinkedMarker;
 float(float a) anglemod;
 float(entity me) near_teammate;
 void() MarkerUnTouch;
@@ -28,10 +29,15 @@ float(float max_angle) right_direction =
 	local float min_one, min_two;
 	local entity target_m;
 
-	if (self.path_from_marker.jump_direction)
+	if (self.path_from_marker.jump_direction)  // T_JUMP_HINT marker
 	{
 		if (self.path_state & PRECISE_JUMP)
-			target_m = self.path_from_marker.jump_direction;  // T_JUMP_HINT marker
+		{
+			if (self.special_p_jump < 3)
+				target_m = self.path_from_marker.jump_direction;
+			else
+				target_m = linked_marker_;
+		}
 		else
 			target_m = linked_marker_;
 	}
@@ -44,6 +50,27 @@ float(float max_angle) right_direction =
 	dir_move = rel_pos;
 	dir_move_z = 0;
 	dir_move = normalize(dir_move);
+
+	if (self.special_p_jump)
+	{
+		if (self.special_p_jump > 2)
+			return TRUE;
+		// Ideally it should be possible to configure the velocity threshold,
+		// but would add even more clutter; these defaults should do the trick
+		if (self.special_p_jump == 1)
+		{
+			if (self.velocity_z > 72)
+			if (self.oldvelocity_z > 72)
+				return TRUE;
+			return FALSE;
+		}
+		// self.special_p_jump == 2
+		if (self.velocity_z < -72)
+		if (self.oldvelocity_z < -72)
+			return TRUE;
+		return FALSE;
+	}
+
 	wish_dir = vectoyaw(dir_move);
 	min_one = fabs(wish_dir - current_dir);
 	if (wish_dir >= 180)
@@ -659,7 +686,12 @@ void() SpecialAccurateMoves =
 	if (v_link_z <= 18)
 		return;
 
-	local float velo = vlen(self.velocity);
+	local float velo;
+	if (self.special_p_jump)
+		velo = sv_maxspeed;  // bypass velocity check below
+	else
+		velo = vlen(self.velocity);
+
 	if (self.path_state & SLOW_DOWN)
 	{
 		if (velo > half_sv_maxspeed)  // and not moving too fast
@@ -667,31 +699,43 @@ void() SpecialAccurateMoves =
 	}
 	else if (velo < 0.8 * sv_maxspeed)  // or too slow
 	{
- 		if (self.obstruction_normal != '0 0 0')
- 		{
- 			// When obstructed, restart run-up
+		if (self.obstruction_normal != '0 0 0')
+		{
+			// When obstructed, restart run-up
 			v_link_z = 0;
 			if (self.obstruction_normal * normalize(v_link) > 0.5)
 			{
 				touch_marker_ = self.path_from_marker;
 				CheckAccurateRunUp(TRUE);
 			}
- 		}
+		}
 		return;
 	}
 	// Keep RU status until actually airborne; the above logic will clear it later on
 	if (self.running_up)
 		self.running_up = -(time + 0.1);
-	// Make the jump increasingly perfect with increasing bot skill level.
-	hor_velocity = self.velocity;
-	hor_velocity_z = 0;
-	dir_move = vlen(hor_velocity) * normalize(
-		self.bot_inaccuracy * normalize(hor_velocity) +
-		(1.0 - self.bot_inaccuracy) * dir_move
-	);
-	// Must preserve vertical velocity for jumps on a slope
-	dir_move_z = self.velocity_z;
-	self.velocity = dir_move;
+
+	if (! self.special_p_jump)
+	{
+		// Make the jump increasingly perfect with increasing bot skill level.
+		hor_velocity = self.velocity;
+		hor_velocity_z = 0;
+		dir_move = vlen(hor_velocity) * normalize(
+			self.bot_inaccuracy * normalize(hor_velocity) +
+			(1.0 - self.bot_inaccuracy) * dir_move
+		);
+		// Must preserve vertical velocity for jumps on a slope
+		dir_move_z = self.velocity_z;
+		self.velocity = dir_move;
+	}
+	else if (self.special_p_jump < 3)
+	{
+		// At this point, arrow is still aiming for the JH marker.
+		// To give tricky jumps the best chances of success, instantly
+		// update to aim for linked marker instead.
+		SetArrowForLinkedMarker();
+	}
+
 	if (self.path_state & SLOW_DOWN)
 	{
 		// Do not clear AP mode for a slow PJ upon jumping,

@@ -596,6 +596,7 @@ Also, narrow paths are useless under water, where the swimming logic handles obs
 
 
 ### Shootable doors and triggers
+
 The old Frogbot supported one single shootable trigger, the door in `dm6`. Even though the logic could be ported to other maps with similar doors, it was very constrained and hard to set up. The bot could open the door only in one direction, and only if it desired to pick up a certain thing behind the door. If the door closed before the bot could get out and the area had no other exit, it got stuck.
 
 The v2 Frogbot replaces this system with _universal shootable triggers._ Bots can now shoot any trigger, be it a door or (secret) switch, whenever they want to cross a path that requires it, in any direction. And remember: anything platform-like is considered a ‘door,’ so this can also be used for bridges etc.
@@ -657,6 +658,7 @@ The _precise jump_ path mode will normally cause the bot to jump straight toward
 
 Setting up these jumps may be tricky and require some trial-and-error. Things to keep in mind:
 - A `jump hint` marker should only have 1 (or perhaps 2) incoming path(s) and no outgoing paths, and cannot be used as part of any true path. Its only purpose is to indicate the initial jump direction; this type of marker is automatically untouchable.
+- The distance towards the `jump hint` marker does not matter, only its direction. Place it sufficiently far to have a well-defined direction, and keep it at the same Z height as the jump marker, unless a special jump is needed (see section below).
 - The bot will normally start to air strafe immediately after jumping. This may be problematic if there is a wall nearby that first needs to be cleared: the bot may turn too soon and bump into the wall. If this is the case, set `slow down` mode on the pseudo-path towards the `jump hint` marker to postpone air strafing for about 40 units distance after jumping.
 - A marker can have only 1 pseudo-path towards 1 `jump hint` marker. The JH will be applied to _every_ outgoing precise jump path.  
   (This means a marker with a JH can only really have 1 precise jump originating from it—unless the JH is appropriate for all jumps. In the unlikely case multiple precise jumps from the same spot towards different directions would ever be needed, you may need to work around this by using multiple markers and exclusive paths).
@@ -680,6 +682,20 @@ Bots have a skill-dependent inaccuracy on air strafing. Because of this, it is b
 This does not only apply to precise jumps; any path where the bot gets airborne can be given an `R` value to enforce air strafing at a specific yaw rate.
 
 
+### Other special precise jumps
+
+Placing a `jump hint` marker at special positions relative to the spot from where a _precise jump_ is performed, will change the way the jump is treated:
+- Placing the `jump hint` vertically (same XY coordinates) above or below the jump spot marker, will disable all direction checks and run-up logic. The bot will unconditionally jump when within 40 units of the jump spot. This is useful for chains of jumps, where the bot needs to jump again as soon as it lands from the first jump, and is guaranteed to be coming from the right direction anyway, or the second jump is mostly vertical. In this case, the second jump spot marker should also be made _air touchable_ to ensure the bot makes the second jump as soon as it touches ground.
+- Placing the `jump hint` diagonally (different XY coordinates and more than 32 units higher in Z), will likewise disable direction checks and run-up logic, but will also impose a minimum vertical velocity before the bot will make the jump. This is meant for tricky jumps on sloped surfaces, where it is essential that the bot has vertical speed to get an extra boost while jumping. Place the JH marker such that it is in the direction of the upward slope.  
+  (Same goes for a JH marker diagonally _below_ the jump spot, which imposes a _negative_ Z speed threshold, which I doubt will ever be useful, but who knows, and it was cheap to implement.)
+
+When setting up precise jumps on upward slopes, the jump spot marker must be sufficiently moved down into the ground (using `NOCLIP`) to ensure it is touched at the right moment. This is because markers are normally not touched until the bot is at most 18 units below them.
+
+An example of a jump relying on a vertical hint to instantly jump again on a sloped surface can be found in `monsoon,` at the small ledge near the mega-health. These jumps again rely on Quake's weird physics, of course in reality jumping onto a sloped surface will not magically allow to make a second higher jump.
+
+![Double jump in Monsoon](images/monsoon-jump.jpg)
+
+
 ### The Danger Zone
 
 Bots anticipate the spawning of items, and may already come near the item several seconds before it actually spawns (‘camp’ it). In some maps like `hohoho`, this is problematic because desirable items are placed inside zones with _hurt_ triggers (`trigger_hurt`). In other maps, coming near the spawn point before the item has actually spawned, may be counter-productive, like in `baldm7` where being sucked into the push pipe too early is a waste of time.
@@ -692,8 +708,8 @@ Usually this type does not need to be set on markers in lava or slime, unless th
 
 ### Dealing with overlapping markers
 
-Some maps have markers at the exact same coordinates. I consider this _bad practice_ (even though one of the most iconic Quake maps suffers from this) and it should be avoided, but how to deal with it when it's in an existing map?
-- By enabling closest-marker-mode (`F`), you can select between overlapping markers with the `L` or `0` (zero) key to cycle between the 4 most nearby markers. Print marker info with `C` to see what marker you have actually selected.
+Some maps have markers at the exact same coordinates, which makes setting up waypoints more difficult. While making maps, add at least a tiny offset between spawn/teleport markers and others, it makes things easier. But, it is also common to find for instance stacked health packs (worst case seen so far is in `hohoho` with 4 packs). How to deal with this when making waypoints?
+- By enabling closest-marker-mode (`F`), you can select between overlapping markers with the `L` or `0` (zero) key to cycle between the 4 most nearby markers. Print marker info with `C` to see what marker you have actually selected. Connecting markers will require toggling connect-markers mode at the right moments. Expect to make mistakes, this is tricky to get right.
 - In general, _one should not make a path between overlapping markers._ Although the v2 Frogbot has some protections against this, connecting such markers may cause the bot to get temporarily stuck. It makes no sense anyway, there is no path to follow between things at the same coordinates. Just connect both markers to neighbouring markers in the same way (unless one is a spawn, then it should only have outgoing paths).
 - The same goes for markers that do not exactly overlap, but are still very close to each other. If you notice bots getting stuck or yo-yoing between such markers, try removing the connections between them and give them the same incoming and outgoing paths.
 - If an overlapping marker is not an item that can be picked up, it may be better to just make it untouchable (see above).
@@ -741,7 +757,8 @@ The movement of the bot can be influenced in a limited way by pressing movement 
 If you want to live dangerously and test changes on-the-fly, make it a reflex to first dump your waypoint data to the console and then a file (`F1`, `F5`) before pressing `F4`.
 
 #### Forcing goals
-To test whether the bot correctly tackles a specific path, goals can be overridden with impulse 166, bound to the `-` key in the default config. For instance, to force the bot to run to a certain marker, hit the `-` key while this marker is selected. A second marker can then also be set, to ensure the bot will follow a specific path. This makes testing tricky jumps and such way less cumbersome than letting the bot do its thing and waiting until it takes that path.
+To test whether the bot correctly tackles a specific path, goals can be overridden with impulse 166, bound to the `-` key in the default config. For instance, to force the bot to run to a certain marker, hit the `-` key while this marker is selected. A second marker can then also be set, to ensure the bot will follow a specific path. This makes testing tricky jumps and such way less cumbersome than letting the bot do its thing and waiting until it takes that path.  
+(Avoid using teleport triggers as goal override: they are never actually touched and the goal will never be cleared.)
 
 #### Debugging path calculation errors
 If the bot does not seem to want to take an obvious path, it could be because a path has been assigned an erroneous travel time. This will generally mean that the waypoints violate zone assignment guideline 1 as mentioned above. However, it may also occur in some other exotic cases.

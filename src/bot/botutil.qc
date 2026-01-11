@@ -112,6 +112,24 @@ void() NewVelocityForArrow =
 	}
 };
 
+/*
+============
+SetArrowForLinkedMarker
+
+Adjusts self.arrow to aim for linked_marker_ (no velocity update)
+============
+*/
+void() SetArrowForLinkedMarker =
+{
+	dir_move = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	dir_move_z = 0;
+	dir_move = normalize(dir_move);
+	self.dir_move_ = dir_move;
+	BestArrowForDirection();
+	self.arrow = best_arrow;
+	self.arrow_time = time + 0.15;
+};
+
 
 /*
 ============
