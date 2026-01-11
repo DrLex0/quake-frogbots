@@ -1,0 +1,63 @@
+void() map_arenazap =
+{
+// custom markers start at m38
+N(-166,-91,24);N(-6,-273,24);N(185,-80,24);N(5,94,24);
+N(200,113,24);N(230,-303,24);N(-236,-268,24);N(-192,102,24);
+N(-8,-524,24);N(-381,-73,24);N(13,339,24);N(417,-92,24);
+LSQ();
+Z3(m2);Z3(m3);Z3(m4);Z3(m5);Z3(m6);Z3(m7);Z3(m8);Z2(m18);
+Z2(m19);Z2(m20);Z2(m21);Z2(m22);Z2(m23);Z2(m24);Z1(m25);Z1(m26);
+Z1(m27);Z1(m28);Z1(m29);Z1(m38);Z1(m39);Z1(m40);Z1(m41);Z1(m42);
+Z1(m43);Z1(m44);Z1(m45);Z1(m46);Z1(m47);Z1(m48);Z1(m49);
+m25.view_ofs_z=33;
+m25.P0=m40;m25.P1=m39;m25.P2=m38;m25.P3=m41;m38.P0=m25;m38.P1=m45;
+m38.P2=m44;m39.P0=m25;m39.P1=m43;m39.P2=m44;m40.P0=m25;m40.P1=m42;
+m40.P2=m43;m41.P0=m25;m41.P1=m45;m41.P2=m42;m42.P0=m41;m42.P1=m40;
+m42.P2=m48;m42.P3=m49;m43.P0=m40;m43.P1=m39;m43.P2=m46;m43.P3=m49;
+m44.P0=m39;m44.P1=m38;m44.P2=m46;m44.P3=m47;m45.P0=m38;m45.P1=m41;
+m45.P2=m47;m45.P3=m48;m46.P0=m43;m46.P1=m44;m47.P0=m44;m47.P1=m45;
+m48.P0=m45;m48.P1=m42;m49.P0=m42;m49.P1=m43;
+};
+/* MarkerInfo
+m1 trigger_multiple 0 320 320;
+m2 info_player_deathmatch 144 880 304;
+m3 info_player_deathmatch 144 784 304;
+m4 info_player_deathmatch 144 688 304;
+m5 info_player_deathmatch 144 592 304;
+m6 info_player_deathmatch -112 928 304;
+m7 info_player_deathmatch -16 928 304;
+m8 info_player_deathmatch 80 928 304;
+m9 trigger_multiple -184 340 320;
+m10 trigger_multiple 184 340 320;
+m11 trigger_multiple 0 340 264;
+m12 trigger_multiple 0 340 376;
+m13 trigger_multiple 0 -472 320;
+m14 trigger_multiple 184 -492 320;
+m15 trigger_multiple -184 -492 320;
+m16 trigger_multiple 0 -492 264;
+m17 trigger_multiple 0 -492 376;
+m18 info_player_deathmatch 112 -1080 304;
+m19 info_player_deathmatch 16 -1080 304;
+m20 info_player_deathmatch -80 -1080 304;
+m21 info_player_deathmatch -144 -1032 304;
+m22 info_player_deathmatch -144 -936 304;
+m23 info_player_deathmatch -144 -840 304;
+m24 info_player_deathmatch -144 -744 304;
+m25 func_button 0 -80 4;
+m26 door -264 -80 64;
+m27 door 0 184 64;
+m28 door 264 -80 64;
+m29 door 0 -344 64;
+m38 marker -166 -91 24;
+m39 marker -6 -273 24;
+m40 marker 185 -80 24;
+m41 marker 5 94 24;
+m42 marker 200 113 24;
+m43 marker 230 -303 24;
+m44 marker -236 -268 24;
+m45 marker -192 102 24;
+m46 marker -8 -524 24;
+m47 marker -381 -73 24;
+m48 marker 13 339 24;
+m49 marker 417 -92 24;
+*/
