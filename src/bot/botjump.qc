@@ -628,6 +628,8 @@ void() SpecialAccurateMoves =
 		return;
 	}
 	local vector v_touch = self.path_from_marker.absmin + self.path_from_marker.view_ofs - origin_;
+	local float z_touch = v_touch_z;
+	v_touch_z = 0;
 	local float touch_dist = vlen(v_touch);
 
 	// right_direction() sets the ideal direction vector dir_move,
@@ -653,10 +655,10 @@ void() SpecialAccurateMoves =
 	if (!(self.path_state & PRECISE_JUMP))
 		return;
 
-	if (v_touch_z > 48)  // Bot likely missed jump and fell off a ledge; abort the whole thing
+	if (z_touch > 48)  // Bot likely missed jump and fell off a ledge; abort the whole thing
 	{
 #ifdef DEBUG_TOUCH
-		dprint("Precise jump aborted because unexpected dZ=", ftos(v_touch_z), "\n");
+		dprint("Precise jump aborted because unexpected dZ=", ftos(z_touch), "\n");
 #endif
 		return MarkerUnTouch();
 	}
@@ -682,8 +684,9 @@ void() SpecialAccurateMoves =
 	if (vlen(v_link) <= 32)
 		return;
 	// - already on the ledge the bot wanted to jump on
-	if (v_touch_z < -18)
+	if (z_touch < -18)
 	if (v_link_z <= 18)
+	if (! self.special_p_jump)
 		return;
 
 	local float velo;
