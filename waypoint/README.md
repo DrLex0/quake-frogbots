@@ -57,16 +57,22 @@ If you want to include waypoints for a certain map in this repository, create a 
 To obtain this dump after making changes, press `F1` while in manual mode. It may take a while for everything to be printed to the console—don't do _anything_ until it finishes scrolling.  
 Then, you must save the console to a file, unless you launched Quake with `-condebug` (which continuously appends the console to a file). The config provided with the waypoint tool binds `F5` to the `condump` command. Or, use whatever method appropriate for your Quake engine to obtain the console output.
 
+Ensure no unwanted newlines are introduced in the dump: lines must _only_ be split after a `;`.
+
 Find your console dump file (often called `condump.txt`) and extract the entire `void() map_mapname {…};` function from the end. Preferably, include the `MarkerInfo` comment block as well. Save this to a file called `map_mapname.qc`. The `mapname` must be all lowercase, and correspond _exactly_ to the actual map name that will be used for the `map` command.
 
 If the map has `+` or `-` characters in its name, you _must_ edit the `.qc` file and replace these characters in the line starting with `void() map_…`:
 - `+` must be replaced with `PLUS`;
 - `-` must be replaced with `DASH`.
 
-If you have an environment with `bash, awk, sed` and `perl,` a shell script **getmapdump.sh** is provided that can extract the dump from a Quake log file straight into a new or existing `.qc` file (assuming the dump is the very last part of the log, with nothing coming after it).  
-(This script is still a kludge, on the TODO list is to make a Python script that is more robust and flexible.)
+Instead of doing this manually, it is way easier and safer to use the **getmapdump.py** Python script. It will extract the last waypoint dump from a console file (default `condump.txt`, a different name can be provided as first argument). The dump can be saved directly to a new or existing `.qc` file by passing its path with the `-o` parameter.
 
-Ensure no unwanted newlines are introduced in the code: lines must _only_ be split after a `;`.  
+```bash
+python getmapdump.py -o path_to_your_waypoint_file.qc  # if console dump is in 'condump.txt'
+# or, if the console file has a different name:
+python getmapdump.py -o path_to_your_waypoint_file.qc console.log
+```
+
 You _can_ manually edit the waypoint code, like swapping zone numbers, editing goals, removing unwanted paths or path modes, or fixing other things. The format is straightforward. However, in general it is much saner to do everything inside the waypoint tool.
 
 So, now you have this dump of waypoint code. What to do with it?
@@ -156,8 +162,8 @@ I use the compiled workflow because it is the fastest. The following example req
 # Launch Quake, open console, `game waypoint`, `map themapname`.
 # Edit waypoints, dump them (F1) and export the console (F5). Then quit Quake.
 # Then, extract waypoint data straight into the appropriate QC file, by running
-# the getmapdump script from within the directory where the Quake console was dumped:
-./getmapdump.sh /path/to/frogbot/src/maps/subdir/map_themapname.qc
+# the getmapdump script, symlinked in the directory where the Quake console was dumped:
+./getmapdump.py -o /path/to/frogbot/src/maps/subdir/map_themapname.qc
 # If the .qc file was newly created, then run from inside the src/maps folder:
 python generate_maplist.py -vglt -d drlex ktx trinca other
 # Then, from inside the main 'src' folder:

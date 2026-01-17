@@ -48,7 +48,7 @@ Or, do all of the above in a single invocation:
 
 ## Special characters in map names
 
-Some characters need special treatment, because they would otherwise conflict with QuakeC source code. However, if you use the `getmapdump.sh` script to extract waypoint code from a Quake log, and then the `generate_maplist.py` script to update the sources, this is all done automatically.
+Some characters need special treatment, because they would otherwise conflict with QuakeC source code. However, if you use the `getmapdump.py` script to extract waypoint code from a Quake log, and then the `generate_maplist.py` script to update the sources, this is all done _automatically._
 
 At this time, the following characters must be (and are by the scripts) converted as follows from the original map name to the function name that defines the waypoints:
 - `+` becomes `PLUS`;
