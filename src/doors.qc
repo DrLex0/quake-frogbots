@@ -400,6 +400,9 @@ void() func_door =
 
 	self.nextthink = self.ltime + 0.001;
 
+	self.th_pain = null;  // safeguard against unexpected invocations
+	self.th_die = null;
+
 	if (self.wait < 0)
 	{
 		self.think = check_door_open;
@@ -728,6 +731,9 @@ void () func_door_secret =
 	self.oldorigin = self.origin;
 	self.prev_origin = self.pos1;
 #endif
+
+	self.th_pain = null;  // safeguard against unexpected invocations
+	self.th_die = null;
 
 	if (self.spawnflags & SECRET_OPEN_ONCE)
 	{
