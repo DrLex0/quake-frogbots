@@ -53,6 +53,7 @@ trinca/map_dranzdm8.qc
 trinca/map_e1m1.qc
 trinca/map_e1m3.qc
 trinca/map_e1m5.qc
+trinca/map_e1m6.qc
 trinca/map_e1m7.qc
 trinca/map_efdm13.qc
 trinca/map_efdm8.qc
