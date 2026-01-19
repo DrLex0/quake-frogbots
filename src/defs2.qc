@@ -30,7 +30,6 @@ float() ExistsPath;
 float() RocketSafe;
 float() BotShouldDischarge;
 float() WaterCombat;
-float() boomstick_only;
 float TEAM_COLOR1 = 5;
 float TEAM_COLOR2 = 14;
 float TEAM_COLOR3 = 1;
@@ -121,6 +120,10 @@ float a_rep;
 .float old_bot; 
 .string stringname;
 string string_null;
+
+float SNG_OR_BETTER = IT_SUPER_NAILGUN | IT_LIGHTNING | IT_ROCKET_LAUNCHER;
+float BETTER_THAN_BOOMSTICK = IT_NAILGUN | IT_SUPER_SHOTGUN | IT_GRENADE_LAUNCHER | SNG_OR_BETTER;
+
 
 void() SprintVersion =
 {
@@ -469,7 +472,7 @@ float() enemy_have_rl_or_lg =
 
 float() boomstick_only =
 {
-	return ((self.items & IT_SHOTGUN) && !(self.items & (IT_NAILGUN | IT_SUPER_NAILGUN | IT_SUPER_SHOTGUN | IT_ROCKET_LAUNCHER | IT_GRENADE_LAUNCHER | IT_LIGHTNING)));
+	return ((self.items & IT_SHOTGUN) && !(self.items & BETTER_THAN_BOOMSTICK));
 };
 
 float() enemy_defenceless =

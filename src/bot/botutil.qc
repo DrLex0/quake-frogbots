@@ -634,4 +634,4 @@ float(float f_dist) ForwardProbeMarker =
 	traceline(spot2, spot1, TRUE, self);
 	if (trace_ent == self.linked_marker) return TRUE;
 	return (trace_fraction == 1);
-}
+};

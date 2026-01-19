@@ -683,6 +683,7 @@ void() DelayUpdateWeapons =
 ============
 UpdateWeapons
 
+A big pile of heuristics, improvement may be possible
 ============
 */
 void() UpdateWeapons =
@@ -795,7 +796,10 @@ void() UpdateWeapons =
 			self.desire_nailgun = self.desire_supershotgun;
 		else
 			self.desire_nailgun = self.desire_nails;
-		self.desire_supernailgun = 2.5 * self.desire_nailgun;
+		if (items_ & SNG_OR_BETTER)
+			self.desire_supernailgun = 2.5 * self.desire_nailgun;
+		else
+			self.desire_supernailgun = 0.75 * self.desire_lightning;
 
 		if (self.desire_supershotgun < self.desire_shells)
 			self.desire_supershotgun = self.desire_shells;
@@ -812,7 +816,16 @@ void() UpdateWeapons =
 			firepower_ = 100;
 
 		if (boomstick_only())
-			self.desire_backpack = self.desire_supershotgun;
+		{
+			// Anything is better than the BOOMSTICK. Use a much simpler desirability
+			// scale to encourage picking up nearby weapons even if not the fanciest.
+			//self.desire_backpack = self.desire_supershotgun; // unused, do something with it or remove.
+			self.desire_nailgun = 0.6 * self.desire_rocketlauncher;
+			self.desire_supershotgun = 0.75 * self.desire_rocketlauncher;
+			self.desire_supernailgun = 0.8 * self.desire_rocketlauncher;
+			self.desire_grenadelauncher = 0.9 * self.desire_rocketlauncher;
+			self.desire_lightning = self.desire_rocketlauncher;
+		}
 
 		if (self.super_damage_finished > time)
 			firepower_ = firepower_ * 4;
