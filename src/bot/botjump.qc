@@ -13,6 +13,7 @@
 void() VelocityForArrow;
 void() NewVelocityForArrow;
 void() SetArrowForLinkedMarker;
+float(float x_ofs, float z_ofs) OffsetProbeObstacle;
 float(float a) anglemod;
 float(entity me) near_teammate;
 void() MarkerUnTouch;
@@ -438,12 +439,44 @@ float() PreciseRunUpLogic =
 	return FALSE;
 };
 
+// Make bots reliably go through narrow openings. How hard could it be?
 float() NarrowPathLogic =
 {
 	if (! (self.path_state & NARROW_PATH))
 		return FALSE;
 	if (! self.narrow_path_state)
+	{
+		if (self.obstruction_normal != '0 0 0') {
+			// Despite all the fancy logic below, bots may sometimes still
+			// get stuck on geometry after homing in on the marker. Use similar
+			// obstacle probing as for water movement to strafe-nudge the bot.
+			rel_pos = normalize(linked_marker_.absmin + linked_marker_.view_ofs - origin_);
+			// Must be true obstruction: bot can slide forward on anything at enough
+			// of an angle (unless someone tries to be fancy by adding a sharp frame
+			// around a door without wrapping it in a transparent straight-angled box).
+			if (self.obstruction_normal * rel_pos < 0.85)
+				return FALSE;
+			local vector facing = '0 0 0';
+			facing_y = self.v_angle_y;
+			// v_forward, v_up will also be used by OffsetProbeObstacle
+			makevectors(facing);
+			// Bot must be sufficiently facing towards path for strafing to work
+			if (v_forward * rel_pos < 0.75)
+				return FALSE;
+			// Probe randomly at left and right edges
+			if (OffsetProbeObstacle(-15.9, -23 + 54 * random())) {
+				self.arrow = FORWARD_RIGHT;
+				self.arrow_time = self.arrow_time2 = time + 0.1;
+				return TRUE;
+			}
+			if (OffsetProbeObstacle(15.9, -23 + 54 * random())) {
+				self.arrow = FORWARD_LEFT;
+				self.arrow_time = self.arrow_time2 = time + 0.1;
+				return TRUE;
+			}
+		}
 		return FALSE;
+	}
 
 	local float test_dist;
 	local vector vec_touch;
