@@ -446,10 +446,12 @@ float() NarrowPathLogic =
 		return FALSE;
 	if (! self.narrow_path_state)
 	{
-		if (self.obstruction_normal != '0 0 0') {
-			// Despite all the fancy logic below, bots may sometimes still
-			// get stuck on geometry after homing in on the marker. Use similar
-			// obstacle probing as for water movement to strafe-nudge the bot.
+		// Despite all the fancy logic below, bots may sometimes still
+		// get stuck on geometry after homing in on the marker. Use similar
+		// obstacle probing as for water movement to strafe-nudge the bot.
+		// Make lower-skill bots clumsier.
+		if (self.obstruction_normal != '0 0 0')
+		if (random() >= self.bot_inaccuracy) {
 			rel_pos = normalize(linked_marker_.absmin + linked_marker_.view_ofs - origin_);
 			// Must be true obstruction: bot can slide forward on anything at enough
 			// of an angle (unless someone tries to be fancy by adding a sharp frame
