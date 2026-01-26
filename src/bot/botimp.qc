@@ -209,6 +209,7 @@ void() InitParameters =
 
 	numberofbots = -1;
 
+	is_multiplayer = cvar("deathmatch");  // Remember original value before possibly clobbering it
 	if ((deathmatch != floor(deathmatch)) || (deathmatch < 1) || (deathmatch > MAX_DEATHMATCH))
 	{
 		deathmatch = 1;
@@ -793,6 +794,11 @@ Note: color = (shirt_color * 16) + pants_color
 */
 void() AddBot =
 {
+	if (! is_multiplayer)
+	{
+		bprint("Cannot add bots in single player; try become frogbot instead\n");
+		return;
+	}
 	local float t1, t2, color;
 	if (self.player)
 	{
@@ -942,6 +948,11 @@ AddBots
 */
 void() AddBots =
 {
+	if (! is_multiplayer)
+	{
+		bprint("Cannot add bots in single player; try become frogbot instead\n");
+		return;
+	}
 	min_second = maxplayers - scoreboardsize + 1;
 	if (impulse_ > min_second)
 		impulse_ = min_second;
@@ -1508,7 +1519,7 @@ void() ImpulseCommands =
 				}
 				if (impulse_ == IMP_LINES)
 					self.spawnflags = START_LINES;
-				else if (self.admin_code != dropper.admin_code)
+				else if (is_multiplayer && (self.admin_code != dropper.admin_code))
 					NoAdmin();
 				else if (impulse_ <= IMP_ADD4BOTS)
 				{
@@ -1540,7 +1551,7 @@ void() ImpulseCommands =
 			PrintRules();
 		else if (impulse_ == IMP_FLASH)
 			ToggleFlash();
-		else if (self.admin_code != dropper.admin_code)
+		else if (is_multiplayer && (self.admin_code != dropper.admin_code))
 			NoAdmin();
 		else if (impulse_ == IMP_HIDE)
 			ToggleGameModeNow(GAME_HIDE_RULES, "hide");

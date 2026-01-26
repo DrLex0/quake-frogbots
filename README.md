@@ -183,9 +183,9 @@ No promises about dates or reaching these goals whatsoever. It is done when it's
 
 ### Not really planned, but who knows…
 
-- Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, but some things are broken. If you want to try this: remember to start a network game, or very weird things will happen when attempting to add a bot in single-player mode. However, one extra feature that the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer. Try it!
+- Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, or you can actually play against bots in the waypoint tool if you start a network game and use manual impulse commands, but some things are still broken. However, one extra feature the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer. Try it!
 - Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels. Bots also shouldn't do smart things on low smartness settings, like deliberately damaging themselves to be able to pick up armor such that other players cannot, and a bot with smartness 0 should have zero advance knowledge of when an item will spawn.
-- Find a way to automatically generate sensible waypoints as a starting point, to avoid the need to make every map from scratch. This will likely never work fully unsupervised, but it could reduce the amount of work per map to merely fine-tuning the tricky parts and special things.
+- Find a way to automatically generate sensible waypoints as a starting point, to avoid the need to make every map from scratch. This will likely never work fully unsupervised, but it could reduce the amount of work per map to merely fine-tuning the tricky parts and special things. Having near-Trinca-quality waypoints automatically generated, would already be very helpful.
 
 
 ## License

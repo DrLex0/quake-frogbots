@@ -2453,6 +2453,7 @@ float SPAWN_SIZE = 1;
 float spawnbit0_;
 float spawnbit1_;
 float registered;
+float is_multiplayer;
 float check_parm_time;
 
 .entity movetarget;
