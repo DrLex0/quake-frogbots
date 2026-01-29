@@ -82,6 +82,7 @@ So, now you have this dump of waypoint code. What to do with it?
 This is the **classic method,** and is appropriate for maps that are considered _final._ The embedded method (see below) is much more appropriate for maps that may still need to be changed.
 - The _advantage_ is that everything is bundled inside the single progs files, and the included maps will then be instantly playable by anyone using the latest Frogbot build, without requiring extra files.
 - The _disadvantage_ is that if multiple builds of the Frogbot progs would be distributed, it is hard to know what list of maps they support. And also, old builds may contain old waypoints with flaws.
+- Another _disadvantage_ is that this workflow is nearly unusable for maps where items still need to be added or removed. Adding or removing a single item can still be patched with the `entity_shifter.py` script, but adding or removing multiple items at once will make things hairy very quickly. Again, the embedded workflow is much more usable in this case.
 
 Add the `map_mapname.qc` file to the `maps` folder of the Frogbot source code, then update the `maplist.txt` file and routines in the source code.  
 _Don't do this manually!_ The `generate_maplist.py` script will do everything for you. From inside the `maps` directory, invoke it as follows:
@@ -128,7 +129,7 @@ As with the waypoint build, if you have access to a `bash` shell, you can also u
 Now you can actually play against bots using your own waypoints in a QuakeWorld engine like ezQuake.
 
 #### My typical workflow
-I use the compiled workflow because it is the fastest. The following example requires a Unix/Linux-like shell environment.
+For creating waypoints for existing finalised maps, I use the compiled workflow because it is the fastest. The following example requires a Unix/Linux-like shell environment.
 ```bash
 # Launch Quake, open console, `game waypoint`, `map themapname`.
 # Edit waypoints, dump them (F1) and export the console (F5). Then quit Quake.
@@ -152,7 +153,9 @@ An obvious advantage is that waypoint data can be distributed with a map, withou
 
 Another advantage is that unlike the compiled waypoints that rely on indices, this embedded waypoint data relies on string IDs to describe paths, which keeps them relatively robust against removing or adding extra entities. Of course there are limits: deleting an entity and adding a new one will require repairing paths and possibly also zones and goals. For this reason, it is only really recommended to spend effort on creating waypoints when a map is considered reasonably final and only minor tweaks are expected.
 
-It is also possible to inject the waypoint data into a `.map` file, and then build a BSP from this that will effectively have built-in Frogbot v2 support. This is especially useful while developing a map and using Frogbots for initial playtesting, because the waypoint data will be mostly preserved while editing the map in editors like TrenchBroom. You may even edit the custom markers by moving their `testplayerstart` representations. In theory you could even distribute your final map this way, but mind that this freezes the embedded waypoints to your final version. If you would edit the waypoints and rebuild the map, the BSP will be different, which could cause problems on servers. I would therefore recommend to either distribute the waypoints in a separate `.ent` file, or have them added as compiled waypoints in the “official” Frogbot builds. The latter 2 options can be easily edited independently of the map file.
+It is also possible to inject the waypoint data into a `.map` file, and then build a BSP from this, which will then effectively have built-in Frogbot v2 support. This is _especially_ useful while developing a map and using Frogbots for initial playtesting, because the waypoint data will be mostly preserved while editing the map in editors like TrenchBroom. You may even edit the custom markers by moving their `testplayerstart` representations.
+
+In theory you could even distribute your final map this way, but mind that this freezes the embedded waypoints to your final version. If you would edit the waypoints and rebuild the map, the BSP will be different, which could cause problems on servers. Moreover, loading the map outside of the Frogbot mod, might spam the console with warnings about the custom entity fields in some cases. I would therefore recommend to either distribute the waypoints in a separate `.ent` file, or have them added as compiled waypoints in the “official” Frogbot builds. The latter 2 options can be edited easily independently of the map file.
 
 #### Workflow
 - Extract the entity list from the BSP. There are several tools that can do this, for instance `bsputil` from _ericw-tools:_  
@@ -165,7 +168,7 @@ python waypoint_map_inject.py -v -w map_mapname.qc mapname.ent
 # or
 python waypoint_map_inject.py -v -w map_mapname.qc -o mapname.ent mapname-input.ent
 ```
-The script will try to preserve ID strings if an existing `.ent` or `.map` file is given as argument. This is only vaguely useful when updating an existing `.map` file after making edits.
+The script will try to preserve ID strings if an existing `.ent` or `.map` file is given as argument. This is only really important when updating an existing `.map` file after making edits, the IDs should be considered volatile otherwise.
 
 #### Converting embedded waypoints back to QuakeC code format
 Simple: load the map in the waypoint tool, and dump the code with `F1` (and `F5` if needed) as usual.
@@ -173,14 +176,16 @@ Simple: load the map in the waypoint tool, and dump the code with `F1` (and `F5`
 #### Using embedded waypoints for playtesting a map under development
 A usable workflow for using the Frogbot to playtest a map, could look like this:
 
-1. Load your candidate map in the waypoint tool and set up waypoints.
+1. Load your candidate map in the waypoint tool, and set up waypoints.
 2. Dump waypoints and extract them from the console.
-3. Inject the waypoints from the `.qc` format file into the `.map` file, and build the `.bsp` from this.
+3. Using `waypoint_map_inject.py`, inject the waypoints from the `.qc` format file into the `.map` file, and then build the `.bsp` from this.
 4. Test the map. Try different bot skill levels within a reasonable range.
-5. Apply any desired changes to the map, starting from the `.map` file with the embedded waypoints. You could edit waypoints within the map editor, by manipulating `testplayerstart` entities, for instance if editing geometry would cause some of those to end up inside walls. However, keep this to a minimum because it will be cumbersome. Fixing the waypoints will be easier in the following steps.
+5. Apply any desired changes to the map, starting from the `.map` file with the embedded waypoints. You could edit waypoints within your map editor, by manipulating `testplayerstart` entities, for instance if editing geometry would cause some of those to end up inside walls. However, keep this to a minimum because it will be cumbersome. Fixing the waypoints will be easier in the following steps.
 6. Rebuild the `.bsp` from the updated `.map,` and reload it in the waypoint tool.
 7. Update the waypoints: fix things broken by changes or that have been added. Check paths, especially if you deleted or moved existing items.
-8. Dump the waypoints and go back to step 3, and loop until satisfied.
+8. Go back to step 2, and loop until satisfied.
+9. Unless you really want to keep the waypoints embedded in the BSP forever, you should scrub them from the `.map` file with the `-s` option of the inject script before building the final BSP, and then inject them into an `.ent` file or have them compiled into the Frogbot mod.
+
 
 
 # Waypoint Creating and Editing Guide

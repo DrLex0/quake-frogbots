@@ -794,11 +794,14 @@ Note: color = (shirt_color * 16) + pants_color
 */
 void() AddBot =
 {
+#ifdef QUAKE
+	// Allow in QW, where there is no real single player anyway
 	if (! is_multiplayer)
 	{
 		bprint("Cannot add bots in single player; try become frogbot instead\n");
 		return;
 	}
+#endif
 	local float t1, t2, color;
 	if (self.player)
 	{
@@ -948,11 +951,14 @@ AddBots
 */
 void() AddBots =
 {
+#ifdef QUAKE
+	// Allow in QW, where there is no real single player anyway
 	if (! is_multiplayer)
 	{
 		bprint("Cannot add bots in single player; try become frogbot instead\n");
 		return;
 	}
+#endif
 	min_second = maxplayers - scoreboardsize + 1;
 	if (impulse_ > min_second)
 		impulse_ = min_second;

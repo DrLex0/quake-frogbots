@@ -3,7 +3,7 @@
 Inject Frogbot waypoint annotations into a Quake .map or .ent file,
 to allow compiling the map with built-in Frogbot support, or to play with
 Frogbots in a BSP map without editing it if the engine supports .ent files.
-2025-01 to 2025-12, Alexander Thomas aka DrLex.
+2025-01 to 2026-01, Alexander Thomas aka DrLex.
 
 Released under GPL license.
 """
@@ -620,6 +620,7 @@ def inject_waypoints(
                 properties={
                     "classname": "testplayerstart",
                     "origin": pos,
+                    "spawnflags": "1792",  # omit from single player modes
                     "FrB_ID": frb_id,
                 },
                 comments=["// Frogbot custom marker\n"],
