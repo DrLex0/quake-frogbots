@@ -178,7 +178,7 @@ A usable workflow for using the Frogbot to playtest a map, could look like this:
 
 1. Load your candidate map in the waypoint tool, and set up waypoints.
 2. Dump waypoints and extract them from the console.
-3. Using `waypoint_map_inject.py`, inject the waypoints from the `.qc` format file into the `.map` file, and then build the `.bsp` from this.
+3. Using `waypoint_map_inject.py`, inject the waypoints from the `.qc` format file into the `.map` file, reload it in your editor, and then build the `.bsp` from this.
 4. Test the map. Try different bot skill levels within a reasonable range.
 5. Apply any desired changes to the map, starting from the `.map` file with the embedded waypoints. You could edit waypoints within your map editor, by manipulating `testplayerstart` entities, for instance if editing geometry would cause some of those to end up inside walls. However, keep this to a minimum because it will be cumbersome. Fixing the waypoints will be easier in the following steps.
 6. Rebuild the `.bsp` from the updated `.map,` and reload it in the waypoint tool.
@@ -429,6 +429,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - It helps to draw a floor plan of the map with zones, goals and paths, especially for complicated cases like exclusive paths, although the visualisation modes of the tool make it easy to spot mistakes. It also is interesting to walk around in existing maps and see how waypoints were added.
 - At any time when you are confused about what marker mode you're in, press `G` to reset. (The only thing this does not reset, is closest marker mode.)
 - Moving an existing marker is preferable over deleting it and making a new one. Static marker mode (`I` or `TAB`) is your friend here.
+- Clearing all marker paths with `T` will only clear outgoing paths in one-way mode, otherwise both outgoing and incoming paths.
 - Paths through _push zones_ must be _one-way_ for obvious reasons. The old Frogbot did not create markers for push brushes, but the v2 Frogbot does. Some maps have push zones consisting of multiple segments, meaning there will be multiple markers. In that case you should not connect all those markers, it suffices to make a path to the first `trigger_push` marker, and then a path from that marker to the exit. Any `trigger_push` markers on the way can be left unconnected and should be given `untouchable` marker type. Also, vertically move the first push marker such that it is at the same height as the floor. See `aerowalk` for an example.
 - Moving markers vertically (`U`) can also be used on `func_button, teleport_trigger, trigger_push, trigger_multiple,` and `door` markers, but not on other non-manually created markers like weapons.
 - It is possible to apply multiple modes to a path, but some combinations make no sense.

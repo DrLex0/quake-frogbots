@@ -2,7 +2,7 @@
 	manual.qc
 
 	Original author unsure, but probably Robert 'Frog' Field.
-	Restored by decompiling waypoint progs.dat, and improved by DrLex 2024-2025.
+	Restored by decompiling waypoint progs.dat, and improved by DrLex 2024-2026.
 	The FrogBot source was given a GPL license by Robert Field in 2007.
 	And even if you think that message was fake, this is all so old
 	that copyright doesn't mean much anymore anyhow.
@@ -358,7 +358,8 @@ void() DisableActiveMarker =
 ============
 ClearActiveMarker
 
-Wipe all outgoing paths and their descriptions.
+Wipe paths and their descriptions, only outgoing if one-way mode,
+otherwise both outgoing and incoming.
 ============
 */
 void() ClearActiveMarker =
@@ -384,7 +385,68 @@ void() ClearActiveMarker =
 	active_marker.D2 = 0;
 	active_marker.D1 = 0;
 	active_marker.D0 = 0;
-	bprint("Active marker path cleared\n");
+	bprint("Active marker outgoing paths cleared\n");
+	if (mode & ONE_WAY)
+		return;
+
+	marker_ = last_marker;
+	local float cleared = 0;
+	while (marker_)
+	{
+		if (marker_.P0 == active_marker)
+		{
+			marker_.P0 = world;
+			marker_.D0 = 0;
+			cleared = cleared + 1;
+		}
+		else if (marker_.P1 == active_marker)
+		{
+			marker_.P1 = world;
+			marker_.D1 = 0;
+			cleared = cleared + 1;
+		}
+		else if (marker_.P2 == active_marker)
+		{
+			marker_.P2 = world;
+			marker_.D2 = 0;
+			cleared = cleared + 1;
+		}
+		else if (marker_.P3 == active_marker)
+		{
+			marker_.P3 = world;
+			marker_.D3 = 0;
+			cleared = cleared + 1;
+		}
+		else if (marker_.P4 == active_marker)
+		{
+			marker_.P4 = world;
+			marker_.D4 = 0;
+			cleared = cleared + 1;
+		}
+		else if (marker_.P5 == active_marker)
+		{
+			marker_.P5 = world;
+			marker_.D5 = 0;
+			cleared = cleared + 1;
+		}
+		else if (marker_.P6 == active_marker)
+		{
+			marker_.P6 = world;
+			marker_.D6 = 0;
+			cleared = cleared + 1;
+		}
+		else if (marker_.P7 == active_marker)
+		{
+			marker_.P7 = world;
+			marker_.D7 = 0;
+			cleared = cleared + 1;
+		}
+		marker_ = marker_.marker_linkrev;
+	}
+	if (cleared)
+		bprint("Active marker ", ftos(cleared), " incoming paths cleared\n");
+	else
+		bprint("No incoming paths to be cleared\n");
 };
 
 /*

@@ -68,6 +68,8 @@ If you have never played Quake before, you may want to start at skill level 0 an
 #### Engine quirks
 If you're using _ezQuake,_ it is possible that _all_ players will have the same red pants and yellow shirts, making it very hard to play team games because the only way to discern between enemies and teammates, is to see whether they are shooting at you. This seems to be a bug in _ezQuake_ itself and the only decent workaround I have found so far, is `/r_skincolormode 5` and then `r_teamskincolor 96 255 96` to give your teammates a green tint (change the RGB numbers for different colors).
 
+Also, if you have tried ‘coop’ mode in ezQuake, mind that traces of it tend to stick until you have again explicitly selected the single-player menu item or cleared the `coop` variable. If it is nonzero, weird things may happen, like deathmatch mode always being forced to 1. You _can_ start a cooperative game with bots, which will make them act as teammates, but this is currently of limited use.
+
 #### Embedded waypoints
 By default, the mod will prefer waypoints embedded in `.ent` files or the `.bsp` itself, overriding any waypoints built into the mod itself for that map. If you want to disable the loading of embedded waypoints and only use the ones built-in, set `sv_frog_only_builtin` to 1, otherwise undefine it or set it to 0.
 
