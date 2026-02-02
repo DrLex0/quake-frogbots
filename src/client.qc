@@ -1191,8 +1191,15 @@ void() PlayerPreThink_apply =
 
 	self.oldvelocity = self.velocity;
 
-// clear touch marker
+	// clear touch marker
 	self.touch_distance = 1000000;
+#ifdef QUAKE
+	// Work around engine quirk. When obstructed, QUAKE adds STEPSIZE (18)
+	// to player Z coordinate to see if they can ascend a step, but this is not
+	// reverted before touch() functions are invoked. This can lead to incorrect
+	// touches in check_marker(). Avoid by storing Z before it gets clobbered.
+	self.phys_absminz = self.absmin_z;
+#endif
 };
 
 void() PlayerPreThink =

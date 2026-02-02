@@ -181,7 +181,11 @@ void(float prioritize) check_marker =
 		// Do not touch markers higher up than the maximum step size that
 		// can be ascended without a jump; unless we're swimming.
 		// Mind that player/bot absmin_z seems to be 1u lower than the actual floor.
+#ifdef QUAKE
+		if (self.absmin_z - 19 > other.phys_absminz)  // See PlayerPreThink_apply
+#else
 		if (self.absmin_z - 19 > other.absmin_z)
+#endif
 		{
 			if (!(self.T & T_LIQUID))
 				return;

@@ -2478,6 +2478,9 @@ float no_bots_stuck;
 .vector velocity_override;
 .float t_velocity_override;  // special value -1 means: next time VelocityForArrow runs
 .float t_swim_obstruction;
+#ifdef QUAKE
+.float phys_absminz;  // work around touch weirdness, see PlayerPreThink_apply
+#endif
 
 // hit wall in flight prediction AI
 float first_trace_fraction;
