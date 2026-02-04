@@ -121,6 +121,12 @@ void() InitParameters =
 {
 	local float ds;
 
+	/* Important QUAKE (NetQuake) note:
+	 * Unlike with the maxclients cvar in QuakeWorld, there is no direct way to obtain
+	 * the maxplayers value in NetQuake, it is not a cvar but a command that internally
+	 * sets svs.maxclients which is not exposed through QuakeC. However, at the moment
+	 * the worldspawn hook is invoked, the only existing entities will be world and
+	 * reserved player slots. Hence we can obtain maxplayers by counting entities. */
 	first_ent = nextent(world);
 	test_enemy = first_ent;
 	maxplayers = 0;
@@ -209,7 +215,6 @@ void() InitParameters =
 
 	numberofbots = -1;
 
-	is_multiplayer = cvar("deathmatch");  // Remember original value before possibly clobbering it
 	if ((deathmatch != floor(deathmatch)) || (deathmatch < 1) || (deathmatch > MAX_DEATHMATCH))
 	{
 		deathmatch = 1;
@@ -271,6 +276,12 @@ void() InitParameters =
 	slow_landspeed2 = sv_maxspeed * 0.625;  // normally 200
 	half_sv_maxspeed = sv_maxspeed * 0.5;
 	inv_sv_maxspeed = 1 / sv_maxspeed;
+
+#ifdef QUAKE
+	is_multiplayer = (maxplayers > 1);
+#else
+	is_multiplayer = TRUE;
+#endif
 
 	str_func_avail = 0;
 	if (cvar("pr_checkextension"))
@@ -795,7 +806,7 @@ Note: color = (shirt_color * 16) + pants_color
 void() AddBot =
 {
 #ifdef QUAKE
-	// Allow in QW, where there is no real single player anyway
+	// Skip check in QW, where there is no real single player anyway
 	if (! is_multiplayer)
 	{
 		bprint("Cannot add bots in single player; try become frogbot instead\n");
@@ -814,133 +825,130 @@ void() AddBot =
 			return;
 		}
 	}
-	if (paths_computed)
-	{
+	if (!paths_computed)
+		return;
+
 #ifdef QUAKE
-		local float cv_maxplay;
-		cv_maxplay = cvar("maxplayers");
-		if (cv_maxplay < 2)	//user forgot to put it up
-			cv_maxplay = 16;
-		if ((numberofclients >= cv_maxplay) || (numberofbots >= 12))
+	// The bot limit of 12 is probably to ensure available human player slots, or stems
+	// from performance limits of old machines. In theory it could be raised to 16.
+	if ((numberofclients >= maxplayers) || (numberofbots >= 12))
 #else
-		if ((numberofclients >= stof(infokey(world, "maxclients"))) || (numberofbots == 16))
+	if ((numberofclients >= stof(infokey(world, "maxclients"))) || (numberofbots >= 16))
 #endif
-		{
-			sprint_fb(self, 2, "Server is full.\n");
-		}
-		else
-		{
-			if (!self.botnumber)
-			{
-				if (AddRandomBot())
-					return;
-			}
-			else if (BotExists())
-			{
-				CopyBot(self, world);	// NULL
-				if (AddRandomBot())
-					return;
-			}
-			other = self;
-			numberofbots = numberofbots + 1;
-			localcmd("localinfo scratch2 ");
-			localcmd_ftos(numberofbots);
-			localcmd("\n");
-			self = frogbot_spawned = EntityAt(first_frogbot, maxplayers - numberofbots);
-			self.flags = 0;
-			self.frogbot = TRUE;
-			self.classname = "frogbot";
-			self.stringname = "gamer";
-		#ifdef QUAKE
-			self_aiment = self.aiment = EntityAt(world, self.colormap);
-			self_aiment.colormap = self.colormap;
-			self_aiment.flags = 0;
-			self_aiment.player = TRUE;
-			self_aiment.movetype = 0;
-			if (game_skins)
-				self_aiment.skin = other.spawn_skin;
-			else
-				self_aiment.skin = 0;
-		#endif
-			self.waterlevel = 0;
-			self.watertype = 0;
-			self.frags = 0;
-			self.deadflag = 0;
-			self.arrow = 0;
-			self.button0_ = 0;
-			self.jump_flag = 0;
-			self.effects = 0;
-			self.color_ = other.color_;
-			self.teamcolor = other.teamcolor;
-		#ifdef ARENA
-			if (game_arena)
-				other.teamcolor = 0;
-			self.bot_skill = skill;
-		#else
-			self.bot_skill = other.bot_skill;
-		#endif
-			CopyBot(self, other);
-			CopyBot(other, world);	// NULL
-			scoreboardsize = scoreboardsize + 1;
-			if (!self.botnumber)
-			{
-				do
-				{
-					SpawnHardBot();
-				} while (BotExists());
-			}
-			if (other.player)
-				SaveFrogbot();
-			if (teamplay && !game_disable_autosteams)
-			{
-				t1 = 0;
-				t2 = 0;
-				search_entity = first_client;
-				while(search_entity)
-				{
-					if (search_entity != self)
-					{
-						if (search_entity.realteam == TEAM_COLOR1)
-							t1 = t1 + 1;
-						else if (search_entity.realteam == TEAM_COLOR2)
-							t2 = t2 + 1;
-					}
-					search_entity = search_entity.next;
-				}
-				if ((t1 < t2) || ((t1 == t2) && (random() < 0.5)))
-					color = TEAM_COLOR1;
-				else
-					color = TEAM_COLOR2;
-				self.teamcolor = (color - 1) * 17;
-				self.color_ = self.teamcolor;
-				self.team = color;
-			}
-			else
-			{
-				if (teamplay)
-					self.color_ = self.teamcolor;
-				self.team = (self.color_ & 15) + 1;
-			}
-			UpdateFrags(self);
-			self.netname = SetNetName();
-			SetColorName(MSG_ALL, self);
-			ClientConnect_apply();
-			SetAttribs();
-			PutClientInServer();
-#ifdef TALK
-			self.old_bot = other.old_bot;
-			if (!game_disable_botchat && !self.old_bot)
-				say_hello(self);
-#endif
-			self.oldorigin = self.origin;
-			if (!game_not_match && !game_arena)
-			{
-				self.ready = 0;
-				PlayerReady();
-			}
-			self = other;
-		}
+	{
+		sprint_fb(self, 2, "Server is full.\n");
+		return;
 	}
+
+	if (!self.botnumber)
+	{
+		if (AddRandomBot())
+			return;
+	}
+	else if (BotExists())
+	{
+		CopyBot(self, world);	// NULL
+		if (AddRandomBot())
+			return;
+	}
+	other = self;
+	numberofbots = numberofbots + 1;
+	localcmd("localinfo scratch2 ");
+	localcmd_ftos(numberofbots);
+	localcmd("\n");
+	self = frogbot_spawned = EntityAt(first_frogbot, maxplayers - numberofbots);
+	self.flags = 0;
+	self.frogbot = TRUE;
+	self.classname = "frogbot";
+	self.stringname = "gamer";
+#ifdef QUAKE
+	self_aiment = self.aiment = EntityAt(world, self.colormap);
+	self_aiment.colormap = self.colormap;
+	self_aiment.flags = 0;
+	self_aiment.player = TRUE;
+	self_aiment.movetype = 0;
+	if (game_skins)
+		self_aiment.skin = other.spawn_skin;
+	else
+		self_aiment.skin = 0;
+#endif
+	self.waterlevel = 0;
+	self.watertype = 0;
+	self.frags = 0;
+	self.deadflag = 0;
+	self.arrow = 0;
+	self.button0_ = 0;
+	self.jump_flag = 0;
+	self.effects = 0;
+	self.color_ = other.color_;
+	self.teamcolor = other.teamcolor;
+#ifdef ARENA
+	if (game_arena)
+		other.teamcolor = 0;
+	self.bot_skill = skill;
+#else
+	self.bot_skill = other.bot_skill;
+#endif
+	CopyBot(self, other);
+	CopyBot(other, world);	// NULL
+	scoreboardsize = scoreboardsize + 1;
+	if (!self.botnumber)
+	{
+		do
+		{
+			SpawnHardBot();
+		} while (BotExists());
+	}
+	if (other.player)
+		SaveFrogbot();
+	if (teamplay && !game_disable_autosteams)
+	{
+		t1 = 0;
+		t2 = 0;
+		search_entity = first_client;
+		while(search_entity)
+		{
+			if (search_entity != self)
+			{
+				if (search_entity.realteam == TEAM_COLOR1)
+					t1 = t1 + 1;
+				else if (search_entity.realteam == TEAM_COLOR2)
+					t2 = t2 + 1;
+			}
+			search_entity = search_entity.next;
+		}
+		if ((t1 < t2) || ((t1 == t2) && (random() < 0.5)))
+			color = TEAM_COLOR1;
+		else
+			color = TEAM_COLOR2;
+		self.teamcolor = (color - 1) * 17;
+		self.color_ = self.teamcolor;
+		self.team = color;
+	}
+	else
+	{
+		if (teamplay)
+			self.color_ = self.teamcolor;
+		self.team = (self.color_ & 15) + 1;
+	}
+	UpdateFrags(self);
+	self.netname = SetNetName();
+	SetColorName(MSG_ALL, self);
+	ClientConnect_apply();
+	SetAttribs();
+	PutClientInServer();
+#ifdef TALK
+	self.old_bot = other.old_bot;
+	if (!game_disable_botchat && !self.old_bot)
+		say_hello(self);
+#endif
+	self.oldorigin = self.origin;
+	if (!game_not_match && !game_arena)
+	{
+		self.ready = 0;
+		PlayerReady();
+	}
+	self = other;
 };
 
 /*
@@ -952,7 +960,7 @@ AddBots
 void() AddBots =
 {
 #ifdef QUAKE
-	// Allow in QW, where there is no real single player anyway
+	// Skip check in QW, where there is no real single player anyway
 	if (! is_multiplayer)
 	{
 		bprint("Cannot add bots in single player; try become frogbot instead\n");

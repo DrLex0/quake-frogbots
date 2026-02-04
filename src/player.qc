@@ -545,7 +545,7 @@ void() GibPlayer =
 		ThrowGib ("progs/gib3.mdl", 3);
 		ThrowGib ("progs/gib3.mdl", 3);
 		if (random() > 0.9)
-			ThrowGib ("progs/eyes.mdl", 2);
+			ThrowGib ("progs/eyes.mdl", 1.5);
 	}
 
 	msg_entity = self;
