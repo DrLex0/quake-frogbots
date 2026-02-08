@@ -413,6 +413,11 @@ void() explode_all =
 
 entity() spawn =
 {
+	// DrLex says: don't trust this variable, consider it a heuristic. It ignores
+	// entities created and removed by the engine itself. It is synced at some point,
+	// but it will drift.
+	// I don't know why this cap is implemented here, returning world here will most
+	// certainly just crash the game.
 	if (total_entity_count == 600)
 		return world;
 	total_entity_count = total_entity_count + 1;

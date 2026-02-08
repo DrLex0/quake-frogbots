@@ -35,7 +35,7 @@ To run the tool, do `game waypoint` in the Quake console, or directly launch it 
 
 **Rebuilding the waypoint tool** is required if you:
 - want to fix bugs or add functionality;
-- want to use the recompiling workflow mentioned above to resume editing work-in-progress waypoints. This is not as scary as it sounds; it is in fact the smoothest way of working with a well configured workflow.
+- want to use the recompiling workflow mentioned above to resume editing work-in-progress waypoints. This is not as scary as it sounds; it is in fact the smoothest way of working with a well-configured workflow.
 
 The waypoint tool is built from the same source code as the regular Frogbot, by enabling different options. See the **Building the Waypoint Tool** section for specific instructions.
 
@@ -127,6 +127,17 @@ To actually deploy the Frogbot progs: this may depend on your Quake engine, but 
 As with the waypoint build, if you have access to a `bash` shell, you can also use the provided `build-frogbot` script, and edit it to do everything for you and even put the `pk3` file in your QuakeWorld installation directory.
 
 Now you can actually play against bots using your own waypoints in a QuakeWorld engine like ezQuake.
+
+#### Building the NetQuake runtime
+Execute from within the `src` directory:
+```bash
+fteqcc.bin -DQUAKE=1 -O3 -srcfile progs-quake.src
+```
+
+Again, a script `build-quakebot` is provided that can make your life easier.
+
+The NetQuake runtime has been resurrected from the dead, it currently is clunkier to use, and no nice config is provided at this point. Any help with improving it would be welcome.
+
 
 #### My typical workflow
 For creating waypoints for existing finalised maps, I use the compiled workflow because it is the fastest. The following example requires a Unix/Linux-like shell environment.

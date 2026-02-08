@@ -3,6 +3,7 @@
 
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 2000-2007 ParboiL
+	Improvements by DrLex 2026
 */
 
 #include "settings.h"
@@ -144,8 +145,35 @@ void() RemoveFromAllLists =
 
 /*
 ============
+LinkedListAt
+
+Gets the entity at index_ positions away from start_entity in a linked list,
+where each item points to the next item through the .next property.
+Will return world if index_ exceeds length of the list.
+============
+*/
+entity(entity start_entity, float index_) LinkedListAt =
+{
+	while (index_ > 0)
+	{
+		start_entity = start_entity.next;
+		if (! start_entity)
+			return world;
+		index_ = index_ - 1;
+	}
+	return start_entity;
+};
+
+/*
+============
 EntityAt
 
+Gets the entity at index_ positions away from start_entity in nextent order.
+
+DANGER: only usable for entities that have been created before any entities
+were removed. After that, gaps will be created in the entity list that may
+be filled with the latest spawned entities, breaking the chronological order.
+Use linked lists and LinkedListAt for anything dynamic.
 ============
 */
 entity(entity start_entity, float index_) EntityAt =
@@ -162,6 +190,8 @@ entity(entity start_entity, float index_) EntityAt =
 ============
 InitFrogbots1
 
+Create bot entities and physics think entities.
+Now uses linked list for bots, instead of unreliable nextent().
 ============
 */
 void() InitFrogbots1 =
@@ -169,6 +199,7 @@ void() InitFrogbots1 =
 	prephysics = spawn();
 	prephysics.think = FrogbotPrePhysics2;
 
+	frogbot_spawned = world;
 	while (frogbot_number < maxplayers)
 	{
 		new_bot = spawn();
@@ -176,17 +207,32 @@ void() InitFrogbots1 =
 
 		if (!first_frogbot)
 			first_frogbot = new_bot;
+		if (frogbot_spawned)
+			frogbot_spawned.next = new_bot;
+		new_bot.previous = frogbot_spawned;
 		new_bot.score_pos = frogbot_number;
 		frogbot_number = frogbot_number + 1;
 		new_bot.colormap = frogbot_number;
+		frogbot_spawned = new_bot;
 	}
+	frogbot_spawned = world;
 
-	postphysics = frogbot_spawned = spawn();
+	postphysics = spawn();
 	postphysics.think = FrogbotPostPhysics;
 };
 
+/*
+============
+InitFrogbots2
+
+Finalize entities and invoke waypoint loading
+============
+*/
 void() InitFrogbots2 =
 {
+	// DrLex says: no idea why this is being done here; my best guess is
+	// to free up entity slots, as it seems to remove "not needed" corners
+	// (other part of this logic is in func_train_find)
 	test_enemy = find(world, classname, "path_corner");
 	while (test_enemy)
 	{
@@ -273,6 +319,15 @@ SetColorName QW // ParboiL
 #ifdef QUAKE
 void(float to, entity client) SetColorName =
 {
+	WriteByte(to, MSG_UPDATECOLORS);
+	WriteByte(to, client.score_pos);
+	WriteByte(to, client.color_);
+	WriteByte(to, MSG_UPDATENAME);
+	WriteByte(to, client.score_pos);
+	if (client.netname != "")
+		WriteString(to, client.netname);
+	else
+		WriteString(to, "[no name]");
 };
 #else
 void(float to, entity client) SetColorName =
@@ -361,6 +416,9 @@ void(float to, entity client) SetColorName =
 ============
 SetScoreboard
 
+Exact purpose of this is unclear, does some score init for bots only.
+- self is player that just joined
+- other is print_entity for that player
 ============
 */
 void() SetScoreboard =
@@ -368,8 +426,11 @@ void() SetScoreboard =
 	msg_entity = self;
 	msg_level = PRINT_HIGH;
 	score_count = 0;
-	
-	test_enemy = other.enemy;
+
+	test_enemy = other.enemy;  // should be first_frogbot. Why passed through a var? Dunno.
+	if(! test_enemy)
+		return;
+
 	while (score_count < SPAWN_SIZE)
 	{
 		if (test_enemy.frogbot)
@@ -390,7 +451,9 @@ void() SetScoreboard =
 			WriteShort(MSG_ONE, test_enemy.frags);
 			SetColorName(MSG_ONE, test_enemy);
 		}
-		test_enemy = nextent(test_enemy);
+		test_enemy = test_enemy.next;
+		if(! test_enemy)
+			return;
 		score_count = score_count + 1;
 	}
 	other.enemy = test_enemy;

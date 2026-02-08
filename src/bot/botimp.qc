@@ -5,7 +5,7 @@
 	Copyright (C) 1998-2000 Matt 'asdf' McChesney
 	Copyright (C) 1999-2000 Numb
 	Copyright (C) 2000-2007 ParboiL
-	Fixes and enhancements by DrLex 2024
+	Fixes and enhancements by DrLex 2024-2026
 */
 
 #include "../settings.h"
@@ -597,14 +597,12 @@ BotExists
 float() BotExists =
 {
 	bot = frogbot_spawned;
-	while (bot != postphysics)
+	while (bot)
 	{
 		if (bot != self)
-		{
 		if (bot.botnumber == self.botnumber)
-				return TRUE;
-		}
-		bot = nextent(bot);
+			return TRUE;
+		bot = bot.next;
 	}
 	return FALSE;
 };
@@ -709,7 +707,7 @@ string(string key, string s_global, string s_default) PersistInfoString =
 		strunzone(s_global);
 	s_global = strzone(s);
 	return s_global;
-}
+};
 
 string() SetNetName =
 {
@@ -826,7 +824,10 @@ void() AddBot =
 		}
 	}
 	if (!paths_computed)
+	{
+		dprint("Cannot add bot because paths are not computed yet\n");
 		return;
+	}
 
 #ifdef QUAKE
 	// The bot limit of 12 is probably to ensure available human player slots, or stems
@@ -856,12 +857,13 @@ void() AddBot =
 	localcmd("localinfo scratch2 ");
 	localcmd_ftos(numberofbots);
 	localcmd("\n");
-	self = frogbot_spawned = EntityAt(first_frogbot, maxplayers - numberofbots);
+	self = frogbot_spawned = LinkedListAt(first_frogbot, maxplayers - numberofbots);
 	self.flags = 0;
 	self.frogbot = TRUE;
 	self.classname = "frogbot";
 	self.stringname = "gamer";
 #ifdef QUAKE
+	// What this does: make bot appear as player by hijacking an existing player entity
 	self_aiment = self.aiment = EntityAt(world, self.colormap);
 	self_aiment.colormap = self.colormap;
 	self_aiment.flags = 0;
@@ -1014,6 +1016,9 @@ float(float remove_name) RemoveBot =
 
 			removebot_self = self;
 			self = frogbot_spawned;
+#ifdef DEBUG_ASSERT
+			if (!self) dprint("FATAL: undefined frogbot_spawned in RemoveBot\n");
+#endif
 
 			scoreboardsize = scoreboardsize - 1;
 
@@ -1031,7 +1036,10 @@ float(float remove_name) RemoveBot =
 			localcmd("localinfo scratch2 ");
 			localcmd_ftos(numberofbots);
 			localcmd("\n");
-			frogbot_spawned = nextent(frogbot_spawned);
+			if (frogbot_spawned.next)
+				frogbot_spawned = frogbot_spawned.next;
+			else
+				frogbot_spawned = frogbot_spawned.previous;
 
 			self = removebot_self;
 		}

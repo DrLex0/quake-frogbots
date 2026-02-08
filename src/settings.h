@@ -11,6 +11,7 @@
 	// A classic Quake build is actually possible, but some things need fixing
 	#ifdef QUAKE
 	#pragma PROGS_DAT ../progs.dat
+    #define YOU_FRAGGED
 	#endif
 
 #else

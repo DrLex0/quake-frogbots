@@ -1,4 +1,5 @@
 #!/bin/bash -xe
+# Convenience script for building the waypoint tool and optionally deploying it
 
 fteqcc.bin -DWAYPOINT_BUILD=1 -O3 -srcfile progs-waypoint.src "$@"
 

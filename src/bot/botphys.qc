@@ -471,12 +471,11 @@ void() ApplyWaterJump =
 		}
 		else if (!self.waterlevel)
 		{
-		#ifndef QUAKE
-			// Quake engine clears FL_WATERJUMP when exiting water, QW doesn't.
-			// Must clear it, or bot will try to reach for outer space.
+			// Only QUAKE clears FL_WATERJUMP when exiting water, but only for real
+			// players; QW doesn't clear it at all. Hence just always clear it here,
+			// or else bots will try to reach low earth orbit.
 			if (self.flags & FL_WATERJUMP)
 				self.flags = self.flags - FL_WATERJUMP;
-		#endif
 			// Extra test also present in QW: check whether origin is above
 			// something solid, although in practice the velocity test always
 			// triggers before this one

@@ -32,7 +32,7 @@ On top of that, the new bot has a whole lot of new features and skills. More det
 
 ### Deploying/Installing
 
-Currently, the Frogbot runtime only really works well for _QuakeWorld_ engines, and therefore only a prebuilt `qwprogs.dat` is provided. (It is possible to build a `progs.dat` for regular Quake and it will kind of work, but will have bugs.)
+Currently, the Frogbot runtime works best in _QuakeWorld_ engines, and therefore only a prebuilt `qwprogs.dat` is provided. It is possible to build a `progs.dat` for NetQuake engines, but there's no nice configuration yet, and it may have extra bugs.
 
 To play against Frogbots, simplest is to start out with [nQuake](https://nquake.com/) which already has everything set up to play against the older version of the Frogbot. The v2 bots are a drop-in replacement.  
 Either:
@@ -146,7 +146,7 @@ Numerous problems have been fixed and new features have been added. The most imp
 
 14. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables.
 
-15. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ and reduced risk of bots getting stuck.
+15. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ reduced risk of bots getting stuck, and crashes when attempting to spawn bots in some maps.
 
 16. Created waypoints for previously unavailable maps, for instance `hohoho`, `hohoho2`, `catalyst`, `burialb10`, `dmz1++`, `e1m4`, and more.  
     Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging. Or try `e1m1,` which is now feature-complete, secrets and all. I have high quality standards: waypoints are only committed to this repository after I have watched bots running on them without any obvious problems.
@@ -185,8 +185,9 @@ No promises about dates or reaching these goals whatsoever. It is done when it's
 
 ### Not really planned, but who knows…
 
-- Improve Frogbot functionality in non-Quakeworld engines. It is already possible to build and run a plain Quake `progs.dat` by setting the `QUAKE` preprocessor macro, or you can actually play against bots in the waypoint tool if you start a network game and use manual impulse commands, but some things are still broken. However, one extra feature the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer. Try it!
+- Improve Frogbot functionality in NetQuake engines. It is already possible to build and run a plain Quake `progs.dat` (see the `build-quakebot.sh` script), and you can even play against bots in the waypoint tool if you start a network game and use manual impulse commands, but this has been tested less than the QW build and is likely to have more bugs and some missing functionality. However, one extra feature the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer (in waypoint tool this is bound to `F4`). Try it!
 - Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels. Bots also shouldn't do smart things on low smartness settings, like deliberately damaging themselves to be able to pick up armor such that other players cannot, and a bot with smartness 0 should have zero advance knowledge of when an item will spawn.
+- Find a way to spectate bots. This may be impossible, at least that's what ChatGPT claims, but I have learned that it tends to be full of 💩 when it comes to Quake knowledge.
 - Find a way to automatically generate sensible waypoints as a starting point, to avoid the need to make every map from scratch. This will likely never work fully unsupervised, but it could reduce the amount of work per map to merely fine-tuning the tricky parts and special things. Having near-Trinca-quality waypoints automatically generated, would already be very helpful.
 
 

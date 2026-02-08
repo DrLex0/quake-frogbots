@@ -63,7 +63,7 @@ void() SetFrogbotAngles;
 
 #ifdef QUAKE
 void() obstruction;
-entity(entity start_entity, float index_) EntityAt;
+entity(entity start_entity, float index_) LinkedListAt;
 #endif
 
 /*
@@ -963,7 +963,7 @@ void() CheckWaterJump =
 			self.waterjump_time = time + 2;	// safety net
 		}
 	}
-}
+};
 
 /*
 ================
@@ -1658,8 +1658,8 @@ void() LoadPlayer_apply =
 	if (self.wait == framecount)
 		return;
 	self.wait = framecount;
-	other = self;
-	self = self.owner;
+	other = self;  // the print_entity
+	self = self.owner;  // the player that spawned this print_entity
 
 	if ((other.state * SPAWN_SIZE) < maxplayers)
 	{
@@ -1769,7 +1769,7 @@ void() ClientConnect =
 	}
 	self.score_pos = score_pos_;
 
-	self.aiment = EntityAt(first_frogbot, self.score_pos);
+	self.aiment = LinkedListAt(first_frogbot, self.score_pos);
 	self.colormap = self.score_pos + 1;
 #else
 	self.team = stof(infokey(self, "bottomcolor")) + 1;
@@ -1790,7 +1790,7 @@ void() ClientConnect =
 	else
 		self.color_ = (self.team - 1) * 17;
 
-	if (self == nextent(world))
+	if (self == first_ent)  // very first player that started the server
 		self.admin_code = dropper.admin_code;
 	else
 		self.admin_code = parm6;
@@ -1908,6 +1908,22 @@ void() ClientDisconnect =
 
 /*
 ===========
+YouFragged
+
+QuakeWorld-style frag message
+============
+*/
+void(entity victim) YouFragged =
+{
+// TODO toggle through a cvar
+#ifdef YOU_FRAGGED
+	if (attacker.classname == "player")
+		centerprint(attacker, "You fragged ", victim.netname, "\n");
+#endif
+};
+
+/*
+===========
 ClientObituary
 
 called when a player dies
@@ -1950,6 +1966,7 @@ void() ClientObituary =
 				self.deaths = self.deaths + 1; // New
 			}
 			UpdateFrags (attacker.owner);
+			YouFragged(self);
 		}
 		else if (deathtype == "teledeath2")
 		{
@@ -1994,6 +2011,7 @@ void() ClientObituary =
 				attacker.frags = attacker.frags + 1;
 				self.deaths = self.deaths + 1;	// New
 				UpdateFrags (attacker);
+				YouFragged(self);
 			}
 			else
 			{
@@ -2061,6 +2079,7 @@ void() ClientObituary =
 					if (self.spawn_frag_time > time) 
 						attacker.s_frags = attacker.s_frags + 1; // New
 					UpdateFrags (attacker);
+					YouFragged(self);
 			#ifdef ARENA
 				}
 			#endif

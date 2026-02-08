@@ -1,4 +1,5 @@
 #!/bin/bash -xe
+# Convenience script for building a QuakeWorld Frogbots runtime and optionally deploying it
 
 fteqcc.bin -O3 "$@"
 
