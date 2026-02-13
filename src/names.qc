@@ -11,20 +11,10 @@ void() SetSkill;
 void(float frogbot_pos, float index_, float value) localsave;
 
 /*
-============
-CopyBot
-
-============
-*/
-void(entity e, entity f) CopyBot =
-{
-	e.botnumber = f.botnumber;
-};
-
-/*
 ===============
 ScratchCommands
 
+WHAT does this do? Maybe helpful to know is that in older code, this was called MakeFrogbot
 ===============
 */
 void() ScratchCommands =

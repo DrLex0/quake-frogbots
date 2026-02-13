@@ -366,9 +366,9 @@ void() PlayerReady =
 			if (teamplay) {
 				if (self.player) self.effects = self.effects - (self.effects & EF_BLUE); 
 				tmp = ClientTeamName(self);
-				bprint_fb(2, " ");
+				bprint_fb(2, " ");  // [
 				bprint_fb(2, tmp);
-				bprint_fb(2, "‘");
+				bprint_fb(2, "‘");  // ]
 			}
 			bprint_fb(2, "\n");
 			if (self.player) {
@@ -376,16 +376,16 @@ void() PlayerReady =
 					f1 = CountTeams();
 					if (f1 < 2) {
 						bprint_ftos(2, 2 - f1);
-						bprint_fb(2, " νοςε τεαν");
-						if ((2 - f1) != 1) bprint_fb(2, "σ");
-						bprint_fb(2, " ςερυιςεδ\n");
+						bprint_fb(2, " νοςε τεαν");  // " more team"
+						if ((2 - f1) != 1) bprint_fb(2, "σ");  // "s"
+						bprint_fb(2, " ςερυιςεδ\n");  // " required\n"
 						return;
 					}
 					if (f1 > 2) {
-						bprint_fb(2, "Ηετ ςιδ οζ ");
+						bprint_fb(2, "Ηετ ςιδ οζ ");  // "Get rid of "
 						bprint_ftos(2, f1 - 2);
-						bprint_fb(2, " τεαν");
-						if ((f1 - 2) != 1) bprint_fb(2, "σ");
+						bprint_fb(2, " τεαν");  // " team"
+						if ((f1 - 2) != 1) bprint_fb(2, "σ");  // "s"
 						bprint(2, "!\n");
 						return;
 					}
@@ -400,6 +400,7 @@ void() PlayerReady =
 					localcmd("serverinfo status Countdown\n");
 					bprint_fb(2, "All players ready ");
 					bprint_ftos(2, numberofclients);
+					// "]\nSpawnmodel: Normal QW respawns\n"
 					bprint_fb(2, "‘\nSpawnmodel: Ξοςναμ ΡΧ ςεσπαχξσ\n");
 					AllPlaySnd("items/protect2.wav");
 					lightstyle(0, "g");
@@ -427,11 +428,12 @@ void () TopScorers =
 		p = find(p, stringname, "gamer");
 	}
 	if (maxfrags || maxdeaths || maxfriend || maxeffi) {
-		bprint_fb(2, "\n");
+		bprint_fb(2, "\n");  // "\n["
 		bprint_fb(2, mapname);
+		// "] top scores:\n<===================================>\n"
 		bprint_fb(2, "‘ τοπ σγοςεσ:\n\n");
 		if (maxfrags) {
-			bprint_fb(2, "      Ζςαησ: ");
+			bprint_fb(2, "      Ζςαησ: ");  // "      Frags: "
 			max = 0;
 			p = find(world, stringname, "gamer");
 			while(p != world) { 
@@ -439,15 +441,15 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");
+					bprint_fb(2, " ");  // " ["
 					bprint_ftos(2, maxfrags);
-					bprint_fb(2, "‘\n");
+					bprint_fb(2, "‘\n");  // "]\n"
 				}
 				p = find(p, stringname, "gamer");
 			} 
 		}
 		if (maxdeaths) { 
-			bprint_fb(2, "     Δεατθσ: ");
+			bprint_fb(2, "     Δεατθσ: ");  // "     Deaths: "
 			max = 0; 
 			p = find(world, stringname, "gamer");
 			while(p != world) {
@@ -455,15 +457,15 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");
+					bprint_fb(2, " ");  // " ["
 					bprint_ftos(2, maxdeaths);
-					bprint_fb(2, "‘\n");
+					bprint_fb(2, "‘\n");  // "]\n"
 				}
 				p = find(p, stringname, "gamer");
 			}
 		} 
 		if (team_mode && maxfriend) {
-			bprint_fb(2, "Ζςιεξδλιμμσ: ");
+			bprint_fb(2, "Ζςιεξδλιμμσ: ");  // "Friendkills: "
 			max = 0;
 			p = find(world, stringname, "gamer");
 			while(p != world) {
@@ -471,15 +473,15 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");
+					bprint_fb(2, " ");  // " ["
 					bprint_ftos(2, maxfriend);
-					bprint_fb(2, "‘\n");
+					bprint_fb(2, "‘\n");  // "]\n"
 				}
 				p = find(p, stringname, "gamer");
 			}
 		}
 		if (maxeffi) {
-			bprint_fb(2, " Εζζιγιεξγω: ");
+			bprint_fb(2, " Εζζιγιεξγω: ");  // " Efficiency: "
 			max = 0;
 			p = find(world, stringname, "gamer");
 			while(p != world) {
@@ -487,9 +489,9 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");
+					bprint_fb(2, " ");  // " ["
 					bprint_nr(2, maxeffi);
-					bprint_fb(2, "%‘\n");
+					bprint_fb(2, "%‘\n");  // "%]\n"
 				}
 				p = find(p, stringname, "gamer");
 			}

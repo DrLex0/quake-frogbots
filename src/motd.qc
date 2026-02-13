@@ -2,7 +2,7 @@
 	motd.qc
 
 	Copyright (C) 2000-2007 ParboiL
-	Changes by DrLex 2024-2025
+	Changes by DrLex 2024-2026
 */
 
 #include "settings.h"
@@ -11,15 +11,20 @@
 void() PrintMOTD =
 {
 	local string s1, s2;
-	s1 = infokey(world, "k_motd1");
-	s2 = infokey(world, "k_motd2");
-	if (s1 == "") s1 = string_null;
-	if (s2 == "") s2 = string_null;
 	if (self.attack_finished < time || k_shutdown) {
 		remove(self);
 		k_shutdown = 0;
 		return;
 	}
+#ifdef QUAKE
+	s1 = "Quake Frogbot Server";
+	s2 = "Type /addbot to add a bot";
+#else
+	s1 = infokey(world, "k_motd1");
+	s2 = infokey(world, "k_motd2");
+	if (s1 == "") s1 = string_null;
+	if (s2 == "") s2 = string_null;
+#endif
 	if (self.attack_finished > time + 6) centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n");
 	else centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n\nRunning Æòïçâïô ö”â“ by ÄòÌåø\n\nwith Æâãá “®’“ëô final by ĞáòboiL\nbased on Ëïíâáô Ôåáíó ”®”“\n");
 	// Running Frogbot v2b1 by DrLex\n\nwith Fbca 1.01kt final by ParboiL\nbased on Kombat Teams 2.21
@@ -52,8 +57,8 @@ void() CheckBadEnts =
 {
 	if (bad_ent_detected)
 	{
-		dprint ("\nÅÒÒÏÒº a custom .ent file appears to be loaded. Trying to spawn a Frogbot, will almost certainly crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
-		sprint_fb(self, 2, "\nÅÒÒÏÒº a custom .ent file appears to be loaded. Trying to spawn a Frogbot, will almost certainly crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+		dprint ("\nÅÒÒÏÒº a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+		sprint_fb(self, 2, "\nÅÒÒÏÒº a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
 	}
 }
 

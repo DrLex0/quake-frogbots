@@ -60,7 +60,7 @@ The default configs have some maplists built-in. Look in the `configs` folder to
 
 #### Bot skill
 Bots can have a **skill** level from 0 to 20, default is 5. The level required to make things challenging, will depend on your own Quake skills, and it also tends to vary per map. Bots tend to be more challenging in smaller maps with multiple floors and teleports, and easier in maps with large open spaces.  
-If you want to change the skill level of the bots, you can use the `skilldown` and `skillup` commands, or impulses _114_ and _115_ respectively. The new skill level will only be applied to bots spawned afterwards, not to bots already active in the current game. (This means you can mix bots of different skill levels in a single game.) The simplest way to ensure all bots run at the adjusted skill level, is to reload the map.  
+If you want to change the skill level of the bots, you can use the `skilldown` and `skillup` commands, or impulses _114_ and _115_ respectively. The new skill level will only be applied to new bots spawned afterwards, not to bots already active in the current game, and bots also preserve their skill level across map changes. This means you can mix bots of different skill levels in a single game for even higher realism. To bring all bots to the currently selected skill, `removeallbots` and then reload them.  
 A custom bot skill level that overrides the built-in configs can be persisted across game sessions by setting the `fb_custom_skill` cvar to a non-zero value (value -1 represents skill level 0).
 
 If you have never played Quake before, you may want to start at skill level 0 and gradually go up. Seasoned players may want to try level 10. It goes up to 20, at which point the bots have inhumanly fast aim and situational awareness. True hardcore Quake players may still be able to outwit level 20 bots by exploiting their limitations.
@@ -140,13 +140,13 @@ Numerous problems have been fixed and new features have been added. The most imp
 
 12. Bots can _strafe run_ along a wall to boost their speed and make longer jumps.
 
-13. Allow to override default bot skill level, and also to separately override bot ‘smartness,’ through cvars.
-    - If the `fb_custom_skill` cvar is nonzero, it will be used at game start, ignoring any `d_skill` info value from configs. A value of zero causes the cvar to be ignored, skill level 0 is represented by value -1. The cvar is updated when using the `skilldown/up` commands, which means changes will be persistent in engines like ezQuake that automatically store cvars.
-    - If the `fb_custom_smart` cvar is nonzero, it overrides _smartness._ Smartness controls some advanced bot behavior. By default, it is linked to bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings (in classic Frogbot, it was hard-coded at 10). The value can be between 0 to 10, but again, the cvar is ignored if its value is 0, use a negative value to represent minimum smartness 0.
+13. Better skill handling: bots preserve their skill across matches and map changes. Allow to override default bot skill level, and also to separately override bot ‘smartness,’ through cvars.
+    - If the `fb_custom_skill` cvar is nonzero, it will be used when spawning new bots, ignoring any `d_skill` info value from configs. A value of zero causes the cvar to be ignored, skill level 0 is represented by value -1. The cvar is updated when using the `skilldown/up` commands, which means changes will be persistent in engines like ezQuake that automatically store cvars.
+    - If the `fb_custom_smart` cvar is nonzero, it overrides _smartness._ Smartness controls some advanced bot behavior. By default, it is derived from bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings (in classic Frogbot, it was hard-coded at 10). The value can be between 0 to 10, but again, the cvar is ignored if its value is 0, use a negative value to represent minimum smartness 0.
 
 14. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables.
 
-15. Various smaller bug and robustness fixes, like the ability to ascend fake ‘ladders,’ reduced risk of bots getting stuck, and crashes when attempting to spawn bots in some maps.
+15. Many big and small bug and robustness fixes, like the ability to ascend fake ‘ladders,’ reduced risk of bots getting stuck, and crashes when attempting to spawn bots in some maps.
 
 16. Created waypoints for previously unavailable maps, for instance `hohoho`, `hohoho2`, `catalyst`, `burialb10`, `dmz1++`, `e1m4`, and more.  
     Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging. Or try `e1m1,` which is now feature-complete, secrets and all. I have high quality standards: waypoints are only committed to this repository after I have watched bots running on them without any obvious problems.

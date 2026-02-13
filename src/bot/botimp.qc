@@ -10,8 +10,8 @@
 
 #include "../settings.h"
 
+void(float frogbot_pos, float stage, float value) localsave;
 void() GameSettings;
-void() LoadTemp1;
 void() AddBot;
 float() AddRandomBot;
 void() AddBotError;
@@ -32,14 +32,7 @@ SetAttribs
 */
 void() SetAttribs =
 {
-	// DrLex: apparently the intention was to make smartness configurable, but this never happened
-	// and was hard-coded to 10, making bots do annoyingly advanced things even on lowest skill
-	// levels. Smartness now varies together with skill up to 10, but can be overridden by setting
-	// cvar 'fb_custom_smart' to nonzero. For 'dumbest' possible bots, use negative value. There is
-	// still some stuff that should be disabled or toned down at lower smartness levels, for
-	// instance dumbest bots should not do the HURT_SELF thing or anticipate item spawns.
-	local float smartness;
-
+	local float smartness = self.bot_smartness;  // 0 to 10
 	skill_ = self.bot_skill;  // 0 to 20
 	// inaccuracy goes from 1 to 0 and rolls off quickly with increasing skill
 	self.bot_inaccuracy = 0.05 * (20 - skill_);
@@ -53,22 +46,14 @@ void() SetAttribs =
 	}
 	if (skill_ > 10)
 	{
-		smartness = 10;
 		self.fast_aim = (skill_ - 10) * 0.1;	// 0.1 to 1
 		skill_ = 10;
 	}
 	else
 	{
 		self.fast_aim = 0;
-		smartness = 3 + 0.7 * skill_;
-	}
-	if (cvar("fb_custom_smart")) {
-		smartness = cvar("fb_custom_smart");
-		if (smartness < 0) smartness = 0;
-		if (smartness > 10) smartness = 10;
 	}
 	dprint("Frogbot smartness: ", ftos(smartness), "\n");
-	self.bot_smartness = smartness;
 
 	self.firing_reflex = 0.5 - (skill_ * 0.04);	// 0.5 to 0.1
 	self.accuracy = 45 - (skill_ * 2.25);	// 45 to 22.5
@@ -78,6 +63,41 @@ void() SetAttribs =
 	self.look_anywhere = smartness * 0.1;	// 0 to 1
 	self.lookahead_time = 5 + (smartness * 2.5);		// 5 to 30
 	self.prediction_error = 1 - (smartness * 0.1);	// 1 to 0
+};
+
+/*
+============
+SetSmartness
+
+Set bot smartness on self, either derived from bot_skill, or from override.
+Apparently the original intention was to make smartness configurable, but this
+never happened and was hard-coded to 10, making bots do annoyingly advanced
+things even on lowest skill levels. Smartness now varies together with skill up
+to 10, but can be overridden for newly spawned bots by setting cvar
+'fb_custom_smart' to nonzero. For 'dumbest' possible bots, use negative value.
+There is still some stuff that should be disabled or toned down at lower
+smartness levels, for instance dumbest bots should not do the HURT_SELF thing or
+anticipate item spawns.
+============
+*/
+void() SetSmartness =
+{
+	local float smartness;
+
+	smartness = cvar("fb_custom_smart");
+	if (smartness)
+	{
+		if (smartness < 0) smartness = 0;
+		else if (smartness > 10) smartness = 10;
+	}
+	else
+	{
+		if (self.bot_skill > 10)
+			smartness = 10;
+		else
+			smartness = 3 + 0.7 * self.bot_skill;
+	}
+	self.bot_smartness = smartness;
 };
 
 void() SetGame =
@@ -109,6 +129,32 @@ void() SetGame =
 	// Avoids the need for some #ifdefs
 	game_arena = FALSE;
 #endif
+};
+
+/*
+============
+InitLocalSave
+
+Prepare local storage to preserve bot state across map changes.
+In QW, this is simple and sane thanks to localinfo, we only need to set initial values.
+In QUAKE, it is pretty _insane._ We need way more than scratch cvars can offer.
+Modern engines may have a 'set' command to create new cvars, but we cannot rely on this
+if we want to offer maximum compatibility.
+Therefore I restored this nifty hack from ancient Frogbot code, which exploits aliases
+to act as a poor man's persistent storage. Aliases like 'fbs16' will be created, that
+return a value in cvar("scratch4"). Retrieving the value for slot 16 can then be done
+by invoking localcmd("fbs16") and waiting for scratch4 to be set. This can take multiple
+frames, hence scratch3 is also involved to act as a "ready" flag.
+
+Don't try to use this kind of hack for anything more complex -- we can get away with it
+because at most 32 slots are needed.
+============
+*/
+void() InitLocalSave =
+{
+	localcmd("\n");  // flush buffer (early Quake versions)
+	localsave(0, 1, 0);
+	localsave(1, 1, 1);
 };
 
 /*
@@ -148,14 +194,15 @@ void() InitParameters =
 	InitBodyQue ();
 
 #ifdef QUAKE
-	temp1 = cvar("temp1");
+	loaded_skill = cvar("temp1");
 #else
-	temp1 = stof(infokey(world, "temp1"));
+	loaded_skill = stof(infokey(world, "fb_skill"));
+#endif
+	frogbot_load_stage = 0;
 	deathmatch = cvar("deathmatch");
 
 	if (maxplayers > 24)
 		maxplayers = 24;
-#endif
 
 	nextmap = mapname;
 	pre_game = TRUE;
@@ -194,20 +241,31 @@ void() InitParameters =
 
 	next_teamplay = teamplay;
 
-	if (!temp1)
+	if (loaded_skill)
 	{
+		mod_first_loaded = FALSE;
+		skill = loaded_skill - 1;
+	}
+	else
+	{
+		mod_first_loaded = TRUE;
+#ifdef QUAKE
+		// Ensure clean slate
+		cvar_set("scratch1", "0");
+		cvar_set("scratch2", "0");
+		cvar_set("scratch3", "0");
+		cvar_set("scratch4", "0");
+#else
+		InitLocalSave();
+#endif
 		ds = cvar("fb_custom_skill");
 		if (! ds) ds = stof(infokey(world, "d_skill"));
+		if (! ds) ds = cvar("d_skill");
 		if (ds) skill = ds;
 		else skill = 10;
 		if (skill < 0) skill = 0;
-		localcmd("\n");	// flush buffer (early Quake versions)
-		localsave(0, 1, 0);
-		localsave(1, 1, 1);
+		else if(skill > 20) skill = 20;
 	}
-	else
-		LoadTemp1();
-
 	SetSkill();
 
 	sv_accelerate = cvar("sv_accelerate");
@@ -291,16 +349,37 @@ void() InitParameters =
 
 /*
 ============
-SaveTemp1
+SaveNumBots
 
+Stored in "scratch2" cvar or localinfo, used by arena logic
 ============
 */
-void() SaveTemp1 =
+void() SaveNumBots =
+{
+#ifdef QUAKE
+	cvar_set_("scratch2", numberofbots);
+#else
+	localcmd("localinfo scratch2 ");
+	localcmd_ftos(numberofbots);
+	localcmd("\n");
+#endif
+};
+
+/*
+============
+SaveSkill
+
+Store in "temp1" cvar (which should be cleared in autoexec) or "fb_skill" localinfo.
+This also serves as a flag indicating that the mod has been initialized (the "skill"
+cvar is unusable for this because the engine is likely to manipulate it).
+============
+*/
+void() SaveSkill =
 {
 #ifdef QUAKE
 	cvar_set_("temp1", skill + 1);
 #else
-	localcmd("localinfo temp1 ");
+	localcmd("localinfo fb_skill ");
 	localcmd_ftos(skill + 1);
 	localcmd("\n");
 #endif
@@ -322,7 +401,7 @@ void() SetSkill =
 	bprint_ftos(2, skill);
 	bprint_fb(2, "\"\n");
 	first_ent.bot_skill = skill;
-	SaveTemp1();
+	SaveSkill();
 	if (cvar("fb_custom_skill"))
 	{
 		if (skill) cvar_set_("fb_custom_skill", skill);
@@ -332,26 +411,23 @@ void() SetSkill =
 
 /*
 ============
-LoadTemp1
-
-============
-*/
-void() LoadTemp1 =
-{
-	skill = temp1 - 1;
-};
-
-/*
-============
 localsave
 
+stage must be from 1 to NUMBER_LOAD_STAGE
+Wait at least until frame 1, preferably 2, to invoke this
 ============
 */
-void(float frogbot_pos, float index_, float value) localsave =
+void(float frogbot_pos, float stage, float value) localsave =
 {
+#ifdef QUAKE
+	localcmd("alias fbs");
+	localcmd_ftos((frogbot_pos * NUMBER_LOAD_STAGE) + stage);
+	localcmd(" scratch4 ");
+#else
 	localcmd("localinfo ");
-	localcmd_ftos(frogbot_pos * 2 + index_);
+	localcmd_ftos(frogbot_pos * NUMBER_LOAD_STAGE + stage);
 	localcmd(" ");
+#endif
 	localcmd_ftos(value);
 	localcmd("\n");
 };
@@ -360,52 +436,75 @@ void(float frogbot_pos, float index_, float value) localsave =
 ============
 localload
 
+This will load the previously stored value.
+In QW, the value will be immediately available in localload_val.
+In QUAKE, IMPORTANT: value may only be retrieved from scratch4
+when scratch3 is seen to have its Quake-themed special value.
 ============
 */
-void(float frogbot_pos) localload =
+void(float frogbot_pos, float stage) localload =
 {
-	str = ftos(frogbot_pos * 2 + frogbot_load_stage);
-	registered = stof(infokey(world, str));
+#ifdef QUAKE
+	cvar_set("scratch3", "0");
+	localcmd("fbs");
+	localcmd_ftos((frogbot_pos * NUMBER_LOAD_STAGE) + stage);
+	localcmd(";scratch3 666\n");
+#else
+	str = ftos(frogbot_pos * NUMBER_LOAD_STAGE + stage);
+	localload_val = stof(infokey(world, str));
+#endif
 };
 
 /*
 ============
 SaveFrogbot
 
+Bit-pack bot parameters into 2 float values and store them
 ============
 */
 void() SaveFrogbot =
 {
-	localsave(numberofbots, 1, 2 + self.color_+ self.teamcolor * 256 + self.bot_skill * 65536);
-	localsave(numberofbots, 2, self.botnumber);
-	localsave(numberofbots + 1, 1, 1);
+	// Add 2 to allow detecting value 1 as "EOF" in stage 1.
+	// Color values can be between 1 and 206, hence need 8 bits for them (8 more bits available)
+	localsave(numberofbots, 1, 2 + self.color_ + self.teamcolor * 256);
+	// Use 5 bits for botnumber and skill (6 more bits available)
+	local float smart_8bit = rint(self.bot_smartness * 25.5);
+	localsave(numberofbots, 2, self.botnumber + rint(self.bot_skill) * 32 + smart_8bit * 1024);
+	localsave(numberofbots + 1, 1, 1);  // next slot is EOF
 };
 
 /*
 ============
 LoadFrogbot
 
+Loads the next bot from the last localload, then prepares next load.
+Loading one bot requires NUMBER_LOAD_STAGE invocations of this function.
 ============
 */
 void() LoadFrogbot =
 {
+	// We're simply using this entity to cache values so we can load them in AddBot
 	self = postphysics;
 
 	if (frogbot_load_stage)
 	{
 	#ifdef QUAKE
-		registered = cvar("registered");
+		// Read value returned from last localload when available
+		if(cvar("scratch3") != 666) {
+#ifdef DEBUG_ASSERT
+			dprint("Satan is not pleased with this slow Quake engine; frame ", ftos(framecount), "\n");
+#endif
+			return;
+		}
+		localload_val = cvar("scratch4");
 	#endif
 
 		if (numberofbots == -1)
 		{
-			first_ent.admin_code = self.admin_code = registered;
+			first_ent.admin_code = self.admin_code = localload_val;
 			numberofbots = 0;
 			if (map_lacks_waypoints)
 			{
-			#ifdef QUAKE
-				cvar_set("registered", "1");
-			#endif
 				frogbot_loading = FALSE;
 				return;
 			}
@@ -414,27 +513,33 @@ void() LoadFrogbot =
 		{
 			if (frogbot_load_stage == 1)
 			{
-				if (registered == 1)
+				// Value of 1 in stage 1 indicates the end
+				if (localload_val == 1)
 				{
 					frogbot_loading = FALSE;
 					return;
 				}
-				registered = registered - 2;
-				self.color_ = registered & 255;
-				self.teamcolor = floor(registered / 256) & 255;
-				self.bot_skill = floor(registered / 65536) & 255;
+				// Unpack the values
+				localload_val = localload_val - 2;
+				self.color_ = localload_val & 255;
+				self.teamcolor = floor(localload_val / 256) & 255;
 			}
 			else if (frogbot_load_stage == 2)
-				self.botnumber = registered;
+			{
+				self.botnumber = localload_val & 31;
+				self.bot_skill = floor(localload_val / 32) & 31;
+				local float smart_8bit = floor(localload_val / 1024) & 255;
+				self.bot_smartness = smart_8bit / 25.5;
+			}
 
 #ifdef TALK
 			self.old_bot = TRUE;
 #endif
 
-			if (frogbot_load_stage <= NUMBER_LOAD_STAGE)
+			if (frogbot_load_stage < NUMBER_LOAD_STAGE)
 			{
 				frogbot_load_stage = frogbot_load_stage + 1;
-				localload(numberofbots + 1);
+				localload(numberofbots + 1, frogbot_load_stage);
 				return;
 			}
 			AddBot();
@@ -442,7 +547,7 @@ void() LoadFrogbot =
 	}
 
 	frogbot_load_stage = 1;
-	localload(numberofbots + 1);
+	localload(numberofbots + 1, frogbot_load_stage);
 };
 
 /*
@@ -532,8 +637,7 @@ void() CheckParameters =
 		}
 	}
 
-	skill = cvar("skill");
-	skill = floor(skill);
+	skill = floor(cvar("skill"));
 	if (skill < 0)
 		skill = 0;
 	if (skill > MAX_SKILL)
@@ -796,6 +900,7 @@ float() AddRandomBot =
 ============
 AddBot
 
+Add a bot using properties set on 'self' if appropriate.
 Note: color = (shirt_color * 16) + pants_color
 	team = pants_color + 1
 	colors: 0 to 13
@@ -831,7 +936,7 @@ void() AddBot =
 
 #ifdef QUAKE
 	// The bot limit of 12 is probably to ensure available human player slots, or stems
-	// from performance limits of old machines. In theory it could be raised to 16.
+	// from performance limits of old machines. In theory it could be raised to 15.
 	if ((numberofclients >= maxplayers) || (numberofbots >= 12))
 #else
 	if ((numberofclients >= stof(infokey(world, "maxclients"))) || (numberofbots >= 16))
@@ -848,15 +953,13 @@ void() AddBot =
 	}
 	else if (BotExists())
 	{
-		CopyBot(self, world);	// NULL
+		self.botnumber = 0;  // NULL
 		if (AddRandomBot())
 			return;
 	}
 	other = self;
 	numberofbots = numberofbots + 1;
-	localcmd("localinfo scratch2 ");
-	localcmd_ftos(numberofbots);
-	localcmd("\n");
+	SaveNumBots();
 	self = frogbot_spawned = LinkedListAt(first_frogbot, maxplayers - numberofbots);
 	self.flags = 0;
 	self.frogbot = TRUE;
@@ -887,12 +990,20 @@ void() AddBot =
 #ifdef ARENA
 	if (game_arena)
 		other.teamcolor = 0;
-	self.bot_skill = skill;
-#else
-	self.bot_skill = other.bot_skill;
 #endif
-	CopyBot(self, other);
-	CopyBot(other, world);	// NULL
+	// When restoring bots, use saved state; otherwise use global settings
+	if (frogbot_loading)
+	{
+		self.bot_skill = other.bot_skill;
+		self.bot_smartness = other.bot_smartness;
+	}
+	else
+	{
+		self.bot_skill = skill;
+		SetSmartness();
+	}
+	self.botnumber = other.botnumber;
+	other.botnumber = 0;  // NULL
 	scoreboardsize = scoreboardsize + 1;
 	if (!self.botnumber)
 	{
@@ -1033,9 +1144,7 @@ float(float remove_name) RemoveBot =
 
 			localsave(numberofbots, 1, 1);
 			numberofbots = numberofbots - 1;
-			localcmd("localinfo scratch2 ");
-			localcmd_ftos(numberofbots);
-			localcmd("\n");
+			SaveNumBots();
 			if (frogbot_spawned.next)
 				frogbot_spawned = frogbot_spawned.next;
 			else
@@ -1404,7 +1513,7 @@ void() AddBotError =
 	self.spawnflags = self.impulse = self.lines = 0;
 	self.input_time = time + 2;
 	self.spawnbit0 = self.spawnbit1 = self.number_spawnbits = 0;
-	CopyBot(self, world);	// NULL
+	self.botnumber = 0;  // NULL
 };
 
 /*

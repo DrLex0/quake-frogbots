@@ -14,6 +14,7 @@
 void() InitBodyQue;
 void() CheckParameters;
 void() InitParameters;
+void() InitLocalSave;
 void() LoadFrogbot;
 void() InitFrogbots1;
 void() InitFrogbots2;
@@ -79,7 +80,12 @@ void() custom_quad_touch =
 void() custom_quad =
 {
 	local float s1;
+#ifdef QUAKE
+	// For engines that allow creating custom cvars
+	s1 = cvar("add_q_aerowalk");
+#else
 	s1 = stof(infokey(world, "add_q_aerowalk"));
+#endif
 	if (s1)
 	{
 		item = spawn();
@@ -370,7 +376,15 @@ void() StartFrame =
 		}
 	}
 
-#ifndef QUAKE
+#ifdef QUAKE
+	// InitLocalSave uses localcmd which has been observed not to work in frame 0 in vkQuake.
+	// Even frame 1 seems unreliable, as values written in it were seen to be only available
+	// in frame 3. Hence do it in frame 2, which should always be a few frames before
+	// LoadFrogbot is first invoked.
+	if (framecount == 2)
+	if (mod_first_loaded)
+		InitLocalSave();
+#else
 	if (framecount == 1)
 	{
 		// In QW this needs to happen in frame 1. Also, unlike in

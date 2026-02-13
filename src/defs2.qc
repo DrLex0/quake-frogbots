@@ -141,6 +141,22 @@ void() VersionInfo =
 
 string (float g) GetTeamName =
 {
+#ifdef QUAKE
+	if (g == TEAM_COLOR1) return "red";
+	else if (g == TEAM_COLOR2) return "blue";
+	else if (g == TEAM_COLOR3) return "white";
+	else if (g == TEAM_COLOR4) return "brown";
+	else if (g == TEAM_COLOR5) return "violet";
+	else if (g == TEAM_COLOR6) return "khaki";
+	else if (g == TEAM_COLOR7) return "orange";
+	else if (g == TEAM_COLOR8) return "pink";
+	else if (g == TEAM_COLOR9) return "coral";
+	else if (g == TEAM_COLOR10) return "magenta";
+	else if (g == TEAM_COLOR11) return "plum";
+	else if (g == TEAM_COLOR12) return "beige";
+	else if (g == TEAM_COLOR13) return "green";
+	else return "yellow";
+#else
 	if (g == TEAM_COLOR1) return infokey(world, "team4");
 	else if (g == TEAM_COLOR2) return infokey(world, "team13");
 	else if (g == TEAM_COLOR3) return infokey(world, "team0");
@@ -155,12 +171,17 @@ string (float g) GetTeamName =
 	else if (g == TEAM_COLOR12) return infokey(world, "team10");
 	else if (g == TEAM_COLOR13) return infokey(world, "team11");
 	else return infokey(world, "team12");
+#endif
 };
 
 string (entity p) ClientTeamName =
 {
+#ifdef QUAKE
+	return GetTeamName(p.team);
+#else
 	if (p.player) return infokey(p, "team");
 	else return GetTeamName(p.realteam);
+#endif
 };
 
 void() TestTeamName = 

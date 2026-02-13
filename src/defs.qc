@@ -965,7 +965,6 @@ float deathmatch;
 float next_teamplay;
 float next_deathmatch;
 
-float temp1;
 string str;
 
 .float teamflag;
@@ -1574,6 +1573,9 @@ float new_path_state;
 .float airstrafe_inaccuracy;
 float path_R;
 float new_airstrafe;
+
+// Important to remember: maximum integer value accurately represented
+// by IEEE-754 float is 16777216, i.e. bitmasks can use up to 24 bits
 
 //
 // path_state/path_mode values for paths
@@ -2384,6 +2386,8 @@ float clientshirt;
 
 .float hit_z;
 
+float loaded_skill;
+float mod_first_loaded;  // when loaded_skill is 0 at worldspawn
 float frogbot_loading;
 float frogbot_removetime;
 
@@ -2392,11 +2396,10 @@ float frogbot_removetime;
 float map_lacks_waypoints;
 float frogbot_load_stage;
 
-#ifdef QUAKE
-float NUMBER_LOAD_STAGE = 6;
-#else
-float NUMBER_LOAD_STAGE = 9;
-#endif
+// Number of bot loading stages. Used to be larger (7 or even 10);
+// must never be changed unless you know what you're doing.
+float NUMBER_LOAD_STAGE = 2;
+
 float NUMBERHARDBOTS = 16;
 
 float	intermission_running;
@@ -2452,7 +2455,7 @@ float SPAWN_SIZE = 1;
 
 float spawnbit0_;
 float spawnbit1_;
-float registered;
+float localload_val;
 float is_multiplayer;
 float check_parm_time;
 

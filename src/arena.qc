@@ -193,7 +193,6 @@ float() toss_player;
 void() a_rulesfix;
 void() a_skillfix;
 void() a_attackfix;
-float() scratch1;
 void(entity newteam) addtoteam;
 void() notready;
 void() settings;
@@ -395,7 +394,23 @@ void(entity client, vector v_ang) SetViewAngle =
 	}
 };
 
+// returns scratch1 cvar/setinfo settings
+float() scratch1 =
+{
+#ifdef QUAKE
+	return cvar("scratch1");
+#else
+	return stof(infokey(self, "scratch1"));
+#endif
+};
+
 // what does this do?
+// DrLex, years later, says: it is a generic loading function that is poorly named
+// (a recurring theme in this whole source file).
+// Depending on the parameters, things can be loaded from a cvar, or from the
+// scratch1 cvar or localinfo (in theory).
+// For instance, the "setteams" command can be used to change the number of teams,
+// by first setting scratch1 to the new number and then invoking the command.
 float() check_cvar =
 {
 	local float asdf;
@@ -1200,6 +1215,16 @@ void() print_limit =
 	}
 };
 
+// returns number of bots as stored in scratch2 cvar/setinfo settings
+float() LoadNumBots =
+{
+#ifdef QUAKE
+	return cvar("scratch2");
+#else
+	return stof(infokey(world, "scratch2"));
+#endif
+};
+
 // set aliases, update pings, respawn hack, & other stuff 
 void() framethink =
 {
@@ -1210,7 +1235,7 @@ void() framethink =
 		if (!check_loadingbots)
 		{
 			check_loadingbots = 1;
-			loadingbots = stof(infokey(world, "scratch2"));
+			loadingbots = LoadNumBots();
 		}
 
 		if (arenastate > A_STARTING)
@@ -2579,18 +2604,6 @@ void() track =
 		return;
 	self.trackprint_time = time + 1;
 	track_print();
-};
-
-// returns scratch1 cvar/setinfo settings
-float() scratch1 =
-{
-	local float amount;
-#ifdef QUAKE
-	amount = cvar("scratch1");
-#else
-	amount = stof(infokey(self, "scratch1"));
-#endif
-	return amount;
 };
 
 #ifdef QUAKE
