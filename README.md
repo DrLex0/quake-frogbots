@@ -1,29 +1,31 @@
 # Quake Frogbot Clan Arena v2
 
 Based on:
-- _FBCA, Frogbot Clan Arena_ - mod that combines Frogbot, ParboiL's Clan Arena and Kombat Teams (KTPro)
-- _Trinca_ and _Spike's_ last known sources
+- _FBCA, Frogbot Clan Arena_ - mod that combines Frogbot, ParboiL's Clan Arena and Kombat Teams (KTPro) - forked from [the ezQuake sources](https://github.com/ezQuake/fbca)
+- _Trinca_ and _Spike's_ last known sources, dug up from the depths of the Internet
 - Decompiled source file from the _old waypoint tool._ (How dare I decompile a 25-year old abandoned program, so sue me. It has since been extensively modified anyway…)
 
 
 ## What in Shub-Nigguraths name is a Frogbot?
 
-The Quake Frogbot allows to add computer-controlled players to the first _Quake_ game. (Not to be confused with some JFrog thing.)  
-The Frogbot was created by _Robert 'Frog' Field_ in 1997 and is regarded as one of the better performing bots. With a properly crafted waypoint file, the bots simulate a real human opponent rather well, and are still impressive despite their age and the fact that it is all implemented in QuakeC, a language that lacks things like arrays, dictionaries, or string manipulation.  
+The Quake Frogbot allows to add computer-controlled players to the first _Quake_ game released in 1996. (Not to be confused with some JFrog thing.)  
+The Frogbot was created by _Robert 'Frog' Field_ in 1997 and is regarded as one of the better performing bots. With a properly crafted waypoint file, the bots simulate a real human opponent rather well, and are still impressive despite their age and the fact that it is all implemented in QuakeC, a language that lacks niceties like arrays, dictionaries, or string manipulation.  
 Simply put, _the Frogbot is a load of fun._ It is great for some offline practice or warm-up, or for initial play-testing of new maps.
 
-The bot relies on _waypoint files_ that have to be created for each map. In previous Frogbot incarnations, the only way to add new waypoints was to compile them into the _qwprogs.dat._ In the first decade of the 21st century, _Trinca_ did a gargantuan job of making and collecting waypoints for a total of about 400 maps.
+The bot relies on _waypoint files_ that have to be created for each map. In previous Frogbot incarnations, the only way to add new waypoints was to compile them into the _(qw)progs.dat._ In the first decade of the 21st century, _Trinca_ did a gargantuan job of making and collecting waypoints for a total of about 400 maps. One of my goals is not to let all that work vanish into oblivion.
 
-The old Frogbot had a few issues that lead to its development grinding to a halt and practically nobody creating new waypoints after Trinca's anymore:
+The old Frogbot had a few issues that had lead to its development grinding to a halt and practically nobody creating new waypoints after Trinca's anymore:
 - Building the qwprogs with support for more than a few 100 maps was only possible with a very specific Windows build of the FTEQCC compiler.
 - Only 1 waypoint creation tool was available, and it had quite a few usability problems, making the workflow awkward and risky (certain actions would crash it).
 - The source for the waypoint tool had become unavailable (or near impossible to find), making it infeasible to resume editing existing waypoints. Either one had to do a whole map in one go (insane for larger maps), or manually edit the waypoint code (just plain insane even for tiny maps).
-- It was not possible to add Frogbot support to a map without recompiling the _qwprogs.dat,_ which lead to an obvious problem of getting one's new maps added to whatever was the most popularly distributed Frogbot build.
+- It was not possible to add Frogbot support to a map without recompiling the _qwprogs.dat,_ which, especially in combination with what is mentioned above, lead to an obvious problem of getting one's new maps added to whatever was the most popularly distributed Frogbot build.
+- The most recent codebase of the mod had all the NetQuake parts stripped from it, making it only support QuakeWorld engines.
 
 The v2 Frogbot solves these problems:
 - It is now possible to build with recent versions of FTEQCC on any platform;
-- The waypoint tool has been resurrected in a new incarnation that makes it way easier to use, and more stable;
-- Waypoints can be shipped with maps without having to compile them into the `qwprogs.dat`, by means of waypoint data embedded as entity fields via an `.ent` file, or even embedded in the BSP.
+- NetQuake support has been resurrected through the finest acts of _code necromancy;_
+- the waypoint tool has been resurrected in a new incarnation that makes it way easier to use, and more stable;
+- waypoints can be shipped with maps without having to compile them into the `qwprogs.dat`, by means of waypoint data embedded as entity fields via an `.ent` file, or even embedded in the BSP.
 
 On top of that, the new bot has a whole lot of new features and skills. More details below.
 
@@ -32,41 +34,67 @@ On top of that, the new bot has a whole lot of new features and skills. More det
 
 ### Deploying/Installing
 
-Currently, the Frogbot runtime works best in _QuakeWorld_ engines, and therefore only a prebuilt `qwprogs.dat` is provided. It is possible to build a `progs.dat` for NetQuake engines, but there's no nice configuration yet, and it may have extra bugs.
+The Frogbot mod can run both in:
+- a _QuakeWorld_ engine like ezQuake (for which a prebuilt `qwprogs.dat` is provided);
+- a classic _NetQuake_ engine like vkQuake (for which a prebuild `progs.dat` is provided).
 
-To play against Frogbots, simplest is to start out with [nQuake](https://nquake.com/) which already has everything set up to play against the older version of the Frogbot. The v2 bots are a drop-in replacement.  
-Either:
-- Unzip nQuake's `frogbot.pk3`, replace its `qwprogs.dat` with the one from this repository, and then zip the file again, and ensure the file extension is `pk3`.
+At this time, the QuakeWorld build has the most features and probably the least bugs. However, the NetQuake build is pretty usable, and will offer the most authentic classic Quake multiplayer experience without having to scour for friends who still want to play a +30 year old game. 😁
 
-Or:
-- Create a new zip archive from the following files in this repository, change the extension to `pk3`, and drop it into ezQuake's `qw` directory. This approach should also work for other engines, if `exec frogbot.cfg` is executed in the main `autoexec.cfg`. (Perhaps the uncompressed files should be copied instead, I am not too familiar with this stuff.)
+Of course, if you're familiar with Quake config tweaking, you can modify the `cfg` files, although it is better to override settings in your own `autoexec` file after the standard config has been loaded.
+
+#### Deploying in ezQuake
+
+Unless you want to compile the mod yourself, you will need the binaries (`.dat` files). Recent builds can be found in the _Releases_ section of GitHub.
+
+It used to be simplest to start out with [nQuake](https://nquake.com/) because it used to ship with an older version of the Frogbot mod, and already had everything set up. The v2 bots were a drop-in replacement, meaning that if you still have an older Frogbot-based nQuake installation, the simplest way to run the v2 bots, is to unzip nQuake's `frogbot.pk3`, replace its `qwprogs.dat` with the one from this repository, and then zip the file again, and ensure the file extension is `pk3`.
+
+To deploy the mod from scratch in ezQuake, some more work is needed:
+- Create a new zip archive from the following files in this repository, change the extension to `pk3`, and drop it into ezQuake's `qw` directory. This approach should also work for other engines (Perhaps the uncompressed files should be copied instead, I am not too familiar with this stuff.)
   - `qwprogs.dat`
   - `frogbot.cfg`
-  - `configs`
+  - `configs-qw`
   - `doc`
   - `sound`
+- Ensure `frogbot.cfg` is executed in the `qw/autoexec.cfg` file which your ezQuake app uses.
+  - For older frogbot-based deployments, this should already be the case.
+  - For newer ezQuake / nQuake deployments, blatantly ignore the `do not edit` instruction and place the following line somewhere at the start of the file, after any existing other `exec` lines:
+  - `exec frogbot.cfg`
+- In newer _nQuake_ deployments, sabotaging the `ktx.pk3` file by renaming it to `ktx.pk3.disabled` may be needed to avoid conflicts. If you want to use nQuake as intended, I would suggest starting out with a vanilla ezQuake installation instead.
 
-Of course, if you're familiar with Quake config tweaking, you can modify the `frogbot.cfg` and other files in `configs`, or override settings in your own `autoexec` file.
+#### Deploying in NetQuake engines like vkQuake
+
+- Create a new directory `frogbot` inside the same directory as where the game's `id1` directory resides. Copy the following files and directories into this `frogbot/` directory:
+  - `progs.dat`
+  - `frogbot-quake.cfg`
+  - `configs-quake`
+  - `doc` (for license compliance, you may skip it, but _Asmodeus will dislike)_
+  - `sound`
+- Create a file `autoexec.cfg` inside the `frogbot/` folder with inside it the line:
+  - `exec frogbot-quake.cfg`
 
 ### Playing
 
+In ezQuake, if deployed as instructed above, you will immediately be inside the mod, and can load any map with the `map` command. In NetQuake, you will first have to load the mod with the command `game frogbot`, or using the GUI menu.
+
 Playing against bots is only possible on _supported maps,_ i.e., maps for which waypoints were built into the qwprogs, or that have waypoints embedded in an `.ent` file or in the `.bsp` itself.  
-The current list of built-in maps can be found in the `src/maps/maplist.txt` file, but will also be printed in-game after loading a map that is not supported.
+The current list of built-in maps can be found in the `src/maps/maplist.txt` file, but will also be printed in-game after loading a map that is not supported. Depending on whether you are using a QW engine or NetQuake engine, downloaded BSP files must be placed in respectively `qw/maps/` or `id1/maps/.`
 
 The list of supported maps is currently much smaller than what used to be bundled with nQuake, although it does support some newer maps. The goal is to port the entire old huge collection to the v2 Frogbot, but each map needs to go through some QA to fix problems and possibly upgrade it to benefit from the new features. Check back here for newer releases, or if you want to lend a helping hand, look in the `waypoint` README.
 
-The default mode is _FFA,_ other modes are available, try the commands starting with `bot_`, like `bot_arena` which is great for practicing your aim or just instant mayhem. After loading a map, use the `addbot` and `removebot` commands to add or remove bots. Bots will be carried over when changing maps (if the next map is supported of course).  
-The default configs have some maplists built-in. Look in the `configs` folder to see which BSP files you need to obtain to play those lists, or override the lists with your own config.
+The default mode is _FFA,_ other modes are available. Try the commands starting with `bot_`, like `bot_arena` which is great for practicing your aim or just instant mayhem. After loading a map, use the `addbot` and `removebot` commands to add or remove bots. Bots will be carried over when changing maps (if the next map is supported of course).  
+The default configs have some maplists built-in (only works in QW). Look in the `configs` folder to see which BSP files you need to obtain to play those lists, or override the lists with your own config, or just manually switch maps with the `map` command.
+
+Disclaimer: I haven't tested the v2 mod yet with more than a single human player who launched the server. There may be bugs when other people connect, or maybe not. My primary goal for this mod is to offer a low-hassle offline practice environment. For non-casual servers, it makes more sense to run KTX. Still, if you encounter bugs, please report them, or better: try to fix them.
 
 #### Bot skill
 Bots can have a **skill** level from 0 to 20, default is 5. The level required to make things challenging, will depend on your own Quake skills, and it also tends to vary per map. Bots tend to be more challenging in smaller maps with multiple floors and teleports, and easier in maps with large open spaces.  
-If you want to change the skill level of the bots, you can use the `skilldown` and `skillup` commands, or impulses _114_ and _115_ respectively. The new skill level will only be applied to new bots spawned afterwards, not to bots already active in the current game, and bots also preserve their skill level across map changes. This means you can mix bots of different skill levels in a single game for even higher realism. To bring all bots to the currently selected skill, `removeallbots` and then reload them.  
-A custom bot skill level that overrides the built-in configs can be persisted across game sessions by setting the `fb_custom_skill` cvar to a non-zero value (value -1 represents skill level 0).
+If you want to change the skill level of the bots, you can use the `skilldown` and `skillup` commands, or impulses _114_ and _115_ respectively. The new skill level will only be applied to new bots spawned afterwards, not to bots already active in the current game, and bots also preserve their skill level across map changes. This means you can mix bots of different skill levels in a single game for even higher realism. To bring all bots to the currently selected skill, `removeallbots` and then re-add them.  
+A custom bot spawn level that overrides the built-in configs can be persisted across game sessions by setting the `fb_custom_skill` cvar to a non-zero value (value -1 represents skill level 0).
 
 If you have never played Quake before, you may want to start at skill level 0 and gradually go up. Seasoned players may want to try level 10. It goes up to 20, at which point the bots have inhumanly fast aim and situational awareness. True hardcore Quake players may still be able to outwit level 20 bots by exploiting their limitations.
 
 #### Engine quirks
-If you're using _ezQuake,_ it is possible that _all_ players will have the same red pants and yellow shirts, making it very hard to play team games because the only way to discern between enemies and teammates, is to see whether they are shooting at you. This seems to be a bug in _ezQuake_ itself and the only decent workaround I have found so far, is `/r_skincolormode 5` and then `r_teamskincolor 96 255 96` to give your teammates a green tint (change the RGB numbers for different colors).
+If you're using _ezQuake,_ it is possible that _all_ players will have the same red pants and yellow shirts, making it very hard to play team games because the only way to discern between enemies and teammates, is to see whether they are shooting at you. This seems to be a bug in _ezQuake_ itself and the only decent workaround I have found so far, is `/r_skincolormode 5` and then `r_teamskincolor 96 255 96` to give your teammates a green tint (change the RGB numbers for different colors). Even if the bug is fixed in newer versions, this may still be helpful to avoid teamkills.
 
 Also, if you have tried ‘coop’ mode in ezQuake, mind that traces of it tend to stick until you have again explicitly selected the single-player menu item or cleared the `coop` variable. If it is nonzero, weird things may happen, like deathmatch mode always being forced to 1. You _can_ start a cooperative game with bots, which will make them act as teammates, but this is currently of limited use.
 

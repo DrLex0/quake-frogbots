@@ -1608,6 +1608,8 @@ void() ImpulseCommands =
 		self.invincible_finished = time + 30;
 	}
 #endif
+	else if (impulse_ == IMP_SETWEAP1) setBestWeapon1();
+	else if (impulse_ == IMP_SETWEAP2) setBestWeapon2();
 	else if (impulse_ < IMP_START1)
 	{
 		if (self.lines)

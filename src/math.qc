@@ -78,7 +78,7 @@ float sqrt(float x) {
 /* The following has been moved from arena.qc */
 
 // check if n is an integer
-float(float a) int =
+float(float a) is_int =
 {
 	if (a == rint(a))
 		return 1;
@@ -86,10 +86,10 @@ float(float a) int =
 };
 
 // check if n is an odd integer
-float(float a) oint =
+float(float a) is_oint =
 {
-	if (int(a))
-	if (!int(a / 2))
+	if (is_int(a))
+	if (!is_int(a / 2))
 		return 1;
 	return 0;
 };
@@ -98,8 +98,8 @@ float(float a) oint =
 float(float a, float b) imaginary =
 {
 	if (a < 0)
-	if (!int(b))
-	if (!oint(1 / b))
+	if (!is_int(b))
+	if (!is_oint(1 / b))
 		return 1;
 	return 0;
 };
@@ -140,7 +140,7 @@ float(float a, float b) pow =
 		c = c - 1;
 		d = d * a;
 	}
-	if (!int(b))
+	if (!is_int(b))
 	{
 		e = 0.1;
 		while (e >= 0.01)

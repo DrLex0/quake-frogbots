@@ -3,6 +3,7 @@
 
 	Copyright (C) 2000-2003 rxr
 	Copyright (C) 2000-2007 ParboiL
+	Fixes and enhancements by DrLex 2026
 */
 
 #include "settings.h"
@@ -446,6 +447,16 @@ void() centerview =
 	self.fixangle = TRUE;
 };
 
+/*
+DrLex: I'm not sure where these 2 functions come from and whether it is justified
+to make them universally available, because they're basically movement scripts.
+The first will fire a rocket from your arse. This feels like a total cheat,
+especially because it doesn't even check for weapon availability, which also allows
+to use it to fire lightning bolts at someone behind you.
+The second will fire a rocket down. This is vaguely defendable because it is
+also how the bots do their regular RJs. I would be OK with keeping these, but they
+should be toggle-able.
+*/
 void() f_jump =
 {
 	if ((time < self.attack_finished) || self.deadflag) return;
@@ -476,4 +487,86 @@ void() r_jump =
 	centerview();
 	self.button0 = 0;
 	impulse_ = 0;
+};
+
+/*
+============
+IsWeaponAvailable
+setBestWeapon1
+setBestWeapon2
+
+Convenience functions to allow players to switch to a best preferred weapon,
+similar to the 'weapon' command in ezQuake.
+Set digits in a cvar as a sequence of impulse digits in increasing order of
+preference. For instance, to pick the RL if available, then LG, then GL, etc:
+	set weaponpref1 2345687
+The number must not be larger than 2^24; silly things like 87654321 will fail.
+============
+*/
+float(float w_impulse) IsWeaponAvailable =
+{
+	items_ = self.items;
+	if (w_impulse == 8) {
+		if (items_ & IT_LIGHTNING)
+			return (self.ammo_cells >= 1);
+		return FALSE;
+	}
+	if (w_impulse == 7) {
+		if (items_ & IT_ROCKET_LAUNCHER)
+			return (self.ammo_rockets >= 1);
+		return FALSE;
+	}
+	if (w_impulse == 6) {
+		if (items_ & IT_GRENADE_LAUNCHER)
+			return (self.ammo_rockets >= 1);
+		return FALSE;
+	}
+	if (w_impulse == 5) {
+		if (items_ & IT_SUPER_NAILGUN)
+			return (self.ammo_nails >= 2);
+		return FALSE;
+	}
+	if (w_impulse == 4) {
+		if (items_ & IT_NAILGUN)
+			return (self.ammo_nails >= 1);
+		return FALSE;
+	}
+	if (w_impulse == 3) {
+		if (items_ & IT_SUPER_SHOTGUN)
+			return (self.ammo_shells >= 2);
+		return FALSE;
+	}
+	if (w_impulse == 2) {
+		if (items_ & IT_SHOTGUN)
+			return (self.ammo_shells >= 1);
+	}
+	if (w_impulse == 1)  // don't know why anyone would want to, but you can
+		return TRUE;
+	return FALSE;
+};
+
+void(string cvar_name) setBestWeapon =
+{
+	local float weaponlist = cvar(cvar_name);
+	if (! weaponlist) return;
+	local float impu;
+	while (weaponlist)
+	{
+		impu = weaponlist - 10 * floor(weaponlist / 10);
+		if (IsWeaponAvailable(impu)) {
+			self.impulse = impu;
+			return;
+		}
+		weaponlist = floor(weaponlist / 10);
+	}
+};
+
+void() setBestWeapon1 =
+{
+	setBestWeapon("weaponpref1");
+};
+
+void() setBestWeapon2 =
+{
+	setBestWeapon("weaponpref2");
 };

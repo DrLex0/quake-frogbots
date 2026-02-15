@@ -1,0 +1,4 @@
+.mypy_cache
+progs.dat
+qwprogs.dat
+/Release

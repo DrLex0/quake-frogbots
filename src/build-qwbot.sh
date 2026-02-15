@@ -7,12 +7,13 @@ fteqcc.bin -O3 "$@"
 # The PK3 (which is just a zip archive) should only contain:
 # - qwprogs.dat
 # - frogbot.cfg
-# - configs
+# - configs-qw
 # - doc
 # - sound
 # (Not sure what's in gfx. Not included in nQuake frogbot distribution, hence omit.)
 
-#TARGET_PATH="../frogbot.pk3"
+# === Uncomment and update path to enable auto-deploy ===
+#TARGET_PATH="your/ezquake-dir/qw/frogbot.pk3"
 #cd ../
 #rm -f "${TARGET_PATH}"
-#zip -r "${TARGET_PATH}" * -x README.md -x gfx/\* src/\* waypoint/\*
+#zip -r "${TARGET_PATH}" * -x README.md -x frogbot-quake.cfg configs-quake/\* gfx/\* src/\* waypoint/\*

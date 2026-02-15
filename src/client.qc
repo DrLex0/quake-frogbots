@@ -32,7 +32,6 @@ void() ToggleFramerate;
 void(float value, string str) ToggleGameMode;
 void() RemoveFromAllLists;
 void() Add_client;
-void() thud_touch;
 void() ImpulseCommands;
 void() SetAttribs;
 void() PrintFramerate;
@@ -1834,7 +1833,7 @@ void() ClientConnect =
 	if (!game_arena) 
 		MakeMOTD();
 
-#ifndef MANUAL
+#ifdef ARENA
 	if (!self.k_stuff)
 		AliasesTime();
 // ParboiL

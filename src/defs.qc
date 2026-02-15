@@ -633,6 +633,8 @@ float IMP_NOCLIP		= 130;
 #endif
 float IMP_END4		= 130;
 //---------------------------
+float IMP_SETWEAP1	= 248;
+float IMP_SETWEAP2	= 249;
 float IMP_RANDOM		= 250;
 float IMP_IMPULSE_0	= 255;
 //---------------------------

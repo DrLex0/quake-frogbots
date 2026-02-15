@@ -420,7 +420,7 @@ float() check_cvar =
 		asdf = scratch1();
 	if (asdf == var_)
 		return var_;
-	if (!int(asdf))
+	if (!is_int(asdf))
 	{
 		if (cvar_)
 			cvar_set_(varg, var_);
@@ -639,49 +639,49 @@ void() commands =
 {
 	if (self.k_stuff)
 	{
-		sprint_fb(self, 2, "ποχεςυπσ.... quad, , ring & suit\n");
-		sprint_fb(self, 2, "δςοπ........ drop quad/ring\n");
-		sprint_fb(self, 2, "αςεξα....... clan arena\n");
-		sprint_fb(self, 2, "βοτκυνπ..... bot jumping\n");
-		sprint_fb(self, 2, "αδδβοτ...... add bot\n");
-		sprint_fb(self, 2, "ςενοφεβοτ... remove bot\n");
-		sprint_fb(self, 2, "ςεσταςτ..... restart map\n");
-		sprint_fb(self, 2, "γονναξδσ.... print commands\n");
-		sprint_fb(self, 2, "ςυμεσ....... print rules\n");
-		sprint_fb(self, 2, "κοιξ........ joins game\n");
-		sprint_fb(self, 2, "οβσεςφε..... reconnect as spectator\n");
-		sprint_fb(self, 2, "μογλ........ change locking mode\n");
+		sprint_fb(self, 2, "ποχεςυπσ.... quad, , ring & suit\n");  // powerups.... quad, 666,
+		sprint_fb(self, 2, "δςοπ........ drop quad/ring\n");  // drop...
+		sprint_fb(self, 2, "αςεξα....... clan arena\n");  // clan...
+		sprint_fb(self, 2, "βοτκυνπ..... bot jumping\n");  // botjump...
+		sprint_fb(self, 2, "αδδβοτ...... add bot\n");  // addbot...
+		sprint_fb(self, 2, "ςενοφεβοτ... remove bot\n");  // removebot...
+		sprint_fb(self, 2, "ςεσταςτ..... restart map\n");  // restart...
+		sprint_fb(self, 2, "γονναξδσ.... print commands\n");  // commands...
+		sprint_fb(self, 2, "ςυμεσ....... print rules\n");  // rules...
+		sprint_fb(self, 2, "κοιξ........ joins game\n");  // join...
+		sprint_fb(self, 2, "οβσεςφε..... reconnect as spectator\n");  // observe...
+		sprint_fb(self, 2, "μογλ........ change locking mode\n");  // lock...
 		if (!game_not_match)
 		{
-			sprint_fb(self, 2, "ςεαδω....... when you feel ready\n");
-			sprint_fb(self, 2, "βςεαλ....... unready\n");
+			sprint_fb(self, 2, "ςεαδω....... when you feel ready\n");  // ready...
+			sprint_fb(self, 2, "βςεαλ....... unready\n");  // break...
 			if (teamplay)
 			{
-				sprint_fb(self, 2, "αυτοςεποςτ.. auto team report\n");
-				sprint_fb(self, 2, "αυτοστεανσ.. bot auto select team\n");
-				sprint_fb(self, 2, "σγοςεσ...... match time and score\n");
+				sprint_fb(self, 2, "αυτοςεποςτ.. auto team report\n");  // autoreport...
+				sprint_fb(self, 2, "αυτοστεανσ.. bot auto select team\n");  // autosteams...
+				sprint_fb(self, 2, "σγοςεσ...... match time and score\n");  // scores...
 			}
-			sprint_fb(self, 2, "οφεςτινε.... toggle overtime mode\n");
-			sprint_fb(self, 2, "χθο......... players list\n");
-			sprint_fb(self, 2, "τινεδοχξ.... -5 mins match time\n");
-			sprint_fb(self, 2, "τινευπ...... +5 mins match time\n");
-			sprint_fb(self, 2, "ζςαησδοχξ... -10 fraglimit\n");
-			sprint_fb(self, 2, "ζςαησυπ..... +10 fraglimit\n");
-			sprint_fb(self, 2, "σλιμμδοχξ... -1 skill\n");
-			sprint_fb(self, 2, "σλιμμυπ..... +1 skill\n");
-			sprint_fb(self, 2, "δν.......... change deathmatch mode\n");
-			sprint_fb(self, 2, "τπ.......... change teamplay mode\n");
-			sprint_fb(self, 2, "σιμεξγε..... toggle spectator talk\n");
-			sprint_fb(self, 2, "ξοίμη....... toggle shaft\n");
-			sprint_fb(self, 2, "σθίσπεεδ.... toggle use show speed\n");
-			sprint_fb(self, 2, "«χπίστατσ... start print weapon stats\n");
-			sprint_fb(self, 2, "χπίςεσετ.... clear weapon stats\n");
+			sprint_fb(self, 2, "οφεςτινε.... toggle overtime mode\n");  // overtime...
+			sprint_fb(self, 2, "χθο......... players list\n");  // who...
+			sprint_fb(self, 2, "τινεδοχξ.... -5 mins match time\n");  // timedown...
+			sprint_fb(self, 2, "τινευπ...... +5 mins match time\n");  // timeup...
+			sprint_fb(self, 2, "ζςαησδοχξ... -10 fraglimit\n");  // fragsdown...
+			sprint_fb(self, 2, "ζςαησυπ..... +10 fraglimit\n");  // fragsup...
+			sprint_fb(self, 2, "σλιμμδοχξ... -1 skill\n");  // skilldown...
+			sprint_fb(self, 2, "σλιμμυπ..... +1 skill\n");  // skillup...
+			sprint_fb(self, 2, "δν.......... change deathmatch mode\n");  // dm...
+			sprint_fb(self, 2, "τπ.......... change teamplay mode\n");  // tp...
+			sprint_fb(self, 2, "σιμεξγε..... toggle spectator talk\n");  // silence...
+			sprint_fb(self, 2, "ξοίμη....... toggle shaft\n");  // no_lg...
+			sprint_fb(self, 2, "σθίσπεεδ.... toggle use show speed\n");  // sh_speed...
+			sprint_fb(self, 2, "«χπίστατσ... start print weapon stats\n");  // +wp_stats...
+			sprint_fb(self, 2, "χπίςεσετ.... clear weapon stats\n");  // wp_reset...
 		}
-		sprint_fb(self, 2, "δςοπχεαπ.... dropbackpack/weapon\n");
-		sprint_fb(self, 2, "βοτγθατ..... bot talk mode\n");
-		sprint_fb(self, 2, "λζκυνπ...... just forward jump\n");
-		sprint_fb(self, 2, "λςκυνπ...... just rocket jump\n");
-		sprint_fb(self, 2, "αβουτ....... fbca info\n");
+		sprint_fb(self, 2, "δςοπχεαπ.... dropbackpack/weapon\n");  // dropweap...
+		sprint_fb(self, 2, "βοτγθατ..... bot talk mode\n");  // botchat...
+		sprint_fb(self, 2, "λζκυνπ...... just forward jump\n");  // kfjump...
+		sprint_fb(self, 2, "λςκυνπ...... just rocket jump\n");  // krjump...
+		sprint_fb(self, 2, "αβουτ....... fbca info\n");  // about...
 	}
 	else
 	{
@@ -1625,35 +1625,35 @@ void() initialize =
 	team3 = spawn();
 	team4 = spawn();
 	team0.next = team1;
-	team0.classname = "ξοξε‘"; // none
+	team0.classname = "ξοξε‘"; // [none]
 	team0.pantscolor = 0;
 	team0.teamnumber = 5;
 	team0.shirt1 =
 	team0.shirt2 =
 	team0.shirt3 = 0;
 	team1.next = team2;
-	team1.classname = "βμυε‘"; // blue
+	team1.classname = "βμυε‘"; // [blue]
 	team1.pantscolor = 13;
 	team1.teamnumber = 1;
 	team1.shirt1 = 13;
 	team1.shirt2 = 2;
 	team1.shirt3 = 11;
 	team2.next = team3;
-	team2.classname = "ςεδ‘"; // red
+	team2.classname = "ςεδ‘"; // [red]
 	team2.pantscolor = 4;
 	team2.teamnumber = 2;
 	team2.shirt1 = 4;
 	team2.shirt2 = 6;
 	team2.shirt3 = 7;
 	team3.next = team4;
-	team3.classname = "ωεμμοχ‘"; // yellow
+	team3.classname = "ωεμμοχ‘"; // [yellow]
 	team3.pantscolor = 12;
 	team3.teamnumber = 3;
 	team3.shirt1 = 12;
 	team3.shirt2 = 5;
 	team3.shirt3 = 10;
 	team4.next = team0;
-	team4.classname = "ηςεεξ‘"; // green
+	team4.classname = "ηςεεξ‘"; // [green]
 	team4.pantscolor = 3;
 	team4.teamnumber = 4;
 	team4.shirt1 = 3;
@@ -2001,11 +2001,11 @@ void() a_gamemode =
 // called in PrintRules()
 void() a_boolean =
 {
-	print_boolean(GAME_ARENA, "αςεξα....... ");
-	print_boolean(GAME_DAMAGE, "δαναηε...... ");
-	print_boolean(GAME_RASPAWN, "ςασπαχξ..... ");
-	print_boolean(GAME_BOTJUMP, "βοτκυνπ..... ");
-	print_boolean(GAME_DROP, "δςοπ........ ");
+	print_boolean(GAME_ARENA, "αςεξα....... ");  // arena
+	print_boolean(GAME_DAMAGE, "δαναηε...... ");  // damage
+	print_boolean(GAME_RASPAWN, "ςασπαχξ..... ");  // raspawn
+	print_boolean(GAME_BOTJUMP, "βοτκυνπ..... ");  // botjump
+	print_boolean(GAME_DROP, "δςοπ........ ");  // drop
 };
 
 // more ImpulseCommands, woo!
