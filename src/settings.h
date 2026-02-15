@@ -3,14 +3,15 @@
 #define SETTINGS_H
 
 #ifndef WAYPOINT_BUILD
-	// The regular Frogbot runtime build for QuakeWorld.
+	// Frogbot runtime build for QuakeWorld.
 	#define TALK
 	#define ARENA // Asdf
 	//#define NOCLIP // not supposed to be used for production
 
-	// A classic Quake build is actually possible, but some things need fixing
+	// NetQuake build
 	#ifdef QUAKE
-	#pragma PROGS_DAT ../progs.dat
+	// Should not be needed; uncomment otherwise
+	//#pragma PROGS_DAT ../Release/quake/progs.dat
     #define YOU_FRAGGED
 	#endif
 

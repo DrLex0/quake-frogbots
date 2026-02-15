@@ -36,7 +36,7 @@ On top of that, the new bot has a whole lot of new features and skills. More det
 
 The Frogbot mod can run both in:
 - a _QuakeWorld_ engine like ezQuake (for which a prebuilt `qwprogs.dat` is provided);
-- a classic _NetQuake_ engine like vkQuake (for which a prebuild `progs.dat` is provided).
+- a classic _NetQuake_ engine like vkQuake (for which a prebuilt `progs.dat` is provided).
 
 At this time, the QuakeWorld build has the most features and probably the least bugs. However, the NetQuake build is pretty usable, and will offer the most authentic classic Quake multiplayer experience without having to scour for friends who still want to play a +30 year old game. 😁
 
@@ -44,12 +44,12 @@ Of course, if you're familiar with Quake config tweaking, you can modify the `cf
 
 #### Deploying in ezQuake
 
-Unless you want to compile the mod yourself, you will need the binaries (`.dat` files). Recent builds can be found in the _Releases_ section of GitHub.
+Unless you want to compile the mod yourself (instructions below), you can use the prebuilt binaries (`.dat` files). Recent builds can be found in the _Releases_ section of GitHub.
 
 It used to be simplest to start out with [nQuake](https://nquake.com/) because it used to ship with an older version of the Frogbot mod, and already had everything set up. The v2 bots were a drop-in replacement, meaning that if you still have an older Frogbot-based nQuake installation, the simplest way to run the v2 bots, is to unzip nQuake's `frogbot.pk3`, replace its `qwprogs.dat` with the one from this repository, and then zip the file again, and ensure the file extension is `pk3`.
 
 To deploy the mod from scratch in ezQuake, some more work is needed:
-- Create a new zip archive from the following files in this repository, change the extension to `pk3`, and drop it into ezQuake's `qw` directory. This approach should also work for other engines (Perhaps the uncompressed files should be copied instead, I am not too familiar with this stuff.)
+- Create a new zip archive from the following files in this repository, change the extension to `pk3`, and drop it into ezQuake's `qw` directory. This approach should also work for other engines (perhaps the uncompressed files should be copied instead, I am not too familiar with this stuff.)
   - `qwprogs.dat`
   - `frogbot.cfg`
   - `configs-qw`
@@ -105,6 +105,33 @@ By default, the mod will prefer waypoints embedded in `.ent` files or the `.bsp`
 This can be done with the ‘waypoint’ tool running as a separate mod in any NetQuake engine. See the README in the `waypoint` directory.
 
 
+## Building from source
+
+You need a not too mothballed build of [FTEQCC](https://www.fteqcc.org/), no guarantees are given that the code will build with anything else.
+
+### Building the QuakeWorld runtime
+The progs specification is in `progs.src,` which is the default for FTEQCC. This means it suffices to execute from within the `src` directory:
+```bash
+mkdir -p ../Release/qw  # can skip if it already exists
+fteqcc.bin -O3
+```
+
+The output `qwprogs.dat` will be placed in the `Release/qw/` folder 1 level up. To actually deploy the Frogbot progs, see instructions above for creating the correct `pk3` file.
+
+As with the waypoint build, if you have access to a `bash` shell, you can also use the provided `build-qwbot` script, and edit it (or preferably a copy) to do everything for you and even put the `pk3` file in your QuakeWorld installation directory.
+
+### Building the NetQuake runtime
+It uses a custom `src` file and needs the `QUAKE` macro to be defined. Execute from within the `src` directory:
+```bash
+mkdir -p ../Release/quake  # can skip if it already exists
+fteqcc.bin -DQUAKE=1 -O3 -srcfile progs-quake.src
+```
+
+The output `progs.dat` will be placed in the `Release/quake/` folder 1 level up. Same here, see instructions above for how to deploy.
+
+And also here, a script `build-quakebot.sh` is provided that can make your life easier.
+
+
 ## Why this project?
 
 Originally I only had 2 goals. Eventually though, a third goal emerged:
@@ -113,28 +140,30 @@ Originally I only had 2 goals. Eventually though, a third goal emerged:
 3. Make the Frogbot more capable, such that it is no longer disadvantaged by certain map features it could previously not handle.
 
 In more detail, the purpose is to revive the classic Frogbot Quake(World) mod in a way that:
-- makes it much easier to build the `qwprogs.dat` with any recent version of fteqcc or maybe other compilers;
+- makes it much easier to build the `(qw)progs.dat` with any recent version of fteqcc or maybe other compilers;
 - makes it much easier to create waypoints — doing this is fun enough that I already did it for a few maps, and more may follow;
 - makes it possible and easy to resume editing existing waypoint data;
 - makes it possible to embed waypoint data in maps, or load them through an `.ent` file, to avoid the need to compile them into the qwprogs;
 - fixes issues and adds new features to the bots to make them more challenging.
 
 Reviving and improving the _waypoint tool_ was one of the main goals, to make it much easier to create new waypoints for maps, because there would be little use in reviving the classic Frogbot if we would be stuck with a set of maps from before 2012.  
-The output of the tool might also be usable to generate waypoints for the KTX Frogbot, if some kind of translation tool is available.
+The output of the tool might also be usable to generate waypoints for the KTX Frogbot, if some kind of translation tool is available. However, the feature set will first need to be synced to support the v2 path and marker types.
 
 While working on the tool and testing newly created waypoints, I noticed things I could improve about the bots themselves. This began as simple bug fixes, but escalated into adding entire new functionality. The changes became so substantial that I deemed it appropriate to call this the _‘v2’ Frogbot._
 
 
 ## What is the difference with the old Frogbot?
 
-Numerous problems have been fixed and new features have been added. The most important ones:
+Numerous problems have been fixed and new features have been added since the last major build that used to be shipped with nQuake. The most important ones:
 
-1. Solved the `numpr_globals` problem without requiring the `-Ovectorcalls` option in fteqcc, which has been broken for ages when trying to compile for many maps. Formerly it was impossible to make a Frogbot build that includes Trinca's complete latest collection of 378 maps, unless a very specific old Windows build of fteqcc was used. Now it is possible to build with _any_ recent fteqcc on _any_ platform, and basically an _infinite_ number of maps can now be built into the qwprogs, until we hit some other QuakeC limit.
+1. Solved the `numpr_globals` problem without requiring the `-Ovectorcalls` option in fteqcc, which has been broken for ages when trying to compile for many maps. Formerly it was impossible to make a Frogbot build that includes Trinca's complete latest collection of 378 maps, unless a very specific old Windows build of fteqcc was used. Now it is possible to build with _any_ recent fteqcc on _any_ platform, and basically an _infinite_ number of maps can now be built into the qwprogs, until we hit some other QuakeC limit. But even that wouldn't be a show-stopper anymore, due to the following.
 
-2. Simpler management of map waypoint files, with a Python script that can also convert existing files for the above fix, which requires a (simple) format change.
+2. Enabled loading waypoints through `.ent` files, or even building them into a map. This means it is no longer required to recompile the (qw)progs to provide bot support for a map. See details in the waypoint README.
 
-3. Restored ability to build the **waypoint tool** featured in Mick's (former) guide, and greatly improved the usability of the tool. (Mick's guide is now defunct, but there is a much more detailed guide in this repository.)  
-   It is now possible to _resume editing_ from existing waypoints, if one compiles them into the tool and then simply loads the map; or if they are injected into an `.ent` file or the `.bsp` itself that can then be reloaded without recompiling anything.  
+3. Simpler management of map waypoint files, with a Python script that can also convert existing files for the above fix, which requires a (simple) format change.
+
+4. Restored ability to build the **waypoint tool** featured in Mick's (former) guide, and greatly improved the usability of the tool. (Mick's guide is now defunct, but there is a _much_ more detailed guide in this repository.)  
+   This means it is now possible to easily _resume editing_ from existing waypoints, if one compiles them into the tool and then simply loads the map; of course they could also be injected into an `.ent` file or the `.bsp` itself and can then be reloaded without recompiling anything, but this is slightly more cumbersome.  
    This means:
    - creating waypoints is again _way more feasible_ through an edit-test cycle;
    - one can examine or edit waypoints for existing maps, and better understand how to create good waypoints for new maps;
@@ -147,9 +176,8 @@ Numerous problems have been fixed and new features have been added. The most imp
    - auto-connect teleport triggers to destinations: way less tedious/error-prone;
    - fixed various bugs, for instance the old tool would often crash after deleting a marker;
    - waypoint output format is now deterministic and mostly sorted in a sensible way;
+   - bot mode can be forced to reach a certain target spot;
    - other functions that make it much easier to find and check things.
-
-4. Enabled loading waypoints through `.ent` files, or even building them into a map. This means it is no longer required to recompile the mod to add bot support to a map. See details in the waypoint README.
 
 5. Added _precision jump mode_ for paths. The ordinary ledge jump mode is too crude for certain jumps, bots would often jump around way too erratically. The new modes enable jumps where accuracy matters. The bot will automatically retreat and do a run-up when necessary. The jump can also be combined with a new _slow path mode_ to reliably jump onto small ledges/steps like in the yellow armor zone of `e1m2`, or can be given an initial direction to perform an air strafe.  
    Next to this, other new path modes and marker types have been added to better handle specific situations, like smoothly getting through narrow openings.
@@ -205,6 +233,7 @@ When making waypoints in an engine that supports `.ent` files, by all means ensu
 
 ## Planned
 
+- Improve Frogbot functionality in NetQuake engines. It already works pretty well and you can even play against bots in the waypoint tool if you start a network game and use manual impulse commands, but this has been tested less than the QW build and is likely to have more bugs and some missing functionality. However, one extra feature the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer (in waypoint tool this is bound to `F4`). Try it!
 - Add more—ideally all—of Trinca's waypoints, with errors fixed and updated to benefit from the new features.
 - Create new waypoints for popular maps, new and old. Anyone can help with this, check out the extensive documentation in the `waypoint` folder!
 - Some more documentation, like how the whole thing works at a technical level. Don't expect me to explain all the voodoo in `route_calc.qc` though…
@@ -213,7 +242,6 @@ No promises about dates or reaching these goals whatsoever. It is done when it's
 
 ### Not really planned, but who knows…
 
-- Improve Frogbot functionality in NetQuake engines. It is already possible to build and run a plain Quake `progs.dat` (see the `build-quakebot.sh` script), and you can even play against bots in the waypoint tool if you start a network game and use manual impulse commands, but this has been tested less than the QW build and is likely to have more bugs and some missing functionality. However, one extra feature the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer (in waypoint tool this is bound to `F4`). Try it!
 - Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels. Bots also shouldn't do smart things on low smartness settings, like deliberately damaging themselves to be able to pick up armor such that other players cannot, and a bot with smartness 0 should have zero advance knowledge of when an item will spawn.
 - Find a way to spectate bots. This may be impossible, at least that's what ChatGPT claims, but I have learned that it tends to be full of 💩 when it comes to Quake knowledge.
 - Find a way to automatically generate sensible waypoints as a starting point, to avoid the need to make every map from scratch. This will likely never work fully unsupervised, but it could reduce the amount of work per map to merely fine-tuning the tricky parts and special things. Having near-Trinca-quality waypoints automatically generated, would already be very helpful.

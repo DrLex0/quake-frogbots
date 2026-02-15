@@ -19,7 +19,7 @@ Saving work-in-progress, testing it with bots, and then continuing to edit, is t
 
 Once waypoints have been created, there are 2 ways to allow Frogbots to use them, or to resume editing existing waypoints. More information is in the section below, but in short:
 
-1. Recompile the Frogbot `qwprogs.dat` with the waypoint data included in the `maps` source directory. This was the only way of doing it since 1997 before DrLex implemented the next method in 2025 (hey, better late than never…)  
+1. Recompile the Frogbot `qwprogs.dat` and/or `progs.dat` with the waypoint data included in the `maps` source directory. This was the only way of doing it since 1997 before DrLex implemented the next method in 2025 (hey, better late than never…)  
    For truly finalised maps, this remains the preferred method because it provides the best end-user experience.
 2. Embed the waypoint data as _entity fields._ These fields all have a `FrB_` prefix. A Python script takes the waypoint dump and injects the data into an `.ent` file, which can then be loaded together with the map by most modern engines. This makes it easy to distribute waypoints with new maps.  
    It is also possible to inject the same data into a `.map` file, which means this method can be used to build a BSP file with embedded waypoints. This may be particularly useful while playtesting a map with bots, because waypoint data in a `.map` file relies on textual IDs, unlike the compiled format from method 1 which relies on indexes that may shift. This makes it much more feasible to edit the `.map` without (totally) breaking the waypoints.
@@ -29,17 +29,18 @@ Whatever method is used, the most practical way of producing and editing waypoin
 
 ## Deploying and Building
 
-In the `waypoint` directory, you will find a prebuilt `progs.dat`, and an `autoexec.cfg` that sets up similar key bindings as used in Mick's guide. Put both inside a `waypoint` subdirectory of your favourite Quake engine. I use _vkQuake,_ but any engine that can run the single player campaign should work.
+There is no strict need to compile the waypoint tool, although being able to will allow for a smoother workflow, see details below. You can already get started with the prebuilt `waypoint/progs.dat` file from the latest bundle available in the Releases section of the GitHub repository, and if you're going to make embedded waypoints, this will be all you need.
 
-To run the tool, do `game waypoint` in the Quake console, or directly launch it with appropriate command-line arguments for your engine. Then use the `map` command to load a map.
+In the `waypoint` directory of this repository, you will find an `autoexec.cfg` that sets up similar key bindings as used in Mick's old guide (and a lot more). Create a `waypoint` directory in the same directory where your favourite Quake engine has its `id1` folder. I use _vkQuake,_ but any engine that can run the full single player campaign should work.  
+Place both the waypoint `progs.dat` and the `autoexec.cfg` in your Quake engine's `waypoint/` folder.
+
+To run the tool, do `game waypoint` in the Quake console, or select it from the menu, or directly launch it with appropriate command-line arguments for your engine. Then use the `map` command to load a map, and you can start waypointin'.
 
 **Rebuilding the waypoint tool** is required if you:
 - want to fix bugs or add functionality;
 - want to use the recompiling workflow mentioned above to resume editing work-in-progress waypoints. This is not as scary as it sounds; it is in fact the smoothest way of working with a well-configured workflow.
 
-The waypoint tool is built from the same source code as the regular Frogbot, by enabling different options. See the **Building the Waypoint Tool** section for specific instructions.
-
-The de facto QuakeC compiler nowadays is [FTEQCC](https://www.fteqcc.org/), no guarantees are given that the code will build with anything else. All instructions below assume you will be using _fteqcc._
+The waypoint tool is built from the same source code as the regular Frogbot, by enabling different options. See the section below for instructions on how to build it.
 
 Important: the regular build of this tool requires a Quake engine that supports the `stof()` function (#81). Most modern engines like QuakeSpasm or vkQuake are OK. If you badly want to run this in the original Quake, it might be possible by rebuilding the tool with the `VANILLA_QUAKE` macro defined, but this will break the loading of waypoint data embedded as entities in BSP files.
 
@@ -79,7 +80,7 @@ So, now you have this dump of waypoint code. What to do with it?
 
 ### Method 1: Build waypoints into Frogbot/waypoint progs
 
-This is the **classic method,** and is appropriate for maps that are considered _final._ The embedded method (see below) is much more appropriate for maps that may still need to be changed.
+This is the **classic method,** and is appropriate for maps that are considered _final,_ i.e., their `.bsp` file will remain unchanged until the thermal death of the universe. For maps that may still need to be changed, the embedded method (see below) is much more appropriate.
 - The _advantage_ is that everything is bundled inside the single progs files, and the included maps will then be instantly playable by anyone using the latest Frogbot build, without requiring extra files.
 - The _disadvantage_ is that if multiple builds of the Frogbot progs would be distributed, it is hard to know what list of maps they support. And also, old builds may contain old waypoints with flaws.
 - Another _disadvantage_ is that this workflow is nearly unusable for maps where items still need to be added or removed. Adding or removing a single item can still be patched with the `entity_shifter.py` script, but adding or removing multiple items at once will make things hairy very quickly. Again, the embedded workflow is much more usable in this case.
@@ -90,7 +91,7 @@ _Don't do this manually!_ The `generate_maplist.py` script will do everything fo
 python generate_maplist.py -vlgt -d drlex ktx trinca other
 ```
 
-Now you can rebuild both the Frogbot `qwprogs.dat` and the waypoint `progs.dat`.
+Now you can rebuild the Frogbot `(qw)progs.dat` to test playing against bots (see main README for instructions), and rebuild the waypoint `progs.dat` to continue editing the waypoints (instructions below).
 
 #### About map aliases
 If the same map exists under different names, or 2 maps only differ in textures but have otherwise identical geometry and items, then it is possible to mark one map as an _alias_ of the other; this is more efficient than copying the QC files.  
@@ -100,44 +101,19 @@ For instance if `tridm1` is the same map as `trindm1`, then it suffices to add t
 ```
 
 #### Building the Waypoint Tool
+The de facto QuakeC compiler nowadays is [FTEQCC](https://www.fteqcc.org/), no guarantees are given that the code will build with anything else. All instructions below assume you will be using _fteqcc._
+
 Execute from within the `src` directory:
 ```bash
+mkdir -p ../Release/waypoint  # can skip if it already exists
 fteqcc.bin -DWAYPOINT_BUILD=1 -O3 -srcfile progs-waypoint.src
 ```
 
-Ensure there is a `waypoint` directory in your Quake engine's main directory (where the `id1` directory also resides), and copy both the built `progs.dat` and `autoexec.cfg` into it.
+The output `progs.dat` will be placed in the `Release/waypoint/` folder 1 level up. See the above instructions on how to deploy this.
 
 If you are in a shell environment where _bash_ is available, you can use the `build-waypoint` script from inside the `src` directory instead, or write a similar script for your favourite shell. You can edit this script to also instantly deploy the `progs.dat` and `autoexec.cfg` files to your Quake folder for maximum convenience.
 
 Now you can launch Quake and do `game waypoint`, then `map` followed by the map you want to edit/test.
-
-#### Building the QuakeWorld runtime
-Execute from within the `src` directory:
-```bash
-fteqcc.bin -O3
-```
-
-To actually deploy the Frogbot progs: this may depend on your Quake engine, but for ezQuake and similar, you should bundle the following files and directories inside a zip archive, which is then given a `pk3` extension:
-- `qwprogs.dat`
-- `frogbot.cfg`
-- `configs`
-- `doc`
-- `sound`
-
-As with the waypoint build, if you have access to a `bash` shell, you can also use the provided `build-frogbot` script, and edit it to do everything for you and even put the `pk3` file in your QuakeWorld installation directory.
-
-Now you can actually play against bots using your own waypoints in a QuakeWorld engine like ezQuake.
-
-#### Building the NetQuake runtime
-Execute from within the `src` directory:
-```bash
-fteqcc.bin -DQUAKE=1 -O3 -srcfile progs-quake.src
-```
-
-Again, a script `build-quakebot` is provided that can make your life easier.
-
-The NetQuake runtime has been resurrected from the dead, it currently is clunkier to use, and no nice config is provided at this point. Any help with improving it would be welcome.
-
 
 #### My typical workflow
 For creating waypoints for existing finalised maps, I use the compiled workflow because it is the fastest. The following example requires a Unix/Linux-like shell environment.
@@ -151,9 +127,12 @@ For creating waypoints for existing finalised maps, I use the compiled workflow 
 python generate_maplist.py -vglt -d drlex ktx trinca other
 # Then, from inside the main 'src' folder:
 ./build-waypoint.sh  # while work is in progress; go back to step 1 and loop until ready.
-./build-frogbot.sh  # when waypoints seem ready enough to test in a real game
+# When waypoints seem ready enough to test in a real game, either:
+./build-qwbot.sh
+# or:
+./build-quakebot.sh  # both scripts edited to immediately deploy the builds.
 ```
-I have edited the build scripts to instantly copy the built files and configs to the Quake folders, such that I can immediately launch the game.
+I have edited my build scripts to instantly copy the built files and configs to the Quake folders, such that I can immediately launch the game.
 
 
 ### Method 2: embed waypoints into an `.ent` or `.map` file
@@ -180,6 +159,8 @@ python waypoint_map_inject.py -v -w map_mapname.qc mapname.ent
 python waypoint_map_inject.py -v -w map_mapname.qc -o mapname.ent mapname-input.ent
 ```
 The script will try to preserve ID strings if an existing `.ent` or `.map` file is given as argument. This is only really important when updating an existing `.map` file after making edits, the IDs should be considered volatile otherwise.
+
+You can now load the map again in your engine with the new/updated `.ent` file next to it, you don't even need to quit and restart.
 
 #### Converting embedded waypoints back to QuakeC code format
 Simple: load the map in the waypoint tool, and dump the code with `F1` (and `F5` if needed) as usual.
