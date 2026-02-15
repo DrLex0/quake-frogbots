@@ -14,7 +14,9 @@ void(float frogbot_pos, float index_, float value) localsave;
 ===============
 ScratchCommands
 
-WHAT does this do? Maybe helpful to know is that in older code, this was called MakeFrogbot
+WHAT does this do? Maybe helpful to know is that in older code, this was called MakeFrogbot.
+It is possible this is never used, TODO try to find out and either trash all related cruft,
+or give it better names if it _is_ useful.
 ===============
 */
 void() ScratchCommands =

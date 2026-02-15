@@ -33,7 +33,6 @@ void(float value, string str) ToggleGameMode;
 void() RemoveFromAllLists;
 void() Add_client;
 void() ImpulseCommands;
-void() SetAttribs;
 void() PrintFramerate;
 void() marker_touch;
 void(entity client, entity marker) set_marker;

@@ -303,8 +303,11 @@ void() worldspawn =
 	first_ent.modelindex = 0;
 	first_ent.model = "";
 
-	if (mapname == "aerowalk" && !game_disable_powerups)
-		custom_quad();
+	if (!game_disable_powerups)
+	{
+		if (mapname == "aerowalk") custom_quad();
+		else if (mapname == "aerowalkfrost") custom_quad();
+	}
 
 	VersionInfo();
 

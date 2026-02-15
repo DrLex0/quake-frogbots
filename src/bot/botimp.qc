@@ -28,6 +28,7 @@ void() ManualImpulseCommands;
 ============
 SetAttribs
 
+Set attributes based on bot's previously set skill and smartness
 ============
 */
 void() SetAttribs =
@@ -53,6 +54,8 @@ void() SetAttribs =
 	{
 		self.fast_aim = 0;
 	}
+	// Smartness controls various things including path planning, a "dumb" bot
+	// will hesitate a lot and never try to reach far away goals
 	dprint("Frogbot smartness: ", ftos(smartness), "\n");
 
 	self.firing_reflex = 0.5 - (skill_ * 0.04);	// 0.5 to 0.1
@@ -1207,6 +1210,11 @@ void() BecomeBot =
 
 			self.frogbot = TRUE;
 
+			// Note: bot_skill is set on player entities in some other places, doing
+			// it here should make those assignments redundant, but until I have 100%
+			// grasp of the whole logic (i.e., never), I'd rather not touch those.
+			self.bot_skill = skill;
+			SetSmartness();
 			SetAttribs();
 
 			if (self.deadflag == DEAD_NO)
