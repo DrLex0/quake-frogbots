@@ -41,7 +41,7 @@ void() CheckWaterPathState =
 		else
 			self.path_state = self.path_state - WAIT_GROUND;
 	}
-}
+};
 
 /*
 ============
@@ -95,7 +95,7 @@ void() BotVerticalSwim
 		self.swim_arrow = UP;
 	}
 	VelocityForArrow();
-}
+};
 
 /*
 ============

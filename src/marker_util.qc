@@ -302,7 +302,8 @@ entity(vector org, float not_above) LocateMarker =
 			{
 			#ifndef ARENA
 				// note by DrLex: unsure about this, near_teleport is only used
-				// in dead code; maybe this may just be dropped
+				// in dead code? Or is this intended to avoid accidental teleporting?
+				// Then it makes sense to always do this. TODO: investigate.
 				if (marker_.classname != "trigger_teleport")
 			#endif
 				self.near_teleport = world;
@@ -538,4 +539,4 @@ float(entity marker, float zone, float flag) MarkerHasZoneTask
 		return (marker.Z24_task & flag);
 	}
 	return FALSE;
-}
+};

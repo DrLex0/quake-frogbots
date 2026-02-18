@@ -22,6 +22,7 @@ void() FrogbotPrePhysics1;
 void() FrogbotPrePhysics2;
 void() ThinkTime;
 void() TimerThink;
+void(vector quad_pos) custom_quad;
 void() ApplyFrB_props;
 
 #ifdef MANUAL
@@ -41,84 +42,15 @@ World Types:
 1: metal
 2: base
 */
-
-/*
-============
-Custom quad
-
-============
-*/
-void() custom_quad_touch =
-{
-	if (other.client_)
-	{
-		if (self.nextthink) return;
-		if (other.takedamage)
-		{
-			if (!pre_game)
-			{
-				if (other.goalentity == self)
-					other.goal_refresh_time = 0;
-				self.nextthink = self.goal_respawn_time = time + self.aflag;
-				AssignVirtualGoal();
-				self.frogbot_nextthink = time + 30;
-				powerup_touch_apply();
-				other.old_linked_marker = world;
-				other.linked_marker = LocateMarker(other.origin, 0);
-				other.linked_marker_time = time + 5;
-				msg_entity = other;
-				sprint_fb(other, 0, "You got the ");
-				sprint_fb(other, 0, self.netname);
-				sprint_fb(other, 0, "\n");
-			}
-		}
-	}
-	else if (!other)
-		LocateDynamicItem();
-};
-
-void() custom_quad =
-{
-	local float s1;
-#ifdef QUAKE
-	// For engines that allow creating custom cvars
-	s1 = cvar("add_q_aerowalk");
-#else
-	s1 = stof(infokey(world, "add_q_aerowalk"));
-#endif
-	if (s1)
-	{
-		item = spawn();
-		item.classname = "dynamic_item";
-		item.velocity_z = 300;
-		item.flags = FL_ITEM;
-		item.solid = SOLID_TRIGGER;
-		item.movetype = MOVETYPE_TOSS;
-		item.view_ofs = '31 31 25';
-		item.origin = '-912.6 -898.9 248.0';
-		item.aflag = 60;
-		item.pickup = pickup_true;
-		item.effects = item.effects | EF_BLUE;
-		item_artifact_super_damage_apply();
-		setsize (item, '-16 -16 -24', '16 16 32');
-		item.touch = custom_quad_touch;
-		item.nextthink = item.frogbot_nextthink = self.super_damage_finished;
-		item.think = SUB_regen;
-	}
-};
-
-/*
-============
-worldspawn
-
-============
-*/
+//=======================
 void() worldspawn =
 {
 #ifdef QUAKE
 	InitParameters();
 #endif
 
+// custom map attributes
+// NOTE: bots won't work well in custom gravity, some things are hard-coded for g=800
 	if (self.model == "maps/e1m8.bsp")
 		cvar_set ("sv_gravity", "100");
 	else
@@ -305,8 +237,18 @@ void() worldspawn =
 
 	if (!game_disable_powerups)
 	{
-		if (mapname == "aerowalk") custom_quad();
-		else if (mapname == "aerowalkfrost") custom_quad();
+		local float s1;
+#ifdef QUAKE
+		// For engines that allow creating custom cvars
+		s1 = cvar("add_q_aerowalk");
+#else
+		s1 = stof(infokey(world, "add_q_aerowalk"));
+#endif
+		if (s1)
+		{
+			if (mapname == "aerowalk") custom_quad('-913 -899 248');
+			else if (mapname == "aerowalkfrost") custom_quad('-913 -899 248');
+		}
 	}
 
 	VersionInfo();

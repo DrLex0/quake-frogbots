@@ -88,6 +88,12 @@ float(float max_angle) right_direction =
 // enough health & items to rocket-jump
 float() able_rj =
 {
+	// Don't repeat the whole decision process within a frame, not just
+	// for efficiency but also because it involves random()
+	if (self.able_rj_cache < 0) return FALSE;
+	if (self.able_rj_cache) return TRUE;
+	self.able_rj_cache = -1;
+
 	local float health_after;
 	if (! (self.items & IT_ROCKET_LAUNCHER))
 		return FALSE;
@@ -101,6 +107,7 @@ float() able_rj =
 		if (self.items & IT_QUAD)
 		if (self.bot_skill < 10)
 			return FALSE;
+		self.able_rj_cache = 1;
 		return TRUE;
 	}
 	if (self.items & IT_QUAD)
@@ -122,7 +129,10 @@ float() able_rj =
 #else
 	if (!no_rocketjump)
 #endif
+	{
+		self.able_rj_cache = 1;
 		return TRUE;
+	}
 	return FALSE;
 };
 

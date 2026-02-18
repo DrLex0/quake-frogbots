@@ -260,7 +260,7 @@ void() SetupRJLook =
 	}
 	makevectors (aim_angles);
 	setorigin (m.look_here, m.absmin + m.view_ofs + 48 * v_forward);
-}
+};
 
 /*
 ============

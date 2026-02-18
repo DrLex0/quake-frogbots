@@ -47,7 +47,7 @@ float(float y, float x) atan2 =
 	ang_x = x;
 	ang_y = y;
 	return vectoyaw(ang);
-}
+};
 
 /* Approximation using a crude look-up refined with Newton's method,
    much faster than invoking pow(x, 0.5).
@@ -73,7 +73,7 @@ float sqrt(float x) {
 	y = 0.5 * (y + x / y);
 	y = 0.5 * (y + x / y);
 	return 0.5 * (y + x / y);
-}
+};
 
 /* The following has been moved from arena.qc */
 

@@ -158,7 +158,7 @@ float() TryAirStrafe =
 
 	self.velocity = self.velocity + (accel_forward * dir_forward);
 	return TRUE;
-}
+};
 
 /*
 ============
@@ -521,6 +521,7 @@ void() FrogbotPrePhysics1 =
 	{
 		if (self.frogbot)
 		{
+			self.able_rj_cache = 0;
 			if (self.wallstrafe_jump)
 			{
 				// This is the easiest way to ensure bots are not disadvantaged compared to

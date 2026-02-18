@@ -131,7 +131,7 @@ float(string s) UserCmd =
 		return TRUE;
 	}
 	return FALSE;
-}
+};
 
 // random map que for ffa;
 string() rndffamap =

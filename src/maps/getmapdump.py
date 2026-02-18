@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Extract and format Frogbot waypoint data dump from a console log file.
-2026-01, Alexander Thomas aka DrLex.
+2026-01/02, Alexander Thomas aka DrLex.
 
 Released under GPL license.
 """
@@ -74,6 +74,7 @@ def parse_code_block(code_block: str) -> dict[str, list[str]]:
     """
     categories: dict[str, list[str]] = {
         "comments": [],
+        "c_marker_start": [],
         "N": [],
         "LSQ": [],
         "Z": [],
@@ -88,6 +89,7 @@ def parse_code_block(code_block: str) -> dict[str, list[str]]:
     # Regex patterns for different statement types
     patterns = {
         "comment": re.compile(r"^//.*$"),
+        "c_marker_start": re.compile(r"^custom_marker_start=\s*(\d+);?$"),
         "N": re.compile(r"^N\(-?\d+,-?\d+,-?\d+\);?$"),
         "LSQ": re.compile(r"^LSQ\(\);?$"),
         "Z": re.compile(r"^Z\d+\(m\d+\);?$"),
@@ -172,6 +174,10 @@ def parse_code_block(code_block: str) -> dict[str, list[str]]:
             elif patterns["AddIntermission"].match(stmt):
                 categories["globals"].append(stmt)
                 matched = True
+            elif patterns["c_marker_start"].match(stmt):
+                clean_stmt = re.sub(r"=\s+", "=", stmt)
+                categories["c_marker_start"] = [clean_stmt]
+                matched = True
 
             if not matched and stmt_raw:
                 print(
@@ -191,43 +197,47 @@ def format_output(
     lines.append(map_decl)
     lines.append("{")
 
-    # 1. Comments
+    # Comments
     for comment in categories["comments"]:
         lines.append(comment)
 
-    # 2. N() instructions
+    # Custom marker index for sanity check
+    for marker_start in categories["c_marker_start"]:
+        lines.append(marker_start)
+
+    # N() instructions
     if categories["N"]:
         lines.extend(group_items(categories["N"], MAX_NUM_N))
 
-    # 3. LSQ()
+    # LSQ()
     if categories["LSQ"]:
         lines.append("".join(categories["LSQ"]))
 
-    # 4. Z instructions
+    # Z instructions
     if categories["Z"]:
         lines.extend(group_items(categories["Z"], MAX_NUM_ZG))
 
-    # 5. G instructions
+    # G instructions
     if categories["G"]:
         lines.extend(group_items(categories["G"], MAX_NUM_ZG))
 
-    # 6. Marker properties (view_ofs_z, d_door_open, rj_angles)
+    # Marker properties (view_ofs_z, d_door_open, rj_angles)
     if categories["marker_props"]:
         lines.extend(group_items(categories["marker_props"], MAX_NUM_M))
 
-    # 7. T instructions
+    # T instructions
     if categories["T"]:
         lines.extend(group_items(categories["T"], MAX_NUM_T))
 
-    # 8. P instructions
+    # P instructions
     if categories["P"]:
         lines.extend(group_items(categories["P"], MAX_NUM_P))
 
-    # 9. D and R instructions
+    # D and R instructions
     if categories["DR"]:
         lines.extend(group_items(categories["DR"], MAX_NUM_DR))
 
-    # 10. Global properties (desire_adj_G*, force_raspawn, AddIntermission)
+    # Global properties (desire_adj_G*, force_raspawn, AddIntermission)
     for global_stmt in categories["globals"]:
         lines.append(global_stmt)
 

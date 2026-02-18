@@ -92,6 +92,7 @@ void() SetSmartness =
 	{
 		if (smartness < 0) smartness = 0;
 		else if (smartness > 10) smartness = 10;
+		dprint("Using fb_custom_smart: ", ftos(smartness), "\n");
 	}
 	else
 	{

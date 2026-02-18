@@ -225,23 +225,12 @@ void() AvoidHazards =
 
 	if (self.path_state & JUST_GO)  // skip all safety nets, just go wild
 	{
-		// Simplified version of the JL logic, basically just JUMP
+		// Simplified version of the JL logic, only enable WAIT_GROUND when airborne
 		if (self.path_state & JUMP_LEDGE)
-		if (time > self.arrow_time2)
-		if (self.flags & FL_ONGROUND)
-		if (vlen(new_velocity) > 160)
+		if (! (self.flags & FL_ONGROUND))
 		{
-			rel_pos = (linked_marker_.absmin + linked_marker_.view_ofs) - self.origin;
-			jumpspeed = new_velocity_z + JUMPSPEED;
-			if (vlen(rel_pos) > 48)
-			if (fabs(rel_pos_z) > 1)  // stop jumping when near destination
-			if ((jumpspeed * jumpspeed * 0.000625) >= rel_pos_z)
-			{
-				self.button2_ = TRUE;
-				self.path_state = self.path_state | WAIT_GROUND;
-				self.ledge_backup_time = 0;
-				return;
-			}
+			self.path_state = self.path_state | AIR_ACCELERATION | WAIT_GROUND;
+			return;
 		}
 
 		// Otherwise only do immobility mitigation

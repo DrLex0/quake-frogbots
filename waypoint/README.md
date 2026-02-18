@@ -444,20 +444,26 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 
 ### Unreachable and untouchable markers
 
-This is optional, but can prevent the bot from getting stuck or doing certain dumb things. Markers can be flagged as being **unreachable,** which means the bot should avoid getting near them. Bots will avoid making jumps that end up near an unreachable marker. The bot will also totally ignore items flagged as unreachable, no matter how juicy they may seem.
+This is optional, but can prevent the bot from getting stuck or doing certain dumb things. Markers can be flagged as being **unreachable,** which means the bot should avoid getting near them. Bots will avoid making jumps that end up near an unreachable marker, and will also ignore dropped items whose nearest marker is of unreachable type, no matter how _juicy_ the item. There is no point in picking up a rocket launcher if it leads to certain flaming lava death.
 
 To set a marker as unreachable: set display mode `Z` to “Display type,” and use `V` to select `unreachable node`. Then activate the marker and right-click (`MOUSE2`).
 
-If there are lava or slime pits, or deadly traps, it is a good idea to place some unreachable markers in them. Look at `dm4`, `start`, or `tox` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.  
-In **lava pits** shallow enough to allow jumping, you may add rocket-jump paths to give the bot a better chance of escaping. If the pit is too deep for jumping, making outgoing paths is generally useless and could interfere with the bot's emergency escape mechanism, which will attempt to rocket-jump towards a nearby safe marker. You can add one-way paths as hints for the best spot to aim for, but such paths should not have any special mode assigned to them.
+Place unreachable markers such that they become touched when coming too near the danger zone. Make sure you are in closest-marker-mode (`F`) when testing this, because this is similar to how the avoidance system performs its checks.
+
+If there are lava or slime pits, or deadly traps, it is a good idea to place some unreachable markers near their entrance and possibly inside them. Look at `cmt3`, `dm4`, or `tox` for examples. The markers should have some zone number, but do not need to have paths. If however there is a way out of the trap, by all means add an exit route.  
+Likewise, if there is a chasm in which the bot risks falling when trying to pick up a dropped item very near to it, add unreachable markers in the air beyond the edge, positioned such that they become touched as soon as the edge is approached too closely.
+
+In **lava pits** shallow enough to allow jumping, you may add rocket-jump paths to give the bot a better chance of escaping. If the pit is too deep for jumping, making outgoing paths is generally useless and could interfere with the bot's emergency escape mechanism, which will attempt to rocket-jump towards a nearby safe marker. In pits that can only be escaped through a RJ, you can add one-way paths as hints for the best spot to aim for, but such paths should not have any special mode assigned to them.  
+And by all means, never set _jump ledge_ mode on an escape path out of a liquid too deep for jumping, because it will lead to certain death.
 
 There is also an **untouchable** marker type. When set, the marker will never produce a touch event. As mentioned above, it is recommended to set this on intermediate `trigger_push` markers. It can also be used on markers that overlap with other markers and are redundant. For instance if an `info_player_deathmatch` is on top of an item marker, it makes sense to just disable touch on the spawn marker and only use the item for paths.  
+Doors and platforms whose special touch behaviour may cause unexpected effects, sometimes are also better left untouchable if other markers suffice for bot navigation.  
 In general it is also recommended to make `trigger_multiple` markers untouchable, to ensure they do not interfere with paths. Usually these triggers will be activated anyway at the right moment when the bot follows a trajectory that goes through them, and making them an explicit part of the path offers no benefits. Only if a `trigger_multiple` is an essential part of a path, like acting as a lift button, must it be touchable.
 
 _Be careful:_ an untouchable marker must never have incoming paths, or the bot may orbit around it waiting for a touch that never comes. (It makes no sense either to give it outgoing paths, but that is merely pointless instead of dangerous). Errors will be printed in the `MarkerInfo` section of the waypoint dump when paths towards untouchable markers are detected.  
 The waypoint tool will also ignore untouchable markers unless closest-marker-mode (`F`) is active. This helps to connect paths to the other overlapping marker (and makes it more obvious when a marker is untouchable).
 
-Mind that when a bot has deliberately become airborne, like when jumping up (or down from a ledge), or getting propelled by a `trigger_push,` it will ignore any marker touches until it has again touched solid ground. There are some exceptions to this:
+Mind that when a bot has deliberately become airborne, like when jumping up (or down from a ledge), falling down on a _jump ledge_ path, or getting propelled by a `trigger_push,` it will **ignore** any marker touches until it has again touched solid ground. There are some exceptions to this:
 - pushing a switch will always trigger a touch for that switch's marker (unless made untouchable). This allows to push switches by jumping;
 - markers that have been given the `air touchable` node type will always be touched by airborne bots. (The need for this should be very rare.)
 

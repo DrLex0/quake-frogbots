@@ -63,6 +63,7 @@ void() LoadMap =
 {
 	frogbot_loading = map_lacks_waypoints = TRUE;
 	item_marker_index = marker_index;
+	custom_marker_start = 0;
 
 	// For tweaking desirability of G1 and/or G2, value is a multiplication factor
 	desire_adj_G1 = desire_adj_G2 = 1;

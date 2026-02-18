@@ -1700,7 +1700,6 @@ float bio_protection;
 // the bot is extremely eager to get the pentagram anyway.
 float penta_protection;
 
-.float exclusive_deadline;
 .entity near_teleport;
 
 .vector rj_angles;
@@ -1764,6 +1763,9 @@ float marker_index;
 // informational; highest index before start of custom markers;
 // not necessarily same as first_item.index
 float item_marker_index;
+// In loaded waypoints that set this, must be item_marker_index + 1
+// TODO: use this to add check during loading, or even try to skip extraneous entities
+float custom_marker_start;
 entity first_extra_marker;  // world if no extra markers yet
 float que_size;
 float num_map_load_edicts;
@@ -2086,6 +2088,8 @@ float	take;
 .float desire_nails;
 .float desire_shells;
 
+.float able_rj_cache;
+
 float maxplayers;
 
 #ifdef QUAKE
@@ -2101,6 +2105,9 @@ entity touch_marker_;
 // When set, all next touches will be ignored until frogbot_marker_touch has run,
 // use this for important one-time touch events like for switches
 .float sticky_touch;
+
+// Expire exclusive path mode if target not reached in time
+.float exclusive_deadline;
 
 // Touched marker at the moment the bot planned its current path, updated at
 // .frogbot_nextthink clock, should in almost every case be updated together

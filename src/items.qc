@@ -2008,6 +2008,64 @@ void() lose_artifact_super_damage =
 };
 
 /*
+============
+Custom quad
+
+============
+*/
+void() custom_quad_touch =
+{
+#ifdef MANUAL
+	if (manual_mode) return;
+#endif
+	if (other.client_)
+	{
+		if (self.nextthink) return;
+		if (other.takedamage)
+		{
+			if (!pre_game)
+			{
+				if (other.goalentity == self)
+					other.goal_refresh_time = 0;
+				self.nextthink = self.goal_respawn_time = time + self.aflag;
+				AssignVirtualGoal();
+				self.frogbot_nextthink = time + 30;
+				powerup_touch_apply();
+				other.old_linked_marker = world;
+				other.linked_marker = LocateMarker(other.origin, 0);
+				other.linked_marker_time = time + 5;
+				msg_entity = other;
+				sprint_fb(other, 0, "You got the ");
+				sprint_fb(other, 0, self.netname);
+				sprint_fb(other, 0, "\n");
+			}
+		}
+	}
+	else if (!other)
+		LocateDynamicItem();
+};
+
+void(vector quad_pos) custom_quad =
+{
+	item = spawn();
+	item.classname = "dynamic_item";
+	item.velocity_z = 300;
+	item.flags = FL_ITEM;
+	item.solid = SOLID_TRIGGER;
+	item.movetype = MOVETYPE_TOSS;
+	item.view_ofs = '31 31 25';
+	item.origin = quad_pos;
+	item.aflag = 60;
+	item.pickup = pickup_true;
+	item.effects = item.effects | EF_BLUE;
+	item_artifact_super_damage_apply();
+	setsize (item, '-16 -16 -24', '16 16 32');
+	item.touch = custom_quad_touch;
+	item.nextthink = item.frogbot_nextthink = self.super_damage_finished;
+	item.think = SUB_regen;
+};
+
+/*
 ===============================================================================
 
 PLAYER BACKPACKS
@@ -2021,6 +2079,8 @@ void() RuneRespawn;
 ============
 LocateDynamicItem
 
+Assigns a zone to a dynamic (dropped) item based on its nearest touch marker,
+or causes the item to be ignored if too dangerous.
 ============
 */
 void() LocateDynamicItem =

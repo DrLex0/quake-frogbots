@@ -60,7 +60,7 @@ void() CheckBadEnts =
 		dprint ("\n≈““œ“∫ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
 		sprint_fb(self, 2, "\n≈““œ“∫ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
 	}
-}
+};
 
 #ifdef ARENA
 void() AliasesTime =

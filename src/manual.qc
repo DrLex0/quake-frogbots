@@ -1096,7 +1096,7 @@ void() SaveMarkers =
 	{
 		save_state = 0;
 		bprint("\nvoid() map_", mapname, " =\n{\n");
-		bprint("// custom markers start at m", ftos(1 + item_marker_index), "\n");
+		bprint("custom_marker_start=", ftos(1 + item_marker_index), ";\n");
 		m = first_extra_marker;
 		save_position = spawn();
 		save_position.nextthink = 0.001;
@@ -2679,6 +2679,14 @@ void() SetIntermission =
 	bprint("Custom intermission set to ", vtos(interm_origin), "; ", vtos(interm_mangle), "\n");
 };
 
+// Bait for bots, useful to test unreachable markers
+void() DropAQuad =
+{
+	self.super_damage_finished = time + 60;
+	drop_artifact_super_damage();
+	item.velocity = '0 0 0';
+};
+
 // DrLex: I had to change all impulses compared to the waypoint tool
 // distributed by Mick, because extra impulses have been added in arena.qc.
 // Skip over 140 and 141 because tied to f_jump and r_jump in botimp.qc.
@@ -2751,6 +2759,8 @@ void() ManualImpulseCommands =
 		SetIntermission();
 	else if (impulse_ == 166)  // `-`
 		SetGoalOverride();
+	else if (impulse_ == 167)  // currently no key
+		DropAQuad();
 };
 
 #endif

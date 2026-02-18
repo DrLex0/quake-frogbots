@@ -120,7 +120,7 @@ void() AddToTmpQue
 		first_tmp_marker = self;
 	self.next = world;
 	last_tmp_marker = self;
-}
+};
 
 /*
 ============
@@ -185,7 +185,7 @@ entity (entity start_ent, string val) FindFrB_ID =
 	dprint("ERROR: no FrB_ID='", val, "' found\n");
 	error(FROG_ID_ERR);
 	return world;  // make compiler shut up
-}
+};
 
 void(entity mk) SetFrB_Props =
 {
@@ -293,7 +293,7 @@ void(entity mk) SetFrB_Props =
 	if (mk.FrB_R5 != "") mk.R5 = stof(mk.FrB_R5);
 	if (mk.FrB_R6 != "") mk.R6 = stof(mk.FrB_R6);
 	if (mk.FrB_R7 != "") mk.R7 = stof(mk.FrB_R7);
-}
+};
 
 /*
 ============
@@ -364,4 +364,4 @@ void() ApplyFrB_props =
 		interm_mangle_y = stof(world.FrB_iW);
 		interm_mangle_z = stof(world.FrB_iR);
 	}
-}
+};
