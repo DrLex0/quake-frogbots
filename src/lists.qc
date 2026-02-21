@@ -210,6 +210,7 @@ void() InitFrogbots1 =
 		if (frogbot_spawned)
 			frogbot_spawned.next = new_bot;
 		new_bot.previous = frogbot_spawned;
+		new_bot.index = 1000 + frogbot_number;  // useful for debugging
 		new_bot.score_pos = frogbot_number;
 		frogbot_number = frogbot_number + 1;
 		new_bot.colormap = frogbot_number;

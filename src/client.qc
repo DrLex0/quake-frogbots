@@ -1174,6 +1174,19 @@ void() PlayerPreThink_apply =
 						msg_entity = self;
 						sound (CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
 
+					// In QW, friction stops as soon as player jumps. In QUAKE, it it still
+					// applied once in between pressing button2 and becoming airborne.
+					// For wall strafing bots, restore their pre-friction ground velocity
+					// when QW physics are in effect.
+						if (self.wallstrafe_jump)
+						{
+					#ifdef QUAKE
+							if (game_qwphysics)
+					#endif
+							self.velocity = self.wallstrafe_vec;
+							self.wallstrafe_jump = 0;
+						}
+
 					#ifndef QUAKE
 						if (!self.player)
 					#endif

@@ -410,7 +410,7 @@ float() WallStrafeJumpLogic =
 #endif
 	self.touch_marker = linked_marker_;
 	self.sticky_touch = TRUE;
-	self.wallstrafe_vec = self.velocity;  // Hack, see FrogbotPrePhysics1
+	self.wallstrafe_vec = self.velocity;  // see PlayerPreThink_apply
 	self.wallstrafe_jump = 1;
 	self.wallstrafe_key = 0;
 	self.button2_ = 1;

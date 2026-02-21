@@ -684,6 +684,25 @@ CheckWallStrafe
 When entering a WALL_STRAFE path, set up parameters to make the
 bot strafe run against the nearest wall at optimal angle for
 maximal speed boost.
+
+Wall strafing is actually one of the most complex things to set up; in theory
+it may be possible to calculate everything, but the implementation for the bots
+here is based mostly on experiments and trial & error.
+As player, the optimal angle at which to wall strafe depends on one's
+cl_forwardspeed and possibly also cl_sidespeed, because it affects the wishdir.
+For the bots, current_maxspeed sort of takes the role of cl_forwardspeed, but
+there is an important difference: somehow the max horizontal speed a player can
+obtain through WS is limited:
+- in QUAKE, I haven't managed to measure more than 460u/s;
+- in QW I can achieve 480u/s.
+But, for bots, higher c_maxspeed values can lead to arbitrarily high velocities,
+therefore a speed cap is imposed in FrogbotPostPhysics1.
+The parameters, like the actual current_maxspeed being used and the yaw, have
+been tuned to produce similar velocities as players for a few test jumps.
+It is all still a bit fuzzy and inaccurate, hence bots may have an advantage or
+disadvantage compared to players for certain jumps.
+At any rate, enabling qwphysics in QUAKE is recommended to avoid losing precious
+velocity while making the actual jump.
 ============
 */
 void() CheckWallStrafe =
@@ -705,12 +724,6 @@ void() CheckWallStrafe =
 	local float frac_right = trace_fraction;
 	traceline(probe_pt, probe_pt - (64 * v_right), TRUE, self);
 
-	// Some weirdness is going on: for real players, optimal angle is about
-	// 8 degrees and will provide 150% speed boost up to 480u/s. For bots it
-	// is different and also differs between Quake and QW.  Quake bots can
-	// achieve 150%, but requires 11.5 degree angle.  In QW, the best we can
-	// get is 140% at 15deg angle, but tends to vary more.  To keep things
-	// more or less consistent between engines, use 15 degrees at all times.
 	if (frac_right + trace_fraction >= 2)
 	{
 		self.wallstrafe_key = FORWARD;
@@ -718,18 +731,31 @@ void() CheckWallStrafe =
 	else if (trace_fraction < frac_right)
 	{
 		self.wallstrafe_key = FORWARD_LEFT;
-		angles_y = angles_y + 15;
+		angles_y = angles_y + WALLSTRAFE_YAW;
 	}
 	else
 	{
 		self.wallstrafe_key = FORWARD_RIGHT;
-		angles_y = angles_y - 15;
+		angles_y = angles_y - WALLSTRAFE_YAW;
 	}
 	// Don't keep pitch even when the path is sloped, it degrades max speed
 	angles_x = angles_z = 0;
 	makevectors(angles);
 	self.wallstrafe_vec = v_forward;
 	self.wallstrafe_deadline = time + 3;
+
+	// Cap wallstrafe velocity to mimic real players. Absolute max is
+	// compromise between QUAKE and QW observed practical limits.
+	// Also use this to simulate skill-dependent error. WS requires attaining
+	// an ideal yaw, but due to differences in how WS works for players vs.
+	// bots, varying bot's yaw would not produce realistic errors.
+	// - skill 0 bots may get lucky, worst case no boost beyond sv_maxspeed;
+	// - skill >= 10 bots can always reach absolute max.
+	local float ws_max_err = random() * 0.1 * (10 - self.bot_skill);
+	if (ws_max_err < 0) ws_max_err = 0;
+	self.max_wallstrafespeed = sv_maxspeed * (1 + 0.47 * (1 - ws_max_err));
+	dprint("Using ws_max_err ", ftos(100*ws_max_err), "% for max WS speed ", ftos(self.max_wallstrafespeed), "\n"); //DEBUG
+
 	// Setting NP on a WS path will postpone activation until the
 	// bot is confirmed to be near enough the start of the path.
 	if (new_path_state & NARROW_PATH)

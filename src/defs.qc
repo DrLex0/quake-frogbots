@@ -1639,7 +1639,14 @@ float SLOW_PRECISE_NARROW	= 2208;
 // also used in wallstrafe logic as target from where to jump.
 .vector run_up_point;
 
+#ifdef QUAKE
+float WALLSTRAFE_YAW = 12.65625;
+#else
+float WALLSTRAFE_YAW = 15.46875;
+#endif
+
 .float wallstrafe_key;  // when not false, bot is wall strafing
+.float max_wallstrafespeed;
 .float wallstrafe_deadline;
 .float wallstrafe_jump;
 .vector wallstrafe_vec;  // either look angle, or velocity at moment of jump

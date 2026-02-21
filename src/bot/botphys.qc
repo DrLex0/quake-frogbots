@@ -133,9 +133,8 @@ float() TryAirStrafe =
 	if (hor_speed < 29.5)
 		return FALSE;
 
-	// This simulates classic Quake air movement logic, with v_forward acting
-	// as the 'wishdir'. TODO: allow overriding turning_speed through waypoint
-	// config. Maybe add intentional inaccuracy on low skill levels.
+	// This simulates classic Quake air movement logic, with v_forward
+	// acting as the 'wishdir'.
 	velocity_hor_angle_y = vectoyaw(hor_velocity) + (turning_speed * frametime);
 	makevectors(velocity_hor_angle);
 
@@ -254,7 +253,10 @@ void() VelocityForArrow =
 			else	// (arrow_ == FORWARD_RIGHT)
 				dir_forward = (v_forward * 0.7525767) + (v_right * 0.6585046);
 
-			current_maxspeed = sv_maxspeed;
+			if (self.wallstrafe_key)
+				current_maxspeed = sv_maxspeed * 1.07;
+			else
+				current_maxspeed = sv_maxspeed;
 		}
 		else if (arrow_ & BACK)
 		{
@@ -265,7 +267,10 @@ void() VelocityForArrow =
 			else	// (arrow_ == BACK_RIGHT)
 				dir_forward = (v_right * 0.6585046) - (v_forward * 0.7525767);
 
-			current_maxspeed = sv_maxspeed;
+			if (self.wallstrafe_key)
+				current_maxspeed = sv_maxspeed * 1.07;
+			else
+				current_maxspeed = sv_maxspeed;
 		}
 		else
 		{
@@ -522,36 +527,26 @@ void() FrogbotPrePhysics1 =
 		if (self.frogbot)
 		{
 			self.able_rj_cache = 0;
-			if (self.wallstrafe_jump)
+			if (self.movetype == MOVETYPE_STEP)
+				ApplyFriction();
+		#ifdef QUAKE
+			else if (self.player)
 			{
-				// This is the easiest way to ensure bots are not disadvantaged compared to
-				// players. The fudge factor yields similar max speeds as for players.
-				self.velocity = 0.96 * self.wallstrafe_vec;
-				self.wallstrafe_jump = 0;
-			}
-			else
-			{
-				if (self.movetype == MOVETYPE_STEP)
-					ApplyFriction();
-			#ifdef QUAKE
-				else if (self.player)
+				self.v_angle = self.stored_angle;
+				if (game_qwphysics)
 				{
-					self.v_angle = self.stored_angle;
-					if (game_qwphysics)
+					if (self.waterlevel <= 1)
 					{
-						if (self.waterlevel <= 1)
+						if (DoubleFriction())
 						{
-							if (DoubleFriction())
-							{
-								self.velocity = self.postvelocity;
-								double_friction = FALSE;
-								DoFriction();
-							}
+							self.velocity = self.postvelocity;
+							double_friction = FALSE;
+							DoFriction();
 						}
 					}
 				}
-			#endif
 			}
+		#endif
 
 			if (self.takedamage)
 			{
@@ -794,6 +789,19 @@ void() FrogbotPostPhysics1 =
 			if (self.jump_flag)
 			if (self.flags & FL_ONGROUND)
 				CheckLand();
+		}
+
+		// cap wallstrafe speed, see CheckWallStrafe
+		if(self.wallstrafe_key)
+		{
+			local vector vhor = self.velocity;
+			vhor_z = 0;
+			if (vlen(vhor) > self.max_wallstrafespeed)
+			{
+				vhor = self.max_wallstrafespeed * normalize(vhor);
+				self.velocity_x = vhor_x;
+				self.velocity_y = vhor_y;
+			}
 		}
 		self = self.next;
 	}
