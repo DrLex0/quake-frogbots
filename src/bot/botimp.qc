@@ -18,9 +18,9 @@ void() AddBotError;
 void() AddBots;
 void() DoCountDown;
 void() PlayerReady;
+void() AliasesTime;
 
 #ifdef MANUAL
-void() ToggleManualMode;
 void() ManualImpulseCommands;
 #endif
 
@@ -106,24 +106,25 @@ void() SetSmartness =
 
 void() SetGame =
 {
-	game_disable_powerups = (!(gamemode & GAME_ENABLE_POWERUPS));
-	game_enable_runes = gamemode & GAME_ENABLE_RUNES;
-	game_not_rune_rj = (!(gamemode & GAME_RUNE_RJ));
-	game_rl_pref = gamemode & GAME_RL_PREF;
-	game_lg_pref = gamemode & GAME_LG_PREF;
-	game_not_match = (!(gamemode & GAME_MATCH));
-	game_lava_cheat = gamemode & GAME_LAVA_CHEAT;
-	game_show_rules = (!(gamemode & GAME_HIDE_RULES));
-	game_disable_autoreport = (!(gamemode & GAME_ENABLE_AUTOREPORT));
-	game_disable_dropweap = (!(gamemode & GAME_ENABLE_DROPWEAP));
-	game_disable_autosteams = (!(gamemode & GAME_ENABLE_AUTOSTEAMS));
+	game_disable_powerups = !(gamemode & GAME_ENABLE_POWERUPS);
+	game_enable_runes = (gamemode & GAME_ENABLE_RUNES);
+	game_not_rune_rj = !(gamemode & GAME_RUNE_RJ);
+	game_rl_pref = (gamemode & GAME_RL_PREF);
+	game_lg_pref = (gamemode & GAME_LG_PREF);
+	game_not_match = !(gamemode & GAME_MATCH);
+	game_lava_cheat = (gamemode & GAME_LAVA_CHEAT);
+	game_show_rules = !(gamemode & GAME_HIDE_RULES);
+	game_disable_autoreport = !(gamemode & GAME_ENABLE_AUTOREPORT);
+	game_disable_dropweap = !(gamemode & GAME_ENABLE_DROPWEAP);
+	game_droppowerups = (gamemode & GAME_DROPPWRUP);
+	game_disable_autosteams = !(gamemode & GAME_ENABLE_AUTOSTEAMS);
 #ifdef TALK
-	game_disable_botchat = (!(gamemode & GAME_ENABLE_BOTCHAT));
+	game_disable_botchat = !(gamemode & GAME_ENABLE_BOTCHAT);
 #endif
 #ifdef QUAKE
-	game_qwphysics = gamemode & GAME_QWPHYSICS;
-	game_skins = (!(gamemode & GAME_NOSKINS));
-	game_qwaim = gamemode & GAME_QWAIM;
+	game_qwphysics = (gamemode & GAME_QWPHYSICS);
+	game_skins = !(gamemode & GAME_NOSKINS);
+	game_qwaim = (gamemode & GAME_QWAIM);
 #else
 	game_qizmo = (stof(infokey(world, "proxy")));
 #endif
@@ -1416,7 +1417,8 @@ void() PrintRules =
 	print_boolean(GAME_LG_PREF, "μηίπςεζ..... ");
 	print_boolean(GAME_HIDE_RULES, "θιδε........ ");
 	print_boolean(GAME_ENABLE_AUTOREPORT, "αυτοςεποςτ.. ");
-	print_boolean(GAME_ENABLE_DROPWEAP, "δςοπχεαπ.... ");
+	print_boolean(GAME_ENABLE_DROPWEAP, "δςοπχεαπ.... ");  // dropweap
+	print_boolean(GAME_DROPPWRUP, "δςοπ........ ");  // drop
 	print_boolean(GAME_ENABLE_AUTOSTEAMS, "αυτοστεανσ.. ");
 	print_boolean(GAME_ENABLE_BOTCHAT, "βοτγθατ..... ");
 #ifdef ARENA
@@ -1554,15 +1556,6 @@ void() togglenoclip =
 };
 #endif
 
-void(string s, float val) alias =
-{
-	stuffcmd("alias ");
-	stuffcmd(s);
-	stuffcmd(" impulse ");
-	stuffcmd_ftos(val);
-	stuffcmd("\n");
-};
-
 /*
 ============
 ImpulseCommands
@@ -1638,14 +1631,18 @@ void() ImpulseCommands =
 			else if (impulse_ == 141)
 				r_jump();
 		#ifdef MANUAL
-			else if (impulse_ == 131)
-				ToggleManualMode();
-			else if (manual_mode)
+			else
 				ManualImpulseCommands();
 		#endif
 		}
 		else if (impulse_ <= IMP_END2)
 		{
+			// DrLex says: who created this damn mess?
+			// I don't know the purpose of the spawnflags thing. Best guess at this time:
+			// - Clan Arena mode was shoehorned into this mod from some other mod
+			// - it had its own client handling that relies on these spawnflags
+			// - instead of adapting it, it was just placed next to the existing FB logic
+			// - and now we have this mess
 			if (impulse_ <= IMP_END1)
 				self.spawnflags = impulse_ - IMP_START1 + START_SKILL;
 			else
@@ -1665,6 +1662,7 @@ void() ImpulseCommands =
 					NoAdmin();
 				else if (impulse_ <= IMP_ADD4BOTS)
 				{
+					// IMP_ADD2BOTS, IMP_ADD2BOTS, IMP_ADD3BOTS, IMP_ADD4BOTS
 					impulse_ = impulse_ - IMP_ADDBOT + 1;
 					AddBots();
 				}
@@ -1693,6 +1691,7 @@ void() ImpulseCommands =
 			PrintRules();
 		else if (impulse_ == IMP_FLASH)
 			ToggleFlash();
+	// ==== Everything below requires Admin rights ====
 		else if (is_multiplayer && (self.admin_code != dropper.admin_code))
 			NoAdmin();
 		else if (impulse_ == IMP_HIDE)
@@ -1705,6 +1704,14 @@ void() ImpulseCommands =
 			ToggleGameModeNow(GAME_LAVA_CHEAT, "lavacheat");
 		else if (impulse_ == IMP_FRAMERATE)
 			ToggleFramerate();
+		else if (impulse_ == IMP_ALIASES)
+		{
+			sprint_fb(self, 2, "Stuffing aliases, please wait 3 seconds.\n");
+			AliasesTime();
+			self.k_stuff = 0;
+		}
+		else if (impulse_ == IMP_DROPPWRUP)
+			ToggleGameMode(GAME_DROPPWRUP, "drop powerups");
 		else if (impulse_ == IMP_POWERUP)
 			ToggleGameMode(GAME_ENABLE_POWERUPS, "powerups");
 		else if (impulse_ == IMP_AUTOREPORT)
@@ -1723,14 +1730,20 @@ void() ImpulseCommands =
 			SkillDown();
 		else if (impulse_ == IMP_SKILLUP)
 			SkillUp();
+#ifdef TALK
+		else if (impulse_ == IMP_BOTCHAT)
+			ToggleGameModeNow(GAME_ENABLE_BOTCHAT, "botchat");
+#endif
 	#ifdef QUAKE
+		else if (impulse_ == IMP_QWPHYSICS)
+			ToggleGameMode(GAME_QWPHYSICS, "qwphysics");
 		else if (impulse_ == IMP_TOGGLEFROG)
 			ToggleFrogbot();
 	#endif
-	// TODO: move all impulses not specific to ARENA outside this ifdef, and make aliases work
-	#ifdef ARENA
 		else if (impulse_ == IMP_ABOUT)
 			SprintVersion();
+	// TODO: move any remaining impulses (and their aliases) not specific to ARENA outside this ifdef
+	#ifdef ARENA
 		else if (impulse_ == IMP_SCORES)
 			PrintScores();
 		else if (impulse_ == IMP_BREAK)
@@ -1765,10 +1778,6 @@ void() ImpulseCommands =
 			ToggleGameMode(GAME_MATCH, "match");
 		else if (impulse_ == IMP_OVERTIME)
 			ChangeOvertime();
-#ifdef TALK
-		else if (impulse_ == IMP_BOTCHAT)
-			ToggleGameModeNow(GAME_ENABLE_BOTCHAT, "botchat");
-#endif
 		else if (impulse_ == IMP_RL_PREF)
 		{
 			if (game_lg_pref)

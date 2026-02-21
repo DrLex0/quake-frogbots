@@ -575,19 +575,11 @@ void() PlayerDie =
 	#endif
 		DropBackpack();
 
-	#ifdef ARENA
-		if (game_drop)
-	#else
-		if (game_dropring)
-	#endif
+		if (game_droppowerups)
 		if (self.invisible_finished > time)
 			drop_artifact_invisibility();
 
-	#ifdef ARENA
-		if (game_drop)
-	#else
-		if (game_dropquad)
-	#endif
+		if (game_droppowerups)
 		if (self.super_damage_finished > time)
 			drop_artifact_super_damage();
 	}

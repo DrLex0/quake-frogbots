@@ -578,7 +578,7 @@ float IMP_ADDBOT		= 25;			// requires admin, end of loading
 float IMP_ADD2BOTS	= 26;
 float IMP_ADD3BOTS	= 27;
 float IMP_ADD4BOTS	= 28;
-float IMP_ADDBOT0		= 29;
+float IMP_ADDBOT0		= 29;  // add bots to a specific team
 float IMP_ADDBOT1		= 30;
 float IMP_ADDBOT2		= 31;
 float IMP_ADDBOT3		= 32;
@@ -624,20 +624,31 @@ float IMP_RL_PREF		= 67;
 float IMP_LG_PREF		= 68;
 float IMP_RUNE_RJ		= 69;
 float IMP_NOSKINS		= 70;
+float IMP_DROPPWRUP	= 71;
+float IMP_ALIASES	= 107;
 float IMP_SKILLDOWN	= 114;
 float IMP_SKILLUP		= 115;
+float IMP_ABOUT		= 119;
+#ifdef QUAKE
 float IMP_TOGGLEFROG	= 123;
+float IMP_QWPHYSICS	= 130;
+#endif
 //---------------------------
 #ifdef NOCLIP
-float IMP_NOCLIP		= 130;
+float IMP_NOCLIP		= 131;
 #endif
-float IMP_END4		= 130;
+float IMP_END4		= 131;
 //---------------------------
 float IMP_SETWEAP1	= 248;
 float IMP_SETWEAP2	= 249;
-float IMP_RANDOM		= 250;
-float IMP_IMPULSE_0	= 255;
+// DrLex: I have no clue what these are. Let's sabotage and see if anything breaks (likely not.)
+//float IMP_RANDOM		= 250;  // may be remnant of old impulse-based map list?
+//float IMP_IMPULSE_0	= 255;  // 100% clueless
 //---------------------------
+#ifdef MANUAL
+// Manual mode impulses range from 160 to almost 200. Avoid conflicts.
+float IMP_TOGGLE_MANUAL	= 160;
+#endif
 
 
 // edict.movetype values
@@ -1051,18 +1062,13 @@ float game_lg_pref;
 float game_not_match;
 float game_disable_autoreport;
 float game_disable_dropweap;
+float game_droppowerups;
 float game_disable_autosteams;
 #ifdef TALK
 float game_disable_botchat;
 #endif
 float game_lava_cheat;
 float game_show_rules;
-
-// miscellaneous features
-#ifndef ARENA
-float game_dropquad = 0; // 0 or 1
-float game_dropring = 0; // 0 or 1
-#endif
 
 #ifdef QUAKE
 float game_qwphysics;
@@ -1091,8 +1097,8 @@ float GAME_QWPHYSICS			= 32768;	// Quakeworld wall and edge slide
 float GAME_QWAIM				= 65536;	// Quakeworld aim
 #endif
 
-// 131072;
-// 262144;
+// 131072;  still available
+float GAME_DROPPWRUP			= 262144;
 float GAME_LG_PREF			= 524288;
 
 

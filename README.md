@@ -233,7 +233,7 @@ When making waypoints in an engine that supports `.ent` files, by all means ensu
 
 ## Planned
 
-- Improve Frogbot functionality in NetQuake engines. It already works pretty well and you can even play against bots in the waypoint tool if you start a network game and use manual impulse commands, but this has been tested less than the QW build and is likely to have more bugs and some missing functionality. However, one extra feature the Quake build has, is that you can turn yourself into a bot through `impulse 123`, both in single-player and multiplayer (in waypoint tool this is bound to `F4`). Try it!
+- Improve Frogbot functionality in NetQuake engines. It already works pretty well and you can even play against bots in the waypoint tool if you start a network game and use manual impulse commands, but this has been tested less than the QW build and is likely to have more bugs and some missing functionality. However, one extra feature the Quake build has, is that you can turn yourself into a bot, both in single-player and multiplayer, through the `frogbot` command, `impulse 123,` or in the waypoint tool with the `F4` key. Try it!
 - Add more—ideally all—of Trinca's waypoints, with errors fixed and updated to benefit from the new features.
 - Create new waypoints for popular maps, new and old. Anyone can help with this, check out the extensive documentation in the `waypoint` folder!
 - Some more documentation, like how the whole thing works at a technical level. Don't expect me to explain all the voodoo in `route_calc.qc` though…

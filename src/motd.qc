@@ -26,8 +26,8 @@ void() PrintMOTD =
 	if (s2 == "") s2 = string_null;
 #endif
 	if (self.attack_finished > time + 6) centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n");
-	else centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n\nRunning Æòïçâïô ö”â“ by ÄòÌåø\n\nwith Æâãá “®’“ëô final by ÐáòboiL\nbased on Ëïíâáô Ôåáíó ”®”“\n");
-	// Running Frogbot v2b1 by DrLex\n\nwith Fbca 1.01kt final by ParboiL\nbased on Kombat Teams 2.21
+	// Running Frogbot vVERS by DrLex\n\nbased on Fbca 1.01kt final by ParboiL\nbased on Kombat Teams 2.21
+	else centerprint(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n€‚\n\nRunning Æòïçâïô ö", FROGBOT_VERSION_FANCY, " by ÄòÌåø\n\nbased on Æâãá “®’“ëô final by ÐáòboiL\nbased on Ëïíâáô Ôåáíó ”®”“\n");
 	self.nextthink = time + 0.7;
 };
 #else
@@ -37,7 +37,8 @@ void() PrintMOTD =
 		remove(self);
 		return;
 	}
-	centerprint(self.owner, "Frogbot Waypoint Tool ö”â“\nEnable íáîõáì íïäå to start editing\n\n\n");
+	// Frogbot Waypoint Tool vVERS\nEnable manual mode to start editing
+	centerprint(self.owner, "Frogbot Waypoint Tool ö", FROGBOT_VERSION_FANCY, "\nEnable íáîõáì íïäå to start editing\n\n\n");
 	self.nextthink = time + 0.7;
 };
 #endif
@@ -52,46 +53,3 @@ void() MakeMOTD =
 	motd.nextthink = time + 0.5;
 	motd.attack_finished = time + 7;
 };
-
-void() CheckBadEnts =
-{
-	if (bad_ent_detected)
-	{
-		dprint ("\nÅÒÒÏÒº a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
-		sprint_fb(self, 2, "\nÅÒÒÏÒº a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
-	}
-};
-
-#ifdef ARENA
-void() AliasesTime =
-{
-	self.alias1time = time + 1;
-	self.alias2time = time + 2;
-	self.alias3time = time + 3;
-};
-
-void() StuffAliases =
-{
-	if (self.alias1time)
-	if (time >= self.alias1time)
-	{
-		self.alias1time = 0;
-		aliases1();
-	}
-	if (self.alias2time)
-	if (time >= self.alias2time)
-	{
-		self.alias2time = 0;
-		aliases2();
-	}
-	if (self.alias3time)
-	if (time >= self.alias3time)
-	{
-		self.alias3time = 0;
-		self.k_stuff = 1;
-		aliases3();
-		sprint_fb(self, 2, "Commands downloaded\n");
-		CheckBadEnts();
-	}
-};
-#endif

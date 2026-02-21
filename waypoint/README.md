@@ -209,47 +209,47 @@ Markers have an _index:_ the index for `m123` is 123. The lowest indices are use
 These are the bindings provided by the `autoexec.cfg`. Of course you are free to modify them. Unless your memory is flawless, you will want to print out this list, or have it on a second monitor while running the waypoint tool.
 ```
 KEY     ALTKEY  OLD_IMP NEW_IMP FUNCTION
-O               120     131     TOGGLE MANUAL-MODE
-MOUSE1  3       119     132     SPAWN A MARKER
-G       9       132     142     DEFAULT MARKER-MODE
-F       5       135     144     TOGGLE CLOSEST-MARKER-MODE
-L       0       -       156     CYCLE BETWEEN 4 CLOSEST MARKERS
-I       TAB     127     135     TOGGLE STATIC ACTIVE MARKER
-P               128     136     REMOVE ACTIVE MARKER
-H               129     137     DISABLE ACTIVE MARKER
-J       6       130     138     TOGGLE ONEWAY-MODE
-MOUSE2  4       131     139     TOGGLE CONNECT-MARKERS-MODE
-K               -       160     AUTO CONNECT trigger_teleport
-T               137     145     CLEAR ACTIVE MARKER PATHS
-Y               138     146     MOVE ACTIVE MARKER
-U               139     147     VERTICALLY MOVE ACTIVE MARKER
-E               -       159     MOVE TO ACTIVE MARKER
-WHEELUP 2       140     148     INCREASE GOAL/ZONES
-WHEELDN 1       141     149     DECREASE GOAL/ZONES
-ENTER   Q       142     150     SET GOAL/ZONE
-C       8       143     151     PRINT ZONE, GOAL, TYPE
-R               -       157     PRINT/SHOW PATHS
-V       7       144     152     CYCLE PATH-MODES or
+O               120     160     TOGGLE MANUAL-MODE
+MOUSE1  3       119     162     SPAWN A MARKER
+G       9       132     163     DEFAULT MARKER-MODE
+F       5       135     164     TOGGLE CLOSEST-MARKER-MODE
+L       0       -       165     CYCLE BETWEEN 4 CLOSEST MARKERS
+I       TAB     127     166     TOGGLE STATIC ACTIVE MARKER
+P               128     167     REMOVE ACTIVE MARKER
+H               129     168     DISABLE ACTIVE MARKER
+J       6       130     169     TOGGLE ONEWAY-MODE
+MOUSE2  4       131     170     TOGGLE CONNECT-MARKERS-MODE
+K               -       171     AUTO CONNECT trigger_teleport
+T               137     172     CLEAR ACTIVE MARKER PATHS
+Y               138     173     MOVE ACTIVE MARKER
+U               139     174     VERTICALLY MOVE ACTIVE MARKER
+E               -       175     MOVE TO ACTIVE MARKER
+WHEELUP 2       140     176     INCREASE GOAL/ZONES
+WHEELDN 1       141     177     DECREASE GOAL/ZONES
+ENTER   Q       142     178     SET GOAL/ZONE
+C       8       143     179     PRINT ZONE, GOAL, TYPE
+R               -       180     PRINT/SHOW PATHS
+V       7       144     181     CYCLE PATH-MODES or
                                 CYCLE MARKER TYPES
-Z               146     154     CYCLE DISPLAY-MODE
-B               145     153     DISPLAY TRAVELTIME
-X               147     155     DISPLAY REACHABLE
-N               125     133     CHECK ALL GOALS
-M               126     134     CHECK ALL ZONES
-,               -       161     SHOW SAME OR NEXT GOAL
-;               -       164     SHOW NEXT ITEM OF SAME TYPE
-.               -       163     SET DOOR OPEN THRESHOLD
-/               -       158     PRINT COORDINATES & EXTRA INFO
-'               -       165     SET CUSTOM INTERMISSION CAMERA
--               -       166     FORCE NEXT GOAL MARKER(S)
-F1              133     143     DUMP WAYPOINT DATA
-F2              ?       130     NOCLIP
+Z               146     182     CYCLE DISPLAY-MODE
+B               145     183     DISPLAY TRAVELTIME
+X               147     184     DISPLAY REACHABLE
+N               125     185     CHECK ALL GOALS
+M               126     186     CHECK ALL ZONES
+,               -       187     SHOW SAME OR NEXT GOAL
+;               -       188     SHOW NEXT ITEM OF SAME TYPE
+.               -       189     SET DOOR OPEN THRESHOLD
+/               -       190     PRINT COORDINATES & EXTRA INFO
+-               -       191     FORCE NEXT GOAL MARKER(S)
+'               -       192     SET CUSTOM INTERMISSION CAMERA
+F1              133     161     DUMP WAYPOINT DATA
+F2              ?       131     NOCLIP
 F3              ?       50      DISABLE DAMAGE FLASH
 F4              ?       123     TOGGLE FROGBOT -- CAUTION!
                                 Read Advanced section first!
 F5              -       -       CONDUMP COMMAND (dump console to file)
 MOUSE3          -       -       FIRE
-none            -       162     TOGGLE ROCKET JUMPING
+none            -       193     TOGGLE ROCKET JUMPING
 
 PATH MODES
 (label - new in v2? - mode)
@@ -697,7 +697,7 @@ A _fixed yaw rate_ can be imposed on paths for cases like this. Due to this bein
    - For instance, in `baldm6,` marker 176 needs a speed of 224 on path 0, hence this statement needs to be added: `m176.R0=244;`
 4. Try it out and tweak; a lot of trial-and-error will be inevitable. Ensure the bot is not bumping into a wall or ceiling during the air strafe, or it will definitely fail.
 
-Bots have a skill-dependent inaccuracy on air strafing. Because of this, it is best to raise the skill level to 20 while validating (`impulse 115`), to eliminate random errors. Still, even a level 20 bot may sometimes fail at very tricky jumps due to timing, but should succeed most of the time if the jump is correctly set up.
+Bots have a skill-dependent inaccuracy on air strafing. Because of this, it is best to raise the skill level to 20 while validating (`skillup` command or `impulse 115`), to eliminate random errors. Still, even a level 20 bot may sometimes fail at very tricky jumps due to timing, but should succeed most of the time if the jump is correctly set up.
 
 This does not only apply to precise jumps; any path where the bot gets airborne can be given an `R` value to enforce air strafing at a specific yaw rate.
 
@@ -770,14 +770,14 @@ There are a few **rules** though:
 3. You should not be in manual mode, the bot will act like a drunken madman otherwise. You should not be in `NOCLIP` mode either.
 4. There are differences between the bot running in Quake and in QuakeWorld engines. They are not huge, but especially jumps can be different. What works well in the waypoint tool might not work well in QW, and vice versa. You should still test your waypoints thoroughly in a QW engine.
 
-You can test rocket jumps if you first pick up the prerequisites (obviously, a RL and rockets, but also enough health and armour). The random factor for RJs is disabled in the waypoint tool, and the bot will always want to RJ, unless this has been toggled off with `impulse 162`.
+You can test rocket jumps if you first pick up the prerequisites (obviously, a RL and rockets, but also enough health and armour). The random factor for RJs is disabled in the waypoint tool, and the bot will always want to RJ, unless this has been toggled off with `impulse 193`.
 
 The movement of the bot can be influenced in a limited way by pressing movement keys, this may be useful to force the bot to make a mistake and see if it recovers.
 
 If you want to live dangerously and test changes on-the-fly, make it a reflex to first dump your waypoint data to the console and then a file (`F1`, `F5`) before pressing `F4`.
 
 #### Forcing goals
-To test whether the bot correctly tackles a specific path, goals can be overridden with impulse 166, bound to the `-` key in the default config. For instance, to force the bot to run to a certain marker, hit the `-` key while this marker is selected. A second marker can then also be set, to ensure the bot will follow a specific path. This makes testing tricky jumps and such way less cumbersome than letting the bot do its thing and waiting until it takes that path.  
+To test whether the bot correctly tackles a specific path, goals can be overridden with impulse 191, bound to the `-` key in the default config. For instance, to force the bot to run to a certain marker, hit the `-` key while this marker is selected. A second marker can then also be set, to ensure the bot will follow a specific path. This makes testing tricky jumps and such way less cumbersome than letting the bot do its thing and waiting until it takes that path.  
 (Avoid using teleport triggers as goal override: they are never actually touched and the goal will never be cleared.)
 
 #### Debugging path calculation errors

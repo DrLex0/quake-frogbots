@@ -31,6 +31,7 @@ void() AssignVirtualGoal;
 void() marker_touch;
 void() LocateDynamicItem;
 void(entity marker) BecomeMarker;
+void() powerup_touch;
 
 /*
 ============
@@ -1727,7 +1728,9 @@ void() goal_artifact_invulnerability =
 
 void() item_artifact_invulnerability =
 {
-	if (!game_disable_powerups)
+	if (game_disable_powerups)
+		self.desire = goal_NULL;
+	else
 	{
 		self.touch = powerup_touch;
 	#ifndef ARENA
@@ -1796,7 +1799,9 @@ Player takes no damage from water or slime for 30 seconds
 */
 void() item_artifact_envirosuit =
 {
-	if (!game_disable_powerups)
+	if (game_disable_powerups)
+		self.desire = goal_NULL;
+	else
 	{
 		self.touch = powerup_touch;
 	
@@ -1846,7 +1851,9 @@ void() item_artifact_invisibility_apply =
 void() item_artifact_invisibility =
 {
 	item = self;
-	if (!game_disable_powerups)
+	if (game_disable_powerups)
+		item.desire = goal_NULL;
+	else
 	{
 		item.touch = powerup_touch;
 
@@ -1932,7 +1939,9 @@ void() item_artifact_super_damage_apply =
 void() item_artifact_super_damage =
 {
 	item = self;
-	if (!game_disable_powerups)
+	if (game_disable_powerups)
+		item.desire = goal_NULL;
+	else
 	{
 		item.touch = powerup_touch;
 

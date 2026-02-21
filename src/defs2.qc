@@ -6,9 +6,14 @@
 	Copyright (C) 2000-2003 rxr
 	Copyright (C) 2000-2001 DMSouL
 	Copyright (C) 2000-2007 ParboiL
+	Updates by DrLex 2026
 */
 
 #include "settings.h"
+
+string FROGBOT_VERSION_STRING = "2.0b2";
+// numbers shifted by 98 positions to make them "gold", the rest by 128
+string FROGBOT_VERSION_FANCY = "”®’β”";
 
 void() SightMarker;
 void() PlayerBreak;
@@ -121,17 +126,24 @@ float a_rep;
 .string stringname;
 string string_null;
 
+.float alias1time;
+#ifdef ARENA
+.float alias2time;
+.float alias3time;
+#endif
+
 float SNG_OR_BETTER = IT_SUPER_NAILGUN | IT_LIGHTNING | IT_ROCKET_LAUNCHER;
 float BETTER_THAN_BOOMSTICK = IT_NAILGUN | IT_SUPER_SHOTGUN | IT_GRENADE_LAUNCHER | SNG_OR_BETTER;
 
 
 void() SprintVersion =
 {
-	sprint_fb(self, 2, "\nΖβγα φεςσιοξ: 1.01kt final\n");
-	sprint_fb(self, 2, "Δατε οζ ςεμεασε: Mar 08 2007\n");
-	sprint_fb(self, 2, "Αυτθος οζ νοδ: ParboiL\n");
-	sprint_fb(self, 2, "Νοςε ιξζο: www.parboil.quakeworld.ru\n\n");
-	sprint_fb(self, 2, "Type \"γονναξδσ\" for help\n");
+	sprint_fb(self, 2, "\nΖςοηβοτ φεςσιοξ: ");  // Frogbot version:
+	sprint_fb(self, 2, FROGBOT_VERSION_STRING);
+	sprint_fb(self, 2, "\nΔατε οζ ςεμεασε: Feb 22 2026\n");  // Date of release:
+	sprint_fb(self, 2, "Αυτθος οζ νοδ: DrLex\n");  // Author of mod:
+	sprint_fb(self, 2, "Νοςε ιξζο: github.com/DrLex0/quake-frogbots\n\n");  // More info:
+	sprint_fb(self, 2, "Type \"γονναξδσ\" for help\n");  // Type "commands" for help
 };
 
 void() VersionInfo =

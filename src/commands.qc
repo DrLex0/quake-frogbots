@@ -8,6 +8,12 @@
 
 #include "settings.h"
 
+#ifdef ARENA
+void() ar_aliases1;
+void() ar_aliases2;
+#endif
+
+
 void() teams_frags_count =
 {
 	local entity p;
@@ -56,66 +62,66 @@ void() PrintScores =
 {
 	local string tmp;
 	local float f1;
-	if (!game_not_match) {
-		if (pre_game) {
-			if (!counting_down) sprint_fb(self, 2, "no game - no scores\n");
-			else sprint_fb(self, 2, "Countdown\n");
-			return;
+	if (game_not_match) return;
+	if (pre_game) {
+		if (!counting_down) sprint_fb(self, 2, "no game - no scores\n");
+		else sprint_fb(self, 2, "Countdown\n");
+		return;
+	}
+	if (sudden_death) {
+		// "Overtime sudden death in progress"
+		sprint_fb(self, 2, "Οφεςτινε sudden death ιξ πςοηςεσσ\n");
+	} else { 
+		if (timelimit) {
+			if (minutes_left > 1) {
+				sprint_fb(self, 2, "");
+				sprint_g(self, 2, minutes_left);
+				sprint_fb(self, 2,"‘ full minute");
+				if (minutes_left > 2) sprint_fb(self, 2, "s");
+			} else {
+				sprint_fb(self, 2, "");
+				sprint_g(self, 2, time_left);
+				sprint_fb(self, 2, "‘ second");
+				if (time_left > 1) sprint_fb(self, 2, "s");
+			} 
+			sprint_fb(self, 2, " left\n");
 		}
-		if (sudden_death) {
-			sprint_fb(self, 2, "Οφεςτινε sudden death ιξ πςοηςεσσ\n");
-		} else { 
-			if (timelimit) {
-				if (minutes_left > 1) {
-					sprint_fb(self, 2, "");
-					sprint_g(self, 2, minutes_left);
-					sprint_fb(self, 2,"‘ full minute");
-					if (minutes_left > 2) sprint_fb(self, 2, "s");
-				} else {
-					sprint_fb(self, 2, "");
-					sprint_g(self, 2, time_left);
-					sprint_fb(self, 2, "‘ second");
-					if (time_left > 1) sprint_fb(self, 2, "s");
-				} 
-				sprint_fb(self, 2, " left\n");
-			}
-		}
-		if (team_mode) {
-			teams_frags_count();
+	}
+	if (team_mode) {
+		teams_frags_count();
+		tmp = infokey(world, "k_team1");
+		sprint_fb(self, 2, "Τεαν ");  // Team [
+		sprint_fb(self, 2, tmp);
+		sprint_fb(self, 2, "‘ = ");
+		sprint_g(self, 2, k_scores1);
+		sprint_fb(self, 2, "\n");
+		tmp = infokey(world, "k_team2");
+		sprint_fb(self, 2, "Τεαν ");
+		sprint_fb(self, 2, tmp);
+		sprint_fb(self, 2, "‘ = ");
+		sprint_g(self, 2, k_scores2);
+		sprint_fb(self, 2, "\n");
+		if (k_scores1 > k_scores2) {
+			f1 = k_scores1 - k_scores2;
 			tmp = infokey(world, "k_team1");
 			sprint_fb(self, 2, "Τεαν ");
 			sprint_fb(self, 2, tmp);
-			sprint_fb(self, 2, "‘ = ");
-			sprint_g(self, 2, k_scores1);
-			sprint_fb(self, 2, "\n");
+			sprint_fb(self, 2, "‘ leads by ");
+			sprint_g(self, 2, f1);
+			sprint_fb(self, 2, " frag");
+			if (f1 == 1) sprint_fb(self, 2, "\n");
+			else sprint_fb(self, 2, "s\n");
+		} else if (k_scores1 < k_scores2) {
+			f1 = k_scores2 - k_scores1;
 			tmp = infokey(world, "k_team2");
 			sprint_fb(self, 2, "Τεαν ");
 			sprint_fb(self, 2, tmp);
-			sprint_fb(self, 2, "‘ = ");
-			sprint_g(self, 2, k_scores2);
-			sprint_fb(self, 2, "\n");
-			if (k_scores1 > k_scores2) {
-				f1 = k_scores1 - k_scores2;
-				tmp = infokey(world, "k_team1");
-				sprint_fb(self, 2, "Τεαν ");
-				sprint_fb(self, 2, tmp);
-				sprint_fb(self, 2, "‘ leads by ");
-				sprint_g(self, 2, f1);
-				sprint_fb(self, 2, " frag");
-				if (f1 == 1) sprint_fb(self, 2, "\n");
-				else sprint_fb(self, 2, "s\n");
-			} else if (k_scores1 < k_scores2) {
-				f1 = k_scores2 - k_scores1;
-				tmp = infokey(world, "k_team2");
-				sprint_fb(self, 2, "Τεαν ");
-				sprint_fb(self, 2, tmp);
-				sprint_fb(self, 2, "‘ leads by ");
-				sprint_g(self, 2, f1);
-				sprint_fb(self, 2, " frag");
-				if (f1 == 1) sprint_fb(self, 2, "\n");
-				else sprint_fb(self, 2, "s\n");
-			} else sprint_fb(self, 2, "The game is currently a tie\n");
-		}
+			sprint_fb(self, 2, "‘ leads by ");
+			sprint_g(self, 2, f1);
+			sprint_fb(self, 2, " frag");
+			if (f1 == 1) sprint_fb(self, 2, "\n");
+			else sprint_fb(self, 2, "s\n");
+		} else sprint_fb(self, 2, "The game is currently a tie\n");
 	}
 };
 
@@ -125,7 +131,7 @@ void() PlayerStatus =
 	local string tmp;
 	if (game_not_match) return;
 	if (pre_game && !counting_down) {
-		sprint_fb(self, 2, "Πμαωεςσ μιστ:\n\n");
+		sprint_fb(self, 2, "Πμαωεςσ μιστ:\n\n");  // Players list
 		p = find(world, stringname, "gamer");
 		while(p != world) {
 			if (p.ready) sprint_fb(self, 2, "† ");
@@ -218,8 +224,8 @@ void() ChangeLock =
 	if (!game_not_match) {
 		if(lock) lock = 0;
 		else lock = 1;
-		if(!lock) bprint_fb(2, "Σεςφες μογλιξη off\n");
-		else bprint_fb(2, "Σεςφες μογλεδ - players cannot connect during game\n");
+		if(!lock) bprint_fb(2, "Σεςφες μογλιξη off\n");  // Server locking off
+		else bprint_fb(2, "Σεςφες μογλεδ - players cannot connect during game\n");  // Server locked
 	}
 };
 
@@ -231,9 +237,9 @@ void() TimeDown =
 		timelimit = timelimit - 5;
 		if (timelimit < 5) timelimit = 5;
 		tmp = ftos(timelimit);
-		bprint_fb(2, "Νατγθ μεξητθ σετ το ");
+		bprint_fb(2, "Νατγθ μεξητθ σετ το ");  // Match length set to
 		bprint_fb(2, tmp);
-		bprint_fb(2, " νιξυτεσ\n");
+		bprint_fb(2, " νιξυτεσ\n");  // minutes
 		cvar_set("timelimit", tmp);
 	}
 };
@@ -248,9 +254,9 @@ void() TimeUp =
 		top = stof(infokey(world, "k_timetop"));
 		if (timelimit > top) timelimit = top;
 		tmp = ftos(timelimit);
-		bprint_fb(2, "Νατγθ μεξητθ σετ το ");
+		bprint_fb(2, "Νατγθ μεξητθ σετ το ");  // Match length set to
 		bprint_fb(2, tmp);
-		bprint_fb(2, " νιξυτεσ\n");
+		bprint_fb(2, " νιξυτεσ\n");  // minutes
 		cvar_set("timelimit", tmp);
 	}
 };
@@ -263,7 +269,7 @@ void() FragsDown =
 		fraglimit = fraglimit - 10;
 		if (fraglimit < 0) fraglimit = 0;
 		tmp = ftos(fraglimit);
-		bprint_fb(2, "Ζςαημινιτ σετ το ");
+		bprint_fb(2, "Ζςαημινιτ σετ το ");  // Fraglimit set to
 		bprint_fb(2, tmp);
 		bprint_fb(2, "\n");
 		cvar_set("fraglimit", tmp);
@@ -278,7 +284,7 @@ void() FragsUp =
 		fraglimit = fraglimit + 10;
 		if (fraglimit > 100) fraglimit = 100;
 		tmp = ftos(fraglimit);
-		bprint_fb(2, "Ζςαημινιτ σετ το ");
+		bprint_fb(2, "Ζςαημινιτ σετ το ");   // Fraglimit set to
 		bprint_fb(2, tmp);
 		bprint_fb(2, "\n");
 		cvar_set("fraglimit", tmp);
@@ -569,4 +575,113 @@ void() setBestWeapon1 =
 void() setBestWeapon2 =
 {
 	setBestWeapon("weaponpref2");
+};
+
+// TODO: we can make a better SNAFU detector by checking whether custom_marker_start matches 1 + item_marker_index
+void() CheckBadEnts =
+{
+	if (bad_ent_detected)
+	{
+		dprint ("\nΕÒÒΟÒΊ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+		sprint_fb(self, 2, "\nΕÒÒΟÒΊ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+	}
+};
+
+
+/*
+============
+ALIASES
+============
+*/
+void(string s, float val) alias =
+{
+	stuffcmd("alias ");
+	stuffcmd(s);
+	stuffcmd(" impulse ");
+	stuffcmd_ftos(val);
+	stuffcmd("\n");
+};
+
+// General aliases that are not ARENA-specific and may also be useful for
+// tests in the waypoint tool or other special builds without ARENA
+void() aliases1 =
+{
+	msg_entity = self;
+	alias("about", IMP_ABOUT);
+	alias("addbot", IMP_ADDBOT);
+	alias("add2bots", IMP_ADD2BOTS);
+	alias("add3bots", IMP_ADD3BOTS);
+	alias("add4bots", IMP_ADD4BOTS);
+	alias("addbot0", IMP_ADDBOT0);
+	alias("addbot1", IMP_ADDBOT1);
+	alias("addbot2", IMP_ADDBOT2);
+	alias("addbot3", IMP_ADDBOT3);
+	alias("addbot4", IMP_ADDBOT4);
+	alias("addbot5", IMP_ADDBOT5);
+	alias("addbot6", IMP_ADDBOT6);
+	alias("addbot7", IMP_ADDBOT7);
+	alias("addbot8", IMP_ADDBOT8);
+	alias("addbot9", IMP_ADDBOT9);
+	alias("addbot10", IMP_ADDBOT10);
+	alias("addbot11", IMP_ADDBOT11);
+	alias("addbot12", IMP_ADDBOT12);
+	alias("addbot13", IMP_ADDBOT13);
+	alias("removebot", IMP_REMOVEBOT);
+	alias("removeallbots", IMP_REMOVEALLBOTS);
+	alias("skilldown", IMP_SKILLDOWN);
+	alias("skillup", IMP_SKILLUP);
+	alias("time", IMP_TIME);
+	alias("rules", IMP_RULES);
+	alias("setskin", IMP_SETSKIN);
+	alias("noflash", IMP_FLASH);
+	alias("powerups", IMP_POWERUP);
+	alias("rune", IMP_RUNE);
+	alias("framerate", IMP_FRAMERATE);
+	alias("drop", IMP_DROPPWRUP);
+	alias("dropweap", IMP_DROPWEAP);
+	alias("hide", IMP_HIDE);
+#ifdef TALK
+	alias("botchat", IMP_BOTCHAT);
+#endif
+	alias("lavacheat", IMP_LAVACHEAT);
+#ifdef QUAKE
+	alias("frogbot", IMP_TOGGLEFROG);
+	alias("qwphysics", IMP_QWPHYSICS);
+#endif
+};
+
+void() AliasesTime =
+{
+	self.alias1time = time + 1;
+#ifdef ARENA
+	self.alias2time = time + 2;
+	self.alias3time = time + 3;
+#endif
+};
+
+void() StuffAliases =
+{
+	if (self.alias1time)
+	if (time >= self.alias1time)
+	{
+		self.alias1time = 0;
+		aliases1();
+#ifdef ARENA
+	}
+	if (self.alias2time)
+	if (time >= self.alias2time)
+	{
+		self.alias2time = 0;
+		ar_aliases1();
+	}
+	if (self.alias3time)
+	if (time >= self.alias3time)
+	{
+		self.alias3time = 0;
+		ar_aliases2();
+#endif
+		self.k_stuff = 1;
+		sprint_fb(self, 2, "Commands downloaded\n");
+		CheckBadEnts();
+	}
 };

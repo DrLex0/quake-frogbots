@@ -37,9 +37,6 @@ float SVC_SETANGLE = 10;
 .float connected;
 .float scoreboard;
 .float userid;
-.float alias1time;
-.float alias2time;
-.float alias3time;
 .float damfrags;
 .float players;
 .float wins;
@@ -79,11 +76,9 @@ float inter_print;
 float loadbot_time;
 float loadingbots;
 float check_loadingbots;
-float game_drop;
 float game_botjump;
 float game_damage;
 float game_raspawn;
-float GAME_DROP		= 524288;
 float GAME_ARENA		= 1048576;
 float GAME_DAMAGE		= 2097152;
 float GAME_RASPAWN	= 4194304;
@@ -229,9 +224,8 @@ var void() a_think;
 #else
 void() a_think = {};
 #endif
-void() aliases1;
-void() aliases2;
-void() aliases3;
+void() ar_aliases1;
+void() ar_aliases2;
 void(string s, float value) alias;
 
 // other functions used
@@ -264,7 +258,6 @@ void(float to, entity client) SetColorName;
 #endif
 
 // impulses
-float IMP_DROP		= 71;
 float IMP_ARENA		= 72;
 float IMP_DAMAGE 		= 73;
 float IMP_SETTINGS	= 74;
@@ -300,7 +293,6 @@ float IMP_OLDTEAM_YELLOW = 103;
 float IMP_OLDTEAM_GREEN = 104;
 float IMP_RA		= 105;
 float IMP_BOTJUMP		= 106;
-float IMP_ALIASES		= 107;
 float IMP_COMMANDS	= 108;
 float IMP_BREAK		= 109;
 float IMP_TIMEDOWN	= 110;
@@ -310,7 +302,6 @@ float IMP_FRAGSUP		= 113;
 float IMP_JOIN		= 116;
 float IMP_OBSERVE		= 117;
 float IMP_LOCK		= 118;
-float IMP_ABOUT		= 119;
 float IMP_SCORES		= 120;
 float IMP_CHDM		= 121;
 float IMP_CHTP		= 122;
@@ -715,17 +706,13 @@ float() loadbot_time_ =
 	return 0;
 };
 
-// We used to create aliases to maps here, and tied the maps to impulses.
-// This has become tedious and pointless when rebuilding Frogbot with different
-// map sets. Just load maps with the 'map' command and vote with 'cmd'.
+// TODO: continue ensuring these are split up between specific to ARENA and not.
 
-// FIXME: split these up between specific to ARENA and not, and do the non-specific ones in botimp.
-
-// stuff aliases
-void() aliases1 =
+// stuff ARENA-specific aliases
+// 1 second delay between these stuffings
+void() ar_aliases1 =
 {
 	msg_entity = self;
-	alias("random", IMP_RANDOM);
 	alias("msg=", IMP_MSG);
 	alias("bots=", IMP_BOTS);
 	alias("admin=", IMP_ADMIN);
@@ -738,58 +725,19 @@ void() aliases1 =
 	alias("name=", 0);
 	alias("qwskin=", 0);
 	alias("lines=", IMP_LINES);
-	alias("addbot", IMP_ADDBOT);
-	alias("add2bots", IMP_ADD2BOTS);
-	alias("add3bots", IMP_ADD3BOTS);
-	alias("add4bots", IMP_ADD4BOTS);
-	alias("addbot0", IMP_ADDBOT0);
-	alias("addbot1", IMP_ADDBOT1);
-	alias("addbot2", IMP_ADDBOT2);
-	alias("addbot3", IMP_ADDBOT3);
-	alias("addbot4", IMP_ADDBOT4);
-	alias("addbot5", IMP_ADDBOT5);
-	alias("addbot6", IMP_ADDBOT6);
-	alias("addbot7", IMP_ADDBOT7);
-	alias("addbot8", IMP_ADDBOT8);
-	alias("addbot9", IMP_ADDBOT9);
-	alias("addbot10", IMP_ADDBOT10);
-	alias("addbot11", IMP_ADDBOT11);
-	alias("addbot12", IMP_ADDBOT12);
-	alias("addbot13", IMP_ADDBOT13);
-	alias("time", IMP_TIME);
-	alias("rules", IMP_RULES);
-	alias("setskin", IMP_SETSKIN);
-	alias("noflash", IMP_FLASH);
-};
-
-// 1 second delay between these stuffings
-void() aliases2 =
-{
-	msg_entity = self;
-	alias("hide", IMP_HIDE);
-	alias("removebot", IMP_REMOVEBOT);
-	alias("removeallbots", IMP_REMOVEALLBOTS);
-	alias("framerate", IMP_FRAMERATE);
-	alias("powerups", IMP_POWERUP);
-	alias("rune", IMP_RUNE);
 	alias("ready", IMP_READY);
 	alias("break", IMP_BREAK);
 	alias("overtime", IMP_OVERTIME);
 	alias("report", IMP_REPORT);
 	alias("autoreport", IMP_AUTOREPORT);
-	alias("dropweap", IMP_DROPWEAP);
 	alias("autosteams", IMP_AUTOSTEAMS);
-	alias("botchat", IMP_BOTCHAT);
 	alias("who", IMP_WHO);
-	alias("about", IMP_ABOUT);
 	alias("scores", IMP_SCORES); 
 	alias("match", IMP_MATCH);
 	alias("rl_pref", IMP_RL_PREF);
 	alias("lg_pref", IMP_LG_PREF);
 	alias("rune_rj", IMP_RUNE_RJ);
-	alias("lavacheat", IMP_LAVACHEAT);
 	alias("noskins_", IMP_NOSKINS);
-	alias("drop", IMP_DROP);
 	alias("arena", IMP_ARENA);
 	alias("damage", IMP_DAMAGE);
 	alias("settings", IMP_SETTINGS);
@@ -807,7 +755,7 @@ void() aliases2 =
 };
 
 // last one
-void() aliases3 =
+void() ar_aliases2 =
 {
 	msg_entity = self;
 	alias("armortype", IMP_ARMORTYPE);
@@ -835,8 +783,6 @@ void() aliases3 =
 	alias("timeup", IMP_TIMEUP);
 	alias("fragsdown", IMP_FRAGSDOWN);
 	alias("fragsup", IMP_FRAGSUP);
-	alias("skilldown", IMP_SKILLDOWN);
-	alias("skillup", IMP_SKILLUP);
 	alias("dm", IMP_CHDM);
 	alias("tp", IMP_CHTP);
 	alias("no_lg", IMP_NO_LG);
@@ -851,7 +797,7 @@ void() aliases3 =
 	#ifdef NOCLIP
 	alias("noclip_", IMP_NOCLIP);
 	#endif
-	alias("impulse_0", IMP_IMPULSE_0);
+//	alias("impulse_0", IMP_IMPULSE_0); TRASH THIS?
 	stuffcmd("alias kfjump \"impulse 140;+jump;wait;-jump\"\n");
 	stuffcmd("alias krjump \"impulse 141;+jump;wait;-jump\"\n");
 };
@@ -1995,7 +1941,6 @@ void() a_gamemode =
 	game_damage = gamemode & GAME_DAMAGE;
 	game_raspawn = gamemode & GAME_RASPAWN;
 	game_botjump = gamemode & GAME_BOTJUMP;
-	game_drop = gamemode & GAME_DROP;
 };
 
 // called in PrintRules()
@@ -2005,7 +1950,6 @@ void() a_boolean =
 	print_boolean(GAME_DAMAGE, "äáíáçå...... ");  // damage
 	print_boolean(GAME_RASPAWN, "òáóðá÷î..... ");  // raspawn
 	print_boolean(GAME_BOTJUMP, "âïôêõíð..... ");  // botjump
-	print_boolean(GAME_DROP, "äòïð........ ");  // drop
 };
 
 // more ImpulseCommands, woo!
@@ -2019,8 +1963,6 @@ void() a_impulses =
 		ToggleGameMode(GAME_RASPAWN, "ra spawning");
 	else if (impulse_ == IMP_BOTJUMP)
 		ToggleGameModeNow(GAME_BOTJUMP, "botjump");
-	else if (impulse_ == IMP_DROP)
-		ToggleGameMode(GAME_DROP, "drop powerups");
 	else if (impulse_ == IMP_COMMANDS)
 		commands();
 	else if (impulse_ == IMP_RESTART)
@@ -2028,15 +1970,6 @@ void() a_impulses =
 #ifdef TALK
 	else if (impulse_ == IMP_REPORT)
 		teamreport(self);
-#endif
-#ifndef QUAKE
-	else if (impulse_ == IMP_ALIASES)
-	{
-			sprint_fb(self, 2, "Stuffing aliases, please wait 3 seconds.\n");
-			self.alias1time = time + 1;
-			self.alias2time = time + 2;
-			self.alias3time = time + 3;
-	}
 #endif
 	local float asdf;
 	asdf = scratch1();
@@ -2317,7 +2250,6 @@ float() a_postthink =
 	if (arenastate <= A_STARTING)
 	if (self.impulse)
 	if (!self.spawnflags)
-
 	{
 		impulse_ = self.impulse;
 		self.impulse = 0;
@@ -2682,23 +2614,19 @@ void() notready =
 
 float() a_item =
 {
-	if ((((deathmatch == 6) 
-	|| (deathmatch == 2)) 
-	&& ((self.touch == health_touch) 
-	|| (self.touch == armor_touch)))
-	|| ((deathmatch > 3) 
-	&& (self.touch == weapon_touch))
-	|| (((deathmatch == 2) 
-	|| (deathmatch == 4) 
-	|| (deathmatch == 6))
-	&& (self.touch == ammo_touch))
-	|| ((game_disable_powerups) 
-	&& (self.touch == powerup_touch)))
+	if (
+		(((deathmatch == 6) || (deathmatch == 2))
+		&& ((self.touch == health_touch) || (self.touch == armor_touch)))
+	||	((deathmatch > 3) 
+		&& (self.touch == weapon_touch))
+	||	(((deathmatch == 2) || (deathmatch == 4) || (deathmatch == 6))
+		&& (self.touch == ammo_touch))
+	||	((game_disable_powerups) 
+		&& (self.touch == powerup_touch))
+	)
 	{
 		self.model = "";
-		self.think =
-
-	self.touch = null;
+		self.think = self.touch = null;
 		self.desire = goal_NULL;
 	}
 	else

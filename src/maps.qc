@@ -4,7 +4,12 @@
 	Copyright (C) 2000-2003 rxr
 	Copyright (C) 2000-2007 ParboiL
 	DrLex 2024-12: ported impulse-less voting system from Trinca's sources.
-	Voting on a map M may now be done with 'cmd M'.
+
+	The last FBCA implementation created aliases to a limited list of maps,
+	and tied the maps to impulses. This has become tedious and pointless
+	when rebuilding with varying map sets, and only works for a small set
+	of maps anyway.
+	Just load maps with the 'map' command, and vote on a map M with "cmd M".
 */
 
 #include "settings.h"
