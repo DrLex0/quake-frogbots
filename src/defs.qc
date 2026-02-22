@@ -1597,12 +1597,12 @@ float WALL_STRAFE		= 8;
 float SHOOT_AT			= 16;  // pseudo
 float NARROW_PATH		= 32;
 float PRECISE_JUMP		= 128;
-float NEED_SHOOT			= 256;  // former DM6_DOOR, now more universal
+float NEED_SHOOT		= 256;  // former DM6_DOOR, now more universal
 float ROCKET_JUMP		= 512;
 float JUMP_LEDGE		= 1024;
 float SLOW_DOWN			= 2048;
 // Bits to be saved in waypoint code: all the above path modes together
-float SAVED_DESCRIPTION		= 4095;
+float SAVED_DESCRIPTION	= 4095;
 // Bits of all pseudo path modes
 float IS_PSEUDO_PATH	= 20;
 
@@ -1614,10 +1614,10 @@ float ACCURATE_PATH		= 4194304;
 // dynamic values
 float EXCLUSIVE_PATH		= 65536;
 float DELIBERATE_AIR		= 131072;  // only used together with WAIT_GROUND
-float WAIT_GROUND		= 262144;
-float STUCK_PATH		= 524288;
+float WAIT_GROUND			= 262144;
+float STUCK_PATH			= 524288;
 float AIR_ACCELERATION		= 1048576;
-float NO_DODGE			= 2097152;
+float NO_DODGE				= 2097152;
 
 // editing modes used in waypoint tool
 float DISCONNECT_MARKERS	= 1048576;
@@ -1625,14 +1625,17 @@ float CLEAR_PATH_MODES		= 2097152;
 
 // combinations/inverted for convenience & efficiency;
 // inverses are subtracted from 16777215 (all 24 bits set to 1)
-float NOT_JUMP_LEDGE			= 16776191;
+float NOT_JUMP_LEDGE		= 16776191;
 float DELIBERATE_AIR_WAIT_GROUND	= 393216;
-// inverse of path states related to being airborne:
-// DELIBERATE_AIR_WAIT_GROUND + ROCKET_JUMP + AIR_ACCELERATION
+float AIR_PATH_MODES		= 1441792;  // DELIBERATE_AIR_WAIT_GROUND + AIR_ACCELERATION
+// Inverse of path states related to being airborne: -(AIR_PATH_MODES)
 // Don't clear JUMP states, because bots may need to jump multiple times
 //   to touch the next marker if the first jump did not succeed.
-float REACHED_GROUND			= 15334911;
-float AIR_PATH_MODES		= 1441792;  // DELIBERATE_AIR_WAIT_GROUND + AIR_ACCELERATION
+float REACHED_GROUND		= 15335423;
+// Same for being airborne from rocket jumping:
+// -(AIR_PATH_MODES + ROCKET_JUMP + PRECISE_JUMP + SLOW_DOWN)
+// Here we must clear modes used in combo RJ paths as well.
+float REACHED_GROUND_RJ		= 15332735;
 float SLOW_PRECISE			= 2176;
 float SLOW_PRECISE_NARROW	= 2208;
 

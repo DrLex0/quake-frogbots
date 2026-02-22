@@ -180,10 +180,10 @@ void() ThinkTime =
 		if (self.flags & FL_ONGROUND)
 		{
 			// Bot has landed. Clear path states associated with being in the air.
-			self.path_state = self.path_state & REACHED_GROUND;
-			// This includes clearing ROCKET_JUMP, which is important for accurate RJ:
-			// if not cleared, and bot lands before touching another marker, it would
-			// want to run back to the jump spot.
+			if (self.path_state & ROCKET_JUMP)  // see comment in a_rocketjump
+				self.path_state = self.path_state & REACHED_GROUND_RJ;
+			else
+				self.path_state = self.path_state & REACHED_GROUND;
 		}
 
 	//	assertion: self.touch_marker != world

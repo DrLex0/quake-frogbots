@@ -41,6 +41,14 @@ Dynamic path cost hocus-pocus. Restore traveltime for paths if:
 - path goes through lava and the bot has pentagram.
 Basically this must be invoked after every .sub_arrival_time() call.
 See TravelTime() for more information.
+
+NOTE: in practice the multi-segment case will very rarely occur due to
+paths with penalties already having been discarded by the Bellman-Ford
+pre-calculations in favor of non-penalty paths. This is also why the bot
+will always choose a penalty-free path to a goal if there is one, even
+when there is a much shorter path, but with a penalty along the way.
+Only if there is a single path towards the goal with for instance 2 RJs
+on it, will a penalty of 2000 be removed here.
 ============
 */
 void() AdjustTravelPenalties =

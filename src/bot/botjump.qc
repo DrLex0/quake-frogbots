@@ -294,8 +294,10 @@ void() a_rocketjump =
 		return;
 	if (self.path_state & WAIT_GROUND)
 	{
-		// Bot has landed. Clear air-related states, including RJ
-		self.path_state = self.path_state & REACHED_GROUND;
+		// Bot has landed. Clear air-related states, including RJ and jump/slow combos
+		// to ensure the bot will not attempt to re-initiate one of those path modes
+		// in the time between now and touching the destination marker.
+		self.path_state = self.path_state & REACHED_GROUND_RJ;
 		return;
 	}
 	if (self.path_from_marker.look_here)
