@@ -1638,11 +1638,10 @@ void() ImpulseCommands =
 		else if (impulse_ <= IMP_END2)
 		{
 			// DrLex says: who created this damn mess?
-			// I don't know the purpose of the spawnflags thing. Best guess at this time:
-			// - Clan Arena mode was shoehorned into this mod from some other mod
-			// - it had its own client handling that relies on these spawnflags
-			// - instead of adapting it, it was just placed next to the existing FB logic
-			// - and now we have this mess
+			// I don't know the purpose of the spawnflags thing. Best guess version 2:
+			// - There is a way to spawn bots with specific parameters by first sending
+			//   a sequence of specific impulses, but totally unclear what sequence.
+			// - Not used at all in the normal flow. Seems overly complicated and unneeded.
 			if (impulse_ <= IMP_END1)
 				self.spawnflags = impulse_ - IMP_START1 + START_SKILL;
 			else

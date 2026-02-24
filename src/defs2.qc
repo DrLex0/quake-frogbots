@@ -7,13 +7,22 @@
 	Copyright (C) 2000-2001 DMSouL
 	Copyright (C) 2000-2007 ParboiL
 	Updates by DrLex 2026
+
+	Note: fancy string formatting relies on a FTEQCC string lexer feature
+	that might not be widely known:
+	- Implemented in qcc_pr_lex.c, QCC_PR_LexEscapedCodepoint:
+	- \s or \b toggle colored text (within this string)
+	- \0 to \9 represent yellow/gold colored numbers
+	- Other symbols available like middle dot \. etc.
+	- Strings are transformed at compile time
+	- Advantage: readable source code and avoids character encoding problems
+	- Disadvantage: compiler-specific (but does anyone use other compilers anymore?)
 */
 
 #include "settings.h"
 
 string FROGBOT_VERSION_STRING = "2.0b2";
-// numbers shifted by 98 positions to make them "gold", the rest by 128
-string FROGBOT_VERSION_FANCY = "”®’β”";
+string FROGBOT_VERSION_FANCY = "\s\2.\0b\2";
 
 void() SightMarker;
 void() PlayerBreak;
@@ -138,17 +147,19 @@ float BETTER_THAN_BOOMSTICK = IT_NAILGUN | IT_SUPER_SHOTGUN | IT_GRENADE_LAUNCHE
 
 void() SprintVersion =
 {
-	sprint_fb(self, 2, "\nΖςοηβοτ φεςσιοξ: ");  // Frogbot version:
+	sprint_fb(self, 2, "\n\sFrogbot version\s: ");
 	sprint_fb(self, 2, FROGBOT_VERSION_STRING);
-	sprint_fb(self, 2, "\nΔατε οζ ςεμεασε: Feb 22 2026\n");  // Date of release:
-	sprint_fb(self, 2, "Αυτθος οζ νοδ: DrLex\n");  // Author of mod:
-	sprint_fb(self, 2, "Νοςε ιξζο: github.com/DrLex0/quake-frogbots\n\n");  // More info:
-	sprint_fb(self, 2, "Type \"γονναξδσ\" for help\n");  // Type "commands" for help
+	sprint_fb(self, 2, "\n\sDate of release\s: Feb 22 2026\n");
+	sprint_fb(self, 2, "\sAuthor of mod\s: DrLex\n");
+	sprint_fb(self, 2, "\sMore info\s: github.com/DrLex0/quake-frogbots\n\n");
+	sprint_fb(self, 2, "Type \"\scommands\s\" for help\n");
 };
 
 void() VersionInfo =
 {
-	localcmd("serverinfo mod_version 1.01kt\n");
+	localcmd("serverinfo mod_version ");
+	localcmd(FROGBOT_VERSION_STRING);
+	localcmd("\n");
 };
 
 string (float g) GetTeamName =
@@ -280,16 +291,16 @@ float(float fw, float fh) rndm =
 
 string(float n) gNum =
 {
-	if (n == 0) return "’";
-	else if (n == 1) return "“";
-	else if (n == 2) return "”";
-	else if (n == 3) return "•";
-	else if (n == 4) return "–";
-	else if (n == 5) return "—";
-	else if (n == 6) return "";
-	else if (n == 7) return "™";
-	else if (n == 8) return "";
-	else return "›";
+	if (n == 0) return "\0";
+	else if (n == 1) return "\1";
+	else if (n == 2) return "\2";
+	else if (n == 3) return "\3";
+	else if (n == 4) return "\4";
+	else if (n == 5) return "\5";
+	else if (n == 6) return "\6";
+	else if (n == 7) return "\7";
+	else if (n == 8) return "\8";
+	else return "\9";
 };
 
 void (float lev, float f) bprint_g = 
@@ -303,7 +314,7 @@ void (float lev, float f) bprint_g =
 	f = floor(f);
 	if (f < 0) {
 		f = f * -1;
-		bprint_fb(lev, "­");
+		bprint_fb(lev, "\s-");
 	}
 	n = rint(f);
 	d = floor(n / 100);
@@ -333,7 +344,7 @@ void (entity who, float lev, float f) sprint_g =
 	f = floor(f);
 	if (f < 0) {
 		f = f * -1;
-		sprint_fb(who, lev, "­");
+		sprint_fb(who, lev, "\s-");
 	}
 	n = rint(f);
 	d = floor(n / 100);
