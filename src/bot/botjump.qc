@@ -18,6 +18,7 @@ float(float a) anglemod;
 float(entity me) near_teammate;
 void() MarkerUnTouch;
 void(float force) CheckAccurateRunUp;
+void(float finalize) CheckWallStrafe;
 
 
 // Moving in right direction to rocket-jump or precise jump?
@@ -398,10 +399,23 @@ float() WallStrafeJumpLogic =
 			NewVelocityForArrow();
 			return TRUE;
 		}
+		// Give higher skill bots a better chance at the trickiest jumps
+		if (self.bot_skill > 4)
+		{
+			makevectors(self.v_angle);
+			if (self.wallstrafe_vec * v_forward < 0.998)  // yes, the angle matters that much
+			{
+				if (self.wallstrafe_vec * self.velocity < 0.75)
+					self.velocity_x = self.velocity_y = 0;
+				self.arrow = 0;
+				return TRUE;
+			}
+		}
+
 		// homed in: start actual wall strafe, refresh deadline
 		self.path_state = self.path_state - NARROW_PATH;
-		self.wallstrafe_deadline = time + 3;
-		self.arrow = self.wallstrafe_key;
+		touch_marker_ = self.path_from_marker;
+		CheckWallStrafe(TRUE);
 	}
 
 	if (vlen(self.run_up_point - origin_) > 24)
@@ -412,9 +426,7 @@ float() WallStrafeJumpLogic =
 #endif
 	self.touch_marker = linked_marker_;
 	self.sticky_touch = TRUE;
-	self.wallstrafe_vec = self.velocity;  // see PlayerPreThink_apply
 	self.wallstrafe_jump = 1;
-	self.wallstrafe_key = 0;
 	self.button2_ = 1;
 	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 	return TRUE;

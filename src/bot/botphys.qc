@@ -253,7 +253,9 @@ void() VelocityForArrow =
 			else	// (arrow_ == FORWARD_RIGHT)
 				dir_forward = (v_forward * 0.7525767) + (v_right * 0.6585046);
 
-			if (self.wallstrafe_key)
+			// Slightly ugly hack to make wall strafing for bots similar to players.
+			// Only when actually strafing, otherwise it would be a mild speedhack.
+			if (self.wallstrafe_key > FORWARD)
 				current_maxspeed = sv_maxspeed * 1.07;
 			else
 				current_maxspeed = sv_maxspeed;
@@ -267,10 +269,7 @@ void() VelocityForArrow =
 			else	// (arrow_ == BACK_RIGHT)
 				dir_forward = (v_right * 0.6585046) - (v_forward * 0.7525767);
 
-			if (self.wallstrafe_key)
-				current_maxspeed = sv_maxspeed * 1.07;
-			else
-				current_maxspeed = sv_maxspeed;
+			current_maxspeed = sv_maxspeed;
 		}
 		else
 		{
@@ -332,22 +331,58 @@ void() VelocityForArrow =
 #ifdef QUAKE
 /*
 ============
-DoubleFriction
+TestEdgeFriction
 
+`SV_UserFriction` in QUAKE, and `PM_Friction` in QW, will apply extra friction
+when the player approaches a gap. The motivation is likely to reduce risk of
+falling off the edge when letting go of the run key.
+This function mimics the same edge probing logic as QUAKE's C code.
+
+That's the simple explanation. When continuing to stare at the Id source code
+for hours, and performing experiments involving thousands of lines of console
+debug spam, the following additional insights about this rabbit hole emerge.
+
+Both QUAKE and QW have this "edge friction" mechanism. Their implementations
+seem identical at first glance, but they are not.
+- QUAKE will perform a trace in front of the player, but will do this on
+  original unmodified geometry because it passes a single point as 'mins' and
+  'maxs' parameters in SV_Move.
+- QW does the same trace, but uses PM_PlayerMove, which will actually set 'mins'
+  and 'maxs' to the player's bounding box to inflate the clipping hull.
+The result is that the trace in QW actually sees a geometry with smaller holes
+than QUAKE, and the edge friction will engage much later.
+
+Whoever implemented the original Frogbot code either was not aware of these
+details, or did know about it and decided to simplify it, and pretend there is
+no edge friction at all in QW. This is why in the Frogbot code:
+- #ifndef QUAKE, there is no edge probing at all;
+- effort is being done to undo edge friction applied by the engine when
+  qwphysics is enabled in QUAKE.
+
+Since QuakeC traceline lacks support to perform the same hull-based trace as QW
+uses, only crude approximations would be possible, and indeed the edge friction
+effect in QW is much more subtle, and we care much less about it for bot
+movement. Hence I have decided to preserve my sanity and stick to pretending
+there is no edge friction in QW, and there is also no attempt at re-applying
+QW-style edge friction when qwphysics is enabled. This means it causes a bit of
+extra risk of falling off edges for players, but as a bonus, wall strafe jumps
+will not suffer from any velocity degradation.
 ============
 */
-float() DoubleFriction =
+float() TestEdgeFriction =
 {
 	if (self.waterlevel <= 1)
+	if (self.flags & FL_ONGROUND)
 	{
-		if (self.flags & FL_ONGROUND)
-		{
-			if (!(checkbottom(self)))
-			{
-				test_point = self.origin + '0 0 -25' + normalize(self.postvelocity) * 16;
-				return (pointcontents(test_point) != CONTENT_SOLID);
-			}
-		}
+		// Same test as in SV_UserFriction
+		hor_velocity = self.postvelocity;
+		hor_velocity_z = 0;
+		if (vlen(hor_velocity) < 1) return FALSE;
+		start = self.origin + normalize(hor_velocity) * 16;
+		start_z = self.origin_z + self.mins_z;
+		end = start - '0 0 34';
+		traceline (start, end, TRUE, self);
+		return (trace_fraction == 1);
 	}
 	return FALSE;
 };
@@ -367,15 +402,13 @@ void() DoFriction =
 		hor_velocity_z = 0;
 		hor_speed = vlen(hor_velocity);
 
-		// sv_stopspeed = 100
-
 	#ifdef QUAKE
-		if (hor_speed > 100)
+		if (hor_speed > sv_stopspeed)
 		{
-			if (double_friction)
+			if (use_edge_friction)
 			{
-				self.velocity_x = self.velocity_x * inv_sv_friction_frametime_2;
-				self.velocity_y = self.velocity_y * inv_sv_friction_frametime_2;
+				self.velocity_x = self.velocity_x * inv_sv_friction_frametime_edge;
+				self.velocity_y = self.velocity_y * inv_sv_friction_frametime_edge;
 				return;
 			}
 			else
@@ -387,15 +420,15 @@ void() DoFriction =
 		}
 		else
 		{
-			if (double_friction)
+			if (use_edge_friction)
 			{
-				friction_factor = (1 - (sv_friction_frametime_200 / hor_speed));
+				friction_factor = (1 - (sv_friction_frametime_estop / hor_speed));
 				if (friction_factor < 0)
 					friction_factor = 0;
 			}
 			else
 			{
-				friction_factor = (1 - (sv_friction_frametime_100 / hor_speed));
+				friction_factor = (1 - (sv_friction_frametime_stop / hor_speed));
 				if (friction_factor < 0)
 					friction_factor = 0;
 			}
@@ -405,7 +438,7 @@ void() DoFriction =
 			return;
 		}
 	#else
-		if (hor_speed > 100)
+		if (hor_speed > sv_stopspeed)
 		{
 			self.velocity_x = self.velocity_x * inv_sv_friction_frametime;
 			self.velocity_y = self.velocity_y * inv_sv_friction_frametime;
@@ -413,7 +446,7 @@ void() DoFriction =
 		}
 		else
 		{
-			friction_factor = (1 - (sv_friction_frametime_100 / hor_speed));
+			friction_factor = (1 - (sv_friction_frametime_stop / hor_speed));
 			if (friction_factor < 0)
 				friction_factor = 0;
 
@@ -435,9 +468,9 @@ void() ApplyFriction =
 {
 #ifdef QUAKE
 	if (game_qwphysics)
-		double_friction = FALSE;
+		use_edge_friction = FALSE;
 	else
-		double_friction = DoubleFriction();
+		use_edge_friction = TestEdgeFriction();
 #endif
 
 	if (self.flags & FL_WATERJUMP)
@@ -530,19 +563,21 @@ void() FrogbotPrePhysics1 =
 			if (self.movetype == MOVETYPE_STEP)
 				ApplyFriction();
 		#ifdef QUAKE
-			else if (self.player)
+			else if (self.player)  // Player that has become frogbot
 			{
 				self.v_angle = self.stored_angle;
 				if (game_qwphysics)
+				if (self.waterlevel <= 1)
 				{
-					if (self.waterlevel <= 1)
+					// QW has much less noticeable edge friction. Pretend it has none when
+					// emulating qwphysics: undo edge friction already applied by the engine.
+					if (TestEdgeFriction())
 					{
-						if (DoubleFriction())
-						{
-							self.velocity = self.postvelocity;
-							double_friction = FALSE;
-							DoFriction();
-						}
+						// Acceleration will be applied later to the botified player. Only need
+						// to repeat what SV_UserFriction did, but then with regular friction.
+						self.velocity = self.postvelocity;
+						use_edge_friction = FALSE;
+						DoFriction();
 					}
 				}
 			}
@@ -560,25 +595,31 @@ void() FrogbotPrePhysics1 =
 		else
 		{
 			if (game_qwphysics)
+			if (self.waterlevel <= 1)
 			{
-				if (self.waterlevel <= 1)
+				// Same as above, but now we must consider acceleration from user input as well
+				if (TestEdgeFriction())
 				{
-					if (DoubleFriction())
-					{
-						arrow_velocity = self.velocity;
+					// Current total velocity = last frame's velocity, with:
+					// - edge friction applied by SV_UserFriction: need to undo this
+					// - acceleration added by SV_Accelerate: need to preserve this
+					arrow_velocity = self.velocity;
 
-						self.velocity = self.postvelocity;
-						double_friction = TRUE;
-						DoFriction();
+					// Repeat friction calculation from SV_UserFriction
+					self.velocity = self.postvelocity;
+					use_edge_friction = TRUE;
+					DoFriction();
 
-						arrow_velocity = arrow_velocity - self.velocity;
+					// Subtract, now arrow_velocity == only what SV_Accelerate added
+					arrow_velocity = arrow_velocity - self.velocity;
 
-						self.velocity = self.postvelocity;
-						double_friction = FALSE;
-						DoFriction();
+					// Re-apply regular friction
+					self.velocity = self.postvelocity;
+					use_edge_friction = FALSE;
+					DoFriction();
 
-						self.velocity = self.velocity + arrow_velocity;
-					}
+					// Re-add acceleration, now velocity better approximates QW
+					self.velocity = self.velocity + arrow_velocity;
 				}
 			}
 		}

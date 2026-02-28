@@ -689,36 +689,52 @@ void(float force) CheckAccurateRunUp =
 ============
 CheckWallStrafe
 
-When entering a WALL_STRAFE path, set up parameters to make the
-bot strafe run against the nearest wall at optimal angle for
-maximal speed boost.
+When entering a WALL_STRAFE path, set up parameters to make the bot strafe run
+against the nearest wall at optimal angle for maximal speed boost.
+self.wallstrafe_key serves as indicator that the bot is initiating or 
+performing a wall strafe.
 
-Wall strafing is actually one of the most complex things to set up; in theory
-it may be possible to calculate everything, but the implementation for the bots
-here is based mostly on experiments and trial & error.
+Setting final to TRUE will always set the final WS parameters, otherwise it may
+set intermediate parameters if NARROW_PATH is also active.
+
+Wall strafing is probably the most complex physics exploit in QUAKE due to all
+parameters and subtleties involved. In theory it may be possible to calculate
+everything, but in practice this is madness. The implementation for the bots is
+based mostly on experiments and trial & error. It is all fuzzy and inaccurate,
+bots may have an advantage or disadvantage depending on the particular jump, but
+in general it should be fair.
+
 As player, the optimal angle at which to wall strafe depends on one's
 cl_forwardspeed and possibly also cl_sidespeed, because it affects the wishdir.
 For the bots, current_maxspeed sort of takes the role of cl_forwardspeed, but
 there is an important difference: somehow the max horizontal speed a player can
 obtain through WS is limited:
-- in QUAKE, I haven't managed to measure more than 460u/s;
+- in QUAKE, I haven't managed to measure much more than 460u/s;
 - in QW I can achieve 480u/s.
 But, for bots, higher c_maxspeed values can lead to arbitrarily high velocities,
 therefore a speed cap is imposed in FrogbotPostPhysics1.
 The parameters, like the actual current_maxspeed being used and the yaw, have
 been tuned to produce similar velocities as players for a few test jumps.
-It is all still a bit fuzzy and inaccurate, hence bots may have an advantage or
-disadvantage compared to players for certain jumps.
-At any rate, enabling qwphysics in QUAKE is recommended to avoid losing precious
-velocity while making the actual jump.
+
+To make things even more complicated, the speed boost also depends on current
+speed, which is why there is extra logic to get the most out of a NARROW_PATH.
+And there's more! See TestEdgeFriction in botphys.qc for a whole essay on edge
+friction, which has the counter-intuitive effect that it is better to jump early
+when approaching the ledge, than to try to minimize distance by jumping as late
+as possible, because doing so will degrade the wall-strafe velocity boost. No
+attempt has been done to make bots aware of this. As for waypoints, placing the
+jump spot marker right on the ledge's edge is usually optimal.
 ============
 */
-void() CheckWallStrafe =
+void(float finalize) CheckWallStrafe =
 {
-	if (! (new_path_state & WALL_STRAFE))
-		return;
-	if (self.wallstrafe_key)
-		return;
+	if (!finalize)
+	{
+		if (! (new_path_state & WALL_STRAFE))
+			return;
+		if (self.wallstrafe_key)
+			return;
+	}
 	local vector angles, probe_pt;
 	// Assume the path vector is parallel to the wall
 	self.run_up_point = linked_marker_.absmin + linked_marker_.view_ofs;
@@ -728,9 +744,19 @@ void() CheckWallStrafe =
 	makevectors(angles);
 	// Check whether nearest wall is to the left or right. This could be
 	// precomputed, but only has to happen very sporadically anyway.
+	// Probe slightly ahead to allow for extreme cases.
+	probe_pt = probe_pt + 8 * normalize(dir_move);
 	traceline(probe_pt, probe_pt + (64 * v_right), TRUE, self);
 	local float frac_right = trace_fraction;
 	traceline(probe_pt, probe_pt - (64 * v_right), TRUE, self);
+
+	local float ws_yaw = WALLSTRAFE_YAW;
+	// For WSJ + NARROW where one needs to get the most out of a short wall
+	// segment, experiments show it to be better to first yaw slightly away
+	// from the wall and gain some speed before yawing into the wall.
+	if (!finalize)
+	if (self.bot_skill > 4)  // of course only for higher skill bots
+	if (new_path_state & NARROW_PATH) ws_yaw = -8;
 
 	if (frac_right + trace_fraction >= 2)
 	{
@@ -739,18 +765,27 @@ void() CheckWallStrafe =
 	else if (trace_fraction < frac_right)
 	{
 		self.wallstrafe_key = FORWARD_LEFT;
-		angles_y = angles_y + WALLSTRAFE_YAW;
+		angles_y = angles_y + ws_yaw;
 	}
 	else
 	{
 		self.wallstrafe_key = FORWARD_RIGHT;
-		angles_y = angles_y - WALLSTRAFE_YAW;
+		angles_y = angles_y - ws_yaw;
 	}
 	// Don't keep pitch even when the path is sloped, it degrades max speed
 	angles_x = angles_z = 0;
 	makevectors(angles);
 	self.wallstrafe_vec = v_forward;
 	self.wallstrafe_deadline = time + 3;
+
+	if (!finalize)
+	if (new_path_state & NARROW_PATH)
+	{
+		// Setting NP on a WS path will postpone actual wall strafing until the
+		// bot is confirmed to be aligned with the start of the path.
+		self.wallstrafe_key = FORWARD;
+		return;
+	}
 
 	// Cap wallstrafe velocity to mimic real players. Absolute max is
 	// compromise between QUAKE and QW observed practical limits.
@@ -764,10 +799,6 @@ void() CheckWallStrafe =
 	self.max_wallstrafespeed = sv_maxspeed * (1 + 0.47 * (1 - ws_max_err));
 	dprint("Using ws_max_err ", ftos(100*ws_max_err), "% for max WS speed ", ftos(self.max_wallstrafespeed), "\n"); //DEBUG
 
-	// Setting NP on a WS path will postpone activation until the
-	// bot is confirmed to be near enough the start of the path.
-	if (new_path_state & NARROW_PATH)
-		return;
 	// Apply the new key immediately. Otherwise it could take several more
 	// frames before BestArrowForDirection first sets it, and this can cause
 	// problems in borderline cases.
@@ -1277,7 +1308,7 @@ void() frogbot_marker_touch =
 	// Air strafing is a skill, hence add skill-dependent error
 	self.airstrafe_inaccuracy = (random() - 0.5) * 144 * self.bot_inaccuracy;
 	CheckAccurateRunUp(FALSE);
-	CheckWallStrafe();
+	CheckWallStrafe(FALSE);
 	SetExclusive();
 
 	if (touch_marker_ == linked_marker_)

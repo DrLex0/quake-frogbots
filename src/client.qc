@@ -1176,17 +1176,17 @@ void() PlayerPreThink_apply =
 						msg_entity = self;
 						sound (CHAN_BODY, "player/plyrjmp8.wav", 1, ATTN_NORM);
 
-					// In QW, friction stops as soon as player jumps. In QUAKE, it it still
-					// applied once in between pressing button2 and becoming airborne.
-					// For wall strafing bots, restore their pre-friction ground velocity
-					// when QW physics are in effect.
+					// It is crucial to clear wallstrafe parameters only at this point,
+					// otherwise the strafe speed boost would no longer be applied in
+					// this frame, leading to significant speed loss
 						if (self.wallstrafe_jump)
 						{
-					#ifdef QUAKE
-							if (game_qwphysics)
-					#endif
-							self.velocity = self.wallstrafe_vec;
+							// Leaving the strafe key pressed may cause deviation in
+							// the air, which may matter for the trickiest jumps
+							if (self.bot_skill > 4)
+								self.arrow = FORWARD;
 							self.wallstrafe_jump = 0;
+							self.wallstrafe_key = 0;
 						}
 
 					#ifndef QUAKE
@@ -1332,6 +1332,8 @@ void() PlayerPostThink_apply =
 #endif
 
 #ifdef QUAKE
+	// Store final velocity for this frame. May be needed in next frame to
+	// apply edge friction (for bots) or undo it (for players, if qwphysics).
 	self.postvelocity = self.velocity;
 #endif
 

@@ -401,11 +401,11 @@ void() StartFrame =
 	max_accel_forward = sv_accelerate_frametime * sv_maxspeed;
 	sv_friction_frametime = sv_friction * frametime;
 	inv_sv_friction_frametime = 1 - sv_friction_frametime;
-	sv_friction_frametime_100 = sv_friction_frametime * 100;	// sv_stopspeed = 100
+	sv_friction_frametime_stop = sv_friction_frametime * sv_stopspeed;
 
 #ifdef QUAKE
-	inv_sv_friction_frametime_2 = 1 - sv_friction_frametime * 2;
-	sv_friction_frametime_200 = sv_friction_frametime * 200;
+	inv_sv_friction_frametime_edge = 1 - sv_friction_frametime * sv_edgefriction;
+	sv_friction_frametime_estop = sv_friction_frametime_stop * sv_edgefriction;
 #endif
 
 	mouse_friction = 5400 * frametime;

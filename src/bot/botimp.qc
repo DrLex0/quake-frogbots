@@ -275,6 +275,11 @@ void() InitParameters =
 
 	sv_accelerate = cvar("sv_accelerate");
 	sv_friction = cvar("sv_friction");
+	sv_stopspeed = cvar("sv_stopspeed");
+#ifdef QUAKE
+	sv_edgefriction = cvar("edgefriction");
+	if (!sv_edgefriction) sv_edgefriction = 2;
+#endif
 
 	numberofbots = -1;
 

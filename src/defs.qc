@@ -1199,9 +1199,8 @@ float(float a) floor =
 };
 float(float v) ceil					= #38;		// smallest integer >= v
 // #39 was removed
-#ifdef QUAKE
-float(entity e) checkbottom			= #40;		// true if e is on ground
-#endif
+// true if e is on ground; actually rather complicated and expensive operation
+//float(entity e) checkbottom			= #40;
 float(vector v) pointcontents		= #41;		// returns a CONTENT_*
 // #42 was removed
 float(float f) fabs = #43;
@@ -1658,7 +1657,7 @@ float WALLSTRAFE_YAW = 15.46875;
 .float max_wallstrafespeed;
 .float wallstrafe_deadline;
 .float wallstrafe_jump;
-.vector wallstrafe_vec;  // either look angle, or velocity at moment of jump
+.vector wallstrafe_vec;  // look direction during the strafe
 
 // runaway markers
 .entity RA0, RA1, RA2, RA3, RA4, RA5, RA6, RA7;
@@ -2169,11 +2168,9 @@ float impulse_;
 
 float time_start;
 float framecount_start;
-#ifndef QUAKE  // QUAKE uses frametime sys global
-float real_frametime;
-#endif
 float sv_accelerate;
 float sv_maxfriction;
+float sv_stopspeed;
 float sv_accelerate_frametime;
 float timelimit;
 float fraglimit;
@@ -2191,14 +2188,20 @@ float quad_factor;
 float sv_friction;
 float sv_friction_frametime;
 float inv_sv_friction_frametime;
-float sv_friction_frametime_100;
+float sv_friction_frametime_stop;
 float friction_factor;
 
 #ifdef QUAKE
-float inv_sv_friction_frametime_2;
-float sv_friction_frametime_200;
-float double_friction;
+float host_framerate;
+float use_edge_friction;
+float sv_edgefriction;
+float inv_sv_friction_frametime_edge;
+float sv_friction_frametime_estop;
+vector arrow_velocity;	// arrow key input velocity
+
 #else
+// QUAKE uses frametime sys global
+float real_frametime;
 float old_time;
 #endif
 
@@ -2395,12 +2398,7 @@ float	multi_damage;
 
 vector blood_org;
 
-#ifdef QUAKE
-vector test_point;
-vector arrow_velocity;	// arrow key input velocity
-
-float host_framerate;
-#else
+#ifndef QUAKE
 float blood_count;
 vector puff_org;
 float puff_count;
@@ -2562,7 +2560,7 @@ float enemy_time_squared;
 float bad_ent_detected;
 
 //===========================================================================
-// Embedded waypoint data in BSPs  -- DrLex
+// Embedded waypoint data in .ent or BSPs  -- DrLex
 float has_embedded_wp;
 
 // world

@@ -655,7 +655,7 @@ Waypoints can be set up to rely on this trick by setting _wall strafe jump_ path
 
 Some hints to improve chances of this working:
 - The path must be parallel to the wall. The simplest way to ensure this, is to place both markers right against the wall.
-- Place the end marker right on the edge from where to jump, to maximize the distance that can be bridged. This marker should only have 1 incoming and 1 outgoing path, and should be made _exclusive_ if there is any risk of touching it while not wall strafing.
+- Place the end marker right on the edge from where to jump. (A lot of subtleties are involved, read comments in the source code to know more, but just trust me that the edge is usually the optimal spot.) This marker should only have 1 incoming and 1 outgoing path, and should be made _exclusive_ if there is any risk of touching it while not wall strafing.
 - If the available wall segment is short, also assign `narrow` mode to the path to make the bot come closer to the start point and get the most from the limited space.
 - It may also help to set _focused path mode_ on the path leading to the start marker, to ensure the bot is already looking mostly in the right direction at the start of the path. Slow path mode may help to give the bot more time to adjust its aim.
 
@@ -663,10 +663,9 @@ Look at `catalyst` (jump towards mega health) for an example.
 
 Bots at lower skill levels will execute this procedure more sloppily and have a higher risk of the jump failing.
 
-If no wall can be probed nearby the starting point of the path, the bot will run straight along the path and jump at the end, without speed boost. This could be an alternative for tricky jumps if there is not enough room for the bot to prepare for a precision jump.
+If no wall can be probed nearby the starting point of the path, the bot will run straight along the path and jump at the end, without speed boost. This could be an alternative for using a precise jump if there is not enough room for the bot to prepare for the jump.
 
-Note that this feature does not behave exactly the same as for real players. Bots may be able to achieve slightly higher or lower speed boosts depending on the situation, and there are some subtle differences between Quake and QuakeWorld engines as well.
-
+Note that this feature does not behave exactly the same as for real players. Bots may be able to achieve slightly higher or lower speed boosts depending on the situation, and there are differences between Quake and QuakeWorld engines as well. These jumps will usually be harder in NetQuake engines, unless `qwphysics` is enabled (which as the name implies, approximates QW physics handling).
 
 ### Air-turning precise jump
 
