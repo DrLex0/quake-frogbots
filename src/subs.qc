@@ -27,6 +27,11 @@ void() SetMovedir =
 		self.movedir = '0 0 1';
 	else if (self.angles == '0 -2 0')
 		self.movedir = '0 0 -1';
+	else if(anglemod(self.angles_x) == -90)
+		// Work around yet another bug in some engines like vkQuake: bypass makevectors
+		// because feeding it this pitch will result in a v_forward that seems correct,
+		// but is somehow corrupted and causes the player to remain stuck on the floor.
+		self.movedir = '0 0 1';
 	else
 	{
 		makevectors (self.angles);

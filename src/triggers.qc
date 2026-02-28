@@ -668,15 +668,6 @@ void() trigger_push_touch =
 	{
 		if (other.takedamage)
 		{
-#ifdef QUAKE
-			// Very thin triggers do not push the player up as much in Quake as in QW.
-			// Unclear what is the truly correct way to fix this; this workaround has
-			// been tweaked with `monsoon` and a test map. It might not provide the
-			// same results for other maps or if frame rate is not 77.
-			if (self.maxs_z - self.mins_z < 5)
-				other.velocity = other.oldvelocity = self.speed * self.movedir * 10.55;
-			else
-#endif
 			other.velocity = other.oldvelocity = self.speed * self.movedir * 10;
 			if (other.fly_sound < time)
 			{
@@ -707,6 +698,19 @@ void() trigger_push =
 	else
 	{
 		InitTrigger ();
+#ifdef QUAKE
+		// Very thin triggers do not push the player up as much in Quake as in QW.
+		// Unclear why; the touch function does set an instant fixed velocity vector,
+		// but velocity degrades considerably if not applied for long enough.
+		// Apparently QUAKE is more aggressive in applying gravity. Workaround: enforce
+		// minimum height. Must happen after setmodel(), because it also sets size.
+		if (self.maxs_z - self.mins_z < 16)
+		{
+			local vector new_maxs = self.maxs;
+			new_maxs_z = self.mins_z + 16;
+			setsize(self, self.mins, new_maxs);
+		}
+#endif
 		precache_sound ("ambience/windfly.wav");
 		self.touch = trigger_push_touch;
 		if (!self.speed)
