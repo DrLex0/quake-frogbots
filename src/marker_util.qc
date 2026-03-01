@@ -275,6 +275,7 @@ void() adjust_view_ofs_z =
 LocateMarker
 
 Bot disorientated / BackPacks.
+Also for detecting unreachable zones.
 ============
 */
 entity(vector org, float not_above) LocateMarker =
@@ -286,6 +287,7 @@ entity(vector org, float not_above) LocateMarker =
 	while (marker_)
 	{
 		if (marker_.fl_marker)
+		if (!(marker_.T & T_NOTOUCH))
 		{
 			marker_pos = marker_.absmin + marker_.view_ofs;
 			distance = vlen(marker_pos - org);

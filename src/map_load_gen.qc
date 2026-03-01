@@ -76,6 +76,7 @@
 #include "maps/trinca/map_pkeg2.qc"
 #include "maps/trinca/map_pro-dm4.qc"
 #include "maps/trinca/map_q3dm6qw.qc"
+#include "maps/trinca/map_qtourn2.qc"
 #include "maps/trinca/map_rwild.qc"
 #include "maps/trinca/map_schloss.qc"
 #include "maps/trinca/map_shadows.qc"
@@ -124,16 +125,16 @@ void() SprintMaps =
 	sprint_fb(self, 2, "       north        nova     oktest1\n");
 	sprint_fb(self, 2, "       pkeg1       pkeg2     povdmm4\n");
 	sprint_fb(self, 2, "     pro-dm4      prodm4     q3dm6qw\n");
-	sprint_fb(self, 2, "       rwild     schloss     shadows\n");
-	sprint_fb(self, 2, "       shady     shifter       shine\n");
-	sprint_fb(self, 2, "       skull     spinev2       start\n");
-	sprint_fb(self, 2, "    strmland         thf         tox\n");
-	sprint_fb(self, 2, "      tridm1      tridm2      tridm3\n");
-	sprint_fb(self, 2, "     trindm1     trindm2     trindm3\n");
-	sprint_fb(self, 2, "      ukpak2      ultrav    utressor\n");
-	sprint_fb(self, 2, "      ztndm1      ztndm2      ztndm3\n");
-	sprint_fb(self, 2, " ztndm3frost      ztndm4      ztndm5\n");
-	sprint_fb(self, 2, "      ztndm6\n");
+	sprint_fb(self, 2, "     qtourn2       rwild     schloss\n");
+	sprint_fb(self, 2, "     shadows       shady     shifter\n");
+	sprint_fb(self, 2, "       shine       skull     spinev2\n");
+	sprint_fb(self, 2, "       start    strmland         thf\n");
+	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
+	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
+	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
+	sprint_fb(self, 2, "    utressor      ztndm1      ztndm2\n");
+	sprint_fb(self, 2, "      ztndm3 ztndm3frost      ztndm4\n");
+	sprint_fb(self, 2, "      ztndm5      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -518,6 +519,11 @@ float() LoadWaypoints =
 		map_q3dm6qw();
 		return TRUE;
 	}
+	if (mapname == "qtourn2")
+	{
+		map_qtourn2();
+		return TRUE;
+	}
 	if (mapname == "rwild")
 	{
 		map_rwild();
@@ -810,6 +816,8 @@ string(string mname) MapHasWaypoints =
 		return "pro-dm4";
 	if (mname == "q3dm6qw")
 		return "q3dm6qw";
+	if (mname == "qtourn2")
+		return "qtourn2";
 	if (mname == "rwild")
 		return "rwild";
 	if (mname == "schloss")

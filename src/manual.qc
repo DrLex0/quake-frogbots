@@ -1079,7 +1079,11 @@ void() TeleportAutoConnect =
 		bprint("teleport trigger m", active_marker.index, " has no destination\n");
 		return;
 	}
+
+	local float save_mode = mode;
+	mode = mode | ONE_WAY;
 	ClearActiveMarker();
+	mode = save_mode;
 	active_marker.P0 = active_marker.enemy;
 	bprint("trigger_teleport m", ftos(active_marker.index), " connected to destination m", ftos(active_marker.enemy.index), "\n");
 };
