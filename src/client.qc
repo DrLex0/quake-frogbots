@@ -82,6 +82,7 @@ void() info_intermission = {};
 
 void() SetChangeParms =
 {
+	//parm1 available
 	parm2 = self.number_bots;
 	parm3 = self.bot_skill;
 	parm4 = self.teamcolor;
@@ -91,7 +92,6 @@ void() SetChangeParms =
 	parm8 = self.spawnbit1;
 	parm9 = self.preferences;
 #ifdef QUAKE
-	parm1 = self.flags & FL_CAMERA;
 	parm10 = self.spawn_skin;
 	parm11 = self.skin;
 	parm12 = self.msg_level_;
@@ -102,7 +102,7 @@ void() SetChangeParms =
 	parm12 = self.skin2;
 #endif
 
-//	parm13
+	parm13 = self.k_motd_seen;
 	parm15 = self.k_stuff;
 };
 
@@ -127,7 +127,7 @@ void() SetNewParms =
 	parm11 = 0;			//
 	parm12 = 0;			//
 #endif
-//	parm13
+	parm13 = 0;			// k_motd_seen
 	parm15 = 0;			// default aliases 0
 };
 
@@ -407,7 +407,7 @@ void() ClientKill =
 	{
 		if ((time < self.suicide_time + 5) && stof(infokey(world, "k_kfp"))) {
 			if (self.player)
-				sprint_fb(self, 2, "Ïîìù ïîå óõéãéäå éî µ óåãïîäó\n");
+				sprint_fb(self, 2, "\sOnly one suicide in 5 seconds\s\n");
 			return;
 		}
 		self.suicide_time = time;
@@ -605,9 +605,7 @@ void() PutClientInServer_apply =
 
 	self.v_angle = self.angles;
 
-#ifdef QUAKE
-	self.flags = self.flags & FL_CAMERA_QWPHYSICS;
-#else
+#ifndef QUAKE
 	self.flags = 0;
 #endif
 
@@ -866,14 +864,14 @@ void() NextLevel =
 				if (k_overtime == 1) {
 					// Ok its increase time
 					timelimit_user = timelimit_user + k_exttime;
-					bprint_fb(2, "");
+					bprint_fb(2, "\[");
 					bprint_g(2, k_exttime);
-					bprint_fb(2, "‘ minute");
+					bprint_fb(2, "\] minute");
 					if (k_exttime != 1) bprint_fb(2, "'s");
 					bprint_fb(2, " overtime follows\n");
 					return;
 				} else {
-					bprint_fb(2, "Sudden death ïöåòôéíå âåçéîó\n");
+					bprint_fb(2, "Sudden death \sovertime begins\s\n");
 					sudden_death = 1;
 					return;
 				}
@@ -1631,7 +1629,7 @@ void() PlayerPostThink =
 	if (self.takedamage)
 	{
 	#ifdef QUAKE
-		if ((self.frogbot) || (self.flags & FL_QWPHYSICS))
+		if ((self.frogbot) || game_qwphysics)
 			obstruction();
 	#endif
 
@@ -1647,11 +1645,9 @@ void() PlayerPostThink =
 		PlayerPostThink_apply();
 	}
 
-#ifndef ARENA
-	#ifdef MANUAL
+#ifdef MANUAL
 	if (manual_mode)
 		self.flags = self.flags | FL_ONGROUND;
-	#endif
 #endif
 };
 
@@ -1785,7 +1781,7 @@ void() ClientConnect =
 	self.team = stof(infokey(self, "bottomcolor")) + 1;
 #endif
 
-	self.flags = parm1;
+	self.flags = 0;
 	self.player = TRUE;
 	self.number_bots = parm2;
 	self.bot_skill = parm3;
@@ -1820,11 +1816,12 @@ void() ClientConnect =
 	self.skin2 = parm12;
 #endif
 
+	self.k_motd_seen = parm13;
 	self.k_stuff = parm15; 
 
 	if ((!game_not_match) && (match_in_progress || counting_down) && (lock))
 	{
-		sprint_fb(self, 2, "Íáôãè in progress, server locked.\n");
+		sprint_fb(self, 2, "\sMatch\s in progress, server locked.\n");
 		sprint_fb(self, 2, "Please reconnect as spectator.\n");
 		self.kick = 1;
 		stuffcmd_apply(self, "wait;wait;wait;wait;wait\n");
@@ -1834,11 +1831,6 @@ void() ClientConnect =
 	}
 
 	self.kick = 0;
-
-#ifdef QUAKE
-	if (game_qwphysics)
-		self.flags = self.flags | FL_QWPHYSICS;
-#endif
 
 // ParboiL
 	if (!game_arena) 

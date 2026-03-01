@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Extract and format Frogbot waypoint data dump from a console log file.
-2026-01/02, Alexander Thomas aka DrLex.
+2026-01/03, Alexander Thomas aka DrLex.
 
 Released under GPL license.
 """
@@ -52,7 +52,8 @@ def parse_waypoint_dump(content: str) -> tuple[str, str, str] | None:
     # Find all occurrences of waypoint dumps;
     # assume format as dumped from waypoint tool;
     # use non-greedy match for the code block, ending at };
-    pattern = r"void\(\)\s+map_(\S+) =[^{]*\{(.*?)\};\s*(/\*.*?\*/)?"
+    # allow for lacking '=' because FTEQCC doesn't mind.
+    pattern = r"void\(\)\s+map_(\S+)\s*=?[^{]*\{(.*?)\};\s*(/\*.*?\*/)?"
     matches = list(re.finditer(pattern, content, re.DOTALL))
 
     if not matches:
@@ -265,7 +266,7 @@ def check_existing_file(filepath: str, new_map_func: str) -> tuple[list[str], bo
     preceding_lines: list[str] = []
 
     # Find the void() map_... line
-    map_decl_pattern = re.compile(r"^void\(\)\s+(map_\S+)\s*=")
+    map_decl_pattern = re.compile(r"^void\(\)\s+(map_\S+)\s*=?")
     found_decl = False
     existing_func = ""
 

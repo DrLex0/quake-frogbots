@@ -12,6 +12,7 @@ void() PrintMOTD =
 {
 	local string s1, s2;
 	if (self.attack_finished < time || k_shutdown) {
+		self.owner.k_motd_seen = TRUE;
 		remove(self);
 		k_shutdown = 0;
 		return;
@@ -25,9 +26,10 @@ void() PrintMOTD =
 	if (s1 == "") s1 = string_null;
 	if (s2 == "") s2 = string_null;
 #endif
-	if (self.attack_finished > time + 6) centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\nÄÅÅÅÅÅÇ\n");
-	// Running Frogbot vVERS by DrLex\n\nbased on Fbca 1.01kt final by ParboiL\nbased on Kombat Teams 2.21
-	else centerprint(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\nÄÅÅÅÅÅÇ\n\nRunning ∆ÚÔÁ‚ÔÙ ˆ", FROGBOT_VERSION_FANCY, " by ƒÚÃÂ¯\n\nbased on ∆‚„· ìÆíìÎÙ final by –·ÚboiL\nbased on ÀÔÌ‚·Ù ‘Â·ÌÛ îÆîì\n");
+	if (self.attack_finished > time + 6)
+		centerprint5(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n\(\=\=\=\=\=\)\n");
+	else
+		centerprint(self.owner, "Welcome to\n\n", s1, "\n", s2, "\n\n\(\=\=\=\=\=\)\n\nRunning \sFrogbot v", FROGBOT_VERSION_FANCY, " by \sDrLex\s\n\nbased on \sFbca \1.\0\1kt\s final by \sPar\sboiL\nbased on \sKombat Teams \2.\2\1\n");
 	self.nextthink = time + 0.7;
 };
 #else
@@ -37,8 +39,7 @@ void() PrintMOTD =
 		remove(self);
 		return;
 	}
-	// Frogbot Waypoint Tool vVERS\nEnable manual mode to start editing
-	centerprint(self.owner, "Frogbot Waypoint Tool ˆ", FROGBOT_VERSION_FANCY, "\nEnable Ì·Óı·Ï ÌÔ‰Â to start editing\n\n\n");
+	centerprint(self.owner, "Frogbot Waypoint Tool \sv", FROGBOT_VERSION_FANCY, "\nEnable \smanual mode\s to start editing\n\n\n");
 	self.nextthink = time + 0.7;
 };
 #endif
@@ -51,5 +52,8 @@ void() MakeMOTD =
 	motd.owner = self;
 	motd.think = PrintMOTD;
 	motd.nextthink = time + 0.5;
-	motd.attack_finished = time + 7;
+	if (self.k_motd_seen)
+		motd.attack_finished = time + 2;
+	else
+		motd.attack_finished = time + 7;
 };

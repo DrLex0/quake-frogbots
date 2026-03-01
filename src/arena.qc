@@ -2278,7 +2278,7 @@ float() a_postthink =
 		track_next();
 	}
 #ifdef QUAKE
-	if (self.flags & FL_QWPHYSICS)
+	if (game_qwphysics)
 		obstruction();
 #endif
 	return 1;

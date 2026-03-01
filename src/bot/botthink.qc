@@ -600,6 +600,8 @@ void() SetFrogbotAngles =
 {
 	if (self.wallstrafe_key)
 	{
+		// hmm, TODO: should also consider self.enemy here, bots now ignore
+		// their enemies when initiating a wall strafe
 		rel_pos = self.wallstrafe_vec;
 		FrogTrackSimple();
 	}

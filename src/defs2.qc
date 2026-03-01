@@ -124,6 +124,7 @@ float a_rep;
 .float frogwatermove_time;
 .float kick;
 .float k_stuff;
+.float k_motd_seen;
 .float k_accepted;
 .float suicide_time;
 .float spawn_frag_time;

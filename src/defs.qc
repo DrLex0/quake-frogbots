@@ -491,14 +491,17 @@ void() null = {};
 // edict.flags
 float	FL_FLY				= 1;
 float	FL_SWIM				= 2;
+//float	FL_CLIENT			= 8;	// client edicts, cannot override this in QuakeC
 float	FL_INWATER				= 16;		// for enter / leave water splash
-//float	FL_GODMODE			= 64;		// player cheat
-//float	FL_NOTARGET			= 128;	// player cheat
+//float	FL_MONSTER			= 32;	// no monsters in this mod
+//float	FL_GODMODE			= 64;		// player cheat (not implemented here)
+//float	FL_NOTARGET			= 128;	// player cheat (not implemented here)
 float	FL_ITEM				= 256;	// extra wide size for bonus items
 float	FL_ONGROUND				= 512;	// standing on something
 float	FL_PARTIALGROUND			= 1024;	// not all corners are valid
 float	FL_WATERJUMP			= 2048;	// player jumping out of water
 float	FL_JUMPRELEASED			= 4096;	// for jump debouncing
+
 float	FL_BODYQUE			= 262144;
 
 // We need an extra flag because FL_WATERJUMP is cleared by hard-coded Quake logic
@@ -508,21 +511,19 @@ float	FL_BODYQUE			= 262144;
 float	FL_WATERJUMPED		= 16384;	// jumping out of water but not yet on ledge
 .float	waterjump_time;
 
-#ifdef QUAKE
-float FL_QWPHYSICS			= 1048576;
-float FL_CAMERA			= 12582912;
-float FL_CAMERA_QWPHYSICS	= 13631488;
-#endif
-
-// 4194304;
-// 12582911;
-// 8388608;
-// 8388607;
-
+// combinations/inverted for convenience & efficiency;
+// inverses are subtracted from 16777215 (all 24 bits set to 1)
 float FL_ONGROUND_PARTIALGROUND	= 1536;
 float FL_WATERJUMPING			= 18432;  // FL_WATERJUMP + FL_WATERJUMPED
 float FL_NOT_JUMPRELEASED		= 16773119;
 float FL_NOT_ONGROUND			= 16776703;
+
+// These flag bits for rent
+// 8192
+// 32768
+// 65536
+// 131072
+// 524288 and above
 
 .float client_;
 .float player;
