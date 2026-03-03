@@ -3,6 +3,7 @@
 
 	Copyright (C) 1999-2000 Numb
 	Copyright (C) 2000-2007 ParboiL
+	Updates by DrLex 2026
 */
 
 #include "settings.h"
@@ -50,7 +51,7 @@ void(entity me, string s) say_team2 =
 	while(p != world) {
 		if (p.netname != "") {
 			if (p.realteam == me.realteam) {
-				sprint_fb(p, 3, "¨");
+				sprint_fb(p, 3, "\s(");
 				sprint_fb(p, 3, me.netname);
 				sprint_fb(p, 3, "): ");
 				sprint_fb(p, 3, s);
@@ -219,9 +220,14 @@ void() say_insult_ =
 {
 	local string txt;
 	local entity ent;
-	line_one = line_one + 1;
-	if (line_one > 20)
-		line_one = 1;
+	// Work around edge case of random possibly returning 1.0
+	if (!line_one)
+		line_one = 1 + floor(19.999 * random());
+	else
+		line_one = line_one + 1 + floor(4 * random());
+	while (line_one > 20)
+		line_one = line_one - 20;
+
 	if (line_one == 1)
 		txt = ":)";
 	else if (line_one == 2)
@@ -260,12 +266,12 @@ void() say_insult_ =
 		txt = "nice :)";
 	else if (line_one == 19)
 		txt = "heh";
-	else if (line_one == 20)
+	else
 		txt = "lam :)";
 	ent = self;
 	self = self.owner;
 	if (self.netname != "")
-		say(txt);		
+		say(txt);
 	self = ent;
 	remove_self();
 };
@@ -280,9 +286,13 @@ void() say_insult2_ =
 {
 	local string txt;
 	local entity ent;
-	line_two = line_two + 1;
-	if (line_two > 20)
-		line_two = 1;
+	if (!line_two)
+		line_two = 1 + floor(20.999 * random());
+	else
+		line_two = line_two + 1 + floor(4 * random());
+	while (line_two > 21)
+		line_two = line_two - 21;
+
 	if (line_two == 1)
 		txt = "alright then!";
 	else if (line_two == 2)
@@ -323,10 +333,12 @@ void() say_insult2_ =
 		txt = "smackage";
 	else if (line_two == 20)
 		txt = "spanking";
+	else
+		txt = "total gibbage";
 	ent = self;
 	self = self.owner;
 	if (self.netname != "")
-		say(txt);		
+		say(txt);
 	self = ent;
 	remove_self();
 };
@@ -341,9 +353,13 @@ void() say_comeback_ =
 {
 	local string txt;
 	local entity ent;
-	line_three = line_three + 1;
-	if (line_three > 20)
-		line_three = 1;
+	if (!line_three)
+		line_three = 1 + floor(20.999 * random());
+	else
+		line_three = line_three + 1 + floor(4 * random());
+	while (line_three > 21)
+		line_three = line_three - 21;
+
 	if (line_three == 1)
 		txt = "Hehehe";
 	else if (line_three == 2)
@@ -384,10 +400,12 @@ void() say_comeback_ =
 		txt = "keep yer distance, scruffy";
 	else if (line_three == 20)
 		txt = "mouse in one hand, cup of tea in the other";
+	else
+		txt = "utter and complete gibbage";
 	ent = self;
 	self = self.owner;
 	if (self.netname != "")
-		say(txt);		
+		say(txt);
 	self = ent;
 	remove_self();
 };
@@ -402,9 +420,13 @@ void() say_ouchie_ =
 {
 	local string txt;
 	local entity ent;
-	line_four = line_four + 1;
-	if (line_four > 15)
-		line_four = 1;
+	if (!line_four)
+		line_four = 1 + floor(14.999 * random());
+	else
+		line_four = line_four + 1 + floor(3 * random());
+	while (line_four > 15)
+		line_four = line_four - 15;
+
 	if (line_four == 1)
 		txt = ":(";
 	else if (line_four == 2)
@@ -433,12 +455,12 @@ void() say_ouchie_ =
 		txt = "fucking...";
 	else if (line_four == 14)
 		txt = "fuck";
-	else if (line_four == 15)
+	else
 		txt = "nice";
 	ent = self;
 	self = self.owner;
 	if (self.netname != "")
-		say(txt);		
+		say(txt);
 	self = ent;
 	remove_self();
 };
@@ -573,7 +595,7 @@ void(entity me) say_report =
 	while(p != world) {
 		if (p.netname != "") {
 			if (p.realteam == me.realteam) {
-					sprint_fb(p, 3, "¨");
+					sprint_fb(p, 3, "\s(");
 					sprint_fb(p, 3, me.netname);
 					sprint_fb(p, 3, "): ");
 				if (me.armorvalue != 0) {
@@ -585,9 +607,9 @@ void(entity me) say_report =
 					sprint_fb(p, 3, "  ");
 					sprint_fb(p, 3, wt);
 				sprint_ftos(p, 3, f1);
-				if (me.items & IT_INVISIBILITY) sprint_fb(p, 3, "  …εωεσ…‘");
-				if (me.items & IT_INVULNERABILITY) sprint_fb(p, 3, "  ……‘");
-				if (me.items & IT_QUAD) sprint_fb(p, 3, "  …ρυαδ‘");
+				if (me.items & IT_INVISIBILITY) sprint_fb(p, 3, "  \s\[\.eyes\.\]");
+				if (me.items & IT_INVULNERABILITY) sprint_fb(p, 3, "  \s\[\.\6\6\6\.\]");
+				if (me.items & IT_QUAD) sprint_fb(p, 3, "  \s\[\.quad\.\]");
 				sprint_fb(p, 3, "\n");
 			}
 		}
@@ -603,6 +625,8 @@ void(entity me) teamreport =
 
 void(entity me, float nt) teamreport2 =
 {
+	// x84, x86-89 are colored circles in more recent engines.
+	// In classic Quake they will show up as rocky tile things.
 	if (teamplay && !game_disable_autoreport)
 	if ((me.player && a_rep) || me.frogbot) {
 		if (!nt) {
@@ -610,70 +634,70 @@ void(entity me, float nt) teamreport2 =
 			if (last_say_q != me.realteam)
 			if (VisibleEntity(q_gamer)) 
 			if (q_gamer.realteam != me.realteam) { 
-				say_team2(me, "‡‡ ENEMY QUAD ‡‡");
+				say_team2(me, "\{x87}\{x87} ENEMY QUAD \{x87}\{x87}");
 				last_say_q = me.realteam;
 			}
 			if (p_gamer != world)
 			if (last_say_p != me.realteam)
 			if (VisibleEntity(p_gamer)) 
 			if (p_gamer.realteam != me.realteam) {
-					say_team2(me, "‡‡ ENEMY PENT ‡‡");
+					say_team2(me, "\{x87}\{x87} ENEMY PENT \{x87}\{x87}");
 					last_say_p = me.realteam;
 			}
 			if (i_gamer != world)
 			if (last_say_i != me.realteam)
 			if (VisibleEntity(i_gamer)) 
 			if (i_gamer.realteam != me.realteam) {
-				say_team2(me, "‡‡ ENEMY INVISIBLE ‡‡");
+				say_team2(me, "\{x87}\{x87} ENEMY INVISIBLE \{x87}\{x87}");
 				last_say_i = me.realteam;
 			}
 		} else if (nt == 1) {
-			say_team2(me, "†† took ga");
+			say_team2(me, "\{x86}\{x86} took ga");
 		} else if (nt == 2) {
-			say_team2(me, "†† took ya");
+			say_team2(me, "\{x86}\{x86} took ya");
 		} else if (nt == 3) {
-			say_team2(me, "†† took ra");
+			say_team2(me, "\{x86}\{x86} took ra");
 		} else if (nt == 4) {
-			say_team2(me, "†† took mega");
+			say_team2(me, "\{x86}\{x86} took mega");
 		} else if (nt == 5) {
-			say_team2(me, "‰‰ took gl");
+			say_team2(me, "\{x89}\{x89} took gl");
 		} else if (nt == 6) {
-			say_team2(me, "‰‰ took rl");
+			say_team2(me, "\{x89}\{x89} took rl");
 		} else if (nt == 7) {
-			say_team2(me, "‰‰ took lg");
+			say_team2(me, "\{x89}\{x89} took lg");
 		} else if (nt == 8) {
-			say_team2(me, "‰‰ took gl pack");
+			say_team2(me, "\{x89}\{x89} took gl pack");
 		} else if (nt == 9) {
-			say_team2(me, "‰‰ took rl pack");
+			say_team2(me, "\{x89}\{x89} took rl pack");
 		} else if (nt == 10) {
-			say_team2(me, "‰‰ took lg pack");
+			say_team2(me, "\{x89}\{x89} took lg pack");
 		} else if (nt == 11) {
-			say_team2(me, "‡‡ TEAM QUAD ‡‡");
+			say_team2(me, "\{x87}\{x87} TEAM QUAD \{x87}\{x87}");
 			q_gamer = me;
 		} else if (nt == 12) {
-			say_team2(me, "‡‡ TEAM PENT ‡‡");
+			say_team2(me, "\{x87}\{x87} TEAM PENT \{x87}\{x87}");
 			p_gamer = me;
 		} else if (nt == 13) {
-			say_team2(me, "‡‡ TEAM INVISIBLE ‡‡");
+			say_team2(me, "\{x87}\{x87} TEAM INVISIBLE \{x87}\{x87}");
 			i_gamer = me;
 		} else if (nt == 14) {
-			say_team2(me, "‡‡ QUAD in 30 ‡‡");
+			say_team2(me, "\{x87}\{x87} QUAD in 30 \{x87}\{x87}");
 			last_say_q = 0;
 			q_gamer = world; 
 		} else if (nt == 15) {
-			say_team2(me, "‡‡ PENT EXPIRED ‡‡");
+			say_team2(me, "\{x87}\{x87} PENT EXPIRED \{x87}\{x87}");
 			last_say_p = 0;
 			p_gamer = world; 
 		} else if (nt == 16) {
-			say_team2(me, "‡‡ RING GONE ‡‡");
+			say_team2(me, "\{x87}\{x87} RING GONE \{x87}\{x87}");
 			last_say_i = 0;
 			i_gamer = world;
 		} else if (nt == 17) {
-			say_team2(me, "‡‡ LOSE QUAD ‡‡");
+			say_team2(me, "\{x87}\{x87} LOSE QUAD \{x87}\{x87}");
 			last_say_q = 0;
 			q_gamer = world; 
 		} else if (nt == 18) {
-			say_team2(me, "‡‡ LOSE RING ‡‡");
+			say_team2(me, "\{x87}\{x87} LOSE RING \{x87}\{x87}");
 			last_say_i = 0;
 			i_gamer = world;
 		}
