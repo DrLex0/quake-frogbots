@@ -647,7 +647,7 @@ void() PutClientInServer_apply =
 	self.arrow = 0;
 	ClearLookObject(self);
 
-	self.oldvelocity = self.velocity = '0 0 0';
+	self.prephys_velocity = self.velocity = '0 0 0';
 	self.deadflag = DEAD_NO;
 	self.jump_flag = 0;
 
@@ -973,7 +973,7 @@ Called every frame before physics are run
 void() PlayerPreThink_apply =
 {
 #ifdef ARENA
-	if (a_prethink())
+	if (a_invisible_prethink())
 		return;
 #endif
 
@@ -1200,7 +1200,7 @@ void() PlayerPreThink_apply =
 	else
 		self.flags = self.flags | FL_JUMPRELEASED;
 
-	self.oldvelocity = self.velocity;
+	self.prephys_velocity = self.velocity;
 
 	// clear touch marker
 	self.touch_distance = 1000000;
@@ -1228,7 +1228,7 @@ void() PlayerPreThink =
 #endif
 
 #ifdef ARENA
-	if (a_prethink())
+	if (a_invisible_prethink())
 		return;
 #endif
 
@@ -1239,7 +1239,7 @@ void() PlayerPreThink =
 		if (self.flags & FL_ONGROUND)
 		{
 			if (self.velocity_z < 0)
-				self.oldvelocity_z = 0;
+				self.prephys_velocity_z = 0;
 		}
 		else
 			self.jump_flag = self.velocity_z;
@@ -1281,7 +1281,7 @@ void() CheckStuckOnDoor =
 		{
 			self.flags = self.flags | FL_ONGROUND;
 			self.groundentity = trace_ent;
-			self.velocity = self.oldvelocity;
+			self.velocity = self.prephys_velocity;
 		}
 	}
 	else

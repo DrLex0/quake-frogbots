@@ -15,7 +15,7 @@ void() VelocityForArrow;
 BestArrowForDirection
 
 Sets best_arrow to the optimal arrow keys to steer towards
-dir_move (which must be a unit vector)
+dir_move_ (which must be a unit vector)
 ============
 */
 void() BestArrowForDirection =
@@ -30,28 +30,28 @@ void() BestArrowForDirection =
 
 	best_dotproduct = best_arrow = 0;
 
-	test_forward = v_forward * dir_move;
+	test_forward = v_forward * dir_move_;
 	if (test_forward > best_dotproduct)
 	{
 		best_dotproduct = test_forward;
 		best_arrow = FORWARD;
 	}
 
-	test_forward_left = normalize(v_forward - (v_right * 0.875)) * dir_move;
+	test_forward_left = normalize(v_forward - (v_right * 0.875)) * dir_move_;
 	if (test_forward_left > best_dotproduct)
 	{
 		best_dotproduct = test_forward_left;
 		best_arrow = FORWARD_LEFT;
 	}
 
-	test_forward_right = normalize(v_forward + (v_right * 0.875)) * dir_move;
+	test_forward_right = normalize(v_forward + (v_right * 0.875)) * dir_move_;
 	if (test_forward_right > best_dotproduct)
 	{
 		best_dotproduct = test_forward_right;
 		best_arrow = FORWARD_RIGHT;
 	}
 
-	test_right = v_right * dir_move;
+	test_right = v_right * dir_move_;
 	if (test_right > best_dotproduct)
 	{
 		best_dotproduct = test_right;
@@ -89,42 +89,54 @@ void() BestArrowForDirection =
 
 /*
 ============
-NewVelocityForArrow
+OverrideArrowVelocity
 
-Adjusts self.arrow according to dir_move and if changed, instantly updates velocity
+Only to be used within PrePhysics1 to override previously applied
+self.arrow and self.velocity according to desired dir_move_
 ============
 */
-void() NewVelocityForArrow =
+void() OverrideArrowVelocity =
 {
+	self.dir_move = dir_move_;
 	BestArrowForDirection();
 
 	if (self.arrow != best_arrow)
 	{
-		self.dir_move_ = dir_move;
 		self.arrow = best_arrow;
 		self.arrow_time = time + 0.15;
-		// Don't update velocity in the air, or it would interfere with gravity,
-		// and bots would be able to do things players cannot.
-		if (! (self.flags & FL_ONGROUND))
-			return;
-		self.velocity = oldvelocity_;
+		self.velocity = self.pre_arrow_velocity;
 		VelocityForArrow();
 	}
 };
 
 /*
 ============
+NewArrowForDirMove
+
+Updates self.arrow according to desired dir_move_ (no velocity update)
+============
+*/
+void() NewArrowForDirMove =
+{
+	self.dir_move = dir_move_;
+	BestArrowForDirection();
+	self.arrow = best_arrow;
+	self.arrow_time = time + 0.15;
+};
+
+/*
+============
 SetArrowForLinkedMarker
 
-Adjusts self.arrow to aim for linked_marker_ (no velocity update)
+Adjusts self.arrow to aim for linked_marker_ in XY plane (no velocity update)
 ============
 */
 void() SetArrowForLinkedMarker =
 {
-	dir_move = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
-	dir_move_z = 0;
-	dir_move = normalize(dir_move);
-	self.dir_move_ = dir_move;
+	dir_move_ = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
+	dir_move__z = 0;
+	dir_move_ = normalize(dir_move_);
+	self.dir_move = dir_move_;
 	BestArrowForDirection();
 	self.arrow = best_arrow;
 	self.arrow_time = time + 0.15;

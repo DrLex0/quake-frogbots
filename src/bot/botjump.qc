@@ -11,7 +11,7 @@
 #include "../settings.h"
 
 void() VelocityForArrow;
-void() NewVelocityForArrow;
+void() NewArrowForDirMove;
 void() SetArrowForLinkedMarker;
 float(float x_ofs, float z_ofs) OffsetProbeObstacle;
 float(float a) anglemod;
@@ -22,7 +22,7 @@ void(float finalize) CheckWallStrafe;
 
 
 // Moving in right direction to rocket-jump or precise jump?
-// If not, dir_move can be used to adjust direction.
+// If not, dir_move_ can be used to adjust direction.
 // rel_pos will contain vector to destination.
 // Argument is maximum allowed deviation angle.
 float(float max_angle) right_direction =
@@ -46,12 +46,12 @@ float(float max_angle) right_direction =
 	else
 		target_m = linked_marker_;
 
-	dir_move = normalize(self.oldvelocity);  // before physics
-	current_dir = vectoyaw(dir_move);
+	// Check velocity before collisions, because current velocity may be 0
+	current_dir = vectoyaw(self.prephys_velocity);
 	rel_pos = target_m.absmin + target_m.view_ofs - origin_;
-	dir_move = rel_pos;
-	dir_move_z = 0;
-	dir_move = normalize(dir_move);
+	dir_move_ = rel_pos;
+	dir_move__z = 0;
+	dir_move_ = normalize(dir_move_);
 
 	if (self.special_p_jump)
 	{
@@ -62,18 +62,18 @@ float(float max_angle) right_direction =
 		if (self.special_p_jump == 1)
 		{
 			if (self.velocity_z > 72)
-			if (self.oldvelocity_z > 72)
+			if (self.prephys_velocity_z > 72)
 				return TRUE;
 			return FALSE;
 		}
 		// self.special_p_jump == 2
 		if (self.velocity_z < -72)
-		if (self.oldvelocity_z < -72)
+		if (self.prephys_velocity_z < -72)
 			return TRUE;
 		return FALSE;
 	}
 
-	wish_dir = vectoyaw(dir_move);
+	wish_dir = vectoyaw(dir_move_);
 	min_one = fabs(wish_dir - current_dir);
 	if (wish_dir >= 180)
 		wish_dir = wish_dir - 360;
@@ -254,8 +254,8 @@ void() AccurateRJump =
 		return;
 	}
 	self.precise_speed = 10 + 5 * rel_dist;
-	dir_move = normalize(rel_pos);
-	NewVelocityForArrow();
+	dir_move_ = normalize(rel_pos);
+	NewArrowForDirMove();
 };
 
 void() a_rocketjump =
@@ -314,18 +314,18 @@ void() a_rocketjump =
 		return;
 	if (!right_direction(50 + 40 * self.bot_inaccuracy))
 	{
-		NewVelocityForArrow();
+		NewArrowForDirMove();
 		return;
 	}
-	// Now dir_move contains the optimal horizontal direction, and rel_pos the vector to the target
-	NewVelocityForArrow();
+	// Now dir_move_ contains optimal horizontal direction, and rel_pos the vector to the target
+	NewArrowForDirMove();
 	if (self.items & IT_QUAD)
 	{
 		// Regular RJ logic would totally fail with Quad power, cheat a bit.
 		// Could consider using this same system for regular RJs as well on
 		// highest skill levels where the bot is expected to cheat.
-		dir_move = normalize(rel_pos);
-		local vector dest_angles = vectoangles(dir_move);
+		tmp_vec = normalize(rel_pos);
+		local vector dest_angles = vectoangles(tmp_vec);
 		new_pitch = dest_angles_x + 12;  // aim a bit higher to help with (l)edges
 		if (new_pitch > 78.75)
 			new_pitch = 78.75;
@@ -395,8 +395,8 @@ float() WallStrafeJumpLogic =
 		rel_pos_z = 0;
 		if (vlen(rel_pos) > 16 + 8 * self.bot_inaccuracy)
 		{
-			dir_move = normalize(rel_pos);
-			NewVelocityForArrow();
+			dir_move_ = normalize(rel_pos);
+			NewArrowForDirMove();
 			return TRUE;
 		}
 		// Give higher skill bots a better chance at the trickiest jumps
@@ -436,18 +436,18 @@ float() PreciseRunUpLogic =
 {
 	if (self.running_up > 0)
 	{
-		dir_move = self.run_up_point - origin_;
+		tmp_vec = self.run_up_point - origin_;
 		// Begin the actual run-up when either:
 		// - it takes suspiciously long to reach the run-up spot
 		//   (probably because is inside wall due to tight space);
 		if (time > self.running_up)
 			self.running_up = -(time + 1.0);
-		// - or we did come sufficiently near the spot.
-		else if (vlen(dir_move) < 40)
+		// - or we did come sufficiently near the spot
+		else if (vlen(tmp_vec) < 40)
 			self.running_up = -(time + 1.0);
-		dir_move = normalize(dir_move);
+		dir_move_ = normalize(tmp_vec);
 		if (time > self.arrow_time2)
-			NewVelocityForArrow();
+			NewArrowForDirMove();
 		return TRUE;
 	}
 	if (self.running_up < 0)
@@ -529,7 +529,7 @@ float() NarrowPathLogic =
 			local float vec_length;
 			rel_pos = vec_touch;
 			rel_pos_z = 0;  // stick to 2D to keep things simple
-			vnorm = self.oldvelocity;
+			vnorm = self.prephys_velocity;
 			vnorm_z = 0;
 			vnorm = normalize(vnorm);
 			// Compute how close bot will come to the marker
@@ -633,8 +633,8 @@ float() NarrowPathLogic =
 				self.precise_speed = slow_landspeed2;
 		}
 	}
-	dir_move = normalize(rel_pos);
-	NewVelocityForArrow();
+	dir_move_ = normalize(rel_pos);
+	NewArrowForDirMove();
 	return TRUE;
 };
 
@@ -678,9 +678,9 @@ void() SpecialAccurateMoves =
 			// to bumping into the wall. Give it a nudge if this is the case.
 			rel_pos = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
 			rel_pos_z = 0;
-			dir_move = self.velocity;
-			dir_move_z = 0;
-			if (rel_pos * dir_move < 10) {
+			tmp_vec = self.velocity;
+			tmp_vec_z = 0;
+			if (rel_pos * tmp_vec < 10) {
 				self.velocity = self.velocity + 32 * normalize(rel_pos);
 			}
 		}
@@ -691,8 +691,8 @@ void() SpecialAccurateMoves =
 	v_touch_z = 0;
 	local float touch_dist = vlen(v_touch);
 
-	// right_direction() sets the ideal direction vector dir_move,
-	// NewVelocityForArrow() will try to better match this direction
+	// right_direction() sets the ideal direction vector dir_move_,
+	// NewArrowForDirMove() will try to better match this direction
 	if (self.path_state & SLOW_DOWN)
 	{
 		// slow down near path start
@@ -706,11 +706,11 @@ void() SpecialAccurateMoves =
 	if (!right_direction(20 + 20 * self.bot_inaccuracy))
 	{
 		if (time > self.arrow_time2)
-			NewVelocityForArrow();
+			NewArrowForDirMove();
 		return;
 	}
 	if (time > self.arrow_time2)
-		NewVelocityForArrow();
+		NewArrowForDirMove();
 	if (!(self.path_state & PRECISE_JUMP))
 		return;
 
@@ -782,13 +782,13 @@ void() SpecialAccurateMoves =
 		// Make the jump increasingly perfect with increasing bot skill level.
 		hor_velocity = self.velocity;
 		hor_velocity_z = 0;
-		dir_move = vlen(hor_velocity) * normalize(
+		tmp_vec = vlen(hor_velocity) * normalize(
 			self.bot_inaccuracy * normalize(hor_velocity) +
-			(1.0 - self.bot_inaccuracy) * dir_move
+			(1.0 - self.bot_inaccuracy) * dir_move_
 		);
 		// Must preserve vertical velocity for jumps on a slope
-		dir_move_z = self.velocity_z;
-		self.velocity = dir_move;
+		tmp_vec_z = self.velocity_z;
+		self.velocity = tmp_vec;
 	}
 	else if (self.special_p_jump < 3)
 	{
@@ -849,6 +849,7 @@ void() CheckCombatJump =
 	}
 };
 
+// Should not have these map-specific hacks in code. TODO generalize or remove
 void() BotInLava =
 {
 	if (mapname == "amphi2")
@@ -861,7 +862,7 @@ void() BotInLava =
 		if (!enemy_shaft_attack())
 		if (!self.rocketjumping)
 		{
-			NewVelocityForArrow();
+			NewArrowForDirMove();
 			self.button2_ = 1;
 		}
 	}

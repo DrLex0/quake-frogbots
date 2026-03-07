@@ -9,7 +9,7 @@
 
 #include "../settings.h"
 
-void() NewVelocityForArrow;
+void() OverrideArrowVelocity;
 
 /*
 ============
@@ -165,17 +165,18 @@ float() BotAntiFreeze =
 #endif
 		if (self.velocity == '0 0 0')
 		{
-			dir_move_x = random() - 0.5;
-			dir_move_y = random() - 0.5;
-			dir_move_z = 0;
+			tmp_vec_x = random() - 0.5;
+			tmp_vec_y = random() - 0.5;
+			tmp_vec_z = 0;
 		}
 		else
 		{
 			// Running in-place, ensure random movement away from obstacle
 			makevectors(vectoangles(self.velocity));
-			dir_move = ((-0.1 - random()) * v_forward) + (((2 * random()) - 1) * v_right);
+			tmp_vec = ((-0.1 - random()) * v_forward) + (((2 * random()) - 1) * v_right);
 		}
-		self.velocity = normalize(dir_move) * sv_maxspeed;
+		// TODO: should just set arrow keys; velocity_override still dates from my clueless period
+		self.velocity = normalize(tmp_vec) * sv_maxspeed;
 		self.velocity_override = self.velocity;
 		self.t_velocity_override = time + 0.05;
 		self.stuck_deadline = 0;
@@ -198,15 +199,18 @@ void() AvoidEdge =
 #ifdef DEBUG_HAZD
 	dprint("AvoidEdge\n");
 #endif
-	dir_forward = oldvelocity_;
+	dir_forward = self.pre_arrow_velocity;
 	dir_forward_z = 0;
 
+	// Test is weird, bot will not avoid edge if it started moving in this very frame?
 	if (dir_forward != '0 0 0')
 	{
+		// Unclear what this "cheat" is, it seems to ensure the bot will move
+		// backwards regardless of how fast it is currently moving. -- DrLex
 		if (game_lava_cheat)
-		oldvelocity__x = oldvelocity__y = 0;
-		dir_move = (-1) * dir_forward;
-		NewVelocityForArrow();
+			self.pre_arrow_velocity_x = self.pre_arrow_velocity_y = 0;
+		dir_move_ = (-1) * dir_forward;
+		OverrideArrowVelocity();
 		self.arrow_time2 = self.arrow_time;
 	}
 };
@@ -247,7 +251,7 @@ void() AvoidHazards =
 			{
 				try_jump_ledge = TRUE;
 				being_blocked = FALSE;
-				if (vlen(oldvelocity_) <= 100)
+				if (vlen(self.pre_arrow_velocity) <= 100)
 				{
 					rel_hor_dir = rel_pos;
 					rel_hor_dir_z = 0;
@@ -289,12 +293,12 @@ void() AvoidHazards =
 					{
 						if (time >= self.ledge_backup_time)
 						{
-							dir_move = rel_hor_dir - (self.obstruction_normal * (self.obstruction_normal * rel_hor_dir));
-							if (dir_move == '0 0 0')
-								dir_move = (-1) * self.obstruction_normal;
+							dir_move_ = rel_hor_dir - (self.obstruction_normal * (self.obstruction_normal * rel_hor_dir));
+							if (dir_move_ == '0 0 0')
+								dir_move_ = (-1) * self.obstruction_normal;
 							else if (random() < 0.5)
-								dir_move = (-1) * dir_move;
-							NewVelocityForArrow();
+								dir_move_ = (-1) * dir_move_;
+							OverrideArrowVelocity();
 							self.ledge_backup_time = 0;
 						}
 					}
@@ -316,9 +320,9 @@ void() AvoidHazards =
 					{
 						if (time >= self.ledge_backup_time)
 						{
-							dir_move = (-1) * rel_pos;
-							dir_move_z = 0;
-							NewVelocityForArrow();
+							dir_move_ = (-1) * rel_pos;
+							dir_move__z = 0;
+							OverrideArrowVelocity();
 							self.ledge_backup_time = 0;
 						}
 					}
@@ -339,35 +343,35 @@ void() AvoidHazards =
 				return;
 
 			if (linked_marker_ != self.touch_marker)	// not being stationary
-			if (vlen(oldvelocity_) <= 32)
+			if (vlen(self.pre_arrow_velocity) <= 32)
 			{
-				dir_move = new_velocity - (self.obstruction_normal * (self.obstruction_normal * new_velocity));
+				dir_move_ = new_velocity - (self.obstruction_normal * (self.obstruction_normal * new_velocity));
 
-				if ((dir_move_x == 0) && (dir_move_y == 0))
+				if ((dir_move__x == 0) && (dir_move__y == 0))
 				{
-					dir_move = (-1) * self.obstruction_normal;
+					dir_move_ = (-1) * self.obstruction_normal;
 					self.path_state = self.path_state | STUCK_PATH;
 				}
-				else if ((oldvelocity__x == 0) && (oldvelocity__y == 0))
+				else if ((self.pre_arrow_velocity_x == 0) && (self.pre_arrow_velocity_y == 0))
 				{
 					// maybe stuck in a corner
 					if (random() < 0.5)
-						dir_move = (-1) * dir_move;
+						dir_move_ = (-1) * dir_move_;
 					self.path_state = self.path_state | STUCK_PATH;
 				}
 				else
 				{
 					if (self.path_state & STUCK_PATH)
 					{
-						dir_move = normalize(dir_move);
-						dir_move = dir_move + normalize(new_velocity);
+						dir_move_ = normalize(dir_move_);
+						dir_move_ = dir_move_ + normalize(new_velocity);
 					}
 					else
-						dir_move = self.dir_move_ - 0.5 * (self.obstruction_normal * (self.obstruction_normal * self.dir_move_));
+						dir_move_ = self.dir_move - 0.5 * (self.obstruction_normal * (self.obstruction_normal * self.dir_move));
 				}
 
-				dir_move_z = 0;
-				NewVelocityForArrow();
+				dir_move__z = 0;
+				OverrideArrowVelocity();
 			}
 		}
 
@@ -570,9 +574,9 @@ void() AvoidHazards =
 					return;
 				}
 
-				dir_move = dir_forward - (2 * edge_normal * normal_comp);
-				dir_move_z = 0;
-				NewVelocityForArrow();
+				dir_move_ = dir_forward - (2 * edge_normal * normal_comp);
+				dir_move__z = 0;
+				OverrideArrowVelocity();
 				if (normal_comp > 0.5)
 					self.arrow_time2 = self.arrow_time;
 			}

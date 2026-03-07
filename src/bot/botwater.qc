@@ -123,26 +123,28 @@ float() SwimAwayFromWall =
 #ifdef DEBUG_WATER
 	dprint("SwimAwayFromWall\n");
 #endif
-	if ((self.obstruction_normal * rel_pos) > 0.5)
+	dir_move_ = self.dir_move;
+	if ((self.obstruction_normal * dir_move_) > 0.5)
 	{
-		dir_move = (-1) * dir_move;
+		dir_move_ = (-1) * dir_move_;
 	}
 
+	makevectors(self.v_angle);
 	traceline (self.origin, self.origin + v_right * 20, TRUE, self);
 	if (trace_fraction != 1)
 	{
-		dir_move = normalize(dir_move);
-		dir_move = normalize(dir_move + ((-32) * v_right * random()));
+		dir_move_ = normalize(dir_move_);
+		dir_move_ = normalize(dir_move_ + ((-32) * v_right * random()));
 	}
 
 	traceline (self.origin, self.origin + v_right * (-20), TRUE, self);
 	if (trace_fraction != 1)
 	{
-		dir_move = normalize(dir_move);
-		dir_move = normalize(dir_move + (32 * v_right * random()));
+		dir_move_ = normalize(dir_move_);
+		dir_move_ = normalize(dir_move_ + (32 * v_right * random()));
 	}
 
-	NewVelocityForArrow();
+	NewArrowForDirMove();
 	self.t_swim_obstruction = 0;
 	return TRUE;
 };
@@ -158,37 +160,15 @@ float() BotGoUpForAir =
 {
 	if (self.items & IT_SLIME_PROOF)
 		return FALSE;
-	if ((self.touch_marker.T | self.linked_marker.T) & T_NO_AIR)
+	if ((self.touch_marker.T & self.linked_marker.T) & T_NO_AIR)
 		return FALSE;
 	if (time > (self.air_finished - 2))
 	{
-#ifdef DEBUG_WATER
-		dprint("BotGoUpForAir\n");
-#endif
-		if (self.obstruction_normal != '0 0 0')
-		{
-			dir_move = -1 * self.obstruction_normal;
-			NewVelocityForArrow();
-			return TRUE;
-		}
-		traceline (self.origin, self.origin + '0 0 64', TRUE, self);
-		if (trace_fraction == 1)
-		{
-			self.swim_arrow = FORCE_UP;
-			return TRUE;
-		}
-		new_velocity 	= self.velocity;
-		dir_move 	= normalize(dir_move);
-		dir_move 	= dir_move + normalize(new_velocity);
-		dir_move_z 	= 0;
-		NewVelocityForArrow();
-	
-		if (time > self.air_finished)
+		if (time > self.air_finished)  // time's up!
 		{
 #ifdef DEBUG_WATER
 			dprint("BotGoUpForAir!\n");
 #endif
-			// time's up!
 			// Origin is 32 units below top, we only have a chance
 			// to find air if we can move up at least 1u
 			traceline (self.origin, self.origin + '0 0 33', TRUE, self);
@@ -197,6 +177,29 @@ float() BotGoUpForAir =
 				self.swim_arrow = FORCE_UP;
 				return TRUE;
 			}
+		}
+#ifdef DEBUG_WATER
+		else
+			dprint("BotGoUpForAir\n");
+#endif
+
+		if (self.obstruction_normal != '0 0 0')
+		{
+			dir_move_ = -1 * self.obstruction_normal;
+			NewArrowForDirMove();
+			return TRUE;
+		}
+		if (self.linked_marker.T & T_NO_AIR)
+		{
+			linked_marker_ = self.touch_marker;
+			SetArrowForLinkedMarker();
+			return TRUE;
+		}
+		traceline (self.origin, self.origin + '0 0 64', TRUE, self);
+		if (trace_fraction == 1)
+		{
+			self.swim_arrow = FORCE_UP;
+			return TRUE;
 		}
 	}
 	return FALSE;

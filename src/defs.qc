@@ -1473,16 +1473,16 @@ string frobo_name16;
 
 .float print_framerate;
 
-.vector oldvelocity;
-vector oldvelocity_;
-
+vector tmp_vec;  // for general temporary use
 vector delta_velocity;
 
 float new_pitch;
 
 #ifdef QUAKE
-.vector postvelocity;
+.vector postvelocity;  // last frame's final velocity 
 #endif
+.vector pre_arrow_velocity;  // bot velocity with friction applied, before keys
+.vector prephys_velocity;  // bot velocity after applying arrow keys
 
 .vector obstruction_normal;
 .vector velocity_normal;
@@ -2255,8 +2255,8 @@ float tries;
 vector last_clear_point;
 vector last_clear_velocity;
 float jumpspeed;
-vector dir_move;
-.vector dir_move_;
+vector dir_move_;
+.vector dir_move;
 float path_score;
 float total_goal_time;
 entity goal_marker2;

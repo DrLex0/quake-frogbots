@@ -181,7 +181,7 @@ float() players_;
 float() putselfinserver;
 float() best_rl;
 float() best_gl;
-float() a_prethink;
+float() a_invisible_prethink;
 float() a_postthink;
 float() a_newitems;
 float() toss_player;
@@ -2141,7 +2141,7 @@ float() best_gl =
 };
 
 // check if should do invisible prethink
-float() a_prethink =
+float() a_invisible_prethink =
 {
 	if (!game_arena)
 		return 0;
@@ -2154,8 +2154,7 @@ float() a_prethink =
 	if (self.frogbot)
 	{
 		self.angles = self.oldangles;
-		self.oldvelocity =
-		self.velocity = '0 0 0';
+		self.prephys_velocity = self.velocity = '0 0 0';
 		self.fixangle = TRUE;
 		return 1;
 	}
@@ -2220,7 +2219,7 @@ float() a_prethink =
 	}
 	else
 		self.flags = self.flags | FL_JUMPRELEASED;
-	self.oldvelocity = self.velocity;
+	self.prephys_velocity = self.velocity;
 	self.touch_distance = 1000000;
 	return 1;
 };
@@ -3340,7 +3339,7 @@ void() becomeinvisible =
 	self.view_ofs_z = 22;
 	self.air_finished = 9999999;
 	self.gravity = 1;
-	self.oldvelocity = self.velocity = '0 0 0';
+	self.prephys_velocity = self.velocity = '0 0 0';
 	setinvisitems();
 	if (self.player)
 	{

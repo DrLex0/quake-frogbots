@@ -411,8 +411,7 @@ void() teleport_touch =
 		#endif
 
 			extra_velocity = v_forward * 300;
-			other.oldvelocity = extra_velocity;
-
+			other.prephys_velocity = extra_velocity;
 			other.velocity = extra_velocity;
 
 			other.flags = other.flags & FL_NOT_ONGROUND;
@@ -668,7 +667,7 @@ void() trigger_push_touch =
 	{
 		if (other.takedamage)
 		{
-			other.velocity = other.oldvelocity = self.speed * self.movedir * 10;
+			other.velocity = other.prephys_velocity = self.speed * self.movedir * 10;
 			if (other.fly_sound < time)
 			{
 				other.fly_sound = time + 1.5;

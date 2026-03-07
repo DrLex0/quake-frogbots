@@ -314,7 +314,7 @@ void() ThinkTime =
 				}
 				else
 				{
-					dir_move = normalize(linked_marker_.absmin + linked_marker_.view_ofs - origin_);
+					dir_move_ = normalize(linked_marker_.absmin + linked_marker_.view_ofs - origin_);
 
 					if (linked_marker_ == touch_marker_)
 					{
@@ -322,10 +322,10 @@ void() ThinkTime =
 						{
 							if (touch_marker_.nextthink)
 							// item not spawned
-								dir_move = '0 0 0';
+								dir_move_ = '0 0 0';
 						}
 						else
-							dir_move = '0 0 0';
+							dir_move_ = '0 0 0';
 					}
 
 					if (self.flags & FL_ONGROUND)
@@ -362,12 +362,14 @@ void() ThinkTime =
 								dodge_factor = dodge_factor - 1;
 
 							makevectors(self.v_angle);
-							dir_move = dir_move + (random() * self.dodge_amount * dodge_factor * v_right);
+							dir_move_ = normalize(
+								dir_move_ + (random() * self.dodge_amount * dodge_factor * v_right)
+							);
 						}
 					}
 
 					if (self.waterlevel <= 1)
-						dir_move_z = 0;
+						dir_move__z = 0;
 					// If the vector towards linked_marker goes downward steeply, squashing
 					// the Z component will remove most of its magnitude and we're left 
 					// with a tiny horizontal vector. This may lead to typical cases of
@@ -375,9 +377,9 @@ void() ThinkTime =
 					// intended to fix cases of the bot not going forward, hence normalize
 					// the vector in that case, to really make the bot GO.
 					if (self.path_state & JUST_GO)
-						dir_move = normalize(dir_move);
+						dir_move_ = normalize(dir_move_);
 					BestArrowForDirection();
-					self.dir_move_ = dir_move;
+					self.dir_move = dir_move_;
 					self.arrow = best_arrow;
 				}
 

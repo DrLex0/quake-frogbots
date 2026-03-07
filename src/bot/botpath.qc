@@ -11,7 +11,7 @@
 #include "../settings.h"
 
 float() able_rj;
-void() NewVelocityForArrow;
+void() NewArrowForDirMove;
 float(float max_angle) right_direction;
 
 
@@ -407,12 +407,12 @@ void(float lm_time) WaitAtTouchMarker =
 	self.narrow_path_state = 0;
 	self.linked_marker_time = time + lm_time;
 	self.old_linked_marker = world;
-	dir_move = touch_marker_.absmin + touch_marker_.view_ofs - self.origin;
-	dir_move_z = 0;
-	if(vlen(dir_move) > 48)
+	tmp_vec = touch_marker_.absmin + touch_marker_.view_ofs - self.origin;
+	tmp_vec_z = 0;
+	if(vlen(tmp_vec) > 48)
 	{
-		dir_move = normalize(dir_move);
-		NewVelocityForArrow();
+		dir_move_ = normalize(tmp_vec);
+		NewArrowForDirMove();
 	}
 };
 
@@ -507,15 +507,15 @@ float() WaitOnLift =
 		WaitAtTouchMarker(5);
 		return TRUE;
 	}
-	dir_move = 0.5 * (touch_marker_.absmin + touch_marker_.absmax) - self.origin;
-	dir_move_z = 0;
-	if(vlen(dir_move) > 4)
+	tmp_vec = 0.5 * (touch_marker_.absmin + touch_marker_.absmax) - self.origin;
+	tmp_vec_z = 0;
+	if(vlen(tmp_vec) > 4)
 	{
 #ifdef DEBUG_LIFT
 		dprint("Centering on LIFT; Lm", ftos(linked_marker_.index), " state=", ftos(touch_marker_.state), "\n");
 #endif
-		dir_move = normalize(dir_move);
-		NewVelocityForArrow();
+		dir_move_ = normalize(tmp_vec);
+		NewArrowForDirMove();
 	}
 	return TRUE;
 };
@@ -621,21 +621,21 @@ float() CheckSpecialPJump =
 	if (! touch_marker_.jump_direction)
 	{
 		// Also set unconditional mode if linked marker has no well-defined XY direction
-		dir_move = linked_marker_.absmin + linked_marker_.view_ofs -
+		tmp_vec = linked_marker_.absmin + linked_marker_.view_ofs -
 			(touch_marker_.absmin + touch_marker_.view_ofs);
-		if (fabs(dir_move_x) < 8)
-		if (fabs(dir_move_y) < 8)
+		if (fabs(tmp_vec_x) < 8)
+		if (fabs(tmp_vec_y) < 8)
 			return 3;  // skip all direction checks
 		return 0;  // regular
 	}
-	dir_move = touch_marker_.jump_direction.absmin + touch_marker_.jump_direction.view_ofs -
+	tmp_vec = touch_marker_.jump_direction.absmin + touch_marker_.jump_direction.view_ofs -
 		(touch_marker_.absmin + touch_marker_.view_ofs);
-	if (fabs(dir_move_x) < 8)
-	if (fabs(dir_move_y) < 8)
+	if (fabs(tmp_vec_x) < 8)
+	if (fabs(tmp_vec_y) < 8)
 		return 3;  // skip all direction checks
-	if (dir_move_z > 32)
+	if (tmp_vec_z > 32)
 		return 1;  // require positive Z speed
-	if (dir_move_z < -32)
+	if (tmp_vec_z < -32)
 		return 2;  // require negative Z speed
 	return 0;  // regular
 };
@@ -673,13 +673,13 @@ void(float force) CheckAccurateRunUp =
 		return;
 
 	if (touch_marker_.jump_direction)
-		dir_move = touch_marker_.absmin + touch_marker_.view_ofs -
+		tmp_vec = touch_marker_.absmin + touch_marker_.view_ofs -
 			(touch_marker_.jump_direction.absmin + touch_marker_.jump_direction.view_ofs);
 	else
-		dir_move = touch_marker_.absmin + touch_marker_.view_ofs -
+		tmp_vec = touch_marker_.absmin + touch_marker_.view_ofs -
 			(linked_marker_.absmin + linked_marker_.view_ofs);
-	dir_move_z = 0;
-	self.run_up_point = touch_marker_.absmin + touch_marker_.view_ofs + 90 * normalize(dir_move);
+	tmp_vec_z = 0;
+	self.run_up_point = touch_marker_.absmin + touch_marker_.view_ofs + 90 * normalize(tmp_vec);
 	// Timeout for reaching the run-up start point: about 2x the time
 	// it should take to traverse 90u distance at full speed
 	self.running_up = time + 0.6;
@@ -739,13 +739,13 @@ void(float finalize) CheckWallStrafe =
 	// Assume the path vector is parallel to the wall
 	self.run_up_point = linked_marker_.absmin + linked_marker_.view_ofs;
 	probe_pt = touch_marker_.absmin + touch_marker_.view_ofs;
-	dir_move = self.run_up_point - probe_pt;
-	angles = vectoangles(dir_move);
+	tmp_vec = self.run_up_point - probe_pt;
+	angles = vectoangles(tmp_vec);
 	makevectors(angles);
 	// Check whether nearest wall is to the left or right. This could be
 	// precomputed, but only has to happen very sporadically anyway.
 	// Probe slightly ahead to allow for extreme cases.
-	probe_pt = probe_pt + 8 * normalize(dir_move);
+	probe_pt = probe_pt + 8 * normalize(tmp_vec);
 	traceline(probe_pt, probe_pt + (64 * v_right), TRUE, self);
 	local float frac_right = trace_fraction;
 	traceline(probe_pt, probe_pt - (64 * v_right), TRUE, self);

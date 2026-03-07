@@ -168,7 +168,7 @@ void() T_Damage =
 		{
 			direction = normalize(targ.origin - (inflictor.absmin + inflictor.absmax) * 0.5) * damage;
 			extra_velocity = direction * 8;
-			targ.oldvelocity = targ.oldvelocity + extra_velocity;
+			targ.prephys_velocity = targ.prephys_velocity + extra_velocity;
 			targ.velocity = targ.velocity + extra_velocity;
 			targ.path_state = targ.path_state | AIR_ACCELERATION;	// for frogbots
 		}

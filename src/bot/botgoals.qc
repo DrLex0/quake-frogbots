@@ -62,8 +62,11 @@ void() EvalGoal =
 		goal_entity.desire();
 	else if ((goal_entity.T & T_LIQUID) || !goal_entity.index)
 		goal_entity.desire();
-	else  // When about to drown, any marker guaranteed to have air is most desirable
-		goal_desire = 600;
+	else
+		// When about to drown, any marker guaranteed to have air is most desirable.
+		// If the bot is very near a valuable item like RA, it may still get the
+		// best overall score, it is worth sacrificing some health for.
+		goal_desire = 666;
 	goal_entity.saved_goal_desire = goal_desire;
 	if (goal_desire > 0)
 	{

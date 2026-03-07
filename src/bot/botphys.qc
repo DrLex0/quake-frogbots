@@ -19,7 +19,7 @@ during quake physics (ie. between PlayerPreThink and PlayerPostThink)
 */
 void() obstruction =
 {
-	delta_velocity = self.oldvelocity - self.velocity;
+	delta_velocity = self.prephys_velocity - self.velocity;
 	if (delta_velocity_x < 0.1)
 	if (delta_velocity_x > -0.1)
 	if (delta_velocity_y < 0.1)
@@ -50,22 +50,22 @@ void() obstruction =
 			if (self.player)
 			{
 				hor_direction = normalize(hor_velocity);
-				hor_velocity = hor_direction * (hor_direction * self.oldvelocity);
+				hor_velocity = hor_direction * (hor_direction * self.prephys_velocity);
 				self.velocity_x = hor_velocity_x;
 				self.velocity_y = hor_velocity_y;
 			}
 
-			self.velocity_normal = self.oldvelocity - hor_velocity;
+			self.velocity_normal = self.prephys_velocity - hor_velocity;
 			self.velocity_normal_z = 0;
 			self.obstruction_normal = normalize(self.velocity_normal);
 			return;
 		}
 
-		hor_velocity = self.oldvelocity;
+		hor_velocity = self.prephys_velocity;
 		hor_velocity_z = 0;
 		if (hor_velocity != '0 0 0')
 		{
-			self.velocity_normal = self.oldvelocity - (self.obstruction_normal * (self.obstruction_normal * self.oldvelocity));
+			self.velocity_normal = self.prephys_velocity - (self.obstruction_normal * (self.obstruction_normal * self.prephys_velocity));
 			self.velocity_normal_z = 0;
 			self.obstruction_normal = normalize(self.velocity_normal);
 			return;
@@ -609,7 +609,7 @@ void() FrogbotPrePhysics1 =
 
 			if (self.takedamage)
 			{
-				oldvelocity_ = self.velocity;
+				self.pre_arrow_velocity = self.velocity;
 				VelocityForArrow();
 				if (hazard_time)
 					AvoidHazards();
@@ -701,6 +701,7 @@ void() FrogbotPrePhysics2 =
 			else if (content1 == CONTENT_SOLID)
 			{
 				unstick_time = unstick_time + frametime;
+				// so, we are comparing time against number of clients here?! Wut? --DrLex
 				if (unstick_time <= numberofclients)
 				{
 					no_bots_stuck = FALSE;
@@ -743,7 +744,7 @@ void() FrogbotPrePhysics2 =
 				if (self.flags & FL_ONGROUND)
 				{
 					if (self.velocity_z < 0)
-						self.oldvelocity_z = self.velocity_z = 0;
+						self.prephys_velocity_z = self.velocity_z = 0;
 
 					if (self.fl_ontrain)
 						self.fl_ontrain = FALSE;
