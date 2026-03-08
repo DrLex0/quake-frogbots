@@ -633,18 +633,12 @@ float IMP_ABOUT		= 119;
 #ifdef QUAKE
 float IMP_TOGGLEFROG	= 123;
 float IMP_QWPHYSICS	= 130;
-#endif
-//---------------------------
-#ifdef NOCLIP
 float IMP_NOCLIP		= 131;
 #endif
 float IMP_END4		= 131;
 //---------------------------
 float IMP_SETWEAP1	= 248;
 float IMP_SETWEAP2	= 249;
-// DrLex: I have no clue what these are. Let's sabotage and see if anything breaks (likely not.)
-//float IMP_RANDOM		= 250;  // may be remnant of old impulse-based map list?
-//float IMP_IMPULSE_0	= 255;  // 100% clueless
 //---------------------------
 #ifdef MANUAL
 // Manual mode impulses range from 160 to almost 200. Avoid conflicts.
@@ -1055,6 +1049,7 @@ float armorplay;
 
 float gamemode;
 float new_gamemode;
+float game_cheats;
 float game_disable_powerups;
 float game_enable_runes;
 float game_not_rune_rj;

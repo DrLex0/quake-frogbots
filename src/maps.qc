@@ -14,6 +14,10 @@
 
 #include "settings.h"
 
+#ifdef QUAKE
+void() togglenoclip;
+#endif
+
 .string k_votemap;
 
 string(string mapname) MapHasWaypoints;  //generated inside map_load_gen.qc
@@ -113,6 +117,13 @@ void(string s) SV_ParseClientCommand =
 	local string arg0, map;
 	tokenize(s);
 	arg0 = argv(0);
+#ifdef QUAKE
+	if (arg0 == "noclip")
+	{
+		togglenoclip();
+		return;
+	}
+#endif
 	map = MapHasWaypoints(arg0);
 	if (map!="")
 	{
@@ -129,6 +140,13 @@ float(string s) UserCmd =
 
 	mvdtokenize(s);
 	arg0 = mvdargv(0);
+#ifdef QUAKE
+	if (arg0 == "noclip")
+	{
+		togglenoclip();
+		return TRUE;
+	}
+#endif
 	map = MapHasWaypoints(arg0);
 	if (map!="")
 	{

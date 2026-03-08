@@ -213,8 +213,9 @@ void() InitParameters =
 	pre_game = TRUE;
 
 	gamemode = cvar("samelevel");
-
 	SetGame();
+
+	game_cheats = cvar("sv_cheats");
 
 	teamplay = cvar("teamplay");
 
@@ -1543,8 +1544,8 @@ void() NoAdmin =
 	sprint_fb(self, 2, "You don't have admin privileges\n");
 };
 
-#ifdef NOCLIP
-// toggle noclip mode for editing; should not be in production builds
+#ifdef QUAKE
+// toggle noclip mode; only needed in QUAKE because QW has this built-in
 void() togglenoclip =
 {
 	msg_entity = self;
@@ -1555,8 +1556,19 @@ void() togglenoclip =
 	}
 	else
 	{
-		self.movetype = MOVETYPE_NOCLIP;
-		sprint_fb(self, 2, "Noclip ON\n");
+#ifndef MANUAL
+		if (game_cheats)
+		{
+#endif
+			self.movetype = MOVETYPE_NOCLIP;
+			sprint_fb(self, 2, "Noclip ON\n");
+#ifndef MANUAL
+		}
+		else
+		{
+			sprint_fb(self, 2, "Cheats are not allowed on this server\n");
+		}
+#endif
 	}
 };
 #endif
@@ -1614,6 +1626,9 @@ void() ImpulseCommands =
 		self.invincible_time = 1;
 		self.invincible_finished = time + 30;
 	}
+#endif
+#ifdef QUAKE
+	else if (impulse_ == IMP_NOCLIP) togglenoclip();
 #endif
 	else if (impulse_ == IMP_SETWEAP1) setBestWeapon1();
 	else if (impulse_ == IMP_SETWEAP2) setBestWeapon2();
@@ -1679,10 +1694,6 @@ void() ImpulseCommands =
 		}
 		else if (self.lines)
 			AddBotError();
-	#ifdef NOCLIP
-		else if (impulse_ == IMP_NOCLIP)
-			togglenoclip();
-	#endif
 		else if (impulse_ == IMP_MSG)
 			self.spawnflags = START_MSG;
 		else if (impulse_ == IMP_BOTS)

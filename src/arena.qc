@@ -794,10 +794,9 @@ void() ar_aliases2 =
 	alias("observe", IMP_OBSERVE);
 	alias("lock", IMP_LOCK);
 	alias("silence", IMP_SILENCE); 
-	#ifdef NOCLIP
+#ifdef QUAKE
 	alias("noclip_", IMP_NOCLIP);
-	#endif
-//	alias("impulse_0", IMP_IMPULSE_0); TRASH THIS?
+#endif
 	stuffcmd("alias kfjump \"impulse 140;+jump;wait;-jump\"\n");
 	stuffcmd("alias krjump \"impulse 141;+jump;wait;-jump\"\n");
 };

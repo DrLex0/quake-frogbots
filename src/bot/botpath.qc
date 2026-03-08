@@ -797,7 +797,6 @@ void(float finalize) CheckWallStrafe =
 	local float ws_max_err = random() * 0.1 * (10 - self.bot_skill);
 	if (ws_max_err < 0) ws_max_err = 0;
 	self.max_wallstrafespeed = sv_maxspeed * (1 + 0.47 * (1 - ws_max_err));
-	dprint("Using ws_max_err ", ftos(100*ws_max_err), "% for max WS speed ", ftos(self.max_wallstrafespeed), "\n"); //DEBUG
 
 	// Apply the new key immediately. Otherwise it could take several more
 	// frames before BestArrowForDirection first sets it, and this can cause
