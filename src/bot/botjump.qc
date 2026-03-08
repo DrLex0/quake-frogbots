@@ -849,19 +849,30 @@ void() CheckCombatJump =
 	}
 };
 
-// Should not have these map-specific hacks in code. TODO generalize or remove
+/*
+============
+BotInLava
+
+Reduce damage by jumping in shallow lava.
+Also reduces/avoids need to add jump modes to paths out of lava.
+============
+*/
 void() BotInLava =
 {
-	if (mapname == "amphi2")
 	if (self.frogbot)
 	{
 		if (time > self.arrow_time)
 		if (self.waterlevel == 1)
 		if (pointcontents(self.origin + '0 0 -24') == CONTENT_LAVA)
 		if (self.flags & FL_ONGROUND)
+		if (!(self.path_state & (JUST_GO | PRECISE_JUMP)))
 		if (!enemy_shaft_attack())
 		if (!self.rocketjumping)
+		if (vlen(self.prephys_velocity) >= sv_stopspeed)
 		{
+#ifdef DEBUG_HAZD
+			dprint("BotInLava\n");
+#endif
 			NewArrowForDirMove();
 			self.button2_ = 1;
 		}

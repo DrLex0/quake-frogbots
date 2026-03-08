@@ -44,6 +44,7 @@
 #include "maps/trinca/map_cmt3.qc"
 #include "maps/trinca/map_cmt4.qc"
 #include "maps/trinca/map_dakdm1.qc"
+#include "maps/trinca/map_dapak12.qc"
 #include "maps/trinca/map_debello.qc"
 #include "maps/trinca/map_del1.qc"
 #include "maps/trinca/map_dm1.qc"
@@ -106,35 +107,35 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      baldm7      bovine     bravado\n");
 	sprint_fb(self, 2, "   bravadob5       bsdm6   burialb10\n");
 	sprint_fb(self, 2, "    catalyst        cmt3        cmt4\n");
-	sprint_fb(self, 2, "        dad2  dakdm1 dark-terror-ffa\n");
-	sprint_fb(self, 2, "     debello        del1  dm-cepheus\n");
-	sprint_fb(self, 2, "         dm1       dm1ex         dm3\n");
-	sprint_fb(self, 2, "         dm4      dm4ish         dm5\n");
-	sprint_fb(self, 2, "         dm6  dm_cepheus      dmz1++\n");
-	sprint_fb(self, 2, "      doomed    dranzdm6    dranzdm7\n");
-	sprint_fb(self, 2, "    dranzdm8        e1m1        e1m2\n");
-	sprint_fb(self, 2, "        e1m3        e1m4        e1m5\n");
-	sprint_fb(self, 2, "        e1m6        e1m7      efdm13\n");
-	sprint_fb(self, 2, "       efdm8    egyptele         end\n");
-	sprint_fb(self, 2, "       endif       eodm3       exdm3\n");
-	sprint_fb(self, 2, "      filthy        four    frobodm2\n");
-	sprint_fb(self, 2, "    genocide        halo      hohoho\n");
-	sprint_fb(self, 2, "     hohoho2     imp1dm6        jvx1\n");
-	sprint_fb(self, 2, "      kjdm12      lilith      misdm8\n");
-	sprint_fb(self, 2, "     monsoon      naked6    naked7b2\n");
-	sprint_fb(self, 2, "       north        nova     oktest1\n");
-	sprint_fb(self, 2, "       pkeg1       pkeg2     povdmm4\n");
-	sprint_fb(self, 2, "     pro-dm4      prodm4     q3dm6qw\n");
-	sprint_fb(self, 2, "     qtourn2       rwild     schloss\n");
-	sprint_fb(self, 2, "     shadows       shady     shifter\n");
-	sprint_fb(self, 2, "       shine       skull     spinev2\n");
-	sprint_fb(self, 2, "       start    strmland         thf\n");
-	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
-	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
-	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
-	sprint_fb(self, 2, "    utressor      ztndm1      ztndm2\n");
-	sprint_fb(self, 2, "      ztndm3 ztndm3frost      ztndm4\n");
-	sprint_fb(self, 2, "      ztndm5      ztndm6\n");
+	sprint_fb(self, 2, "        dad2      dakdm1     dapak12\n");
+	sprint_fb(self, 2, " dark-terror-ffa     debello    del1\n");
+	sprint_fb(self, 2, "  dm-cepheus         dm1       dm1ex\n");
+	sprint_fb(self, 2, "         dm3         dm4      dm4ish\n");
+	sprint_fb(self, 2, "         dm5         dm6  dm_cepheus\n");
+	sprint_fb(self, 2, "      dmz1++      doomed    dranzdm6\n");
+	sprint_fb(self, 2, "    dranzdm7    dranzdm8        e1m1\n");
+	sprint_fb(self, 2, "        e1m2        e1m3        e1m4\n");
+	sprint_fb(self, 2, "        e1m5        e1m6        e1m7\n");
+	sprint_fb(self, 2, "      efdm13       efdm8    egyptele\n");
+	sprint_fb(self, 2, "         end       endif       eodm3\n");
+	sprint_fb(self, 2, "       exdm3      filthy        four\n");
+	sprint_fb(self, 2, "    frobodm2    genocide        halo\n");
+	sprint_fb(self, 2, "      hohoho     hohoho2     imp1dm6\n");
+	sprint_fb(self, 2, "        jvx1      kjdm12      lilith\n");
+	sprint_fb(self, 2, "      misdm8     monsoon      naked6\n");
+	sprint_fb(self, 2, "    naked7b2       north        nova\n");
+	sprint_fb(self, 2, "     oktest1       pkeg1       pkeg2\n");
+	sprint_fb(self, 2, "     povdmm4     pro-dm4      prodm4\n");
+	sprint_fb(self, 2, "     q3dm6qw     qtourn2       rwild\n");
+	sprint_fb(self, 2, "     schloss     shadows       shady\n");
+	sprint_fb(self, 2, "     shifter       shine       skull\n");
+	sprint_fb(self, 2, "     spinev2       start    strmland\n");
+	sprint_fb(self, 2, "         thf         tox      tridm1\n");
+	sprint_fb(self, 2, "      tridm2      tridm3     trindm1\n");
+	sprint_fb(self, 2, "     trindm2     trindm3      ukpak2\n");
+	sprint_fb(self, 2, "      ultrav    utressor      ztndm1\n");
+	sprint_fb(self, 2, "      ztndm2      ztndm3 ztndm3frost\n");
+	sprint_fb(self, 2, "      ztndm4      ztndm5      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -357,6 +358,11 @@ float() LoadWaypoints =
 	if (mapname == "dakdm1")
 	{
 		map_dakdm1();
+		return TRUE;
+	}
+	if (mapname == "dapak12")
+	{
+		map_dapak12();
 		return TRUE;
 	}
 	if (mapname == "debello")
@@ -752,6 +758,8 @@ string(string mname) MapHasWaypoints =
 		return "cmt4";
 	if (mname == "dakdm1")
 		return "dakdm1";
+	if (mname == "dapak12")
+		return "dapak12";
 	if (mname == "debello")
 		return "debello";
 	if (mname == "del1")

@@ -535,5 +535,9 @@ float() enemy_defenceless =
 
 float() enemy_shaft_attack =
 {
-	return ((enemy_.weapon == IT_LIGHTNING) && (self.enemy_dist < 630) && (time < enemy_.attack_finished));
+	if (enemy_.weapon == IT_LIGHTNING)
+	if (self.enemy_dist < 630)
+	if (time < enemy_.attack_finished)
+		return TRUE;
+	return FALSE;
 };
