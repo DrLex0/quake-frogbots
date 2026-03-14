@@ -102,6 +102,11 @@ PLAYER
 void() player_run_ =
 {
 	self.nextthink = time + 0.1;
+	if (self.modelindex == modelindex_eyes)  // don't try to animate eyeballs
+	{
+		self.frame = 0;
+		return;
+	}
 	self.walkframe = self.walkframe + 1;
 
 #ifdef TALK
@@ -187,9 +192,31 @@ void()	player_axed2 =	[$axattd2, player_axed3	] {self.weaponframe=6;};
 void()	player_axed3 =	[$axattd3, player_axed4	] {self.weaponframe=7;W_FireAxe();};
 void()	player_axed4 =	[$axattd4, player_run	] {self.weaponframe=8;};
 
+// Avoid console spam caused by animations trying to set frames on eyes model.
+// For some reason the above code does not cause spam in original Id progs,
+// something must be different between QCC and FTEQCC. Anyhow, providing
+// frame-less functions is the most correct solution and avoids copy-pasta.
+void() player_shotinv =
+{
+	muzzleflash();
+	self.nextthink = time + 0.5;
+	self.think = player_run;
+};
+void() player_fireaxe =
+{
+	self.nextthink = time + 0.1;
+	self.think = player_run;
+	W_FireAxe();
+};
+void() player_axeinv =
+{
+	self.nextthink = time + 0.2;
+	self.think = player_fireaxe;
+};
+
 //============================================================================
 
-void() player_nail1 =[$nailatt1, player_nail2] 
+void(float ox) player_nail =
 {
 	muzzleflash();
 	if (self.button0_)
@@ -198,7 +225,7 @@ void() player_nail1 =[$nailatt1, player_nail2]
 		if (self.weaponframe == 9)
 			self.weaponframe = 1;
 		SuperDamageSound();
-		W_FireSpikes (4);
+		W_FireSpikes (ox);
 		self.attack_finished = time + 0.2;
 		DelayUpdateWeapons();
 	}
@@ -208,28 +235,14 @@ void() player_nail1 =[$nailatt1, player_nail2]
 	}
 };
 
-void() player_nail2 =[$nailatt2, player_nail1]
-{
-	muzzleflash();
-	if (self.button0_)
-	{
-		self.weaponframe = self.weaponframe + 1;
-		if (self.weaponframe == 9)
-			self.weaponframe = 1;
-		SuperDamageSound();
-		W_FireSpikes (-4);
-		self.attack_finished = time + 0.2;
-		DelayUpdateWeapons();
-	}
-	else
-	{
-		player_run ();
-	}
-};
+void() player_nail1  =[$nailatt1, player_nail2	] {player_nail(4);};
+void() player_nail2  =[$nailatt2, player_nail1	] {player_nail(-4);};
+void() player_inail1 =[0, player_inail2	] {player_nail(4);};
+void() player_inail2 =[0, player_inail1	] {player_nail(-4);};
 
 //============================================================================
 
-void() player_light1 =[$light1, player_light2] 
+void() player_light =
 {
 	muzzleflash();
 	AntiSplode();
@@ -248,24 +261,8 @@ void() player_light1 =[$light1, player_light2]
 	}
 };
 
-void() player_light2 =[$light2, player_light1]
-{
-	muzzleflash();
-	AntiSplode();
-	if (self.button0_)
-	{
-		self.weaponframe = self.weaponframe + 1;
-		if (self.weaponframe == 5)
-			self.weaponframe = 1;
-		SuperDamageSound();
-		W_FireLightning();
-		self.attack_finished = time + 0.2;
-	}
-	else
-	{
-		player_run ();
-	}
-};
+void() player_light1 =[$light1, player_light2] {player_light();};
+void() player_light2 =[$light2, player_light1] {player_light();};
 
 //============================================================================
 
@@ -517,6 +514,7 @@ void() GibPlayer =
 
 	SetViewPortClient();
 	viewport.modelindex = modelindex_head;
+	viewport.frame = 0;
 #else
 	self.modelindex = modelindex_head;
 #endif
@@ -634,7 +632,10 @@ void() PlayerDie =
 	}
 
 #ifdef QUAKE
-	self.aiment.frame = self.frame;	// this can happen after FrogbotPostPhysics
+	if(self.modelindex)
+		self.aiment.frame = self.frame;	// this can happen after FrogbotPostPhysics
+	else
+		self.aiment.frame = self.frame = 0;
 #endif
 };
 

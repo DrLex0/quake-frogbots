@@ -1600,6 +1600,7 @@ void() powerup_touch_apply =
 
 		SetViewPortClient();
 		viewport.modelindex = modelindex_eyes;
+		viewport.frame = 0;
 	#else
 		other.modelindex = modelindex_eyes;
 	#endif

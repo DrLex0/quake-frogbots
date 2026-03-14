@@ -972,8 +972,12 @@ void()	player_axe1;
 void()	player_axeb1;
 void()	player_axec1;
 void()	player_axed1;
+void()	player_axeinv;
 void()	player_shot1;
+void()	player_shotinv;
 void()	player_nail1;
+void()	player_inail1;
+void()	player_light;
 void()	player_light1;
 void()	player_rocket1;
 
@@ -995,15 +999,20 @@ void() W_Attack =
 	{
 		msg_entity = self;
 		sound (CHAN_WEAPON, "weapons/ax1.wav", 1, ATTN_NORM);
-		rnd = random();
-		if (rnd < 0.25)
-			player_axe1 ();
-		else if (rnd < 0.5)
-			player_axeb1 ();
-		else if (rnd < 0.75)
-			player_axec1 ();
+		if (self.modelindex != modelindex_eyes)
+		{
+			rnd = random();
+			if (rnd < 0.25)
+				player_axe1 ();
+			else if (rnd < 0.5)
+				player_axeb1 ();
+			else if (rnd < 0.75)
+				player_axec1 ();
+			else
+				player_axed1 ();
+		}
 		else
-			player_axed1 ();
+			player_axeinv ();
 
 		// RUNE: rune of hell magic
 		if (self.player_flag & ITEM_RUNE3_FLAG)
@@ -1016,7 +1025,10 @@ void() W_Attack =
 	}
 	else if (weapon_ == IT_SHOTGUN)
 	{
-		player_shot1 ();
+		if (self.modelindex != modelindex_eyes)
+			player_shot1 ();
+		else
+			player_shotinv ();
 		W_FireShotgun ();
 
 		// RUNE: rune of hell magic
@@ -1030,7 +1042,10 @@ void() W_Attack =
 	}
 	else if (weapon_ == IT_SUPER_SHOTGUN)
 	{
-		player_shot1 ();
+		if (self.modelindex != modelindex_eyes)
+			player_shot1 ();
+		else
+			player_shotinv ();
 
 		if (self.currentammo == 1)
 		{
@@ -1076,15 +1091,24 @@ void() W_Attack =
 	}
 	else if (weapon_ == IT_NAILGUN)
 	{
-		player_nail1 ();
+		if (self.modelindex != modelindex_eyes)
+			player_nail1 ();
+		else
+			player_inail1 ();
 	}
 	else if (weapon_ == IT_SUPER_NAILGUN)
 	{
-		player_nail1 ();
+		if (self.modelindex != modelindex_eyes)
+			player_nail1 ();
+		else
+			player_inail1 ();
 	}
 	else if (weapon_ == IT_GRENADE_LAUNCHER)
 	{
-		player_rocket1();
+		if (self.modelindex != modelindex_eyes)
+			player_rocket1();
+		else
+			player_shotinv();
 
 		if (use_ammo)
 		{
@@ -1147,7 +1171,10 @@ void() W_Attack =
 	}
 	else if (weapon_ == IT_ROCKET_LAUNCHER)
 	{
-		player_rocket1();
+		if (self.modelindex != modelindex_eyes)
+			player_rocket1();
+		else
+			player_shotinv();
 
 		if (use_ammo)
 		{
@@ -1206,7 +1233,10 @@ void() W_Attack =
 	}
 	else if (weapon_ == IT_LIGHTNING)
 	{
-		player_light1();
+		if (self.modelindex != modelindex_eyes)
+			player_light1();
+		else
+			player_light();
 		self.attack_finished = time + 0.1;
 		msg_entity = self;
 		sound (CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_NORM);
