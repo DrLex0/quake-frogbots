@@ -867,7 +867,7 @@ void() frogbot_marker_touch =
 		{
 			if (goalentity_.classname == "dynamic_item")
 			{
-				if (IsVisible(goalentity_))
+				if (VisibleEntity(goalentity_))
 				{ 
 					linked_marker_ = self.linked_marker = goalentity_;
 					self.path_from_marker = touch_marker_;

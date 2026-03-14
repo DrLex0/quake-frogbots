@@ -11,6 +11,8 @@ Figuring this out was essential to fix a lot of bugs and to know how to implemen
 
 This has been obtained by littering the code with debug print statements in all important methods, and then running it in QuakeWorld (ezQuake). A NetQuake engine may follow a different flow, but general principles should be the same. At some point I might repeat this experiment in vkQuake to see where the differences are, which would also be very useful information.
 
+Mind that this is the flow for a _pure bot._ The flow may be slightly different for a player that has become a bot in QUAKE.
+
 1. **StartFrame** (`world.qc`)
    - **FrogbotPrePhysics1** (`botphys.qc`)
      - Loops over all clients, applies friction, and invokes for Frogbots:
@@ -32,7 +34,7 @@ This has been obtained by littering the code with debug print statements in all 
 3. **FrogbotPostPhysics** (`botphys.qc`)
    - Invoked through `.think` on `postphysics`; split up in 2 parts that each loop over all clients
    - **FrogbotPostPhysics1** (`botphys.qc`)
-     - this ends with obstruction detection which then tries a `walkmove` as fallback for interrupted velocity-driven movement. Obstruction detection relies on comparing `.prephys_velocity` against current velocity which has been adjusted by engine physics.
+     - ends with obstruction detection which then tries a `walkmove` as fallback for interrupted velocity-driven movement. Obstruction detection relies on comparing `.prephys_velocity` against current velocity which has been adjusted by engine physics.
    - **FrogbotPostPhysics2** (`botphys.qc`)
      - **PlayerPostThink_apply** (`client.qc`)
        - **ThinkTime** (`botthink.qc`), clocked through `.frogbot_nextthink`, about 6/s, but can be forced by certain events like being teleported.
@@ -49,6 +51,7 @@ This has been obtained by littering the code with debug print statements in all 
          - `SelectWeapon`
          - `SetFireButton` is invoked to decide whether to fire the weapon
          - `self.pitchaccel` and `self.yawaccel` are computed by using `self.look_object`, this is clocked through `.firing_reflex`, which varies from 0.5 to 0.1s depending on bot skill.
+       - Weapon is fired in `W_WeaponFrame` if button0 is down
        - **SetFrogbotAngles** (`botthink.qc`)
          - **FrogTrackSimple** if `.look_here` exists and not looking at enemy.
            - forces `.pitchaccel, .yawaccel, .pitchspeed, .yawspeed` to 0, and only sets `track_pitchspeed` and `track_yawspeed` for simple rotation.
@@ -84,8 +87,11 @@ Useful for anyone working on any Quake mod or even to map makers. TODO: this kin
 
 - The geometry you see in the game is not actually the geometry being used to calculate collisions with the player model. The player is treated as a _point_ inside a ‘fattened’ hull transformation of the map geometry. See [this cool video from Matt's Random Ramblings](https://www.youtube.com/watch?v=3KjMjHJ3WQg) for more info.
 - The player model is **56** units tall. Bottom to eyes is 46 units, eyes to top 10 units.  
-  In QuakeC, the `.origin` is 24 units from the bottom hence 22 units below the eyes and 32 units below the top.
+  In QuakeC, the `.origin` is 24 units from the bottom hence 22 units below the eyes and 32 units below the top. The distance from origin to eyes is specified in `.view_ofs`.
   - Mouth and eyes are considered to be at the same height (or another way to look at this, is that the player is able to _breathe through their eyes_ 👀). In other words, for a player to be able to breathe in a zone with water, there must be at least 11 units of air above the water surface.
+  - Waist point is considered to be the center, hence 28u above bottom or 4u above origin.
+  - Water level 1 means player is in liquid at least 1 unit deep, but waist is above liquid. Water level 2 means waist is in liquid but eyes are not, water level 3 means eyes are in liquid.
+    - (However, to add to the breathing absurdity, as long as the lowest 1u of the player are dry, water level is 0. This implies the player can also breathe through the soles of their feet. 🦶)
   - Projectiles (rockets, nails, …) are launched from 16 units above the origin, hence 40 units from the bottom.
   - The player model is theoretically 64 units wide, but is considered to be marginally wider than 32 units when it comes to fitting inside corridors. Same for the depth: if the player has its face or back stuck to a wall, its origin is 16 units from the wall, hence the player is considered 32 units deep.
   - In other words, for players: `mins = '-16 -16 -24` and `maxs = '16 16 32`.

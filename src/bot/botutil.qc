@@ -2,6 +2,7 @@
 	bot/botutil.qc
 
 	Copyright (C) 1997-1999 Robert 'Frog' Field
+	Improvements by DrLex 2025-2026
 */
 
 #include "../settings.h"

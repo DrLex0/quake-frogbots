@@ -2,7 +2,7 @@
 	bot/botwater.qc
 
 	Copyright (C) 1999-2000 Numb
-	Redesign by DrLex 2025/02
+	Redesign by DrLex 2025/02 - 2026
 */
 
 #include "../settings.h"
@@ -416,70 +416,117 @@ void() FrogWaterMove =
 	VelocityForArrow();
 };
 
-float () BotShouldDischarge =
+/*
+============
+BotShouldDischarge
+
+NUMB's original idea, but implemented such that it actually works.
+============
+*/
+float() BotShouldDischarge =
 {
-	local float n;
-	local entity p;
-
-	if (self.waterlevel != 3)
+	if (!self.frogbot)
 		return FALSE;
-
+	if (self.waterlevel < 2)
+		return FALSE;
 	if (!(self.items & IT_LIGHTNING))
 		return FALSE;
-
+	if (self.bot_smartness < 5)
+		return FALSE;
 	if (self.ammo_cells < 25)
 		return FALSE;
-
 	if (self.enemy_dist > 600)
 		return FALSE;
-
 	if (look_object_ != enemy_)
 		return FALSE;
 
-	// discharge!
-	if (self.invincible_time > time)
-	if (pointcontents(enemy_.origin) == CONTENT_WATER)
-		return TRUE;
-
 	// don't discharge...
-	if ((self.items & IT_ROCKET_LIGHTNING) && (self.ammo_rockets > 25) && (self.ammo_cells > 25))
-		return FALSE;
-
-	if ((self.items & IT_NAILGUN_ROCKET) && (self.ammo_rockets > 25) && (self.ammo_nails > 25))
-		return FALSE;
-
-	n = 0;
-	p = findradius(self.origin, 1000);
-	while (p != world)
+	if (! self.invincible_time)
 	{
-		if (pointcontents(p.origin) == CONTENT_WATER)
+		if (self.items & IT_ROCKET_LAUNCHER)
+		if (self.ammo_rockets > 25)
+			return FALSE;
+	
+		if (self.items & IT_EITHER_NAILGUN)
+		if (self.ammo_nails > 75)
+			return FALSE;
+
+		if (self.armorvalue > 150)
+			return FALSE;
+	}
+
+	// Guesstimate how many targets can be killed by going BANZAI.
+	// Contrary to popular belief, discharge is treated as a regular
+	// explosion, and will equally affect reachable targets both inside
+	// and outside liquids. However, to remain fair, bots below inhuman
+	// levels cannot see across liquid boundaries.
+	local float n, max_radius;
+	local entity p;
+	p = first_takedamage;
+	n = 0;
+	if (self.bot_skill <= 10)  // "fair" algorithm
+	{
+		local float self_wl = self.waterlevel;
+		// Conservative guess for inflicting at least 200 damage
+		// according to crude T_RadiusDamage logic approximation
+		max_radius = 60 * self.ammo_cells - 400;
+		while (p)
 		{
 			if (p.client_)
+			if (p.takedamage)
+			if (p != self)
+			if (vlen(self.origin - p.origin) < max_radius)
+			if (VisibleEntity(p))
 			{
-				if (p.takedamage)
+				if (p.realteam != self.realteam)
+					n = n + 1;
+				else  // don't teamkill unless really worth it
+					n = n - 1.5;
+			}
+			p = p.next;
+		}
+	}
+	else  // all-knowing bot with X-ray vision, closely mimic T_RadiusDamage
+	{
+		max_radius = 69 * self.ammo_cells - 400;
+		inflictor = self;
+		inflictor_origin = self.origin;
+		while (p)
+		{
+			if (p.client_)
+			if (p.takedamage)
+			if (p != self)
+			if (vlen(self.origin - p.origin) < max_radius)
+			{
+				targ = p;
+				if (CanDamage())
 				{
-					if (IsVisible(p))
-					{
-						if (p.realteam != self.realteam)
-						{
-							n = n + 1;
-						}
-						else
-						{
-							n = n - 1;
-						}
-					}
+					if (p.realteam != self.realteam)
+						n = n + 1;
+					else  // don't teamkill unless really worth it
+						n = n - 1.5;
 				}
 			}
+			p = p.next;
 		}
-		p = p.chain;
 	}
-	
+
+	if (n < 1)
+		return FALSE;
+
+	// discharge!
+	if (self.invincible_time)
+		return TRUE;
+
 	if (n >= 2)
 	{
+		if (self.health < 16)
+			return TRUE;
+
+		n = n - 1;
 		// discharge! we'll kill 2 or more 
-		if (random() < 0.003)
-		{	
+		if (random() < 0.003 * n * n)
+		{
 			return TRUE;
 		}
 	}

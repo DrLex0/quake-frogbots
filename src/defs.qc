@@ -691,6 +691,7 @@ float IT_EITHER_NAILGUN			= 12;
 float IT_NAILGUN_ROCKET			= 44;
 float IT_VELOCITY				= 60;
 float IT_CONTINUOUS			= 76;
+float IT_ROCKET_LIGHTNING		= 96;
 float IT_AXE_SHOTGUN			= 4097;
 float IT_ALL_BUT_GRENADE		= 4207;
 float IT_ALL				= 4223;
@@ -1019,11 +1020,16 @@ float current_team;
 .float 		attack_finished;
 .float		pain_finished;
 
+// Actual powerup expiration time stamps
 .float		invincible_finished;
 .float		invisible_finished;
 .float		super_damage_finished;
 .float		radsuit_finished;
 
+// The _time values are used for the expiration warning; initial value 1
+// means warning has not yet been shown, after that it is used as timer
+// for the flashing display animation. These vars can be used as simple
+// test for the powerup being active.
 .float		invincible_time, invincible_sound;
 .float		invisible_time, invisible_sound;
 .float		super_time, super_sound;
@@ -1728,17 +1734,19 @@ float desire_adj_G2;
 float force_raspawn;  // set to 1 in arena maps only playable with raspawn
 
 // state values for clients
-float NOTARGET_ENEMY			= 32;
-float AWARE_SURROUNDINGS		= 128;
+float NOTARGET_ENEMY		= 32;
+float AWARE_SURROUNDINGS	= 128;
+float HELP_TEAMMATE			= 256;
+float KAMIKAZE				= 512;
 float HURT_SELF				= 1024;
-float CHASE_ENEMY				= 2048;
+float CHASE_ENEMY			= 2048;
 float RUNAWAY				= 4096;
 float WAIT					= 8192;
-float NEED_SHOOT_AIM			= 16384;
+float NEED_SHOOT_AIM		= 16384;
 
-float NOT_HURT_SELF			= 16776191;
+float NOT_HURT_SELF				= 16776191;
 float NOT_NOTARGET_ENEMY		= 16777183;
-float NOT_AWARE_SURROUNDINGS		= 16777087;
+float NOT_AWARE_SURROUNDINGS	= 16777087;
 
 // camp values for clients
 float CAMPBOT				= 1;

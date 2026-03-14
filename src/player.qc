@@ -6,11 +6,13 @@
 	Copyright (C) 1996-1997 Id Software, Inc.
 	Copyright (C) 1997-1999 Robert 'Frog' Field
 	Copyright (C) 2000-2007 ParboiL
+	Improvements by DrLex 2025-2026
 */
 
 #include "settings.h"
 
 void() bubble_bob;
+void() AntiSplode;
 
 /*
 ==============================================================================
@@ -230,6 +232,7 @@ void() player_nail2 =[$nailatt2, player_nail1]
 void() player_light1 =[$light1, player_light2] 
 {
 	muzzleflash();
+	AntiSplode();
 	if (self.button0_)
 	{
 		self.weaponframe = self.weaponframe + 1;
@@ -248,6 +251,7 @@ void() player_light1 =[$light1, player_light2]
 void() player_light2 =[$light2, player_light1]
 {
 	muzzleflash();
+	AntiSplode();
 	if (self.button0_)
 	{
 		self.weaponframe = self.weaponframe + 1;

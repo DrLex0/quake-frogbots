@@ -232,10 +232,6 @@ void() SetFireButton =
 				}
 			}
 
-			if (self.weapon == IT_LIGHTNING)
-			if (self.waterlevel > 1)
-				return; // NUMB
-
 			risk_factor = 0.5;
 			risk = random();
 			risk = risk * risk;
@@ -503,12 +499,6 @@ void() DesiredWeapon =
 				}
 			}
 		}
-	}
-
-	if (BotShouldDischarge())
-	{
-		desired_weapon = IT_LIGHTNING;
-		return;
 	}
 
 	if (!no_lg)

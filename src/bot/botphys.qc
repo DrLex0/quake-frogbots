@@ -692,7 +692,7 @@ void() FrogbotPrePhysics2 =
 	{
 		if (!self.player)
 		{
-			content1 = pointcontents(self.origin + '0 0 -24');
+			content1 = pointcontents(self.origin + '0 0 -23');
 			if (content1 == CONTENT_EMPTY)
 			{
 				self.oldwaterlevel = 0;
@@ -855,20 +855,21 @@ void() FrogbotPostPhysics1 =
 			if (self.jump_flag)
 			if (self.flags & FL_ONGROUND)
 				CheckLand();
-		}
 
-		// cap wallstrafe speed, see CheckWallStrafe
-		if(self.wallstrafe_key)
-		{
-			local vector vhor = self.velocity;
-			vhor_z = 0;
-			if (vlen(vhor) > self.max_wallstrafespeed)
+			// cap wallstrafe speed, see CheckWallStrafe
+			if(self.wallstrafe_key)
 			{
-				vhor = self.max_wallstrafespeed * normalize(vhor);
-				self.velocity_x = vhor_x;
-				self.velocity_y = vhor_y;
+				local vector vhor = self.velocity;
+				vhor_z = 0;
+				if (vlen(vhor) > self.max_wallstrafespeed)
+				{
+					vhor = self.max_wallstrafespeed * normalize(vhor);
+					self.velocity_x = vhor_x;
+					self.velocity_y = vhor_y;
+				}
 			}
 		}
+
 		self = self.next;
 	}
 };

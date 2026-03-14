@@ -1289,14 +1289,6 @@ void() CheckStuckOnDoor =
 };
 
 
-/*
-================
-PlayerPostThink
-
-Called every frame after physics are run
-================
-*/
-
 void() CheckLand =
 {
 	if (self.jump_flag < -300)
@@ -1322,6 +1314,13 @@ void() CheckLand =
 	self.jump_flag = 0;
 };
 
+/*
+================
+PlayerPostThink_apply
+
+For both players and bots
+================
+*/
 void() PlayerPostThink_apply =
 {
 #ifdef ARENA
@@ -1545,6 +1544,23 @@ void() PlayerPostThink_apply =
 			self.impulse = 0;
 	#endif
 
+		// must be clocked because uses fixed probability for final decision,
+		// otherwise chance would increase together with frame rate
+		if (hazard_time)
+		if (BotShouldDischarge())
+		{
+#ifdef TALK
+			rnd = random();
+			if (rnd < 0.05)
+				say("BONSAAAAAIII!");
+			else if(rnd < 0.25)
+				say("BANZAAAAAIII!");
+#endif
+			self.impulse = 8;
+			self.button0_ = TRUE;
+			self.state = self.state | KAMIKAZE;
+		}
+
 		if (self.impulse)
 		{
 			if (!self.spawnflags)
@@ -1570,7 +1586,7 @@ void() PlayerPostThink_apply =
 			#endif
 			}
 		}
-	
+
 	// check for attack
 	#ifdef ARENA
 		if ((!game_arena) || (arenastate == A_PLAYING))
@@ -1588,6 +1604,13 @@ void() PlayerPostThink_apply =
 	}
 };
 
+/*
+================
+PlayerPostThink
+
+Called by engine for players only, every frame after physics are run
+================
+*/
 void() PlayerPostThink =
 {
 	ImpulseCommands();
@@ -2033,7 +2056,7 @@ void() ClientObituary =
 					bprint_fb(1, " tries to put the pin back in\n");
 				else if (deathtype == "rocket")
 					bprint_fb(1, " becomes bored with life\n");
-				else if (self.weapon == 64 && self.waterlevel > 1)
+				else if (self.weapon == IT_LIGHTNING && self.waterlevel > 1)
 				{
 					if (self.watertype == CONTENT_SLIME)
 						bprint_fb(1, " discharges into the slime\n");

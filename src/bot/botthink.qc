@@ -769,3 +769,38 @@ void() SetFrogbotAngles =
 	#endif
 #endif
 };
+
+/*
+============
+AntiSplode
+
+Bots will generally avoid firing the LG under water, but may
+still try it in borderline situations. Smartness-dependent
+self-gibbage avoidance for those situations.
+============
+*/
+void() AntiSplode =
+{
+	if (! self.frogbot)
+		return;
+	if (self.bot_smartness < 4)
+		return;
+	if (self.state & KAMIKAZE)
+	{
+		// clear flag so bot won't keep going banzai after respawning
+		self.state = self.state - KAMIKAZE;
+		return;
+	}
+	if (self.button0_)
+	if (self.weapon == IT_LIGHTNING)
+	if (self.waterlevel > 1)
+	{
+		// survival probability for smartness s: 1.01 - (0.16 * s - 1.67)^2
+		// (this is just fudged together to look reasonable)
+		local float smort = 0.16 * self.bot_smartness - 1.67;
+		if (random() < (1.01 - smort * smort))
+		{
+			self.button0_ = FALSE;
+		}
+	}
+};

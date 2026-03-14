@@ -3,6 +3,7 @@
 
 	Copyright (C) 1999-2000 Numb
 	Copyright (C) 2000-2007 ParboiL
+	Improvements by DrLex 2025-2026
 */
 
 #include "../settings.h"
@@ -10,28 +11,15 @@
 float(float v) anglemod360;
 
 
-float(vector vec) EntVisible =
+float(vector vec, entity ent) PointVisible =
 {
-	traceline(self.origin, vec, TRUE, self);
-	if ((trace_fraction == 1) && !(trace_inopen && trace_inwater)) return TRUE;
-	return FALSE;
-};
-
-float(entity ent) IsVisible =
-{
-	local vector vec;
-
-// Three points: origin, bottom and top
-	if (EntVisible(ent.origin)) 
-		return TRUE;
-	vec = ent.origin;
-	vec_z = ent.absmin_z;
-	if (EntVisible(vec))
-		return TRUE;
-	vec_z = ent.absmax_z;
-	if (EntVisible(vec))
-		return TRUE;
-	return FALSE;
+	traceline(self.origin + '0 0 22', vec, TRUE, self);
+	if (trace_ent == ent)
+	if (ent)
+		return TRUE;  // makes this also work on doors, buttons
+	if (trace_fraction != 1)
+		return FALSE;
+	return !(trace_inopen && trace_inwater);
 };
 
 float(entity ent) VisibleEntity =
@@ -39,14 +27,14 @@ float(entity ent) VisibleEntity =
 	local vector vec;
 
 // Three points: origin, bottom and top
-	if (EntVisible(ent.origin)) 
+	if (PointVisible(ent.origin, ent))
 		return TRUE;
 	vec = ent.origin;
 	vec_z = ent.absmin_z;
-	if (EntVisible(vec))
+	if (PointVisible(vec, ent))
 		return TRUE;
 	vec_z = ent.absmax_z;
-	return EntVisible(vec);
+	return PointVisible(vec, ent);
 };
 
 entity(entity me) identify_teammate_ =
@@ -139,7 +127,7 @@ entity() HelpTeammate =
 				{
 					if ((self.ammo_rockets > 2) || (self.ammo_cells > 10))
 					{
-						if (IsVisible(self.goalentity))
+						if (VisibleEntity(self.goalentity))
 						{
 							self.state = self.state | HELP_TEAMMATE;
 							return self.goalentity;
