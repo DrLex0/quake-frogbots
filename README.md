@@ -93,6 +93,16 @@ A custom bot spawn level that overrides the built-in configs can be persisted ac
 
 If you have never played Quake before, you may want to start at skill level 0 and gradually go up. Seasoned players may want to try level 10. It goes up to 20, at which point the bots have inhumanly fast aim and situational awareness. True hardcore Quake players may still be able to outwit level 20 bots by exploiting their limitations.
 
+#### Map lists
+Map lists can be configured to automatically cycle through maps. This differs between engines that support `localinfo` and those that don't.
+- Easiest is to use `localinfo` when supported. Specify the sequence of maps through `localinfo currentmap nextmap` commands. Point the last map back to the first to make a loop. Random map selection within this sequence is supported, by setting `ffa_mapqueue` to a nonzero value. See the files in `configs-qw` for examples.
+- In NetQuake engines without `localinfo` but with support for the _Krimzon_ extensions, it is still possible to set up map lists, through a set of aliases. The syntax is: `alias nm_currentmap "cmd fb_nm nextmap"`. (No option for random map order in this case.) See the files in `configs-quake` for examples.
+
+#### Multiplayer
+Of course one is not restricted to playing against bots only, other clients can join a server started from the Frogbot mod. Some hints:
+- Although engines like vkQuake will allow clients to join a Frogbot server without having loaded the mod, this will result in some error messages, lack of custom sounds, and potential weirdness, hence it is best for everyone to join the game from within the loaded mod.
+- _Map voting_ is possible through user commands. For instance, if a majority of human players invoke `cmd aerowalk,` the server will switch to `aerowalk.` Only supported maps can be voted on, and obviously the map must be available on the server (in NetQuake engines, trying to load an unavailable map may kill the server.)
+
 #### Engine quirks
 If you're using _ezQuake,_ it is possible that _all_ players will have the same red pants and yellow shirts, making it very hard to play team games because the only way to discern between enemies and teammates, is to see whether they are shooting at you. This seems to be a bug in _ezQuake_ itself and the only decent workaround I have found so far, is `/r_skincolormode 5` and then `r_teamskincolor 96 255 96` to give your teammates a green tint (change the RGB numbers for different colors). Even if the bug is fixed in newer versions, this may still be helpful to avoid teamkills.
 

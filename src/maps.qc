@@ -16,6 +16,7 @@
 
 #ifdef QUAKE
 void() togglenoclip;
+void() NoAdmin;
 #endif
 
 .string k_votemap;
@@ -61,7 +62,7 @@ void(string pmapname) SelectMapCore =
 	{
 		if ((self.k_votemap == pmapname) && numberofplayers > 1)
 		{
-			sprint_fb(self, 2, "ùûûûûü your vote is still good ùûûûûü\n");
+			sprint_fb(self, 2, "\<\-\-\-\> your vote is still good \<\-\-\-\>\n");
 		}
 		else
 		{
@@ -85,10 +86,8 @@ void(string pmapname) SelectMapCore =
 				if (numberofplayers > 1)
 				{
 					bprint(2, "Majority votes for mapchange\n");
-				} 
-				localcmd("map ");
-				localcmd(pmapname);
-				localcmd("\n");
+				}
+				changelevel(pmapname);
 				return;
 			}
 		}
@@ -123,7 +122,24 @@ void(string s) SV_ParseClientCommand =
 		togglenoclip();
 		return;
 	}
+	else if (arg0 == "fb_nm")
+	{
+		// Only implemented here, because:
+		// - last time I checked in ezQuake, UserCmd was broken and only passed arg 0;
+		// - AFAIK all currently popular QUAKE engines support this KRIMSON ext;
+		// - the ones that don't, likely support the use of localinfo for map lists.
+		if (is_multiplayer && (self.admin_code != dropper.admin_code))
+		{
+			NoAdmin();
+			return;
+		}
+		if (argv(1))
+			nextmap = argv(1);
+		dprint("Next map set to: ", nextmap, "\n");
+		return;
+	}
 #endif
+
 	map = MapHasWaypoints(arg0);
 	if (map!="")
 	{
@@ -157,6 +173,8 @@ float(string s) UserCmd =
 };
 
 // random map que for ffa;
+// only for engines with localinfo because making this work
+// with the alias/localcmd system would be mildly insane.
 string() rndffamap =
 {
 	local float x, y, closed;

@@ -325,6 +325,11 @@ void() execute_changelevel =
 	first_ent.model = "/";
 	WriteByte(MSG_ALL, SVC_SETVIEWPORT);
 	WriteEntity(MSG_ALL, first_ent);
+
+	// Will log an error if not defined, but a small price to pay for map list support
+	localcmd("nm_");
+	localcmd(mapname);
+	localcmd("\n");
 #else
 	WriteCoord (MSG_ALL, spawn_pos.origin_x);
 	WriteCoord (MSG_ALL, spawn_pos.origin_y);
