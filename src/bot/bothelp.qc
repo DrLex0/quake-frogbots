@@ -19,6 +19,8 @@ float(vector vec, entity ent) PointVisible =
 		return TRUE;  // makes this also work on doors, buttons
 	if (trace_fraction != 1)
 		return FALSE;
+	if (self.bot_skill >= 15)  // see through water boundaries
+		return TRUE;
 	return !(trace_inopen && trace_inwater);
 };
 

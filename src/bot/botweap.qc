@@ -170,6 +170,7 @@ void() SetFireButton =
 				return;
 			}
 		}
+
 		if (self.state & HURT_SELF)
 		{
 			if (self.weapon == IT_ROCKET_LAUNCHER)
@@ -187,7 +188,12 @@ void() SetFireButton =
 			}
 			return;
 		}
-		
+
+		if (self.state & NEED_SHOOT_AIM)
+		if (look_object_ != enemy_)
+			// Bot is aiming at shootable trigger, but no reason to shoot at it now
+			return;
+
 		if (enemy_)
 		if (enemy_.touch_marker)
 		{
@@ -309,6 +315,7 @@ void() SetFireButton =
 						}
 						if (predict_dist <= (hit_radius / (1 - risk)))
 						{
+							// Splash damage: TODO should tone this down on low smartness levels
 							traceline(rocket_endpos, testplace, TRUE, self);
 							if (trace_fraction == 1)
 							{
@@ -399,7 +406,9 @@ void() SetFireButton =
 				return;
 			if (angle_error_y > min_angle_error)
 				return;
-			self.button0_ = TRUE;
+			// Don't shoot at walls if bot just happens to be looking towards hidden enemy
+			if (VisibleEntity(enemy_))
+				self.button0_ = TRUE;
 		}
 	}
 };

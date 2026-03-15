@@ -552,7 +552,7 @@ void() ThinkTime =
 					}
 				}
 
-				if (self.look_object != self.enemy)
+				if (look_object_ != enemy_)
 				{
 					// Exceptions, these will return early and use FrogTrackSimple instead
 					if (self.state & NEED_SHOOT_AIM)

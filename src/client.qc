@@ -263,7 +263,7 @@ void() IntermissionThink =
 	if (time < intermission_exittime)
 		return;
 
-	if (self.button0_ || self.button1 || self.button2_)
+	if (self.button0 || self.button1 || self.button2)
 		GotoNextMap();
 };
 
@@ -1217,7 +1217,7 @@ void() PlayerPreThink =
 {
 
 #ifdef QUAKE
-	if (!(self.frogbot))
+	if (!self.frogbot)
 	{
 		self.button0_ = self.button0;
 		self.button2_ = self.button2;
