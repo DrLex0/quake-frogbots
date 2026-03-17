@@ -59,6 +59,7 @@ void() FrogWaterMove;
 void() CheckWaterPathState;
 void() CheckBotStuckInLiquid;
 void() SetFrogbotAngles;
+float() SeppukuTrigger;
 
 
 #ifdef QUAKE
@@ -351,8 +352,10 @@ void() check_trigger =
 		return;
 	}
 
+	// Teleports near a trigger_changelevel are removed. Some of the SP maps
+	// do have a teleport on top of the secret exits.
 	targ_centre = (self.absmin + self.absmax) * 0.5;
-	SUB_DelayRemove();
+	m = self;
 	self = first_teleport;
 	while (self)
 	{
@@ -360,13 +363,17 @@ void() check_trigger =
 		{
 			first_teleport = RemoveFromList(first_teleport);
 			SUB_DelayRemove();
-			// I have no idea why this is invoked here, it makes no sense,
-			// we're going to exit the map anyway  -- DrLex
 			RemoveMarker(self);
 		}
 
 		self = self.next;
 	}
+	self = m;
+
+	// Turns exits in inescapable pits into insta-gib triggers
+	if (SeppukuTrigger())
+		return;
+	SUB_DelayRemove();
 };
 
 void() trigger_changelevel =

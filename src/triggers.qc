@@ -723,4 +723,15 @@ void() trigger_push =
 
 //============================================================================
 
+float() SeppukuTrigger =
+{
+	if (mapname != "e1m6")
+	if (mapname != "e1m7")
+	if (mapname != "start" || self.index != 47)
+		return FALSE;
+	self.dmg = 4000;
+	self.touch = hurt_touch;
+	return TRUE;
+};
+
 void() trigger_monsterjump = {remove_self();};
