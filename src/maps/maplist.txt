@@ -64,6 +64,8 @@ trinca/map_eodm3.qc
 trinca/map_exdm3.qc
 trinca/map_filthy.qc
 trinca/map_four.qc
+trinca/map_frobodm1.qc
+trinca/map_frobodm5.qc
 trinca/map_genocide.qc
 trinca/map_imp1dm6.qc
 trinca/map_jvx1.qc
