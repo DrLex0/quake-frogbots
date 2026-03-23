@@ -134,7 +134,20 @@ void(string s) SV_ParseClientCommand =
 			return;
 		}
 		if (argv(1))
-			nextmap = argv(1);
+		{
+			if (str_func_avail)
+			{
+				if (custom_nextmap) strunzone(nextmap);
+				nextmap = strzone(argv(1));
+			}
+			else
+			{
+				// risk of string changing before it is used
+				nextmap = argv(1);
+				dprint("\sWARNING:\s map lists may not work correctly without 'strzone' support\n");
+			}
+			custom_nextmap = 1;
+		}
 		dprint("Next map set to: ", nextmap, "\n");
 		return;
 	}

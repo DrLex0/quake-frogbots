@@ -34,7 +34,7 @@ Mind that this is the flow for a _pure bot._ The flow may be slightly different 
 3. **FrogbotPostPhysics** (`botphys.qc`)
    - Invoked through `.think` on `postphysics`; split up in 2 parts that each loop over all clients
    - **FrogbotPostPhysics1** (`botphys.qc`)
-     - ends with obstruction detection which then tries a `walkmove` as fallback for interrupted velocity-driven movement. Obstruction detection relies on comparing `.prephys_velocity` against current velocity which has been adjusted by engine physics.
+     - ends with obstruction detection which then tries a `walkmove` as fallback for interrupted velocity-driven movement. Obstruction detection relies on comparing `.prephys_velocity` against current velocity which has been adjusted by engine physics. `.obstruction_normal` points inward into the obstruction.
    - **FrogbotPostPhysics2** (`botphys.qc`)
      - **PlayerPostThink_apply** (`client.qc`)
        - **ThinkTime** (`botthink.qc`), clocked through `.frogbot_nextthink`, about 6/s, but can be forced by certain events like being teleported.

@@ -2451,6 +2451,9 @@ float rocket_alert;
 vector rocket_endpos;
 
 string nextmap;
+#ifdef QUAKE
+float custom_nextmap;
+#endif
 
 float frogbot_number;
 entity new_bot;

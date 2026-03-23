@@ -281,6 +281,8 @@ void() a_rocketjump =
 		return;
 	if (! (self.path_state & ROCKET_JUMP))
 		return;
+	if (time < self.arrow_time2)
+		return;
 	if (self.button0_)
 		return;
 	if (self.button2_)
@@ -345,7 +347,15 @@ void() a_rocketjump =
 		rel_dist = vlen(rel_pos);
 		local float velo = vlen(self.velocity);
 		if (velo < 140)
+		{
+			if (self.obstruction_normal * normalize(dir_move_) > 0.5)
+			{
+				dir_move_ = -1 * dir_move_;  // try to un-obstruct
+				self.arrow_time2 = time + 0.125;
+				NewArrowForDirMove();
+			}
 			return;
+		}
 		if (velo < sv_maxspeed)
 		if (rel_dist / velo > 1.5)
 			return;

@@ -250,6 +250,14 @@ void() GotoNextMap =
 
 	if (newmap != "") changelevel (newmap);
 	else changelevel (nextmap);
+#ifdef QUAKE
+	if (custom_nextmap)
+	{
+		if (str_func_avail)
+			strunzone(nextmap);
+		custom_nextmap = 0;
+	}
+#endif
 };
 
 /*
