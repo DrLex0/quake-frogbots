@@ -27,6 +27,7 @@ drlex/map_hohoho2.qc
 drlex/map_north.qc
 drlex/map_nova.qc
 drlex/map_tox.qc
+drlex/map_zite.qc
 ktx/map_bravado.qc
 ktx/map_endif.qc
 ktx/map_monsoon.qc

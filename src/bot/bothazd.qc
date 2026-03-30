@@ -241,6 +241,12 @@ void() AvoidHazards =
 		BotAntiFreeze();
 		return;
 	}
+	if (self.path_state & PRECISE_JUMP)  // also skip all regular safeties here
+	if (self.path_state & JUMP_LEDGE)
+	{
+		BotAntiFreeze();
+		return;
+	}
 
 	if (self.path_state & JUMP_LEDGE)
 	{

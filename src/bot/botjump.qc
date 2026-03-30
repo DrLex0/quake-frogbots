@@ -13,6 +13,7 @@
 void() VelocityForArrow;
 void() NewArrowForDirMove;
 void() SetArrowForLinkedMarker;
+float(float timespan) PredictNoDrop;
 float(float x_ofs, float z_ofs) OffsetProbeObstacle;
 float(float a) anglemod;
 float(entity me) near_teammate;
@@ -732,7 +733,19 @@ void() SpecialAccurateMoves =
 		return MarkerUnTouch();
 	}
 
-	if (touch_dist > 40)  // Only jump when close enough...
+	if (self.path_state & JUMP_LEDGE)
+	{
+		// "Precise ledge jump," as late as possible, i.e. when next
+		// special_moves_clock predicted position would be a fall.
+		local float predict_time = 0.015625;
+		// Perfect (assuming steady frame rate) from L10 on, clumsier below.
+		// Bias towards wait too long, because probe itself is conservative.
+		if (self.bot_skill < 10)
+			predict_time = predict_time * (1 + self.bot_inaccuracy * (3 * random() - 2));
+		if (PredictNoDrop(predict_time))
+			return;
+	}
+	else if (touch_dist > 40)  // Only jump when close enough...
 	{
 		if (! (self.path_state & SLOW_DOWN))
 		if (normalize(self.velocity) * normalize(v_touch) < -0.5)
@@ -818,10 +831,10 @@ void() SpecialAccurateMoves =
 	{
 		// Clear AP mode, its job here is done
 		self.path_state = (self.path_state - ACCURATE_PATH) | DELIBERATE_AIR_WAIT_GROUND;
-		// For some reason, bots are unable to bridge the widest gaps that players can
-		// still traverse. I gave up trying to figure out what causes this, and just
-		// slap a fudge factor onto the velocity to compensate. And of course the factor
-		// differs between regular Quake and QW.
+		// For some reason, bots are unable to bridge the widest gaps players can still
+		// traverse. Most likely the edge friction is the culprit, but I gave up trying
+		// to find a proper fix for this, and just slap a fudge factor onto the velocity
+		// to compensate, which of course differs between regular Quake and QW.
 #ifdef QUAKE
 		self.velocity = 1.25 * self.velocity;
 #else

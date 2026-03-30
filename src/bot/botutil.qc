@@ -348,6 +348,35 @@ void() FallSpotAir =
 
 /*
 ============
+PredictNoDrop
+
+Returns TRUE if self will not fall down at position where
+it will be after given time at current velocity
+============
+*/
+float(float timespan) PredictNoDrop =
+{
+	tmp_vec = self.origin;
+	self.origin = self.origin + timespan * self.velocity;
+	local float oldz = self.origin_z - 2;  // allow some error on slopes
+	// Don't use walkmove() because it is overly strict,
+	// we just want to know whether the bot will fall down.
+	if (! droptofloor())  // endless pit or other weirdness
+	{
+		self.origin = tmp_vec;
+		return FALSE;
+	}
+	if (self.origin_z < oldz)
+	{
+		self.origin = tmp_vec;
+		return FALSE;
+	}
+	self.origin = tmp_vec;
+	return TRUE;
+};
+
+/*
+============
 TestTopBlock
 
 ============

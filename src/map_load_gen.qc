@@ -29,6 +29,7 @@
 #include "maps/drlex/map_north.qc"
 #include "maps/drlex/map_nova.qc"
 #include "maps/drlex/map_tox.qc"
+#include "maps/drlex/map_zite.qc"
 #include "maps/ktx/map_bravado.qc"
 #include "maps/ktx/map_endif.qc"
 #include "maps/ktx/map_monsoon.qc"
@@ -136,9 +137,9 @@ void() SprintMaps =
 	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
 	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
 	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
-	sprint_fb(self, 2, "    utressor      ztndm1      ztndm2\n");
-	sprint_fb(self, 2, "      ztndm3 ztndm3frost      ztndm4\n");
-	sprint_fb(self, 2, "      ztndm5      ztndm6\n");
+	sprint_fb(self, 2, "    utressor        zite      ztndm1\n");
+	sprint_fb(self, 2, "      ztndm2      ztndm3 ztndm3frost\n");
+	sprint_fb(self, 2, "      ztndm4      ztndm5      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -286,6 +287,11 @@ float() LoadWaypoints =
 	if (mapname == "tox")
 	{
 		map_tox();
+		return TRUE;
+	}
+	if (mapname == "zite")
+	{
+		map_zite();
 		return TRUE;
 	}
 	if (mapname == "bravado")
@@ -741,6 +747,8 @@ string(string mname) MapHasWaypoints =
 		return "nova";
 	if (mname == "tox")
 		return "tox";
+	if (mname == "zite")
+		return "zite";
 	if (mname == "bravado")
 		return "bravado";
 	if (mname == "endif")
