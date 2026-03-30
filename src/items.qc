@@ -373,6 +373,13 @@ void() health_touch =
 			self.model = "";
 
 			UpdateTotalDamage(other);
+			// Avoid dance around health pack cluster when topping up health
+			// through pack different from anticipated. (May also happen
+			// with ammo, but uncommon enough to only fix for health.)
+			if (other.goalentity.classname == "item_health")
+			if (other.health >= 100)
+			if (other.goalentity.healtype != 2)  // not megahealth
+				other.goal_refresh_time = 0;
 			UpdateGoalEntity();
 		}
 		else ItemMarkerTouch();
@@ -435,7 +442,10 @@ void() armor_touch =
 					other.state = other.state | HURT_SELF;
 					other.linked_marker = self;
 					other.path_from_marker = self;
-					other.path_state = 0;
+					if (self.jump_direction)
+						other.path_state = ACCURATE_SLOW;
+					else
+						other.path_state = 0;
 					other.linked_marker_time = time + 0.5;
 					other.goal_refresh_time = time + 2 + random();
 				}

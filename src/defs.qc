@@ -1626,6 +1626,7 @@ float CLEAR_PATH_MODES		= 2097152;
 
 // combinations/inverted for convenience & efficiency;
 // inverses are subtracted from 16777215 (all 24 bits set to 1)
+float ACCURATE_SLOW			= 4196352;
 float NOT_JUMP_LEDGE		= 16776191;
 float DELIBERATE_AIR_WAIT_GROUND	= 393216;
 float AIR_PATH_MODES		= 1441792;  // DELIBERATE_AIR_WAIT_GROUND + AIR_ACCELERATION

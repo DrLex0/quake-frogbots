@@ -64,17 +64,25 @@ void() FrogTrackSlow =
 	self.track_yawspeed = (look_object_.velocity - self.velocity) * yaw_tangent;
 
 	desired_angle = vectoangles(rel_pos);
-	if (desired_angle_x > 180)
-		desired_angle_x = 360 - desired_angle_x;
+	if (self.state & HURT_SELF)
+	{
+		desired_angle_x = 180;
+		// JUMP_HINT can be used to reduce risk of bot launching itself into bad places
+		local entity pfm = self.path_from_marker;
+		if (pfm.jump_direction)
+			desired_angle_y = anglemod(vectoyaw(self.origin - pfm.jump_direction.origin));
+	}
 	else
-		desired_angle_x = 0 - desired_angle_x;
+	{
+		if (desired_angle_x > 180)
+			desired_angle_x = 360 - desired_angle_x;
+		else
+			desired_angle_x = 0 - desired_angle_x;
+	}
 
 	desired_angle_x = (rint(desired_angle_x / 1.40625));
 	desired_angle_y = (rint(desired_angle_y / 1.40625));
 	desired_angle = desired_angle * 1.40625;
-
-	if (self.state & HURT_SELF)
-		desired_angle_x = 180;
 
 	angle_error = desired_angle - self.v_angle;
 	angle_error_x = angle_error_x - (1 - self.fast_aim) * (self.pitchspeed * self.firing_reflex);
