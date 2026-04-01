@@ -977,8 +977,8 @@ void()	player_shot1;
 void()	player_shotinv;
 void()	player_nail1;
 void()	player_inail1;
-void()	player_light;
 void()	player_light1;
+void()	player_light_invis;
 void()	player_rocket1;
 
 void() W_Attack =
@@ -1236,7 +1236,7 @@ void() W_Attack =
 		if (self.modelindex != modelindex_eyes)
 			player_light1();
 		else
-			player_light();
+			player_light_invis();
 		self.attack_finished = time + 0.1;
 		msg_entity = self;
 		sound (CHAN_AUTO, "weapons/lstart.wav", 1, ATTN_NORM);

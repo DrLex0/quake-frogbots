@@ -263,6 +263,13 @@ void() player_light =
 
 void() player_light1 =[$light1, player_light2] {player_light();};
 void() player_light2 =[$light2, player_light1] {player_light();};
+void() player_light_invis =
+{
+	// need to mimic animation logic
+	self.nextthink = time + 0.1;
+	self.think = player_light_invis;
+	player_light();
+};
 
 //============================================================================
 
