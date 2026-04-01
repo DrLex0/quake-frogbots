@@ -723,9 +723,9 @@ The `jump hint` marker has another special purpose. Bots can deny other players 
 
 #### Precise ledge jump
 
-Certain jumps require very accurate timing to cross gaps that _almost_ too wide for jumping. The regular automatic jumping system _cannot_ cope with this. Often a regular precise jump suffices for such jumps, but sometimes the gap is so borderline that it is hard or impossible to fine-tune the position of the jump spot marker.  
+Certain jumps require very accurate timing to cross gaps _almost_ too wide for jumping. The regular automatic jumping system _cannot_ cope with this. Often a regular precise jump suffices for such jumps, but sometimes the gap is so borderline that it is hard or impossible to fine-tune the position of the jump spot marker.  
 The solution here is to combine _precise jump_ and _jump ledge_ path modes, which will make the bot actively probe for the edge of the ledge, and jump when it predicts it is about to fall off.
-- Keep the marker from where this combined path mode starts at least 16 units away from the actual edge of the ledge, to give the bot time to prepare for the jump.
+- The main difference with regular precise jump mode lies in the placement of the marker where this combined path mode starts. The marker must be placed further back than for regular precise jump mode. Keep it at least 20 units away from the actual edge of the ledge, to give the bot time to prepare for the jump.
 - This greatly reduces the need for accurate marker placement, which makes it convenient. However, do not over-use this, because it overrides all the bot's protection mechanisms for the sake of jump performance, and is also computationally expensive. A regular precise jump with explicit jump location is preferred when adequate.
 
 An example is the jump towards the Mega Health in `zite,` which made me implement this, although I'm probably going to start using it a lot more from now on…

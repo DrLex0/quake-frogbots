@@ -94,7 +94,7 @@ Useful for anyone working on any Quake mod or even to map makers. TODO: this kin
     - (However, to add to the breathing absurdity, as long as the lowest 1u of the player are dry, water level is 0. This implies the player can also breathe through the soles of their feet. 🦶)
   - Projectiles (rockets, nails, …) are launched from 16 units above the origin, hence 40 units from the bottom.
   - The player model is theoretically 64 units wide, but is considered to be marginally wider than 32 units when it comes to fitting inside corridors. Same for the depth: if the player has its face or back stuck to a wall, its origin is 16 units from the wall, hence the player is considered 32 units deep.
-  - In other words, for players: `mins = '-16 -16 -24` and `maxs = '16 16 32`.
+  - In other words, for players: `mins = '-16 -16 -24` and `maxs = '16 16 32'`.
 - Tallest step a player can ascend without jumping: **18 units**
   - One can make a really fast fake ‘ladder’ by creating 18 unit tall steps that are only 1 unit deep.
 - Tallest height difference a player can **jump** onto without having to blow up their feet with a RJ: **43 units** (assuming standard gravity 800)
@@ -209,7 +209,7 @@ I do have some specific questions that may explain certain aspects with more det
 5. Does the path computation logic indeed require zones to be mostly convex for them to work correctly, or are there other constraints?
 6. What effect do the extra penalties have on the path calculations? Testing has shown they work well with the regular path planning, which focuses on selecting paths with minimal times. However, I have noticed that the bot will never select a path with penalties if there is any alternative path without penalties towards the same destination, even when the bot has the attributes for the penalties to be dropped. I suspect this is because the routines in `route_calc.qc` accumulate path times as part of their calculations, hence penalties will also be accumulated, and any paths with penalties become discarded. I am content with either confirming or debunking these assumptions; unless there is an obvious solution for this problem, you should not try to propose one.
 7. What does the runaway logic actually compute? What is considered a good runaway destination given the bot's current situation (own position and enemy position)?
-8. It seems the path penalty logic will also interfere with the runaway calculations that predate the introduction of that logic. From what I can see, the calculations involve looking for paths with maximum travel times, and will now . At this time, it is not a problem because this feature is not used. However, if it is ever activated, is there a way to make it compatible with the penalty logic? Doing the calculations on path times with the penalties removed would avoid problems, but on the other hand, paths with penalties should probably never be chosen as an escape path?
+8. It seems the path penalty logic will also interfere with the runaway calculations that predate the introduction of that logic. From what I can see, the calculations involve looking for paths with maximum travel times, hence will now be thrown off by paths with penalties. At this time, it is not a problem because this feature is not used. However, if it is ever activated, is there a way to make it compatible with the penalty logic? Doing the calculations on path times with the penalties removed would avoid problems, but on the other hand, paths with penalties should probably never be chosen as an escape path?
 
 ---
 

@@ -206,9 +206,9 @@ Numerous problems have been fixed and new features have been added since the las
 
 12. Bots can _strafe run_ along a wall to boost their speed and make longer jumps.
 
-13. Better skill handling: bots preserve their skill across matches and map changes. Allow to override default bot skill level, and also to separately override bot ‘smartness,’ through cvars.
+13. Better skill handling: bots preserve their skill across matches and map changes. Allow to override default bot skill level, and also separately override bot ‘smartness,’ through cvars.
     - If the `fb_custom_skill` cvar is nonzero, it will be used when spawning new bots, ignoring any `d_skill` info value from configs. A value of zero causes the cvar to be ignored, skill level 0 is represented by value -1. The cvar is updated when using the `skilldown/up` commands, which means changes will be persistent in engines like ezQuake that automatically store cvars.
-    - If the `fb_custom_smart` cvar is nonzero, it overrides _smartness._ Smartness controls some advanced bot behavior. By default, it is derived from bot skill level (maxing out at 10 and above), making the bots easier on lower skill settings (in classic Frogbot, it was hard-coded at 10). The value can be between 0 to 10, but again, the cvar is ignored if its value is 0, use a negative value to represent minimum smartness 0.
+    - If the `fb_custom_smart` cvar is nonzero, it overrides _smartness,_ which controls some advanced bot behavior. By default, it is derived from bot skill level (with smartness 3 at level 0, and maxing out at level 10 and above). This means bots are now easier on the lower skill settings than in older Frogbot versions, where smartness was fixed at 10. Smartness value can be between 0 to 10, but again, the cvar is ignored if its value is 0; use a negative value to represent minimum smartness 0. To make the easiest possible bot, set skill to 0 and `fb_custom_smart` to -1.
 
 14. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables.
 

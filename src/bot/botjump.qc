@@ -738,6 +738,8 @@ void() SpecialAccurateMoves =
 		// "Precise ledge jump," as late as possible, i.e. when next
 		// special_moves_clock predicted position would be a fall.
 		local float predict_time = 0.015625;
+		// Only disable hazard protection after first probe
+		self.path_state = self.path_state | JUST_GO;
 		// Perfect (assuming steady frame rate) from L10 on, clumsier below.
 		// Bias towards wait too long, because probe itself is conservative.
 		if (self.bot_skill < 10)
