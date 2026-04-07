@@ -22,7 +22,7 @@ void() teams_frags_count =
 	k_scores2 = 0;
 	p = find(world, stringname, "gamer");
 	while(p != world) {
-		tmp = infokey(world, "k_team1");
+		tmp = GetKTeamName(1);
 		tmp2 = ClientTeamName(p);
 		if (tmp == tmp2) k_scores1 = k_scores1 + p.frags;
 		else k_scores2 = k_scores2 + p.frags;
@@ -37,20 +37,20 @@ void() WonTeam =
 	teams_frags_count();
 	if (k_scores1 > k_scores2) {
 		f1 = k_scores1 - k_scores2;
-		tmp = infokey(world, "k_team1");
-		bprint_fb(2, "Τεαν ");
+		tmp = GetKTeamName(1);
+		bprint_fb(2, "\sTeam \[");
 		bprint_fb(2, tmp);
-		bprint_fb(2, "‘ leads by ");
+		bprint_fb(2, "\] leads by ");
 		bprint_g(2, f1);
 		bprint_fb(2, " frag");
 		if (f1 == 1) bprint_fb(2, "\n");
 		else bprint_fb(2, "s\n");
 	} else if (k_scores1 < k_scores2) {
 		f1 = k_scores2 - k_scores1;
-		tmp = infokey(world, "k_team2");
-		bprint_fb(2, "Τεαν ");
+		tmp = GetKTeamName(2);
+		bprint_fb(2, "\sTeam \[");
 		bprint_fb(2, tmp);
-		bprint_fb(2, "‘ leads by ");
+		bprint_fb(2, "\] leads by ");
 		bprint_g(2, f1);
 		bprint_fb(2, " frag");
 		if (f1 == 1) bprint_fb(2, "\n");
@@ -60,7 +60,6 @@ void() WonTeam =
 
 void() PrintScores =
 {
-	local string tmp;
 	local float f1;
 	if (game_not_match) return;
 	if (pre_game) {
@@ -69,19 +68,18 @@ void() PrintScores =
 		return;
 	}
 	if (sudden_death) {
-		// "Overtime sudden death in progress"
-		sprint_fb(self, 2, "Οφεςτινε sudden death ιξ πςοηςεσσ\n");
+		sprint_fb(self, 2, "\sOvertime\s sudden death \sin progress\n");
 	} else { 
 		if (timelimit) {
 			if (minutes_left > 1) {
-				sprint_fb(self, 2, "");
+				sprint_fb(self, 2, "\[");
 				sprint_g(self, 2, minutes_left);
-				sprint_fb(self, 2,"‘ full minute");
+				sprint_fb(self, 2,"\] full minute");
 				if (minutes_left > 2) sprint_fb(self, 2, "s");
 			} else {
-				sprint_fb(self, 2, "");
+				sprint_fb(self, 2, "\[");
 				sprint_g(self, 2, time_left);
-				sprint_fb(self, 2, "‘ second");
+				sprint_fb(self, 2, "\] second");
 				if (time_left > 1) sprint_fb(self, 2, "s");
 			} 
 			sprint_fb(self, 2, " left\n");
@@ -89,34 +87,30 @@ void() PrintScores =
 	}
 	if (team_mode) {
 		teams_frags_count();
-		tmp = infokey(world, "k_team1");
-		sprint_fb(self, 2, "Τεαν ");  // Team [
-		sprint_fb(self, 2, tmp);
-		sprint_fb(self, 2, "‘ = ");
+		sprint_fb(self, 2, "\sTeam \[");
+		sprint_fb(self, 2, GetKTeamName(1));
+		sprint_fb(self, 2, "\] = ");
 		sprint_g(self, 2, k_scores1);
 		sprint_fb(self, 2, "\n");
-		tmp = infokey(world, "k_team2");
-		sprint_fb(self, 2, "Τεαν ");
-		sprint_fb(self, 2, tmp);
-		sprint_fb(self, 2, "‘ = ");
+		sprint_fb(self, 2, "\sTeam \[");
+		sprint_fb(self, 2, GetKTeamName(2));
+		sprint_fb(self, 2, "\] = ");
 		sprint_g(self, 2, k_scores2);
 		sprint_fb(self, 2, "\n");
 		if (k_scores1 > k_scores2) {
 			f1 = k_scores1 - k_scores2;
-			tmp = infokey(world, "k_team1");
-			sprint_fb(self, 2, "Τεαν ");
-			sprint_fb(self, 2, tmp);
-			sprint_fb(self, 2, "‘ leads by ");
+			sprint_fb(self, 2, "\sTeam \[");
+			sprint_fb(self, 2, GetKTeamName(1));
+			sprint_fb(self, 2, "\] leads by ");
 			sprint_g(self, 2, f1);
 			sprint_fb(self, 2, " frag");
 			if (f1 == 1) sprint_fb(self, 2, "\n");
 			else sprint_fb(self, 2, "s\n");
 		} else if (k_scores1 < k_scores2) {
 			f1 = k_scores2 - k_scores1;
-			tmp = infokey(world, "k_team2");
-			sprint_fb(self, 2, "Τεαν ");
-			sprint_fb(self, 2, tmp);
-			sprint_fb(self, 2, "‘ leads by ");
+			sprint_fb(self, 2, "\sTeam \[");
+			sprint_fb(self, 2, GetKTeamName(2));
+			sprint_fb(self, 2, "\] leads by ");
 			sprint_g(self, 2, f1);
 			sprint_fb(self, 2, " frag");
 			if (f1 == 1) sprint_fb(self, 2, "\n");
@@ -131,17 +125,18 @@ void() PlayerStatus =
 	local string tmp;
 	if (game_not_match) return;
 	if (pre_game && !counting_down) {
-		sprint_fb(self, 2, "Πμαωεςσ μιστ:\n\n");  // Players list
+		sprint_fb(self, 2, "\sPlayers list\s:\n\<\-\-\-\-\-\-\-\-\-\-\>\n");
 		p = find(world, stringname, "gamer");
 		while(p != world) {
-			if (p.ready) sprint_fb(self, 2, "† ");
-			else sprint_fb(self, 2, "‡ ");
+			// Green and red dots, will not show up right in QUAKE without replacement font
+			if (p.ready) sprint_fb(self, 2, "\{x86} ");
+			else sprint_fb(self, 2, "\{x87} ");
 			sprint_fb(self, 2, p.netname);
 			tmp = ClientTeamName(p);
 			if (teamplay && tmp != "") {
-				sprint_fb(self, 2, " ");
+				sprint_fb(self, 2, " \[");
 				sprint_fb(self, 2, tmp);
-				sprint_fb(self, 2, "‘\n");
+				sprint_fb(self, 2, "\]\n");
 			} else sprint_fb(self, 2, "\n");
 			p = find(p, stringname, "gamer");
 		} sprint_fb(self, 3, "\n");
@@ -159,18 +154,18 @@ void() ChangeOvertime =
 			localcmd("localinfo k_exttime 1\n");
 			f2 = 1;
 		}
-		bprint_fb(2, "Οφεςτινε: time based\n");
-		bprint_fb(2, "Οφεςτινε μεξητθ ισ ");
+		bprint_fb(2, "\sOvertime\s: time based\n");
+		bprint_fb(2, "\sOvertime length is ");
 		bprint_ftos(2, f2);
-		bprint_fb(2, " νιξυτε");
+		bprint_fb(2, " \sminute");
 		if (f1 == 1) bprint_fb(2, "\n");
-		else bprint_fb(2, "σ\n");
+		else bprint_fb(2, "\ss\n");
 		localcmd("localinfo k_overtime 1\n");
 	} else if(f1 == 1) {
-		bprint_fb(2, "Οφεςτινε: sudden death\n");
+		bprint_fb(2, "\sOvertime\s: sudden death\n");
 		localcmd("localinfo k_overtime 2\n");
 	} else if(f1 == 2) {
-		bprint_fb(2, "Οφεςτινε: off\n");
+		bprint_fb(2, "\sOvertime\s: off\n");
 		localcmd("localinfo k_overtime 0\n");
 	}
 };
@@ -180,13 +175,13 @@ void() ToggleLighting =
 	if (match_in_progress || counting_down) return;
 	if (!game_not_match) {
 		if (deathmatch != 4) {
-			sprint_fb(self, 2, "invalid δεατθνατγθ\n");
+			sprint_fb(self, 2, "invalid \sdeathmatch\n");
 			return;
 		} 
 		if (no_lg) no_lg = 0;
 		else no_lg = 1;
-		if (no_lg) bprint_fb(2, "μιηθτιξη not allowed\n");
-		else bprint_fb(2, "μιηθτιξη allowed\n");
+		if (no_lg) bprint_fb(2, "\slightning\s not allowed\n");
+		else bprint_fb(2, "\slightning\s allowed\n");
 	}
 };
 
@@ -196,8 +191,8 @@ void() toggle_sh_speed =
 	if (!game_not_match) {
 		if (self.kf_speed) self.kf_speed = 0;
 		else self.kf_speed = 1;
-		if (self.kf_speed) sprint_fb(self, 2, "σθοχ σπεεδ On\n");
-		else sprint_fb(self, 2, "σθοχ σπεεδ Off\n");
+		if (self.kf_speed) sprint_fb(self, 2, "\sshow speed\s On\n");
+		else sprint_fb(self, 2, "\sshow speed\s Off\n");
 	}
 };
 
@@ -210,11 +205,11 @@ void() ToggleSpecTalk =
 		bprint_fb(2, "Spectalk ");
 		if(tmp != 0) {
 			localcmd("localinfo k_spectalk 0\n");
-			bprint_fb(2, "off: πμαωεςσ γαξξοτ θεας σπεγτατοςσ δυςιξη ηανε\n");
+			bprint_fb(2, "off: \splayers cannot hear spectators during game\n");
 			return;
 		}
 		localcmd("localinfo k_spectalk 1\n");
-		bprint_fb(2, "on: πμαωεςσ γαξ θεας σπεγτατοςσ δυςιξη ηανε\n");
+		bprint_fb(2, "on: \splayers can hear spectators during game\n");
 	}
 };
 
@@ -224,8 +219,8 @@ void() ChangeLock =
 	if (!game_not_match) {
 		if(lock) lock = 0;
 		else lock = 1;
-		if(!lock) bprint_fb(2, "Σεςφες μογλιξη off\n");  // Server locking off
-		else bprint_fb(2, "Σεςφες μογλεδ - players cannot connect during game\n");  // Server locked
+		if(!lock) bprint_fb(2, "\sServer locking\s off\n");
+		else bprint_fb(2, "\sServer locked\s - players cannot connect during game\n");
 	}
 };
 
@@ -237,9 +232,9 @@ void() TimeDown =
 		timelimit = timelimit - 5;
 		if (timelimit < 5) timelimit = 5;
 		tmp = ftos(timelimit);
-		bprint_fb(2, "Νατγθ μεξητθ σετ το ");  // Match length set to
+		bprint_fb(2, "\sMatch length set to ");
 		bprint_fb(2, tmp);
-		bprint_fb(2, " νιξυτεσ\n");  // minutes
+		bprint_fb(2, " \sminutes\n");
 		cvar_set("timelimit", tmp);
 	}
 };
@@ -254,9 +249,9 @@ void() TimeUp =
 		top = stof(infokey(world, "k_timetop"));
 		if (timelimit > top) timelimit = top;
 		tmp = ftos(timelimit);
-		bprint_fb(2, "Νατγθ μεξητθ σετ το ");  // Match length set to
+		bprint_fb(2, "\sMatch length set to ");
 		bprint_fb(2, tmp);
-		bprint_fb(2, " νιξυτεσ\n");  // minutes
+		bprint_fb(2, " \sminutes\n");
 		cvar_set("timelimit", tmp);
 	}
 };
@@ -269,7 +264,7 @@ void() FragsDown =
 		fraglimit = fraglimit - 10;
 		if (fraglimit < 0) fraglimit = 0;
 		tmp = ftos(fraglimit);
-		bprint_fb(2, "Ζςαημινιτ σετ το ");  // Fraglimit set to
+		bprint_fb(2, "\sFraglimit set to ");
 		bprint_fb(2, tmp);
 		bprint_fb(2, "\n");
 		cvar_set("fraglimit", tmp);
@@ -284,7 +279,7 @@ void() FragsUp =
 		fraglimit = fraglimit + 10;
 		if (fraglimit > 100) fraglimit = 100;
 		tmp = ftos(fraglimit);
-		bprint_fb(2, "Ζςαημινιτ σετ το ");   // Fraglimit set to
+		bprint_fb(2, "\sFraglimit set to ");
 		bprint_fb(2, tmp);
 		bprint_fb(2, "\n");
 		cvar_set("fraglimit", tmp);
@@ -355,7 +350,7 @@ void() print_weap_stats =
 	ptarg = self.owner;
 	if (ptarg.h_lg) lg = (ptarg.s_lg / ptarg.h_lg) * 100;
 	else lg = 0;
-	msg_entity = self.owner;				
+	msg_entity = self.owner;
 	WriteByte(MSG_ONE, SVC_CENTERPRINT);
 	if (self.style > 0) bcrlf(MSG_ONE, self.style);
 	if (!no_lg) {
@@ -582,8 +577,8 @@ void() CheckBadEnts =
 {
 	if (bad_ent_detected)
 	{
-		dprint ("\nΕÒÒΟÒΊ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
-		sprint_fb(self, 2, "\nΕÒÒΟÒΊ a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+		dprint ("\n\sERROR:\s a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
+		sprint_fb(self, 2, "\n\sERROR:\s a custom .ent file appears to be loaded. Trying to spawn a Frogbot, is likely to crash the game. Remove the .ent file and reload the map again before trying to add a bot.\n");
 	}
 };
 

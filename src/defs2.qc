@@ -57,6 +57,8 @@ float TEAM_COLOR12 = 11;
 float TEAM_COLOR13 = 12;
 float TEAM_COLOR14 = 13;
 float game_arena;
+string k_team1;
+string k_team2;
 float k_scores1;
 float k_scores2;
 float k_standby;
@@ -164,6 +166,8 @@ void() VersionInfo =
 string (float g) GetTeamName =
 {
 #ifdef QUAKE
+	// Hard-coded. It may be possible to have custom names through
+	// usercmd and alias hacks, but probably more trouble than it's worth.
 	if (g == TEAM_COLOR1) return "red";
 	else if (g == TEAM_COLOR2) return "blue";
 	else if (g == TEAM_COLOR3) return "white";
@@ -206,6 +210,49 @@ string (entity p) ClientTeamName =
 #endif
 };
 
+// Persist team names.
+// Rely on ZQ_QC_STRINGS or FRIK_FILE if available, fall back to localinfo.
+void(string t_name) SetKTeam1 =
+{
+	if (str_func_avail)
+	{
+		if (k_team1 != "") strunzone(k_team1);
+		k_team1 = strzone(t_name);
+	}
+	else
+	{
+		localcmd("localinfo k_team1 \"");
+		localcmd(t_name);
+		localcmd("\"\n");
+	}
+};
+
+void(string t_name) SetKTeam2 =
+{
+	if (str_func_avail)
+	{
+		if (k_team2 != "") strunzone(k_team2);
+		k_team2 = strzone(t_name);
+	}
+	else
+	{
+		localcmd("localinfo k_team2 \"");
+		localcmd(t_name);
+		localcmd("\"\n");
+	}
+};
+
+string(float t_num) GetKTeamName =
+{
+	if (str_func_avail)
+	{
+		if (t_num == 1) return k_team1;
+		return k_team2;
+	}
+	if (t_num == 1) return infokey(world, "k_team1");
+	return infokey(world, "k_team2");
+}; 
+
 void() TestTeamName = 
 {
 	local float t1;
@@ -215,10 +262,7 @@ void() TestTeamName =
 	old = world;
 	p = find(world, stringname, "gamer");
 	while(p != world && !t1) {
-		tmp = ClientTeamName(p);
-		localcmd("localinfo k_team1 \"");
-		localcmd(tmp);
-		localcmd("\"\n");
+		SetKTeam1(ClientTeamName(p));
 		t1 = 1;
 		old = p;
 		p = find(p, stringname, "gamer");
@@ -227,9 +271,7 @@ void() TestTeamName =
 		tmp = ClientTeamName(p);
 		s1 = ClientTeamName(old);
 		if (tmp != s1) {
-			localcmd("localinfo k_team2 \"");
-			localcmd(tmp);
-			localcmd("\"\n");
+			SetKTeam2(tmp);
 			t1 = 0;
 		}
 		p = find(p, stringname, "gamer");

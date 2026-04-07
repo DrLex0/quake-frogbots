@@ -31,23 +31,23 @@ void() TimerThink =
 			localcmd_ftos(minutes_left);
 			localcmd(" min left\"\n");
 		}
-		bprint_fb(2, "");
+		bprint_fb(2, "\[");
 		bprint_g(2, minutes_left);
 		if (minutes_left == 1)
-			bprint_fb(2, "‘ minute remaining\n");
+			bprint_fb(2, "\] minute remaining\n");
 		else
-			bprint_fb(2, "‘ minutes remaining\n");
+			bprint_fb(2, "\] minutes remaining\n");
 		if (!game_not_match && team_mode)
 			WonTeam();
 	}
 	// s: seconds
 	if (time_left == 30 || time_left == 15 || time_left <= 10) {
-		bprint_fb(2, "");
+		bprint_fb(2, "\[");
 		bprint_g(2, time_left);
 		if (time_left == 1)
-			bprint_fb(2, "‘ second\n");
+			bprint_fb(2, "\] second\n");
 		else
-			bprint_fb(2, "‘ seconds\n");
+			bprint_fb(2, "\] seconds\n");
 #ifdef TALK
 		if (time_left <= 10 && !game_not_match && !game_disable_botchat)
 		if (random() < 0.35 && numberofclients > 1)
@@ -283,7 +283,7 @@ void() DoCountDown =
 #ifdef ARENA
 	centerprint_all("");
 #endif
-	bprint_fb(2, "Τθε νατγθ θασ βεηυξ΅\n");
+	bprint_fb(2, "\sThe match has begun!\n");
 	s1 = stof(infokey(world, "allow_startsound"));
 	if (s1) sound_apply(world, CHAN_AUTO, "boss2/pop2.wav", 0.13, ATTN_NONE);
 	match_in_progress = 1;
@@ -307,7 +307,7 @@ void() PlayerBreak =
 	if (pre_game && !counting_down) {
 		self.ready = 0;
 		bprint_fb(2, self.netname);
-		bprint_fb(2, " ισ ξοτ ςεαδω\n");
+		bprint_fb(2, " \sis not ready\n");
 		if (teamplay) self.effects = self.effects | EF_BLUE;
 		return;
 	}
@@ -318,19 +318,19 @@ void() PlayerBreak =
 		lightstyle(0, "m");
 		localcmd("serverinfo status Standby\n");
 		bprint_fb(2, self.netname);
-		bprint_fb(2, " στοπσ τθε γουξτδοχξ\n");
+		bprint_fb(2, " \sstops the countdown\n");
 		if (teamplay) self.effects = self.effects | EF_BLUE;
 		return;
 	}
 	if (self.p_break) {
 		bprint_fb(2, self.netname);
-		bprint_fb(2, " χιτθδςαχσ θισ φοτε\n");
+		bprint_fb(2, " \swithdraws their vote\n");
 		self.p_break = 0;
 		e_break = e_break - 1;
 		return;
 	}
 	bprint_fb(2, self.netname);
-	bprint_fb(2, " φοτεσ ζος στοππιξη τθε νατγθ\n");
+	bprint_fb(2, " \svotes for stopping the match\n");
 	self.p_break = 1;
 	e_break = e_break + 1;
 	f1 = (floor(numberofplayers / 2)) + 1;
@@ -366,9 +366,9 @@ void() PlayerReady =
 			if (teamplay) {
 				if (self.player) self.effects = self.effects - (self.effects & EF_BLUE); 
 				tmp = ClientTeamName(self);
-				bprint_fb(2, " ");  // [
+				bprint_fb(2, " \[");
 				bprint_fb(2, tmp);
-				bprint_fb(2, "‘");  // ]
+				bprint_fb(2, "\]");
 			}
 			bprint_fb(2, "\n");
 			if (self.player) {
@@ -376,16 +376,16 @@ void() PlayerReady =
 					f1 = CountTeams();
 					if (f1 < 2) {
 						bprint_ftos(2, 2 - f1);
-						bprint_fb(2, " νοςε τεαν");  // " more team"
-						if ((2 - f1) != 1) bprint_fb(2, "σ");  // "s"
-						bprint_fb(2, " ςερυιςεδ\n");  // " required\n"
+						bprint_fb(2, " \smore team");
+						if ((2 - f1) != 1) bprint_fb(2, "\ss");
+						bprint_fb(2, " \srequired\n");
 						return;
 					}
 					if (f1 > 2) {
-						bprint_fb(2, "Ηετ ςιδ οζ ");  // "Get rid of "
+						bprint_fb(2, "\sGet rid of ");
 						bprint_ftos(2, f1 - 2);
-						bprint_fb(2, " τεαν");  // " team"
-						if ((f1 - 2) != 1) bprint_fb(2, "σ");  // "s"
+						bprint_fb(2, " \steam");
+						if ((f1 - 2) != 1) bprint_fb(2, "\ss");
 						bprint(2, "!\n");
 						return;
 					}
@@ -398,10 +398,9 @@ void() PlayerReady =
 					k_shutdown = 1;
 					stuffcmd_apply(self, "-attack\n");
 					localcmd("serverinfo status Countdown\n");
-					bprint_fb(2, "All players ready ");
+					bprint_fb(2, "All players ready \[");
 					bprint_ftos(2, numberofclients);
-					// "]\nSpawnmodel: Normal QW respawns\n"
-					bprint_fb(2, "‘\nSpawnmodel: Ξοςναμ ΡΧ ςεσπαχξσ\n");
+					bprint_fb(2, "\]\nSpawnmodel: \sNormal QW respawns\n");
 					AllPlaySnd("items/protect2.wav");
 					lightstyle(0, "g");
 				} else return;
@@ -428,12 +427,11 @@ void () TopScorers =
 		p = find(p, stringname, "gamer");
 	}
 	if (maxfrags || maxdeaths || maxfriend || maxeffi) {
-		bprint_fb(2, "\n");  // "\n["
+		bprint_fb(2, "\n\[");
 		bprint_fb(2, mapname);
-		// "] top scores:\n<===================================>\n"
-		bprint_fb(2, "‘ τοπ σγοςεσ:\n\n");
+		bprint_fb(2, "\] \stop scores\s:\n\<\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\>\n");
 		if (maxfrags) {
-			bprint_fb(2, "      Ζςαησ: ");  // "      Frags: "
+			bprint_fb(2, "      \sFrags\s: ");
 			max = 0;
 			p = find(world, stringname, "gamer");
 			while(p != world) { 
@@ -441,15 +439,15 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");  // " ["
+					bprint_fb(2, " \[");
 					bprint_ftos(2, maxfrags);
-					bprint_fb(2, "‘\n");  // "]\n"
+					bprint_fb(2, "\]\n");
 				}
 				p = find(p, stringname, "gamer");
 			} 
 		}
 		if (maxdeaths) { 
-			bprint_fb(2, "     Δεατθσ: ");  // "     Deaths: "
+			bprint_fb(2, "     \sDeaths\s: ");
 			max = 0; 
 			p = find(world, stringname, "gamer");
 			while(p != world) {
@@ -457,15 +455,15 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");  // " ["
+					bprint_fb(2, " \[");
 					bprint_ftos(2, maxdeaths);
-					bprint_fb(2, "‘\n");  // "]\n"
+					bprint_fb(2, "\]\n");
 				}
 				p = find(p, stringname, "gamer");
 			}
 		} 
 		if (team_mode && maxfriend) {
-			bprint_fb(2, "Ζςιεξδλιμμσ: ");  // "Friendkills: "
+			bprint_fb(2, "\sFriendkills\s: ");
 			max = 0;
 			p = find(world, stringname, "gamer");
 			while(p != world) {
@@ -473,15 +471,15 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");  // " ["
+					bprint_fb(2, " \[");
 					bprint_ftos(2, maxfriend);
-					bprint_fb(2, "‘\n");  // "]\n"
+					bprint_fb(2, "\]\n");
 				}
 				p = find(p, stringname, "gamer");
 			}
 		}
 		if (maxeffi) {
-			bprint_fb(2, " Εζζιγιεξγω: ");  // " Efficiency: "
+			bprint_fb(2, " \sEfficiency\s: ");
 			max = 0;
 			p = find(world, stringname, "gamer");
 			while(p != world) {
@@ -489,9 +487,9 @@ void () TopScorers =
 					if (max) bprint_fb(2, "             ");
 					max = 1;
 					bprint_fb(2, p.netname);
-					bprint_fb(2, " ");  // " ["
+					bprint_fb(2, " \[");
 					bprint_nr(2, maxeffi);
-					bprint_fb(2, "%‘\n");  // "%]\n"
+					bprint_fb(2, "%\]\n");
 				}
 				p = find(p, stringname, "gamer");
 			}
@@ -501,50 +499,50 @@ void () TopScorers =
 
 void(entity ent) PrintFullStats =
 {
-	bprint_fb(2, "Χπ: ");
+	bprint_fb(2, "\sWp\s: ");
 	if (ent.h_lg) {
-		bprint_fb(2, "μη:");
+		bprint_fb(2, "\slg\s:");
 		bprint_nr(2, (ent.s_lg / ent.h_lg) * 100);
 		bprint_fb(2, "% ");
 	}
 	if (ent.h_rl) {
-		bprint_fb(2, "ςμ:");
+		bprint_fb(2, "\srl\s:");
 		bprint_ftos(2, ent.h_rl);
 		bprint_fb(2, " ");
 	}
 	if (ent.h_sg) {
-		bprint_fb(2, "ση:");
+		bprint_fb(2, "\ssg\s:");
 		bprint_nr(2, (ent.s_sg / ent.h_sg) * 100);
 		bprint_fb(2, "% ");
 	}
 	if (ent.h_ssg) {
-		bprint_fb(2, "σση:");
+		bprint_fb(2, "\sssg\s:");
 		bprint_nr(2, (ent.s_ssg / ent.h_ssg) * 100);
 		bprint_fb(2, "% ");
 	}
 	bprint_fb(2, "\n");
 	// Powerups
 	if (!game_disable_powerups) {
-		bprint_fb(2, "Ποχεςυπσ: Ρ:");
+		bprint_fb(2, "\sPowerups\s: \sQ\s:");
 		bprint_ftos(2, ent.s_QUAD);
-		bprint_fb(2, " Π:");
+		bprint_fb(2, " \sP\s:");
 		bprint_ftos(2, ent.s_PENT);
-		bprint_fb(2, " Ò:");
+		bprint_fb(2, " \sR\s:");
 		bprint_ftos(2, ent.s_RING);
 		bprint_fb(2, "\n");
 	}
 	// Armors
-	bprint_fb(2, "  Αςνοςσ: ηα:");
+	bprint_fb(2, "  \sArmors\s: \sga\s:");
 	bprint_ftos(2, ent.s_GA);
-	bprint_fb(2, " ωα:");
+	bprint_fb(2, " \sya\s:");
 	bprint_ftos(2, ent.s_YA);
-	bprint_fb(2, " ςα:");
+	bprint_fb(2, " \sra\s:");
 	bprint_ftos(2, ent.s_RA);
 	bprint_fb(2, "\n");
 	// Damages
-	bprint_fb(2, "  Δαναηε: Ταλεξ:");
+	bprint_fb(2, "  \sDamage\s: \sTaken\s:");
 	bprint_nr(2, ent.t_dmg);
-	bprint_fb(2, " Ηιφεξ:");
+	bprint_fb(2, " \sGiven\s:");
 	bprint_nr(2, ent.s_dmg);
 	bprint_fb(2, "\n");
 };
@@ -552,7 +550,7 @@ void(entity ent) PrintFullStats =
 void (entity p) PlayerScores =
 {
 	local string tmp, tmp2;
-	bprint_fb(2, "‡ ");
+	bprint_fb(2, "\{x87} ");
 	bprint_fb(2, p.netname);
 	bprint_fb(2, ":\n  ");
 	bprint_ftos(2, p.frags);
@@ -565,53 +563,53 @@ void (entity p) PlayerScores =
 	}
 	if (p.frags < 1) p.efficiency = 0;
 	else p.efficiency = p.frags / (p.frags + p.deaths) * 100;
-	bprint_fb(2, "  ");
+	bprint_fb(2, " \s\. ");
 	bprint_nr(2, p.efficiency);
 	bprint_fb(2, "%\n");
 	if (duel_mode) {
 		PrintFullStats(p);
 		// EndGame
-		bprint_fb(2, "  ΕξδΗανε: Θ: ");
+		bprint_fb(2, "  \sEndGame\s: \sH\s: \[");
 		bprint_ftos(2, p.health);
-		bprint_fb(2, "‘ Α: ");
+		bprint_fb(2, "\] \sA\s: \[");
 		if (p.armortype == 0.3) bprint_fb(2, "ga:");
 		else if (p.armortype == 0.6) bprint_fb(2, "ya:");
 		else if (p.armortype == 0.8) bprint_fb(2, "ra:");
 		bprint_ftos(2, p.armorvalue);
-		bprint_fb(2, "‘\n");
+		bprint_fb(2, "\]\n");
 		// OverTime
 		if (overtime_stats) {
-			bprint_fb(2, "  ΟφεςΤινε: Θ: ");
+			bprint_fb(2, "  \sOverTime\s: \sH\s: \[");
 			bprint_ftos(2, p.t_health);
-			bprint_fb(2, "‘ Α: ");
+			bprint_fb(2, "\] \sA\s: \[");
 			if (p.t_armortype == 0.3) bprint_fb(2, "ga:");
 			else if (p.t_armortype == 0.6) bprint_fb(2, "ya:");
 			else if (p.t_armortype == 0.8) bprint_fb(2, "ra:");
 			bprint_ftos(2, p.t_armorvalue);
-			bprint_fb(2, "‘\n");
+			bprint_fb(2, "\]\n");
 		}
 		// SpawnFrags
-		bprint_fb(2, "  ΣπαχξΖςαησ: ");
+		bprint_fb(2, "  \sSpawnFrags\s: \[");
 		bprint_ftos(2, p.s_frags);
-		bprint_fb(2, "‘\n");
+		bprint_fb(2, "\]\n");
 	}
 	if (team_mode) {
-		tmp = infokey(world, "k_team1");
+		tmp = GetKTeamName(1); //infokey(world, "k_team1");
 		tmp2 = ClientTeamName(p);
 		if (tmp == tmp2) {
 			if (t1_pline) {
-				bprint_fb(2, "\n");
+				bprint_fb(2, "\<\-\-\-\-\-\-\-\>\n");
 				t1_pline = t1_pline - 1;
 			}
 		} else {
 			if (t2_pline) {
-				bprint_fb(2, "\n");
+				bprint_fb(2, "\<\-\-\-\-\-\-\-\>\n");
 				t2_pline = t2_pline - 1;
 			}
 		}
 	} else {
 		if (dm_pline) {
-			bprint_fb(2, "\n");
+			bprint_fb(2, "\<\-\-\-\-\-\-\-\>\n");
 			dm_pline = dm_pline - 1;
 		}
 	}
@@ -621,12 +619,14 @@ void () PlayerStats =
 {
 	local entity p, p2;
 	local float x1, x2;
-	local string s1, s2, tmp;
+	local string s1, s2, tmp, kteam1, kteam2;
 	x1 = 0;
 	x2 = 0;
-	bprint_fb(2, "\nΠμαωες στατιστιγσ:\nΖςαησ (ςαξλ)");
-	if (team_mode) bprint_fb(2, " ζςιεξδλιμμσ");
-	bprint_fb(2, "  εζζιγιεξγω\n\n");
+	bprint_fb(2, "\n\sPlayer statistics\s:\n\sFrags\s (\srank\s)");
+	if (team_mode) bprint_fb(2, " \sfriendkills");
+	bprint_fb(2, " \s\. efficiency\s\n\<\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\>\n");
+	kteam1 = GetKTeamName(1);
+	kteam2 = GetKTeamName(2);
 	p = find(world, stringname, "gamer");
 	while(p) {
 		if (!p.k_accepted) {
@@ -636,21 +636,19 @@ void () PlayerStats =
 				s2 = ClientTeamName(p2);
 				if (s1 == s2) {
 					if (team_mode) {
-						if (s2 == infokey(world, "k_team1")) {
+						if (s2 == kteam1) {
 							if (!x1) {
 								x1 = 1;
-								bprint_fb(2, "Team ");
-								tmp = infokey(world, "k_team1");
-								bprint_fb(2, tmp);
-								bprint_fb(2, "‘:\n");
+								bprint_fb(2, "Team \[");
+								bprint_fb(2, kteam1);
+								bprint_fb(2, "\]:\n");
 							}
 						} else {
 							if (!x2) {
 								x2 = 1;
-								bprint_fb(2, "\nTeam ");
-								tmp = infokey(world, "k_team2");
-								bprint_fb(2, tmp);
-								bprint_fb(2, "‘:\n");
+								bprint_fb(2, "\nTeam \[");
+								bprint_fb(2, kteam2);
+								bprint_fb(2, "\]:\n");
 							}
 						}
 					}
@@ -686,15 +684,16 @@ void(entity ent, entity p) CalcTeamStats =
 void () TeamScorers =
 {
 	local entity p;
-	local string tmp, tmp2;
+	local string tmp, kteam1, kteam2;
 	t1_pline = -1;
 	t2_pline = -1;
-	bprint_fb(2, "\nΤεαν στατιστιγσ:\nΧεαποξσ¬ ποχεςυπσ¬ αςνοςσ¬ δαναηε\n\n");
+	bprint_fb(2, "\n\sTeam statistics\s:\n\sWeapons, powerups, armors, damage\s\n\<\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\>\n");
+	kteam1 = GetKTeamName(1);
+	kteam2 = GetKTeamName(2);
 	p = find(world, stringname, "gamer");
 	while(p != world) {
-		tmp = infokey(world, "k_team1");
-		tmp2 = ClientTeamName(p);
-		if (tmp == tmp2) {
+		tmp = ClientTeamName(p);
+		if (kteam1 == tmp) {
 			t1_pline = t1_pline + 1;
 			CalcTeamStats(team1, p);
 		} else {
@@ -703,41 +702,36 @@ void () TeamScorers =
 		}
 		p = find(p, stringname, "gamer");
 	}
-	tmp = infokey(world, "k_team1");
-	bprint_fb(2, "");
-	bprint_fb(2, tmp);
-	bprint_fb(2, "‘: ");
+	bprint_fb(2, "\[");
+	bprint_fb(2, kteam1);
+	bprint_fb(2, "\]: ");
 	PrintFullStats(team1);
 	bprint_fb(2, "\n");
-	tmp = infokey(world, "k_team2");
-	bprint_fb(2, "");
-	bprint_fb(2, tmp);
-	bprint_fb(2, "‘: ");
+	bprint_fb(2, "\[");
+	bprint_fb(2, kteam2);
+	bprint_fb(2, "\]: ");
 	PrintFullStats(team2);
 };
 
 void() FinalTeamStats =
 {
-	local string tmp;
 	local float sumfrags;
-	bprint_fb(2, "\nΤεαν σγοςεσ: ζςαησ  πεςγεξταηε\n\n");
+	bprint_fb(2, "\n\sTeam scores\s: \sfrags \. percentage\s\n\<\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\>\n");
 	teams_frags_count();
 	sumfrags = k_scores1 + k_scores2;
-	bprint_fb(2, "");
-	tmp = infokey(world, "k_team1");
-	bprint_fb(2, tmp);
-	bprint_fb(2, "‘: ");
+	bprint_fb(2, "\[");
+	bprint_fb(2, GetKTeamName(1));
+	bprint_fb(2, "\]: ");
 	bprint_ftos(2, k_scores1);
-	bprint_fb(2, "  ");
+	bprint_fb(2, " \s\. ");
 	if (sumfrags > 0) bprint_nr(2, (k_scores1 / sumfrags) * 100);
 	else bprint_nr(2, 0);
 	bprint_fb(2, "%\n");
-	bprint_fb(2, "");
-	tmp = infokey(world, "k_team2");
-	bprint_fb(2, tmp);
-	bprint_fb(2, "‘: ");
+	bprint_fb(2, "\[");
+	bprint_fb(2, GetKTeamName(2));
+	bprint_fb(2, "\]: ");
 	bprint_ftos(2, k_scores2);
-	bprint_fb(2, "  ");
+	bprint_fb(2, " \s\. ");
 	if (sumfrags > 0) bprint_nr(2, (k_scores2 / sumfrags) * 100);
 	else bprint_nr(2, 0);
 	bprint_fb(2, "%\n");
