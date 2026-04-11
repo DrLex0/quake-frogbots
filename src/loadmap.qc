@@ -25,12 +25,12 @@ void() InvalidMap =
 {
 	sprint_fb(self, 2, mapname);
 	// is not a supported map.
-	sprint_fb(self, 2, " ισ ξοτ α συπποςτεδ ναπ®\n");
+	sprint_fb(self, 2, " \sis not a supported map.\n");
 	// The list of supported maps is:
-	sprint_fb(self, 2, "Τθε μιστ οζ συπποςτεδ ναπσ ισ:\n");
+	sprint_fb(self, 2, "\sThe list of supported maps is\s:\n");
 	SprintMaps();
 	// ... or load a map with built-in waypoints.
-	sprint_fb(self, 2, " ®®® ος μοαδ α ναπ χιτθ βυιμτ­ιξ χαωποιξτσ®\n");
+	sprint_fb(self, 2, " \s... or load a map with built-in waypoints.\n");
 };
 
 /*
