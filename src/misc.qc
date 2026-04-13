@@ -187,11 +187,21 @@ void() Laser_Touch =
 			}
 			else
 			{
+#ifdef QUAKE
 				WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 				WriteByte (MSG_BROADCAST, TE_GUNSHOT);
 				WriteCoord (MSG_BROADCAST, org__x);
 				WriteCoord (MSG_BROADCAST, org__y);
 				WriteCoord (MSG_BROADCAST, org__z);
+#else
+				WriteByte (MSG_MULTICAST, SVC_TEMPENTITY);
+				WriteByte (MSG_MULTICAST, TE_GUNSHOT);
+				WriteByte (MSG_MULTICAST, 5);
+				WriteCoord (MSG_MULTICAST, org__x);
+				WriteCoord (MSG_MULTICAST, org__y);
+				WriteCoord (MSG_MULTICAST, org__z);
+				multicast (org_, MULTICAST_PVS);
+#endif
 			}
 
 			remove_self();

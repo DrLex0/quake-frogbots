@@ -91,10 +91,15 @@ float(float max_angle) right_direction =
 float() able_rj =
 {
 	// Don't repeat the whole decision process within a frame, not just
-	// for efficiency but also because it involves random()
+	// for efficiency but also because it involves random().
+	// TODO: should cache across frames and only update when parameters change
 	if (self.able_rj_cache < 0) return FALSE;
 	if (self.able_rj_cache) return TRUE;
 	self.able_rj_cache = -1;
+
+#ifdef MANUAL
+	if (no_rocketjump) return FALSE;
+#endif
 
 	local float health_after;
 	if (! (self.items & IT_ROCKET_LAUNCHER))
@@ -126,16 +131,18 @@ float() able_rj =
 	if ((!game_arena) || (arenastate == A_PLAYING))
 #endif
 	if (!beQuiet)
-#ifndef MANUAL
-	if (random() > 0.33 || health_after > 99)
-#else
-	if (!no_rocketjump)
-#endif
 	{
-		self.able_rj_cache = 1;
-		return TRUE;
+#ifndef MANUAL
+		// If already committed to RJ path, do not change our mind
+		if (self.path_state & ROCKET_JUMP)
+			self.able_rj_cache = 1;
+		else if (health_after > 99)
+			self.able_rj_cache = 1;
+		else if (random() > 0.33)
+#endif
+			self.able_rj_cache = 1;
 	}
-	return FALSE;
+	return (self.able_rj_cache > 0);
 };
 
 // boven = Dutch for above ;)
