@@ -59,6 +59,7 @@
 #include "maps/trinca/map_e1m5.qc"
 #include "maps/trinca/map_e1m6.qc"
 #include "maps/trinca/map_e1m7.qc"
+#include "maps/trinca/map_efdm1.qc"
 #include "maps/trinca/map_efdm13.qc"
 #include "maps/trinca/map_efdm2.qc"
 #include "maps/trinca/map_efdm8.qc"
@@ -120,28 +121,28 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    dranzdm7    dranzdm8        e1m1\n");
 	sprint_fb(self, 2, "        e1m2        e1m3        e1m4\n");
 	sprint_fb(self, 2, "        e1m5        e1m6        e1m7\n");
-	sprint_fb(self, 2, "      efdm13       efdm2       efdm8\n");
-	sprint_fb(self, 2, "    egyptele         end       endif\n");
-	sprint_fb(self, 2, "       eodm3       exdm3      filthy\n");
-	sprint_fb(self, 2, "        four    frobodm1    frobodm2\n");
-	sprint_fb(self, 2, "    frobodm5    genocide        halo\n");
-	sprint_fb(self, 2, "      hohoho     hohoho2     imp1dm6\n");
-	sprint_fb(self, 2, "        jvx1      kjdm12      lilith\n");
-	sprint_fb(self, 2, "      misdm8     monsoon      naked6\n");
-	sprint_fb(self, 2, "    naked7b2       north        nova\n");
-	sprint_fb(self, 2, "     oktest1       pkeg1       pkeg2\n");
-	sprint_fb(self, 2, "     povdmm4     pro-dm4      prodm4\n");
-	sprint_fb(self, 2, "     q3dm6qw     qtourn2       rwild\n");
-	sprint_fb(self, 2, "     schloss     shadows       shady\n");
-	sprint_fb(self, 2, "     shifter       shine       skull\n");
-	sprint_fb(self, 2, "     spinev2       start    strmland\n");
-	sprint_fb(self, 2, "         thf         tox      tridm1\n");
-	sprint_fb(self, 2, "      tridm2      tridm3     trindm1\n");
-	sprint_fb(self, 2, "     trindm2     trindm3      ukpak2\n");
-	sprint_fb(self, 2, "      ultrav    utressor        zite\n");
-	sprint_fb(self, 2, "      ztndm1      ztndm2      ztndm3\n");
-	sprint_fb(self, 2, " ztndm3frost      ztndm4      ztndm5\n");
-	sprint_fb(self, 2, "      ztndm6\n");
+	sprint_fb(self, 2, "       efdm1      efdm13       efdm2\n");
+	sprint_fb(self, 2, "       efdm8    egyptele         end\n");
+	sprint_fb(self, 2, "       endif       eodm3       exdm3\n");
+	sprint_fb(self, 2, "      filthy        four    frobodm1\n");
+	sprint_fb(self, 2, "    frobodm2    frobodm5    genocide\n");
+	sprint_fb(self, 2, "        halo      hohoho     hohoho2\n");
+	sprint_fb(self, 2, "     imp1dm6        jvx1      kjdm12\n");
+	sprint_fb(self, 2, "      lilith      misdm8     monsoon\n");
+	sprint_fb(self, 2, "      naked6    naked7b2       north\n");
+	sprint_fb(self, 2, "        nova     oktest1       pkeg1\n");
+	sprint_fb(self, 2, "       pkeg2     povdmm4     pro-dm4\n");
+	sprint_fb(self, 2, "      prodm4     q3dm6qw     qtourn2\n");
+	sprint_fb(self, 2, "       rwild     schloss     shadows\n");
+	sprint_fb(self, 2, "       shady     shifter       shine\n");
+	sprint_fb(self, 2, "       skull     spinev2       start\n");
+	sprint_fb(self, 2, "    strmland         thf         tox\n");
+	sprint_fb(self, 2, "      tridm1      tridm2      tridm3\n");
+	sprint_fb(self, 2, "     trindm1     trindm2     trindm3\n");
+	sprint_fb(self, 2, "      ukpak2      ultrav    utressor\n");
+	sprint_fb(self, 2, "        zite      ztndm1      ztndm2\n");
+	sprint_fb(self, 2, "      ztndm3 ztndm3frost      ztndm4\n");
+	sprint_fb(self, 2, "      ztndm5      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -439,6 +440,11 @@ float() LoadWaypoints =
 	if (mapname == "e1m7")
 	{
 		map_e1m7();
+		return TRUE;
+	}
+	if (mapname == "efdm1")
+	{
+		map_efdm1();
 		return TRUE;
 	}
 	if (mapname == "efdm13")
@@ -814,6 +820,8 @@ string(string mname) MapHasWaypoints =
 		return "e1m6";
 	if (mname == "e1m7")
 		return "e1m7";
+	if (mname == "efdm1")
+		return "efdm1";
 	if (mname == "efdm13")
 		return "efdm13";
 	if (mname == "efdm2")

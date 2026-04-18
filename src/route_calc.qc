@@ -283,7 +283,7 @@ float() TravelTime =
 	}
 	if (m_D & LINKED_DOOR)
 	{
-		// Not a real path, to be combined with exclusive nodes.
+		// Not a real path, to be combined with exclusive nodes or NEED_SHOOT.
 		// m_D must be a door; if it is open then this marker will
 		// allow a touch even when the bot is not on an exclusive path.
 		m.link_door_ent = m_P;
@@ -353,6 +353,13 @@ float() TravelTime =
 		// Add time penalty to account for shooting and waiting for door to open,
 		// such that if there is a simpler path, the bot will prefer it
 		traveltime = traveltime + 1.5;
+		// Allow making a NEED_SHOOT path directly from a shootable door marker
+		// when touchable (any explicit SHOOT_AT will override this).
+		// Generally it is better to just make the door untouchable and use an
+		// extra marker, otherwise you may run into problems with pseudo-paths.
+		if (!m.shoot_me)
+		if (m.classname == "door")
+			m.shoot_me = m;
 	}
 	// Make bots prefer paths with a speed boost: push or WSJ.
 	// Factor is total wet-finger guess, main purpose is to make bots
