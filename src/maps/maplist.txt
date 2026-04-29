@@ -61,6 +61,7 @@ trinca/map_efdm1.qc
 trinca/map_efdm13.qc
 trinca/map_efdm2.qc
 trinca/map_efdm3.qc
+trinca/map_efdm4.qc
 trinca/map_efdm8.qc
 trinca/map_egyptele.qc
 trinca/map_end.qc
