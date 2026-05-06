@@ -493,6 +493,9 @@ void() armor_touch =
 
 			UpdateTotalDamage(other);
 			UpdateGoalEntity();
+
+			// edge case: bot about to blast itself may pick up armor due to fall damage
+			other.state = other.state & NOT_HURT_SELF;
 		}
 		else ItemMarkerTouch();
 	}
