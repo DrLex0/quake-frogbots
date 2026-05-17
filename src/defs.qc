@@ -1613,7 +1613,7 @@ float WATER_PATH		= 32768;
 float ACCURATE_PATH		= 4194304;
 
 // dynamic values
-float EXCLUSIVE_PATH		= 65536;
+// (value 65536 available)
 float DELIBERATE_AIR		= 131072;  // only used together with WAIT_GROUND
 float WAIT_GROUND			= 262144;
 float STUCK_PATH			= 524288;
@@ -1707,6 +1707,7 @@ float T_HOTMAGMA			= 8192;
 
 // combinations for convenience/efficiency
 float T_DO_NOT_WANT			= 65;  // T_UNREACHABLE + T_NOTOUCH
+float T_NOTOUCH_EXCLUSIVE	= 68;  // T_EXCLUSIVE + T_NOTOUCH
 
 // Whether map provides biosuit or pentagram (regardless of powerups disabled).
 // Used to decide whether to avoid paths in slime or not. Waypoints for a map

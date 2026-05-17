@@ -434,7 +434,7 @@ void() armor_touch =
 				if (other.movetarget.owner != other)	// no rocket active
 				if (!other.button0_)
 				// Overriding linked_marker would break the exclusive path
-				if (!(other.path_state & EXCLUSIVE_PATH && other.linked_marker != self))
+				if (!(other.exclusive_deadline && other.linked_marker != self))
 				{
 					// Deliberately damage onseself to be able to pick up the armor and deny
 					// it from other players. This is advanced behavior that should be disabled

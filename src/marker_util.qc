@@ -145,7 +145,7 @@ void(float prioritize) check_marker =
 	if (!manual_mode)
 #endif
 	if (self.T & T_EXCLUSIVE)
-	if (! (other.path_state & EXCLUSIVE_PATH))
+	if (! other.exclusive_deadline)
 	if (other.path_from_marker != self)
 	{
 		// Ignore exclusive marker unless:
@@ -206,14 +206,26 @@ void(float prioritize) check_marker =
 			return;
 	}
 
-	if (other.path_state & EXCLUSIVE_PATH)
+	if (other.exclusive_deadline)
+	if (other.linked_marker != self)
 	{
-		if (other.linked_marker != self)
+		if (time < other.exclusive_deadline)
+			return;  // ignore all but exclusive destination marker
+		if (other.linked_marker.T & T_EXCLUSIVE)
 		{
-			if (time < other.exclusive_deadline)
-				return;  // ignore all but exclusive destination marker
-			other.path_state = other.path_state - EXCLUSIVE_PATH;
+			// Exclusive path expired, clear entire state to go back to regular marker touch
+			other.exclusive_deadline = 0;
+			other.linked_marker = world;
+			other.linked_marker_time = 0;
+			if (other.path_from_marker == self)
+			{
+				other.path_from_marker = world;
+				return;
+			}
+			other.path_from_marker = world;
 		}
+		else  // leaving-exclusive-path deadline, just clear
+			other.exclusive_deadline = 0;
 	}
 
 	if (prioritize)
@@ -286,8 +298,10 @@ entity(vector org, float not_above) LocateMarker =
 	marker_ = findradius(org, 1000); // 1000
 	while (marker_)
 	{
+		// Never pick untouchable (duh), but also never exclusive because
+		// conditions for touching will likely not be met
 		if (marker_.fl_marker)
-		if (!(marker_.T & T_NOTOUCH))
+		if (!(marker_.T & T_NOTOUCH_EXCLUSIVE))
 		{
 			marker_pos = marker_.absmin + marker_.view_ofs;
 			distance = vlen(marker_pos - org);

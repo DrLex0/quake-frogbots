@@ -342,7 +342,7 @@ void() EvalCloseRunAway =
 SetExclusive
 
 Initiates normal exclusive path mode if linked_marker_ is exclusive node,
-or else, extends it for a short while if touch_marker was exclusive.
+or else, extends it for a short while if touch_marker_ was exclusive.
 The latter is to give priority to the last exclusive marker's chosen path,
 instead of letting some other nearby marker steal its touch.
 ============
@@ -350,14 +350,17 @@ instead of letting some other nearby marker steal its touch.
 void() SetExclusive =
 {
 	if (linked_marker_.T & T_EXCLUSIVE)
-	{
 		self.exclusive_deadline = time + 3;
-		self.path_state = (self.path_state | EXCLUSIVE_PATH);
-	}
-	else if (touch_marker_.T & T_EXCLUSIVE)  // Leaving exclusive path
+	else if (self.exclusive_deadline)
 	{
-		self.exclusive_deadline = time + 0.33;
-		self.path_state = (self.path_state | EXCLUSIVE_PATH);
+		if (touch_marker_.T & T_EXCLUSIVE)  // leaving exclusive path
+			self.exclusive_deadline = time + 0.33;
+		else
+			self.exclusive_deadline = 0;
+	}
+	else
+	{
+		self.exclusive_deadline = 0;
 	}
 };
 
@@ -840,8 +843,6 @@ void() frogbot_marker_touch =
 	if (self.state & RUNAWAY)	// FIXME: consider goals
 		goalentity_marker = world;
 
-	if (self.path_state & EXCLUSIVE_PATH)
-		self.path_state = self.path_state - EXCLUSIVE_PATH;
 	self.sticky_touch = FALSE;
 
 #ifdef MANUAL
