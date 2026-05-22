@@ -142,6 +142,8 @@ void() trigger_multiple_create =
 		{
 			self.max_health = self.health;
 			self.th_die = multi_killed;
+			// DrLex: avoid crash in T_Damage
+			self.th_pain = null;
 			Add_takedamage();
 			self.solid = SOLID_BBOX;
 			setorigin (self, self.origin);	// make sure it links into the world
