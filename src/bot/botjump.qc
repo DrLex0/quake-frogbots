@@ -56,8 +56,20 @@ float(float max_angle) right_direction =
 
 	if (self.special_p_jump)
 	{
-		if (self.special_p_jump > 2)
+		if (self.special_p_jump > 2)  // unconditional jump
 			return TRUE;
+
+		// Avoid getting stuck while obstructed and eternally waiting
+		// for vertical velocity
+		if (fabs(self.velocity_z) < 7)
+		if (self.obstruction_normal * dir_move_ > 0.35)
+		{
+			dir_move_ = -1 * self.obstruction_normal;
+			self.arrow_time2 = time + 0.125;
+			NewArrowForDirMove();
+			return FALSE;
+		}
+
 		// Ideally it should be possible to configure the velocity threshold,
 		// but would add even more clutter; these defaults should do the trick
 		if (self.special_p_jump == 1)
