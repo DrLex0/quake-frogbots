@@ -89,6 +89,7 @@
 #include "maps/trinca/map_misdm8.qc"
 #include "maps/trinca/map_naked6.qc"
 #include "maps/trinca/map_oktest1.qc"
+#include "maps/trinca/map_p3a.qc"
 #include "maps/trinca/map_pkeg2.qc"
 #include "maps/trinca/map_pro-dm4.qc"
 #include "maps/trinca/map_q3dm6qw.qc"
@@ -144,18 +145,19 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      kjdm12      lilith      misdm8\n");
 	sprint_fb(self, 2, "     monsoon      naked6    naked7b2\n");
 	sprint_fb(self, 2, "       north        nova     oktest1\n");
-	sprint_fb(self, 2, "       pkeg1       pkeg2     povdmm4\n");
-	sprint_fb(self, 2, "     pro-dm4      prodm4     q3dm6qw\n");
-	sprint_fb(self, 2, "     qtourn2       rwild     schloss\n");
-	sprint_fb(self, 2, "     shadows       shady     shifter\n");
-	sprint_fb(self, 2, "       shine       skull     spinev2\n");
-	sprint_fb(self, 2, "       start    strmland         thf\n");
-	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
-	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
-	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
-	sprint_fb(self, 2, "    utressor        zite      ztndm1\n");
-	sprint_fb(self, 2, "      ztndm2      ztndm3 ztndm3frost\n");
-	sprint_fb(self, 2, "      ztndm4      ztndm5      ztndm6\n");
+	sprint_fb(self, 2, "         p3a       pkeg1       pkeg2\n");
+	sprint_fb(self, 2, "     povdmm4     pro-dm4      prodm4\n");
+	sprint_fb(self, 2, "     q3dm6qw     qtourn2       rwild\n");
+	sprint_fb(self, 2, "     schloss     shadows       shady\n");
+	sprint_fb(self, 2, "     shifter       shine       skull\n");
+	sprint_fb(self, 2, "     spinev2       start    strmland\n");
+	sprint_fb(self, 2, "         thf         tox      tridm1\n");
+	sprint_fb(self, 2, "      tridm2      tridm3     trindm1\n");
+	sprint_fb(self, 2, "     trindm2     trindm3      ukpak2\n");
+	sprint_fb(self, 2, "      ultrav    utressor        zite\n");
+	sprint_fb(self, 2, "      ztndm1      ztndm2      ztndm3\n");
+	sprint_fb(self, 2, " ztndm3frost      ztndm4      ztndm5\n");
+	sprint_fb(self, 2, "      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -605,6 +607,11 @@ float() LoadWaypoints =
 		map_oktest1();
 		return TRUE;
 	}
+	if (mapname == "p3a")
+	{
+		map_p3a();
+		return TRUE;
+	}
 	if (mapname == "pkeg2")
 	{
 		map_pkeg2();
@@ -943,6 +950,8 @@ string(string mname) MapHasWaypoints =
 		return "naked6";
 	if (mname == "oktest1")
 		return "oktest1";
+	if (mname == "p3a")
+		return "p3a";
 	if (mname == "pkeg2")
 		return "pkeg2";
 	if (mname == "pro-dm4")
