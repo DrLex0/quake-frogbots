@@ -316,9 +316,9 @@ These steps do not need to be done in this exact order, but you will typically g
 2. Activate the desired marker and set its zone: `ENTER` or `Q`. Do this for all markers you consider the same zone.  
    ![Applying zones and goals](images/apply-zones-goals.jpg)
    - **Guidelines for assigning markers to zones:**
-     1. going from one marker to another within the same zone _must not_ require passing through another zone's markers: moving between markers of the same zone must only involve following paths within the zone;
-     2. markers within a zone must be within a reasonably short travel time, no more than a few seconds;
-     3. do not create zones that are one elongated chain of markers, split those up into shorter chains;
+     1. going from one marker to another within the same zone _must not_ require passing through another zone's markers; moving between markers of the same zone must be possible by sticking to paths within the zone, and those paths should preferably be shorter than paths going through other zones;
+     2. markers within a zone should be within a reasonably short travel time of each other, no more than a few seconds;
+     3. avoid creating zones that are one elongated chain of markers, split those up into shorter chains;
      4. if going from marker _B_ to _A_ takes much longer than going from _A_ to _B,_ for instance _A→B_ is a simple jump, _B→A_ requires taking staircases, elevators, swimming, … then A and B should probably be in different zones;
      5. _doors_ should usually be treated as zone borders, and secret doors (that need to be shot to open) _must_ separate different zones (see advanced section).
    - Giving each zone a _convex shape_ will ensure most of the above guidelines are satisfied, but it is not a strict requirement. Do expect problems when creating weird intertwined concave zones.
@@ -418,7 +418,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
   ![Keep zones together](images/zone-markers.jpg)
 - Although _Closest-Marker-Mode_ (`F` key) makes it easier to select markers, you should disable it from time to time to ensure you are not creating paths towards markers that cannot be touched in the actual game. If a marker is floating up in the air, which is often the case for teleport destinations, check whether it activates when approaching it with CMM disabled. If not (immediately), do not create paths towards it. (You may and probably should create outgoing paths, just in case the marker does get activated.)
 - Remember that bots will react to _any_ marker they ‘touch,’ not only the next one on their path (unless they are in exclusive mode).  
-  Also, the touch mechanism is pretty _coarse._ When running between 2 markers that are not extremely far away from each other, the target marker will usually already be touched at the half-way point. The bot will then stop moving towards that marker and change its direction towards the next planned marker. This can make it seem as if the bot is cutting corners on paths with sharp angles. When it is important for the bot to follow a specific curve, you may need to place extra markers, or move markers farther away from obstacles to keep the bot from bumping into them.
+  Also, the touch mechanism is pretty _coarse._ When running between 2 markers that are not extremely far away from each other, the target marker will usually already be touched at the half-way point. The bot will then stop moving towards that marker and change its direction towards the next planned marker. This can make it seem as if the bot is cutting corners on paths with sharp angles. When it is important for the bot to follow a specific curve, you may need to place extra markers, use narrow path mode, or move markers farther away from obstacles to keep the bot from bumping into them.
 - You can ‘lock’ the active marker in Static Marker mode with `I` or `TAB`, allowing to move to other markers without activating them. It is also useful to watch the paths animation (`R`) from a distance, or check how far you are from the marker with the `/` key.
 - The `;` key behaves differently when a regular marker (or none, after pressing `H`) is active, in that case it will move to some marker of the currently selected goal or zone number. This allows to quickly jump to a specific zone, or (together with the `,` key) find out which items have a specific goal number.
 - It helps to draw a floor plan of the map with zones, goals and paths, especially for complicated cases like exclusive paths, although the visualisation modes of the tool make it easy to spot mistakes. It also is interesting to walk around in existing maps and see how waypoints were added.
@@ -439,7 +439,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 ### Troubleshooting
 - If you notice the bot going nowhere, randomly moving around while looking at the ceiling or floor, or running into a wall, most likely a nearby marker has an invalid path towards a marker in another room. Check paths with the `R` key, and delete invalid paths in both directions if they go through walls, ceilings or floors.
   - This may also be caused by a marker at the other side of a wall being touched, because walls are transparent to the touch mechanism. Place enough markers at both sides of thin walls, using the wall as a mirror for marker positions.
-  - Another possibility is that a zone is too large or scattered. Ensure zones consist of markers clustered together, and that each marker within a zone can be reached from every other marker in that zone without having to exit the zone.
+  - Another possibility is that a zone is too large or scattered. Ensure zones consist of markers clustered together, and that going from one marker to another within the same zone does not require having to take a detour through another zone.
 - If the bot keeps _‘orbiting’_ around a marker, most likely it is waiting in vain for the marker to be touched. Usually this happens with markers that float up in the air, often teleport destinations or `info_player_deathmatch` spawn points. Check that markers are easily touchable by disabling closest marker mode (`F`). Do not make paths towards such untouchable markers. Only give them outgoing paths for the cases where they do get touched. (Of course a teleport destination always needs an incoming path from its teleport trigger.)
 
 
@@ -457,7 +457,7 @@ If there are lava or slime pits, or deadly traps, it is a good idea to place som
 Likewise, if there is a chasm in which the bot risks falling when trying to pick up a dropped item very near to it, add unreachable markers in the air beyond the edge, positioned such that they become touched as soon as the edge is approached too closely.
 
 In **lava pits** shallow enough to allow jumping, you may add rocket-jump paths to give the bot a better chance of escaping. If the pit is too deep for jumping, making outgoing paths is generally useless and could interfere with the bot's emergency escape mechanism, which will attempt to rocket-jump towards a nearby safe marker. In pits that can only be escaped through a RJ, you can add one-way paths as hints for the best spot to aim for, but such paths should not have any special mode assigned to them.  
-And by all means, never set _jump ledge_ mode on an escape path out of a liquid too deep for jumping, because it will lead to certain death.
+And by all means, never set any of the _jump modes_ on an escape path out of a liquid too deep for jumping, because it will lead to certain death.
 
 There is also an **untouchable** marker type. When set, the marker will never produce a touch event. As mentioned above, it is recommended to set this on intermediate `trigger_push` markers. It can also be used on markers that overlap with other markers and are redundant. For instance if an `info_player_deathmatch` is on top of an item marker, it makes sense to just disable touch on the spawn marker and only use the item for paths.  
 Doors and platforms whose special touch behaviour may cause unexpected effects, sometimes are also better left untouchable if other markers suffice for bot navigation.  
@@ -477,9 +477,9 @@ Mind that when a bot has deliberately become airborne, like when jumping up (or 
 
 By default, the bot will not go towards such platforms when they are not in their ‘down’ position, and may try to find another path. If you want the bot to always wait for the platform if it is the best path to take, or you notice that the bot often gets crushed under the platform while in vain trying to find an alternative path, set `wait lift` marker mode on the platform marker. To do this, set display mode `Z` to “Display type,” and use `V` to select `wait lift node`. Then activate the marker and right-click (`MOUSE2`).
 
-The `wait lift` mode will make the bot wait at any marker that has a path towards the platform, if the platform is the most desirable path, but is not in the downmost position. If this is not desirable for a specific path, set `just GO` mode on the path, and the bot will ignore any dangers as usual. Also, make sure that the waiting spots are sufficiently far away from the platform, or the bot may still get _juiced._
+The `wait lift` mode will make the bot wait at any marker that has a path towards the platform, if the platform is the most desirable path, but is not in the downmost position. If this is not desirable for a specific path, set `just GO` mode on the path, and the bot will ignore any dangers as usual. Also, make sure that the waiting spots are sufficiently far away from the platform, or the bot may still get _mashed._
 
-Note that all door-and-lift-like things are treated *equal.* There may be cases where the bot has to walk towards a door that will open automatically, but the test for platform-like things not being in the downmost position causes the bot to refuse to walk towards this door. The solution here is to set `just GO` mode on that path. An example can be found in the map `skull`.
+Note that all door-and-lift-like things are treated _equal._ There may be cases where the bot has to walk towards a door that will open automatically, but the test for platform-like things not being in the downmost position causes the bot to refuse to walk towards this door. The solution here is to set `just GO` mode on that path. An example can be found in the map `skull`.
 
 Maps often feature lifts that require a **button press.** This is a bit more complicated to set up, make sure to look at the illustration:
 1. make _one-way_ path(s) from outside the lift (_mIn_ in the image) directly to the button (_mBtn_ in the image; do _not_ link to the platform);
@@ -525,7 +525,7 @@ This works as follows. The bot will:
 ![The dm5 door path setup](images/dm5-paths.jpg)
 
 If you look at the `dm5` waypoints or the above diagram, you will notice that 2 extra exclusive markers with `linked door` have been placed to make bots approaching from other directions immediately go through the door when someone else has opened it for them. Same for `ultrav`.  
-When adding such exclusive markers with `linked door,` it is important to provide **outgoing paths** from those markers towards nearby normal markers, to allow the bot to continue on its path when it touches such an EM while it has no intention of going through the door. If you forget to do this, you may see the bot attempting to exit the exclusive zone and then being “sucked back in” and being unable to exit the area. Again, see `dm5` as example.  
+When adding such exclusive markers with `linked door,` it is important to provide **outgoing paths** from those markers towards nearby normal markers, to allow the bot to continue on its path when it touches such an EM while it has no intention of going through the door. If you forget to do this, you may see the bot getting “sucked back in” while attempting to exit the exclusive zone, making it unable to exit the area. Again, see `dm5` as example.  
 To reduce work-in-progress clutter, it is recommended to first set up, test, and tweak only the setup needed to enter and exit the special zone. Only when everything looks good, add the extra outgoing paths on markers that have a linked door, to prevent bots from inadvertently being sucked into the zone when they merely wanted to continue on their path.
 
 This is a complicated thing to set up, and it must be double-checked and tested for mistakes, but the end result is well worth it. It helps a lot to draw a diagram of the markers and how they must be set up, as in the example above.
@@ -765,7 +765,7 @@ desire_adj_G1 = 1.6;
 
 ### Disabling doors/platforms
 
-If a map has a door or platform the bot cannot handle, but it is important for the bot to be able to traverse it, then the door/platform can be forced to be always open/active. The need for this should be much reduced since the introduction of the universal shootable triggers system, but there may still be situations where it is impossible for bots to reliably open doors.  
+If a map has a door or platform the bot cannot handle, but it is important for the bot to be able to traverse it, then the door/platform can be forced to be always open/active. The need for this should be much reduced since the introduction of the universal shootable triggers system, but there may still be situations where it is impossible for bots to reliably open doors (an example is `e1m6`).  
 To force a door or platform in its open/active state, set display mode to `type` with the `Z` key, then select `force node activated` mode with the `V` key, and right-click the marker (`NOCLIP` and closest marker mode will make it easier to select the correct marker, which may be inside a wall). The marker should then usually also be made untouchable.
 
 
@@ -793,7 +793,7 @@ If you want to live dangerously and test changes on-the-fly, make it a reflex to
 
 #### Forcing goals
 To test whether the bot correctly tackles a specific path, goals can be overridden with impulse 191, bound to the `-` key in the default config. For instance, to force the bot to run to a certain marker, hit the `-` key while this marker is selected. A second marker can then also be set, to ensure the bot will follow a specific path. This makes testing tricky jumps and such way less cumbersome than letting the bot do its thing and waiting until it takes that path.  
-(Avoid using teleport triggers as goal override: they are never actually touched and the goal will never be cleared.)
+(Do not use teleport triggers as goal override: they are never actually touched and the goal will never be cleared—set the goal on the destination.)
 
 #### Debugging path calculation errors
 If the bot does not seem to want to take an obvious path, it could be because a path has been assigned an erroneous travel time. This will generally mean that the waypoints violate zone assignment guideline 1 as mentioned above. However, it may also occur in some other exotic cases.

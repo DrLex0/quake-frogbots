@@ -11,7 +11,7 @@ Figuring this out was essential to fix a lot of bugs and to know how to implemen
 
 This has been obtained by littering the code with debug print statements in all important methods, and then running it in QuakeWorld (ezQuake). A NetQuake engine may follow a different flow, but general principles should be the same. At some point I might repeat this experiment in vkQuake to see where the differences are, which would also be very useful information.
 
-Mind that this is the flow for a _pure bot._ The flow may be slightly different for a player that has become a bot in QUAKE.
+Mind that this is the flow for a _pure bot._ The flow will be slightly different for a player that has become a bot in QUAKE.
 
 1. **StartFrame** (`world.qc`)
    - **FrogbotPrePhysics1** (`botphys.qc`)
@@ -90,8 +90,8 @@ Useful for anyone working on any Quake mod or even to map makers. TODO: this kin
   In QuakeC, the `.origin` is 24 units from the bottom hence 22 units below the eyes and 32 units below the top. The distance from origin to eyes is specified in `.view_ofs`.
   - Mouth and eyes are considered to be at the same height (or another way to look at this, is that the player is able to _breathe through their eyes_ 👀). In other words, for a player to be able to breathe in a zone with water, there must be at least 11 units of air above the water surface.
   - Waist point is considered to be the center, hence 28u above bottom or 4u above origin.
-  - Water level 1 means player is in liquid at least 1 unit deep, but waist is above liquid. Water level 2 means waist is in liquid but eyes are not, water level 3 means eyes are in liquid.
-    - (However, to add to the breathing absurdity, as long as the lowest 1u of the player are dry, water level is 0. This implies the player can also breathe through the soles of their feet. 🦶)
+  - _Water level 1_ means player is in liquid at least 1 unit deep, but waist is above liquid. _Water level 2_ means waist is in liquid but eyes are not. _Water level 3_ means eyes are in liquid (no breathing).
+    - (However, to add to the breathing absurdity, as long as the lowest 1u of the player is dry, water level is 0. This implies the player can also breathe through the soles of their feet. 🦶)
   - Projectiles (rockets, nails, …) are launched from 16 units above the origin, hence 40 units from the bottom.
   - The player model is theoretically 64 units wide, but is considered to be marginally wider than 32 units when it comes to fitting inside corridors. Same for the depth: if the player has its face or back stuck to a wall, its origin is 16 units from the wall, hence the player is considered 32 units deep.
   - In other words, for players: `mins = '-16 -16 -24` and `maxs = '16 16 32'`.
@@ -303,11 +303,11 @@ This two-level decomposition (inter-zone + intra-zone) is the core of the routin
 
 #### 4. Why do goal numbers need to be assigned to items?
 
-Goal numbers serve as **indices into the precomputed routing tables**. The `G1`–`G24` functions ([route_fields.qc](cci:7://file:///home/athomas/Develop/Kweek2/src/route_fields.qc:0:0-0:0) lines 13–36) set `marker.GN_ = marker` and `marker.G_ = N`. During the Bellman-Ford in `Calc_G_time_4_path`, each marker learns the shortest time to every goal (`GN_time`) and which entity that goal is (`GN_`).
+Goal numbers serve as **indices into the precomputed routing tables**. The `G1`–`G24` functions (`@route_fields.qc` lines 13–36) set `marker.GN_ = marker` and `marker.G_ = N`. During the Bellman-Ford in `Calc_G_time_4_path`, each marker learns the shortest time to every goal (`GN_time`) and which entity that goal is (`GN_`).
 
-In `UpdateGoal()` ([botgoals.qc](cci:7://file:///home/athomas/Develop/Kweek2/src/bot/botgoals.qc:0:0-0:0)), the bot evaluates all 24 goals by looking up `touch_marker_.G1_.virtual_goal` through `touch_marker_.G24_.virtual_goal`. This allows efficient lookup: from the bot's current marker, it can immediately access the nearest entity for each goal number and its travel time.
+In `UpdateGoal()` (`@botgoals.qc`), the bot evaluates all 24 goals by looking up `touch_marker_.G1_.virtual_goal` through `touch_marker_.G24_.virtual_goal`. This allows efficient lookup: from the bot's current marker, it can immediately access the nearest entity for each goal number and its travel time.
 
-**Regarding preference for lower goal numbers**: The comment at `@/home/athomas/Develop/Kweek2/src/bot/botgoals.qc:332-334` by DrLex is accurate. The only preference is that goals are evaluated sequentially from G1 to G24 in `EvalGoal()`, and `EvalGoal()` uses a strict `>` comparison (`goal_score > best_score`). If two goals produce exactly the same score, the earlier-evaluated one (lower number) wins by virtue of being evaluated first. This is an extremely weak tie-breaking effect — in practice, two different items will almost never produce identical scores due to different distances and desire values.
+**Regarding preference for lower goal numbers**: The comment at `@botgoals.qc:332-334` by DrLex is accurate. The only preference is that goals are evaluated sequentially from G1 to G24 in `EvalGoal()`, and `EvalGoal()` uses a strict `>` comparison (`goal_score > best_score`). If two goals produce exactly the same score, the earlier-evaluated one (lower number) wins by virtue of being evaluated first. This is an extremely weak tie-breaking effect — in practice, two different items will almost never produce identical scores due to different distances and desire values.
 
 There is also a `desire_adj_G1` / `desire_adj_G2` mechanism: maps can set a multiplier for goals G1 and G2 specifically (e.g. `desire_adj_G1=1.7` in dm3). This gives an explicit boost to items with those goal numbers, making G1 (and sometimes G2) more desirable. This is the **intended** mechanism for giving certain important items priority — not the goal number ordering itself.
 
@@ -348,7 +348,7 @@ So destinations that are **far away** (high `runaway_time`) and **require many h
 
 `Calc_G_time_12` adds intra-zone runaway candidates: markers in the same zone that are **not visible** from the starting marker (checked via `traceline`), favoring destinations you can hide behind cover.
 
-At runtime in `EvalCloseRunAway()` ([botpath.qc](cci:7://file:///home/athomas/Develop/Kweek2/src/bot/botpath.qc:0:0-0:0) lines 307–330), the runaway score for each `RA` candidate is:
+At runtime in `EvalCloseRunAway()` (`@botpath.qc` lines 307–330), the runaway score for each `RA` candidate is:
 
 ```
 test_away_score = random() * RA_time * ((traveltime2² - (look_traveltime² + traveltime²)) / (look_traveltime * traveltime))

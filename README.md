@@ -225,7 +225,12 @@ Although born from the same origin, this is a different Frogbot fork than [the o
 - The v2 Frogbot is a _client_ mod, all you need to run it is a QuakeWorld client like ezQuake, while KTX is a _server_ mod, requiring to launch a server which can only run on one of the supported platforms.
 - This fork is branched from the [FBCA repository](https://github.com/ezQuake/fbca) whose last change was in 2016, while the bot and arena code in KTX has seen some recent changes, even in 2025.
 - The KTX bots are (re)implemented in plain C, while this fork of the older Frogbot is still implemented in QuakeC. Try these oldschool bots however, and you'll see that QuakeC can kick some serious butt, and one can still learn an old bot new tricks.
-- There are (currently) some differences in features, the KTX bot has some things not in the v2 bot and the other way round.
+- There are (currently) some differences in features, the KTX bot has some things not in the v2 bot and the other way round. If both mods would be brought to the same feature level, it would become easy to interchange waypoint data between them with a transformation script (there is a rudimentary script already to go from KTX to v2).
+
+
+## Can I include the v2 Frogbot in my own QuakeC mod?
+
+It should be technically possible, but may be difficult, depending on how complex your mod already is. The bot requires a very specific initialisation procedure to populate the waypoint data structures. Breaking this initialisation leads to very hard to debug errors. In practice this means it may be saner to redesign your mod to be integrated into the Frogbot code than the other way round.
 
 
 ## Caveats
@@ -254,7 +259,7 @@ No promises about dates or reaching these goals whatsoever. It is done when it's
 
 - Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels. Bots also shouldn't do smart things on low smartness settings, like deliberately damaging themselves to be able to pick up armor such that other players cannot, and a bot with smartness 0 should have zero advance knowledge of when an item will spawn.
 - Find a way to spectate bots. This may be impossible, at least that's what ChatGPT claims, but I have learned that it tends to be full of 💩 when it comes to Quake knowledge.
-- Find a way to automatically generate sensible waypoints as a starting point, to avoid the need to make every map from scratch. This will likely never work fully unsupervised, but it could reduce the amount of work per map to merely fine-tuning the tricky parts and special things. Having near-Trinca-quality waypoints automatically generated, would already be very helpful.
+- Find a way to automatically generate sensible waypoints as a starting point, to avoid the need to make every map from scratch. This will likely never work fully unsupervised, but it could reduce the amount of work for new maps to merely fine-tuning the tricky parts and special things. Having near-Trinca-quality waypoints automatically generated, would already be very helpful.
 
 
 ## License
