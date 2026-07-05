@@ -27,7 +27,7 @@ The v2 Frogbot solves these problems:
 - the waypoint tool has been resurrected in a new incarnation that makes it way easier to use, and more stable;
 - waypoints can be shipped with maps without having to compile them into the `qwprogs.dat`, by means of waypoint data embedded as entity fields via an `.ent` file, or even embedded in the BSP.
 
-On top of that, the new bot has a whole lot of new features and skills. More details below.
+On top of that, the new bot has a whole lot of new features and skills. More details below. Or, [watch the video](https://youtu.be/DILpxtXNZwo) to get a taste.
 
 
 ## Basic instructions
@@ -164,15 +164,15 @@ While working on the tool and testing newly created waypoints, I noticed things 
 
 ## What is the difference with the old Frogbot?
 
-Numerous problems have been fixed and new features have been added since the last major build that used to be shipped with nQuake. The most important ones:
+Numerous problems have been fixed and new features have been added since the last major FBCA build that used to be shipped with nQuake. The most important ones:
 
 1. Solved the `numpr_globals` problem without requiring the `-Ovectorcalls` option in fteqcc, which has been broken for ages when trying to compile for many maps. Formerly it was impossible to make a Frogbot build that includes Trinca's complete latest collection of 378 maps, unless a very specific old Windows build of fteqcc was used. Now it is possible to build with _any_ recent fteqcc on _any_ platform, and basically an _infinite_ number of maps can now be built into the qwprogs, until we hit some other QuakeC limit. But even that wouldn't be a show-stopper anymore, due to the following.
 
-2. Enabled loading waypoints through `.ent` files, or even building them into a map. This means it is no longer required to recompile the (qw)progs to provide bot support for a map. See details in the waypoint README.
+2. Enabled loading waypoints through `.ent` files, or even building them into a map. This means it is no longer required to recompile the (qw)progs to provide bot support for a map. See details in the waypoint README. A very small example map is provided in `waypoint/embedded_example/`.
 
-3. Simpler management of map waypoint files, with a Python script that can also convert existing files for the above fix, which requires a (simple) format change.
+3. Simpler management of map waypoint files, with a Python script that can also convert legacy files for the above fix. Aliases can be set for identical maps, and characters like `-` or `+` in map names are no longer a problem.
 
-4. Restored ability to build the **waypoint tool** featured in Mick's (former) guide, and greatly improved the usability of the tool. (Mick's guide is now defunct, but there is a _much_ more detailed guide in this repository.)  
+4. Restored ability to build the **waypoint tool** featured in Mick's (former) guide, and greatly improved the usability of the tool. (Mick's guide is now defunct, but there is a _much_ more detailed guide in this repository — thank my horrible memory, I basically wrote the manual for my future self.)  
    This means it is now possible to easily _resume editing_ from existing waypoints, if one compiles them into the tool and then simply loads the map; of course they could also be injected into an `.ent` file or the `.bsp` itself and can then be reloaded without recompiling anything, but this is slightly more cumbersome.  
    This means:
    - creating waypoints is again _way more feasible_ through an edit-test cycle;
@@ -189,40 +189,44 @@ Numerous problems have been fixed and new features have been added since the las
    - bot mode can be forced to reach a certain target spot;
    - other functions that make it much easier to find and check things.
 
-5. Added _precision jump mode_ for paths. The ordinary ledge jump mode is too crude for certain jumps, bots would often jump around way too erratically. The new modes enable jumps where accuracy matters. The bot will automatically retreat and do a run-up when necessary. The jump can also be combined with a new _slow path mode_ to reliably jump onto small ledges/steps like in the yellow armor zone of `e1m2`, or can be given an initial direction to perform an air strafe.  
-   Next to this, other new path modes and marker types have been added to better handle specific situations, like smoothly getting through narrow openings.
+5. Created waypoints for previously unavailable maps, for instance `hohoho, hohoho2, catalyst, burialb10, dark-terror-ffa, dmz1++, e1m4, nova, halo, zite, …` These make use of the new v2 features, especially both `hohoho` maps are pretty good demos of what the v2 bot is capable of.  
+    I am also porting Trinca's legendary huge collection of waypoints. Originally I thought this would be a simple matter of converting the whole lot to the new format, but many of the files prove to have flaws and can benefit from the new features, hence I am doing them one-by-one. I believe there is no point in shipping a mod with broken waypoints, hence I keep testing each map until I notice no more obvious flaws. Try `efdm13` and `e1m1,` which both are now feature-complete, and an entirely different experience compared to the old Frogbot.
 
-6. Fixed the pretty much broken _rocket jump_ system. Bots will now rocket-jump much more often, and plan paths that include RJs, if of course the conditions for a RJ are satisfied. Next to the regular running RJ, there are also slower ‘mortar’ and ‘cannon’ RJ modes for when accuracy is crucial.
 
-7. Added _exclusive paths_ that allow the bot to do seemingly smart things by selectively ignoring markers depending on chosen paths, or depending on whether a door is open. This has allowed to upgrade some previously crippled maps to feature-complete waypoints, like `dm5`, `e1m5`, and `ultrav`.
+### New bot capabilities
 
-8. Extended **shootable triggers** from merely the door in `dm6` towards _anything_ that requires shooting a trigger before a path can be traversed. Try `e1m1` or `eodm3`.
+The best overview of all capabilities (old and new) of the v2 Frogbot is the [waypoint creation guide](waypoint/README.md). Here is a summary of improvements compared to the old FBCA.
 
-9. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_ bot, it was surprisingly bad at swimming). Bots are more robust against less-than-ideally-placed underwater markers, will no longer get stuck on the water surface for no good reason, and will avoid drowning.
+1. Added **precision jump mode** for when accuracy matters. The ordinary ledge jump mode is too crude for certain jumps, bots would often jump around erratically. Bots will automatically retreat and do a run-up when necessary. The jump can be combined with a new **slow path mode** to reliably jump onto small ledges/steps like in the yellow armor zone of `e1m2` or the chimney in `hohoho2`. Precise jumps can be given an initial direction to perform an air strafe. Chained jumps on sloped surfaces are possible: try `halo.`
 
-10. Waypoints through **slime** or **lava** areas can now be provided if the map has a biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up the power-up that protects against the hazard. It will desire to pick up the biosuit when it desires to fetch an item from slime. Try `efdm13`.
+2. Other **new path modes and marker types** have been introduced to better handle specific situations. For instance, bots can _wall strafe_ to make longer jumps, and better align to narrow openings. Try `hohoho,` it wins the _most special path modes_ award.
 
-11. Improved _platform/lift handling,_ especially for button-activated lifts. Bots can wait for a platform to come down to avoid being squished, and can handle exits at multiple floors.
+3. A new **exclusive marker type** allows to set up smarter behaviour in waypoints, for instance handle doors or platforms that need to be activated with a button. Try `dm5` where bots can now open the door to get the RL and mega health, or the updated `ultrav` and `ztndm6` where they are able to grab the Quad. More complicated examples are the RA in `rwild` and the hidden armor in `e1m5`. Nothing map-specific is hard-coded to make this work, it's all in the waypoints. (This makes the `frobodm` maps pretty much obsolete, except for `dm2` which still has too much weird stuff for the bots to handle.)
 
-12. Bots can _strafe run_ along a wall to boost their speed and make longer jumps.
+4. Extended **shootable triggers** from merely the door in `dm6` towards _anything_ that requires shooting a trigger before a path can be traversed, even when the thing to be shot is not the door itself. Try `e1m1` or `eodm3.`
 
-13. Better skill handling: bots preserve their skill across matches and map changes. Allow to override default bot skill level, and also separately override bot ‘smartness,’ through cvars.
+5. Greatly improved **water navigation,** which was all over the place (despite being a _Frog_ bot, it was surprisingly bad at swimming). Bots are more robust against less-than-ideally-placed underwater markers, will no longer get stuck on the water surface for no good reason, and will avoid drowning. They will intentionally discharge the LG if it pays off (or accidentally at lower skill levels). The classic air bubbles memory leak has been fixed. Large-scale underwater combat is now possible, try `e1m4.`
+
+6. Fixed the pretty much broken **rocket jump** system. Bots will rocket-jump much more often, and plan paths that include RJs (if conditions are satisfied). Accuracy has been improved but is not perfect, jumps hard for humans are also hard for bots (although there is an option to cheat a bit). Next to the regular running RJ, there are also slower ‘mortar’ and ‘cannon’ RJ modes for when accuracy is crucial.
+
+7. **Slime and lava awareness** if a map has biosuit and/or pentagram. In that case, the bot will avoid those paths until it has picked up the power-up that protects against the hazard. It will desire to pick up the biosuit when it desires to fetch an item from slime. Try `e1m1` or `efdm13.`
+
+8. Improved _platform/lift handling,_ especially for button-activated lifts. Bots can wait for a platform to come down to avoid being squished, and can handle exits at multiple floors.
+
+9. Many big and small bug and robustness fixes, like reliably ascend “ladders,” reduced risk of getting stuck, crashes when attempting to spawn bots in some maps, and overhaul of the fundamentally broken player handling (how the old mod did _not_ crash more often than it did, is a miracle).
+
+10. Better **skill handling:** bots preserve their skill across matches and map changes. Allow to override default bot skill level, and also separately override bot ‘smartness,’ through cvars.
     - If the `fb_custom_skill` cvar is nonzero, it will be used when spawning new bots, ignoring any `d_skill` info value from configs. A value of zero causes the cvar to be ignored, skill level 0 is represented by value -1. The cvar is updated when using the `skilldown/up` commands, which means changes will be persistent in engines like ezQuake that automatically store cvars.
     - If the `fb_custom_smart` cvar is nonzero, it overrides _smartness,_ which controls some advanced bot behavior. By default, it is derived from bot skill level (with smartness 3 at level 0, and maxing out at level 10 and above). This means bots are now easier on the lower skill settings than in older Frogbot versions, where smartness was fixed at 10. Smartness value can be between 0 to 10, but again, the cvar is ignored if its value is 0; use a negative value to represent minimum smartness 0. To make the easiest possible bot, set skill to 0 and `fb_custom_smart` to -1.
 
-14. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables.
-
-15. Many big and small bug and robustness fixes, like the ability to ascend fake ‘ladders,’ reduced risk of bots getting stuck, and crashes when attempting to spawn bots in some maps.
-
-16. Created waypoints for previously unavailable maps, for instance `hohoho`, `hohoho2`, `catalyst`, `burialb10`, `dmz1++`, `e1m4`, and more.  
-    Also updated a bunch of existing waypoints to fix errors and benefit from new functionality. For instance `efdm13` is now an entirely different experience, and a whole lot more challenging. Or try `e1m1,` which is now feature-complete, secrets and all. I have high quality standards: waypoints are only committed to this repository after I have watched bots running on them without any obvious problems.
+11. Allow to set _custom bot names_ through localinfo `frobo_name1` through `frobo_name16` variables (currently only in QW).
 
 
 ## What is the difference with the KTX Frogbot?
 
 Although born from the same origin, this is a different Frogbot fork than [the one included in KTX](https://github.com/QW-Group/ktx). The differences are:
 
-- The v2 Frogbot is a _client_ mod, all you need to run it is a QuakeWorld client like ezQuake, while KTX is a _server_ mod, requiring to launch a server which can only run on one of the supported platforms.
+- The v2 Frogbot is a _client_ mod, all you need to run it is a Quake or QuakeWorld client like vkQuake or ezQuake, while KTX is a _server_ mod, requiring to launch a server which can only run on one of the supported platforms.
 - This fork is branched from the [FBCA repository](https://github.com/ezQuake/fbca) whose last change was in 2016, while the bot and arena code in KTX has seen some recent changes, even in 2025.
 - The KTX bots are (re)implemented in plain C, while this fork of the older Frogbot is still implemented in QuakeC. Try these oldschool bots however, and you'll see that QuakeC can kick some serious butt, and one can still learn an old bot new tricks.
 - There are (currently) some differences in features, the KTX bot has some things not in the v2 bot and the other way round. If both mods would be brought to the same feature level, it would become easy to interchange waypoint data between them with a transformation script (there is a rudimentary script already to go from KTX to v2).
@@ -230,7 +234,7 @@ Although born from the same origin, this is a different Frogbot fork than [the o
 
 ## Can I include the v2 Frogbot in my own QuakeC mod?
 
-It should be technically possible, but may be difficult, depending on how complex your mod already is. The bot requires a very specific initialisation procedure to populate the waypoint data structures. Breaking this initialisation leads to very hard to debug errors. In practice this means it may be saner to redesign your mod to be integrated into the Frogbot code than the other way round.
+It should be technically possible, but may be difficult, depending on how complex your mod already is. The bot requires a very specific initialisation procedure to populate the waypoint data structures. Breaking this initialisation leads to very hard to debug errors. In practice this means it may be saner to redesign your mod to be integrated into the Frogbot code than the other way round. A decent starting point could be the [TechNotes](doc/TechNotes.md).
 
 
 ## Caveats
@@ -246,7 +250,7 @@ The mod will print a warning when recognising some of the typical `.ent` files t
 When making waypoints in an engine that supports `.ent` files, by all means ensure no custom file is loaded for the map while editing the waypoints. It will work, but the resulting waypoints will only be usable with that particular `.ent` file. If you would go this route anyway, it makes sense to embed the waypoint data in the `.ent` file as well.
 
 
-## Planned
+## Planned… maybe
 
 - Improve Frogbot functionality in NetQuake engines. It already works pretty well and you can even play against bots in the waypoint tool if you start a network game and use manual impulse commands, but this has been tested less than the QW build and is likely to have more bugs and some missing functionality. However, one extra feature the Quake build has, is that you can turn yourself into a bot, both in single-player and multiplayer, through the `frogbot` command, `impulse 123,` or in the waypoint tool with the `F4` key. Try it!
 - Add more—ideally all—of Trinca's waypoints, with errors fixed and updated to benefit from the new features.
@@ -257,8 +261,9 @@ No promises about dates or reaching these goals whatsoever. It is done when it's
 
 ### Not really planned, but who knows…
 
-- Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels. Bots also shouldn't do smart things on low smartness settings, like deliberately damaging themselves to be able to pick up armor such that other players cannot, and a bot with smartness 0 should have zero advance knowledge of when an item will spawn.
-- Find a way to spectate bots. This may be impossible, at least that's what ChatGPT claims, but I have learned that it tends to be full of 💩 when it comes to Quake knowledge.
+- Disable or reduce advanced tactics on lower bot skill levels. For instance, I shouldn't get a rocket accurately launched from a long distance in my face when turning around a corner on the very lowest skill levels. Bots also shouldn't do smart things on low smartness settings, like deliberately damaging themselves to be able to pick up armor such that other players cannot, and a bot with smartness 0 should have zero advance knowledge of when an item will spawn.  
+  Conversely, I think we could make bots above level 10 even more difficult, for instance by giving them a wider field-of-view.
+- Find a way to spectate bots. This may be impossible, at least that's what ChatGPT claims, but I have learned that it tends to be full of 💩 when it comes to Quake knowledge. At the least it should be possible to offer a pseudo-spectator mode, in fact the clan arena game mode already offers this.
 - Find a way to automatically generate sensible waypoints as a starting point, to avoid the need to make every map from scratch. This will likely never work fully unsupervised, but it could reduce the amount of work for new maps to merely fine-tuning the tricky parts and special things. Having near-Trinca-quality waypoints automatically generated, would already be very helpful.
 
 
