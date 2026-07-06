@@ -11,10 +11,10 @@ Contents:
 
 The Quake Frogbot needs _waypoints_ to be able to run around in a map and gib opponents. Waypoints need to be generated for each map, currently this is a manual process (it should in theory be possible to automatically generate sensible waypoints from map geometry, but manual tweaking will always be required for most maps).
 
-The waypoint tool runs inside plain Quake game engines (not QuakeWorld), and allows to create and edit waypoints. It is based on the one that _Mick K_ provided in his [waypoint guide](https://mickkn.mooo.com/quakeworld/frogbot/) (which may or may not be available anymore). It is built from the same source code as the Frogbot, but then with UI code added and some unneeded bits removed.  
-The original tool's source code is long lost or at least not easily found, hence it was reconstructed by DrLex through decompiling, and then enhanced for greater usability.
+The waypoint tool runs inside plain Quake game engines (not QuakeWorld), and allows to create and edit waypoints. The v2 Frogbot tool is a highly evolved version of the one that _Mick K_ provided in his [waypoint guide](https://mickk.dk/gaming/quakeworld/frogbot/) for the older Frogbot. It is built from the same Frogbot source code, but then with UI code added and unneeded bits removed.  
+The original tool's source code is long lost or at least not easily found, hence it was reconstructed by DrLex through decompiling, and then enhanced for greater usability. An extensive guide for using the new tool is available further down this README.
 
-One of the motivations for resurrecting the source code of the waypoint tool, is to allow loading existing waypoint data for a map, such that one can simply continue editing from where one left off. If the tool is built with the waypoint code for that map included, or embedded waypoints are provided in an `.ent` file or baked into the map, then they will be loaded together with the map when executing the `map <mapname>` command.  
+One of the motivations for resurrecting the waypoint tool, is to allow loading existing waypoint data for a map, such that one can simply continue editing from where one left off. If the tool is built with the waypoint code for that map included, or embedded waypoints are provided in an `.ent` file or baked into the map, then they will be loaded with the map when executing the `map <mapname>` command.  
 Saving work-in-progress, testing it with bots, and then continuing to edit, is the **only** sane workflow to make good waypoints for any map larger than a trivial 1-on-1.
 
 Once waypoints have been created, there are 2 ways to allow Frogbots to use them, or to resume editing existing waypoints. More information is in the section below, but in short:

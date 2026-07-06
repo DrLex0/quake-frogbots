@@ -24,7 +24,7 @@ Because the format of waypoint files has changed compared to the older Frogbot c
 
 ## Aliases
 
-It is possible to have _aliases_ for maps, for instance if `trindm2.bsp` and `blorkination.bsp` are the exact same map files as `tridm2.bsp`, then you can add this kind of line to the top of the `map_tridm2.qc` file:
+It is possible to have _aliases_ for maps, for instance if `trindm2.bsp` and `blorkination.bsp` are the exact same map files as `tridm2.bsp`, or have identical geometry and entity lists, then you can add this kind of line to the top of the `map_tridm2.qc` file:
 ```
 // ALIASES trindm2 blorkination
 ```
@@ -33,6 +33,8 @@ The script will then automatically generate a `mapaliases.txt` file containing t
 ```
 tridm2 trindm2 blorkination
 ```
+
+This won't work if entities have been reordered, added or removed between the 2 versions of the map. In that case you need to provide separate waypoints for each.
 
 ## Example
 
@@ -73,6 +75,7 @@ The last known older Frogbot builds had almost 380 waypoints, most of which were
 
 A checklist of things I usually have to fix when converting old waypoints:
 - **Teleports.** See the instructions in the waypoint tool README. The `K` key is now your friend: when used on teleport triggers, it will set the single correct outgoing path and drop the others. What it won't fix, is bad assignment of incoming paths, you must check and fix this yourself.
+  - Also, the older Frogbot tried to drop teleport destination markers to the floor, the v2 Frogbot no longer does this because it makes no sense. This means old waypoints may now contain destination markers high up in the air being used as regular path markers, which is a _bad thing_ as explained in the waypoint guide. Remove all incoming paths to those, except (the) path(s) coming from the teleport trigger.
 - **Unwanted paths.** These may exist due to the old waypoint tool having no easy way to detect superfluous paths, especially if a far away marker got accidentally connected. The new tool makes this easier: use the `R` key, and if you see unexpected markers being listed, or the spikes for non-teleport markers flying through walls and ceilings, then it means incorrect paths need to be removed. It is often easier to just clear all paths with `T` and then re-link the correct paths.
 - **Markers without zone or goal.** The `N` and `M` keys are your friend here. This will especially be the case for `trigger_push` and `trigger_multiple`, because the old Frogbot did not create markers for these.
   - For `trigger_push`: you really should remove any existing kludge based on manual markers, and make the one-way path go through the (first) push marker (making any others on the same trajectory untouchable).

@@ -72,6 +72,12 @@ To deploy the mod from scratch in ezQuake, some more work is needed:
 - Create a file `autoexec.cfg` inside the `frogbot/` folder with inside it the line:
   - `exec frogbot-quake.cfg`
 
+The default config sets the **frame rate** to _77 fps_ because this was the standard for QuakeWorld FBCA at the time I forked it. This rate is supposed to be optimal for physics calculations. However, many modern Quake engines can decouple physics from frame rendering, which safely allows setting a higher display rate. In some engines like vkQuake, this is desirable because rates that are not an integer multiple of the display refresh rate, can result in choppy video.  
+If your engine has independent physics functionality, I recommend to set the max FPS to the first multiple above 77 of your display's refresh rate. For instance, for a 60Hz display:
+```
+host_maxfps 120
+```
+
 ### Playing
 
 In ezQuake, if deployed as instructed above, you will immediately be inside the mod, and can load any map with the `map` command. In NetQuake, you will first have to load the mod with the command `game frogbot`, or using the GUI menu.
@@ -82,7 +88,7 @@ The current list of built-in maps can be found in the `src/maps/maplist.txt` fil
 The list of supported maps is currently much smaller than what used to be bundled with nQuake, although it does support some newer maps. The goal is to port the entire old huge collection to the v2 Frogbot, but each map needs to go through some QA to fix problems and possibly upgrade it to benefit from the new features. Check back here for newer releases, or if you want to lend a helping hand, look in the `waypoint` README.
 
 The default mode is _FFA,_ other modes are available. Try the commands starting with `bot_`, like `bot_arena` which is great for practicing your aim or just instant mayhem. After loading a map, use the `addbot` and `removebot` commands to add or remove bots. Bots will be carried over when changing maps (if the next map is supported of course).  
-The default configs have some maplists built-in (only works in QW). Look in the `configs` folder to see which BSP files you need to obtain to play those lists, or override the lists with your own config, or just manually switch maps with the `map` command.
+The default configs have some _maplists_ built-in (work both in Quake and QW, random order only in QW). Look in the `configs` folder to see which BSP files you need to play those lists, override the lists with your own config, or just manually switch maps with the `map` command.
 
 Disclaimer: the v2 mod has not been extensively tested with multiple human players joining a server. There may be bugs when other people connect, or maybe not. For non-casual servers, it may make more sense to run KTX. Still, a crude test with 2 Quake instances on the same machine seems to work fine. If you encounter multi-player bugs, please report them, or better: try to fix them.
 
@@ -172,7 +178,7 @@ Numerous problems have been fixed and new features have been added since the las
 
 3. Simpler management of map waypoint files, with a Python script that can also convert legacy files for the above fix. Aliases can be set for identical maps, and characters like `-` or `+` in map names are no longer a problem.
 
-4. Restored ability to build the **waypoint tool** featured in Mick's (former) guide, and greatly improved the usability of the tool. (Mick's guide is now defunct, but there is a _much_ more detailed guide in this repository — thank my horrible memory, I basically wrote the manual for my future self.)  
+4. Restored ability to build the **waypoint tool** featured in Mick's classic guide, and greatly improved the usability of the tool. There is an updated guide in this repository, extended with new v2 features. This new guide is _ridiculously_ detailed — mostly due to my horrible memory: I basically wrote a manual for my future self.  
    This means it is now possible to easily _resume editing_ from existing waypoints, if one compiles them into the tool and then simply loads the map; of course they could also be injected into an `.ent` file or the `.bsp` itself and can then be reloaded without recompiling anything, but this is slightly more cumbersome.  
    This means:
    - creating waypoints is again _way more feasible_ through an edit-test cycle;
