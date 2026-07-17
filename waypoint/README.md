@@ -436,6 +436,18 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
   Although markers can be placed further apart than what this tool considers too far, it is still a good guideline for maximum marker distance.
 - The _runaway_ or “RA” thing that you may encounter in the tool, is a currently unfinished feature to make the bots run away from enemies when conditions are unfavourable (for instance enemy has pentagram). The information printed on the second and third lines when pressing `C` is related to this feature, and the markers shown in _runaway_ mode are the same ones listed in those lines. The feature does seem to be almost ready, but what is missing is the essential bit to switch bots to `RUNAWAY` state, and there is currently a conflict with RJ/slime/lava handling logic. I'll see if I can get this working someday when I find the time.
 
+### Bot smoothness
+It takes some practice and experience to know what paths to add or omit between nearby markers. Although one should not overdo it and link every marker to every nearby marker until all 8 outgoing slots are used up, one should also not be too frugal. Providing too few paths can lead to the bot making jerky movements or wiggling back and forth.
+
+There is one important guideline for smooth bot movement: _when a bot chooses a destination marker after touching a certain marker, and then starts running towards that destination, any other markers it may unintentionally touch underway must also have a path towards that destination._
+
+Some diagrams to illustrate this:
+
+![Path smoothness](images/path_smoothness.svg)
+
+Also, as shown in the third diagram, if multiple markers are close together, then do not make the bot first run towards one specific marker in that cluster and then to the actual target; provide paths to all markers at the edge of the cluster, if possible. If the markers in the cluster are _really_ close together, you probably won't even need to make paths between all markers in the cluster, and if multiple items are stacked exactly on top of each other, you _must_ not try to connect those together. Also, in this example, if `m2, m3, m4` are all the same type of item, you should also connect `m2` and `m4` with paths.
+
+
 ### Troubleshooting
 - If you notice the bot going nowhere, randomly moving around while looking at the ceiling or floor, or running into a wall, most likely a nearby marker has an invalid path towards a marker in another room. Check paths with the `R` key, and delete invalid paths in both directions if they go through walls, ceilings or floors.
   - This may also be caused by a marker at the other side of a wall being touched, because walls are transparent to the touch mechanism. Place enough markers at both sides of thin walls, using the wall as a mirror for marker positions.
