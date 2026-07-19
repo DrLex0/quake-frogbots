@@ -179,7 +179,7 @@ void(float prioritize) check_marker =
 		if (distance > other.touch_distance)
 			return;
 		// Do not touch markers higher up than the maximum step size that
-		// can be ascended without a jump; unless we're swimming.
+		// can be ascended without a jump, except in the 2 cases below.
 		// Mind that player/bot absmin_z seems to be 1u lower than the actual floor.
 #ifdef QUAKE
 		if (self.absmin_z - 19 > other.phys_absminz)  // See PlayerPreThink_apply
@@ -187,10 +187,34 @@ void(float prioritize) check_marker =
 		if (self.absmin_z - 19 > other.absmin_z)
 #endif
 		{
-			if (!(self.T & T_LIQUID))
-				return;
-			if (other.waterlevel < 3)
-				return;
+			if (self.T & T_AIR_TOUCH)
+			{
+				// Exception 1: item marked air touchable, also if on tall ledge:
+				// allow touch within same Z range as item pick-up (may need jump)
+				if (self != other.linked_marker)
+					return;  // only consider if bot wants to touch this marker
+				// Welcome to another QUAKE vs. QW rabbit hole.
+				// Items allow being picked up while bot's origin_z (24) is within 33u.
+				// This means in theory ledges above 57u need a jump. In practice,
+				// the phys_absminz bug in QUAKE allows skipping the jump for an
+				// additional 18u, by bumping into a nearby wall. As for jumping:
+				// QW allows picking up items up to 100u ledges, QUAKE only up to 99u.
+				// What a mess. This routine ignores the bug and assumes QUAKE limit.
+				// Please don't make maps with items on ledges exactly 100u tall,
+				// or I will personally come punch you in the face.
+				if (self.absmin_z - 58 > other.absmin_z)
+					return;  // too high up
+				// Prioritize it: we wanted to touch this, and we did
+				prioritize = TRUE;
+			}
+			else
+			{
+				// Exception 2: step size doesn't matter when swimming
+				if (!(self.T & T_LIQUID))
+					return;
+				if (other.waterlevel < 3)
+					return;
+			}
 		}
 
 		// Give priority to the path destination if it (nearly) overlaps with

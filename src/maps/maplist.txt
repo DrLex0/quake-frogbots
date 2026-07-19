@@ -75,6 +75,7 @@ trinca/map_egyptele.qc
 trinca/map_end.qc
 trinca/map_eodm3.qc
 trinca/map_exdm3.qc
+trinca/map_exdm4.qc
 trinca/map_filthy.qc
 trinca/map_four.qc
 trinca/map_frobodm1.qc

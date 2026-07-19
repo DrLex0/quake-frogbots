@@ -92,6 +92,7 @@ A checklist of things I usually have to fix when converting old waypoints:
 - Don't forget to add at least one `info_intermission` entity, showing a nice view of the map. Otherwise players will likely see the scoreboard from somewhere inside a wall, making the author of the map seem like an amateur. (The _custom intermission_ feature of the waypoint tool may be useful to determine the `origin` and `mangle` values, but you should then use these to add an actual `info_intermission` entity in your map editor; the custom intermission itself will only work inside the Frogbot mod and is only meant for duct-taping existing maps.)
 - Please also add an `info_player_start,` even though your map is not meant for single-player. It makes it easier to explore the map in any Quake engine.
 - Avoid complicated lift or other platform setups. If you have a hard time setting up waypoints to make the bots handle your nifty contraption, then real players will likely also have problems with it, especially in the heat of battle.
+- Do not put items that require a jump to be picked up, on a ledge exactly 100 units tall. It may work in QuakeWorld, but not in Quake due to a subtle difference between the engines. Stick to 99 units or lower.
 
 
 ## Random rant inspired by some recent Quake DM maps

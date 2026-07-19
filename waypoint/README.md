@@ -437,7 +437,7 @@ At regular moments, and especially when you're done, use `F1` to dump the waypoi
 - The _runaway_ or “RA” thing that you may encounter in the tool, is a currently unfinished feature to make the bots run away from enemies when conditions are unfavourable (for instance enemy has pentagram). The information printed on the second and third lines when pressing `C` is related to this feature, and the markers shown in _runaway_ mode are the same ones listed in those lines. The feature does seem to be almost ready, but what is missing is the essential bit to switch bots to `RUNAWAY` state, and there is currently a conflict with RJ/slime/lava handling logic. I'll see if I can get this working someday when I find the time.
 
 ### Bot smoothness
-It takes some practice and experience to know what paths to add or omit between nearby markers. Although one should not overdo it and link every marker to every nearby marker until all 8 outgoing slots are used up, one should also not be too frugal. Providing too few paths can lead to the bot making jerky movements or wiggling back and forth.
+It takes some practice and experience to know what paths to add or omit between nearby markers. Although you should not overdo it and link every marker to every nearby marker until all 8 outgoing slots are used up, don't be too frugal either. Providing too few paths can lead to the bot making jerky movements or wiggling back and forth.
 
 There is one important guideline for smooth bot movement: _when a bot chooses a destination marker after touching a certain marker, and then starts running towards that destination, any other markers it may unintentionally touch underway must also have a path towards that destination._
 
@@ -445,7 +445,7 @@ Some diagrams to illustrate this:
 
 ![Path smoothness](images/path_smoothness.svg)
 
-Also, as shown in the third diagram, if multiple markers are close together, then do not make the bot first run towards one specific marker in that cluster and then to the actual target; provide paths to all markers at the edge of the cluster, if possible. If the markers in the cluster are _really_ close together, you probably won't even need to make paths between all markers in the cluster, and if multiple items are stacked exactly on top of each other, you _must_ not try to connect those together. Also, in this example, if `m2, m3, m4` are all the same type of item, you should also connect `m2` and `m4` with paths.
+Also do not force the bot to take detours, not even tiny ones, to reach things that can be reached through a straight line. This is shown in the third diagram. Provide paths to all markers at the edge of a cluster of nearby markers. If markers within the cluster are _really_ close together, you probably won't even need to make paths between those. In the most extreme case, when multiple items are stacked exactly on top of each other, you _must_ not try to connect those together. (Also, in this example, if `m2, m3, m4` are all the same type of item with the same goal number, you should connect `m2` and `m4` with paths as well.)
 
 
 ### Troubleshooting
@@ -480,7 +480,12 @@ The waypoint tool will also ignore untouchable markers unless closest-marker-mod
 
 Mind that when a bot has deliberately become airborne, like when jumping up (or down from a ledge), falling down on a _jump ledge_ path, or getting propelled by a `trigger_push,` it will **ignore** any marker touches until it has again touched solid ground. There are some exceptions to this:
 - pushing a switch will always trigger a touch for that switch's marker (unless made untouchable). This allows to push switches by jumping;
-- markers that have been given the `air touchable` node type will always be touched by airborne bots. (The need for this should be very rare.)
+- markers that have been given the `air touchable` node type will always be touched by airborne bots. The need for this should be rare; one special case is explained next.
+
+When an item is on a ledge too tall to reach, but can still be picked up, if need be by jumping, the item marker must be given `air touchable` mode for the touch to be registered. If the item is more than 57 units from the floor, set up a `slow precise jump` near the item (just always do this when in doubt, it can't hurt). Examples: near the rocket launcher in `e1m1`, several in `exdm4`.  
+The upper limit for items to be pick-up-able this way, is 99 units above the floor.
+
+(Note: never use the `air touchable` mode under water.)
 
 
 ### Lifts/elevators with or without buttons
