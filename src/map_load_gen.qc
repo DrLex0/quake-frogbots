@@ -28,6 +28,7 @@
 #include "maps/drlex/map_hohoho2.qc"
 #include "maps/drlex/map_north.qc"
 #include "maps/drlex/map_nova.qc"
+#include "maps/drlex/map_panzer.qc"
 #include "maps/drlex/map_tox.qc"
 #include "maps/drlex/map_zite.qc"
 #include "maps/ktx/map_bravado.qc"
@@ -152,18 +153,19 @@ void() SprintMaps =
 	sprint_fb(self, 2, "      lilith      misdm8     monsoon\n");
 	sprint_fb(self, 2, "      naked6    naked7b2       north\n");
 	sprint_fb(self, 2, "        nova     oktest1         p3a\n");
-	sprint_fb(self, 2, "       pkeg1       pkeg2     povdmm4\n");
-	sprint_fb(self, 2, "     pro-dm4      prodm4     q3dm6qw\n");
-	sprint_fb(self, 2, "     qtourn2       rwild     schloss\n");
-	sprint_fb(self, 2, "     shadows       shady     shifter\n");
-	sprint_fb(self, 2, "       shine       skull     spinev2\n");
-	sprint_fb(self, 2, "       start    strmland         thf\n");
-	sprint_fb(self, 2, "         tox      tridm1      tridm2\n");
-	sprint_fb(self, 2, "      tridm3     trindm1     trindm2\n");
-	sprint_fb(self, 2, "     trindm3      ukpak2      ultrav\n");
-	sprint_fb(self, 2, "    utressor        zite      ztndm1\n");
-	sprint_fb(self, 2, "      ztndm2      ztndm3 ztndm3frost\n");
-	sprint_fb(self, 2, "      ztndm4      ztndm5      ztndm6\n");
+	sprint_fb(self, 2, "      panzer       pkeg1       pkeg2\n");
+	sprint_fb(self, 2, "     povdmm4     pro-dm4      prodm4\n");
+	sprint_fb(self, 2, "     q3dm6qw     qtourn2       rwild\n");
+	sprint_fb(self, 2, "     schloss     shadows       shady\n");
+	sprint_fb(self, 2, "     shifter       shine       skull\n");
+	sprint_fb(self, 2, "     spinev2       start    strmland\n");
+	sprint_fb(self, 2, "         thf         tox      tridm1\n");
+	sprint_fb(self, 2, "      tridm2      tridm3     trindm1\n");
+	sprint_fb(self, 2, "     trindm2     trindm3      ukpak2\n");
+	sprint_fb(self, 2, "      ultrav    utressor        zite\n");
+	sprint_fb(self, 2, "      ztndm1      ztndm2      ztndm3\n");
+	sprint_fb(self, 2, " ztndm3frost      ztndm4      ztndm5\n");
+	sprint_fb(self, 2, "      ztndm6\n");
 };
 
 float() LoadWaypoints =
@@ -306,6 +308,11 @@ float() LoadWaypoints =
 	if (mapname == "nova")
 	{
 		map_nova();
+		return TRUE;
+	}
+	if (mapname == "panzer")
+	{
+		map_panzer();
 		return TRUE;
 	}
 	if (mapname == "tox")
@@ -859,6 +866,8 @@ string(string mname) MapHasWaypoints =
 		return "north";
 	if (mname == "nova")
 		return "nova";
+	if (mname == "panzer")
+		return "panzer";
 	if (mname == "tox")
 		return "tox";
 	if (mname == "zite")
