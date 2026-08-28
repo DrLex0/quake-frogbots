@@ -14,8 +14,19 @@ void() FrogbotPostPhysics;
 void() adjust_view_ofs_z;
 void() LoadMap;
 
+/* The .next/.previous doubly linked lists below (first_client, first_takedamage)
+ * are deliberately joined into one chain; see UpdateRadiusDamage for the details.
+ * A consequence is that the head of first_client normally has a .previous that is
+ * NOT a client, and that the two Add/Remove functions here must keep that join
+ * point stitched. Do not "clean up" the .previous handling without reading
+ * UpdateRadiusDamage first.
+ * Anything that is not one of these 2 lists must use its own link field. */
+
 entity(entity first_in_list) AddToList =
 {
+	// self.previous / first_in_list.previous.next carry the join with the
+	// takedamage segment when this is the client list: inserting a new head
+	// automatically repoints the takedamage tail at it.
 	self.next = first_in_list;
 	self.previous = first_in_list.previous;
 	if (first_in_list)
@@ -29,12 +40,20 @@ entity(entity first_in_list) AddToList =
 
 entity(entity first_in_list) RemoveFromList =
 {
+	// Likewise, self.previous.next repoints the takedamage tail when the head of
+	// the client list leaves, or terminates the chain when the last client leaves.
 	if (first_in_list == self)
 		first_in_list = first_in_list.next;
 	if (self.previous)
 		self.previous.next = self.next;
 	if (self.next)
 		self.next.previous = self.previous;
+	// Clear only after the three fixups above have read them. Leaving stale links
+	// behind means a removed entity keeps pointing into a list it is no longer
+	// part of, which is how the 'removebot' limbo bug was able to reach a player.
+	// Note this does terminate any walk whose cursor sits on the entity being
+	// removed; no current caller removes from inside such a walk.
+	self.next = self.previous = world;
 	return first_in_list;
 };
 
@@ -45,12 +64,38 @@ void() Add_takedamage =
 	takedamage_exists = TRUE;
 };
 
+/*
+============
+UpdateRadiusDamage
+
+first_takedamage is not a list of its own, it is a concatenation:
+    [damageable map entities] ++ [all clients]
+walked through .next by T_RadiusDamage and the bot discharge estimator, so that
+clients never have to be inserted in a damage list one by one.
+
+This function only has to create the join; AddToList/RemoveFromList keep it
+stitched afterwards, because the client list head's .previous is the tail of the
+takedamage segment.
+
+Invariants this relies on -- break any of them and radius damage silently stops
+hurting some or all clients:
+ - Callers must invoke this BEFORE adjusting numberofclients. The test below is
+   really "was the client list empty until now", i.e. does the join need to be
+   (re)created. Add_client increments after calling us, RemoveFromAllLists
+   decrements after calling us.
+ - Nothing is ever removed from the takedamage segment. There is no
+   Remove_takedamage, and takedamage_exists is never cleared.
+ - The takedamage segment always precedes the client segment.
+============
+*/
 void() UpdateRadiusDamage =
 {
 	if (takedamage_exists)
 	{
 		if (numberofclients)
 			return;
+		// Client list just became non-empty: (re)attach it behind the last
+		// damageable map entity.
 		test_enemy = first_takedamage;
 		while (test_enemy.next)
 			test_enemy = test_enemy.next;
@@ -59,6 +104,9 @@ void() UpdateRadiusDamage =
 	}
 	else
 	{
+		// No damageable map entities (yet): the chain is just the client list.
+		// A later Add_takedamage prepends in front of it, which keeps the
+		// segment order intact.
 		first_takedamage = first_client;
 	}
 };
