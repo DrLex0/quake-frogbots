@@ -1,5 +1,6 @@
 ztndm3 ztndm3frost
 cmt3 naked7b2
+misdm11a misdm11c
 pro-dm4 prodm4
 trindm1 tridm1
 trindm2 tridm2

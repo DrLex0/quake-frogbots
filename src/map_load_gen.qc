@@ -93,6 +93,8 @@
 #include "maps/trinca/map_kjdm13.qc"
 #include "maps/trinca/map_lilith.qc"
 #include "maps/trinca/map_misdm10.qc"
+#include "maps/trinca/map_misdm11a.qc"
+#include "maps/trinca/map_misdm11b.qc"
 #include "maps/trinca/map_misdm6.qc"
 #include "maps/trinca/map_misdm8.qc"
 #include "maps/trinca/map_misdm9.qc"
@@ -153,7 +155,8 @@ void() SprintMaps =
 	sprint_fb(self, 2, "    genocide        halo      hohoho\n");
 	sprint_fb(self, 2, "     hohoho2     imp1dm6    insomnia\n");
 	sprint_fb(self, 2, "        jvx1      kjdm12      kjdm13\n");
-	sprint_fb(self, 2, "      lilith     misdm10      misdm6\n");
+	sprint_fb(self, 2, "      lilith     misdm10    misdm11a\n");
+	sprint_fb(self, 2, "    misdm11b    misdm11c      misdm6\n");
 	sprint_fb(self, 2, "      misdm8      misdm9     monsoon\n");
 	sprint_fb(self, 2, "      naked6    naked7b2       north\n");
 	sprint_fb(self, 2, "        nova     oktest1         p3a\n");
@@ -639,6 +642,16 @@ float() LoadWaypoints =
 		map_misdm10();
 		return TRUE;
 	}
+	if (mapname == "misdm11a")
+	{
+		map_misdm11a();
+		return TRUE;
+	}
+	if (mapname == "misdm11b")
+	{
+		map_misdm11b();
+		return TRUE;
+	}
 	if (mapname == "misdm6")
 	{
 		map_misdm6();
@@ -797,6 +810,11 @@ float() LoadWaypoints =
 	if (mapname == "naked7b2")
 	{
 		map_cmt3();
+		return TRUE;
+	}
+	if (mapname == "misdm11c")
+	{
+		map_misdm11a();
 		return TRUE;
 	}
 	if (mapname == "prodm4")
@@ -1015,6 +1033,10 @@ string(string mname) MapHasWaypoints =
 		return "lilith";
 	if (mname == "misdm10")
 		return "misdm10";
+	if (mname == "misdm11a")
+		return "misdm11a";
+	if (mname == "misdm11b")
+		return "misdm11b";
 	if (mname == "misdm6")
 		return "misdm6";
 	if (mname == "misdm8")
@@ -1079,6 +1101,8 @@ string(string mname) MapHasWaypoints =
 		return "ztndm3frost";
 	if (mname == "naked7b2")
 		return "naked7b2";
+	if (mname == "misdm11c")
+		return "misdm11c";
 	if (mname == "prodm4")
 		return "prodm4";
 	if (mname == "tridm1")
