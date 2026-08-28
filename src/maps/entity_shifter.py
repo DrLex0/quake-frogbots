@@ -8,7 +8,7 @@ Restrictions on input files, deviating from this will cause a mess:
 - each line with marker commands must end in ";"
 - any occurrence of 'm' followed by an integer represents a marker and will also be shifted
 
-Alexander Thomas aka DrLex. Created 2025-03, last change 2025-12.
+Alexander Thomas aka DrLex. Created 2025-03, last change 2026-08.
 Released under GPL license."""
 
 import argparse
@@ -57,6 +57,14 @@ def shift_cmd(cmd: str, shift_from: int, offset: int, del_from: int, del_to: int
         if idx < shift_from:
             return cmd
         return f"{mat.group(1)}=m{idx + offset}"
+    # Custom marker index: also shift it if needed
+    if mat := re.match(r"custom_marker_start=(\d+)", cmd):
+        idx = int(mat.group(1))
+        if del_from <= idx <= del_to:
+            return cmd  # assume we're shifting custom markers only
+        if idx < shift_from:
+            return cmd
+        return f"custom_marker_start={idx + offset}"
     return cmd
 
 
