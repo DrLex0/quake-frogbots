@@ -717,7 +717,7 @@ float() BotExists =
 		if (bot != self)
 		if (bot.botnumber == self.botnumber)
 			return TRUE;
-		bot = bot.next;
+		bot = bot.next_frogbot;
 	}
 	return FALSE;
 };
@@ -971,7 +971,7 @@ void() AddBot =
 	other = self;
 	numberofbots = numberofbots + 1;
 	SaveNumBots();
-	self = frogbot_spawned = LinkedListAt(first_frogbot, maxplayers - numberofbots);
+	self = frogbot_spawned = FrogbotAt(maxplayers - numberofbots);
 	self.flags = 0;
 	self.frogbot = TRUE;
 	self.classname = "frogbot";
@@ -1140,7 +1140,24 @@ float(float remove_name) RemoveBot =
 			self = frogbot_spawned;
 #ifdef DEBUG_ASSERT
 			if (!self) dprint("FATAL: undefined frogbot_spawned in RemoveBot\n");
+			if (!self.frogbot) dprint("FATAL: frogbot_spawned is not a bot in RemoveBot\n");
 #endif
+			// Safety net: frogbot_spawned must point at an actual bot. Should the
+			// bookkeeping ever drift, resynchronize from the frogbot list instead
+			// of disconnecting whatever entity it happens to point at, which would
+			// leave a real player half-connected and unable to play.
+			if (!self.frogbot)
+				self = frogbot_spawned = FrogbotAt(maxplayers - numberofbots);
+			if (!self.frogbot)
+			{
+				// Nothing to remove after all; correct the count such that
+				// callers like AutoRemoveBot terminate.
+				numberofbots = 0;
+				SaveNumBots();
+				frogbot_spawned = world;
+				self = removebot_self;
+				return 0;
+			}
 
 			scoreboardsize = scoreboardsize - 1;
 
@@ -1156,10 +1173,10 @@ float(float remove_name) RemoveBot =
 			localsave(numberofbots, 1, 1);
 			numberofbots = numberofbots - 1;
 			SaveNumBots();
-			if (frogbot_spawned.next)
-				frogbot_spawned = frogbot_spawned.next;
-			else
-				frogbot_spawned = frogbot_spawned.previous;
+			// Bots always occupy a contiguous block at the tail of the frogbot
+			// list and frogbot_spawned is its first element, so the next bot is
+			// simply the next entry in the frogbot list (or world).
+			frogbot_spawned = frogbot_spawned.next_frogbot;
 
 			self = removebot_self;
 		}

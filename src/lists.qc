@@ -166,6 +166,31 @@ entity(entity start_entity, float index_) LinkedListAt =
 
 /*
 ============
+FrogbotAt
+
+Gets the frogbot entity at index_ positions from the start of the frogbot list.
+Walks .next_frogbot, which is exclusive to this list, so it stays valid no matter
+which of these entities are currently in the game as bots.
+Returns world if index_ exceeds the length of the list.
+============
+*/
+entity(float index_) FrogbotAt =
+{
+	local entity bot_at;
+
+	bot_at = first_frogbot;
+	while (index_ > 0)
+	{
+		bot_at = bot_at.next_frogbot;
+		if (! bot_at)
+			return world;
+		index_ = index_ - 1;
+	}
+	return bot_at;
+};
+
+/*
+============
 EntityAt
 
 Gets the entity at index_ positions away from start_entity in nextent order.
@@ -207,9 +232,10 @@ void() InitFrogbots1 =
 
 		if (!first_frogbot)
 			first_frogbot = new_bot;
+		// Link through .next_frogbot field; do NOT use .next/.previous here,
+		// see info in defs.qc.
 		if (frogbot_spawned)
-			frogbot_spawned.next = new_bot;
-		new_bot.previous = frogbot_spawned;
+			frogbot_spawned.next_frogbot = new_bot;
 		new_bot.index = 1000 + frogbot_number;  // useful for debugging
 		new_bot.score_pos = frogbot_number;
 		frogbot_number = frogbot_number + 1;
@@ -452,7 +478,7 @@ void() SetScoreboard =
 			WriteShort(MSG_ONE, test_enemy.frags);
 			SetColorName(MSG_ONE, test_enemy);
 		}
-		test_enemy = test_enemy.next;
+		test_enemy = test_enemy.next_frogbot;
 		if(! test_enemy)
 			return;
 		score_count = score_count + 1;

@@ -1512,6 +1512,11 @@ entity last_tmp_marker;
 .entity previous;
 .entity next;
 
+// Dedicated link for static list of frogbot entities starting at first_frogbot.
+// Must use separate list because .next/.previous are owned by the dynamic
+// client and takedamage lists, which overwrite them the moment a bot joins.
+.entity next_frogbot;
+
 .entity next_load;
 
 .float oldsolid;

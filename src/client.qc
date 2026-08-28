@@ -64,7 +64,7 @@ float() SeppukuTrigger;
 
 #ifdef QUAKE
 void() obstruction;
-entity(entity start_entity, float index_) LinkedListAt;
+entity(float index_) FrogbotAt;
 #endif
 
 /*
@@ -1818,7 +1818,7 @@ void() ClientConnect =
 	}
 	self.score_pos = score_pos_;
 
-	self.aiment = LinkedListAt(first_frogbot, self.score_pos);
+	self.aiment = FrogbotAt(self.score_pos);
 	self.colormap = self.score_pos + 1;
 #else
 	self.team = stof(infokey(self, "bottomcolor")) + 1;
