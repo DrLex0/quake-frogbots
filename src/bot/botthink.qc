@@ -194,6 +194,12 @@ void() ThinkTime =
 				self.path_state = self.path_state & REACHED_GROUND;
 		}
 
+		// Likewise, drop water exit state once the bot has left the liquid,
+		// most likely because the water jump succeeded. See CheckWaterExit().
+		if (self.narrow_path_state < 0)
+		if (self.waterlevel < 2)
+			self.narrow_path_state = 0;
+
 	//	assertion: self.touch_marker != world
 
 		if (self.touch_marker)
@@ -322,7 +328,14 @@ void() ThinkTime =
 				}
 				else
 				{
-					dir_move_ = normalize(linked_marker_.absmin + linked_marker_.view_ofs - origin_);
+					// While preparing a FOCUS_PATH water exit, converge
+					// on the touched marker first. See CheckWaterExit().
+					local entity move_to = linked_marker_;
+					if (self.narrow_path_state < 0)  // currently homing in
+					if (self.path_from_marker)
+						move_to = self.path_from_marker;
+
+					dir_move_ = normalize(move_to.absmin + move_to.view_ofs - origin_);
 
 					if (linked_marker_ == touch_marker_)
 					{

@@ -34,6 +34,11 @@ void() CheckWaterPathState =
 {
 	if (self.waterlevel < 2)
 		return;
+	// Exception: while jumping out, being airborne is exactly what we want.
+	// A failed jump drops the bot back in the liquid with the flags already
+	// cleared, and the air states will then be cleaned up as usual.
+	if (self.flags & FL_WATERJUMPING)
+		return;
 	if (self.path_state & WAIT_GROUND)
 	{
 		if (self.path_state & DELIBERATE_AIR)
@@ -74,8 +79,93 @@ void() CheckBotStuckInLiquid =
 	self.old_linked_marker = world;
 	self.linked_marker = nearest;
 	self.path_state = 0;
+	self.narrow_path_state = 0;
 	self.linked_marker_time = time + 5;
 	self.water_unstuck_retry = time + 3;
+};
+
+/*
+============
+SetWaterExitState
+
+Similar logic as for NARROW_PATH is used when exiting a liquid through
+a FOCUS_PATH, which should be set on paths that require a "water jump".
+
+Because of the similarity with NARROW_PATH which should never be used in
+liquids, we reuse .narrow_path_state here to avoid yet another field.
+
+Must only be invoked where the bot genuinely (re)plans its path, i.e. when
+.old_linked_marker is updated as well. Arming it anywhere that can repeat
+while the same marker stays touched would keep resetting the homing and
+trap the bot at that marker.
+============
+*/
+void() SetWaterExitState =
+{
+	if (self.waterlevel < 2)
+		return;
+	if (new_path_state & FOCUS_PATH)
+		self.narrow_path_state = -1;  // water homing
+	else
+		self.narrow_path_state = 0;
+};
+
+/*
+============
+CheckWaterExit
+
+Avoids that bots can get stuck when exiting water, specifically when coming
+from underneath a platform on which the destination marker resides like in
+dm3. Without extra logic, the bot could start moving backwards too soon
+after touching the marker and selecting its water exit path. The bot would
+then keep wiggling back and forth under the platform until it drowns.
+
+The remedy is a simplified liquid equivalent of narrow path mode: first
+home in on the touched marker to ensure the platform has been cleared, only
+then head for the linked marker. Given that tricky paths like this should
+always have FOCUS_PATH to facilitate water jumping, use it as indicator for
+this logic. This keeps waypoints simpler than when trying to explicitly
+involve NARROW_PATH, which we want to restrict to dry land movement only.
+
+Advances the state and returns:
+  0: no water exit in progress, head for linked marker as usual;
+  1: converge on the touched marker first
+============
+*/
+float() CheckWaterExit =
+{
+	if (self.narrow_path_state >= 0)
+		return 0;  // regular narrow path or nothing at all
+
+	if (self.path_state & FOCUS_PATH)
+	if (self.path_from_marker)
+	if (self.linked_marker)
+	{
+		local vector rel_touch;
+		rel_touch = self.path_from_marker.absmin + self.path_from_marker.view_ofs - self.origin;
+		if (vlen(rel_touch) >= water_exit_dist)
+		{
+			// Too far from the marker to safely change direction: home in
+			self.narrow_path_state = -1;
+			if (! self.look_object.client_)  // enemies keep priority
+				self.look_object = self.path_from_marker;
+			return 1;
+		}
+#ifdef DEBUG_WATER
+		if (self.narrow_path_state < 1)
+			dprint("Water exit: reached m", ftos(self.path_from_marker.index), "\n");
+#endif
+	}
+
+	// Done, or state no longer valid: hand control back to regular water movement
+#ifdef DEBUG_WATER
+	dprint("Water exit: go for m", ftos(self.linked_marker.index), "\n");
+#endif
+	self.narrow_path_state = 0;
+	if (self.linked_marker)
+	if (! self.look_object.client_)
+		self.look_object = self.linked_marker;
+	return 0;
 };
 
 /*
@@ -87,10 +177,10 @@ Swim up or down depending on target marker position
 */
 void() BotVerticalSwim
 {
-	if (! self.linked_marker) return;
-	if ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) < self.origin_z) 
+	if (! swim_marker) return;
+	if ((swim_marker.absmin_z + swim_marker.view_ofs_z + 1) < self.origin_z)
 		self.swim_arrow = DOWN;
-	else if ((self.linked_marker.absmin_z + self.linked_marker.view_ofs_z + 1) >= self.origin_z) 
+	else if ((swim_marker.absmin_z + swim_marker.view_ofs_z + 1) >= self.origin_z)
 	{
 		self.swim_arrow = UP;
 	}
@@ -316,11 +406,24 @@ void() FrogWaterMove =
 		return;
 	if (self.flags & FL_WATERJUMP)
 		return;
+	if (self.waterlevel < 2)
+		return;
 
-	if (self.waterlevel < 3)
+	// Evaluate more often than the regular water move clock, otherwise
+	// the bot could overshoot the touched marker. 64/s is plenty though.
+	if (special_moves_clock)
+		CheckWaterExit();
+	// Must be set on every frame: everything below, and only what is below,
+	// relies on it. Same guard as in ThinkTime, because on the frames where
+	// CheckWaterExit did not run, the state may not have been sanitised yet.
+	swim_marker = self.linked_marker;
+	if (self.narrow_path_state < 0)  // currently homing in
+	if (self.path_from_marker)
+		swim_marker = self.path_from_marker;
+
+	if (self.waterlevel == 2)
 	{
-		if (self.waterlevel == 2)
-			BotVerticalSwim();
+		BotVerticalSwim();
 		return;
 	}
 	if (time < self.frogwatermove_time)

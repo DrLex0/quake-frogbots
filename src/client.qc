@@ -979,6 +979,9 @@ void() CheckWaterJump =
 			// Unused QW implementation used 225, use same value as QW C code for consistency
 			self.velocity_z = 310;
 			self.waterjump_time = time + 2;	// safety net
+			// This is a deliberate jump, hence mark it as such to avoid that
+			// AvoidHazards gets confused by the liquid and applies AvoidEdge.
+			self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
 		}
 	}
 };

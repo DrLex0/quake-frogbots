@@ -402,7 +402,7 @@ These steps do not need to be done in this exact order, but you will typically g
      A less common use case is to force the bot to traverse a short bit of lava, which it may otherwise refuse if there is no obvious spot to jump to.  
      In `lilith` you will find examples of both these cases at the 2 teleports in the map's corners.
    - **Narrow path mode** (shown as `‘=’`, number 32 in code) makes the bot do effort to align itself to this path before proceeding, this is useful to get through narrow openings or walk/climb on narrow structures like ladders. See the Advanced section for details.
-   - **Focused path mode** (shown as `‘F’`, number 2 in code) makes the bot look at (focus on) the destination marker of the path. It is recommended to set this on every path where the bot has to jump out of water (example in `cmt4`). It is also useful for walking along tricky thin ledges (example in `tox`). It may also help to make certain jumps more reliable (example in `aerowalk`). Without this mode, the bot may be distracted by looking at the next item it wants to pick up, causing it to move inaccurately and face the wrong way to perform the water jump, or fall off the ledge. (Looking at enemies always has priority over this path mode.)
+   - **Focused path mode** (shown as `‘F’`, number 2 in code) makes the bot look at (focus on) the destination marker of the path. It is recommended to set this on every path where the bot has to jump out of water (examples in `dm3, cmt4`, see the _Advanced_ section for more info). It is also useful for walking along tricky thin ledges (example in `tox`). It may also help to make certain jumps more reliable (example in `aerowalk`). Without this mode, the bot may be distracted by looking at the next item it wants to pick up, causing it to move inaccurately and face the wrong way to perform the water jump, or fall off the ledge. (Looking at enemies always has priority over this path mode.)
    - **Wall strafe jump mode** (shown as `‘W’`, number 8 in code) exploits Quake's weird physics to allow bots to jump across gaps too wide for a normal jump in some situations. More info in the advanced section below.
    - **Need shoot mode** (shown as `‘N’`, number 256 in code) is for paths that require shooting a trigger to be traversable, often a door like in _dm6,_ but the trigger may also be separate from the door. More details in the advanced section below.
    - **Shoot at** (shown as `‘h’`, number 32 in code) is a _pseudo path_ mode that indicates what object to shoot for _need shoot_ mode. See the advanced section for more info.
@@ -593,6 +593,14 @@ Bots will only actively plan an RJ when that path is worth following to reach a 
 The Frogbot uses different logic to navigate underwater due to the ability to move in 3 dimensions. There are additional checks on reachability of destinations. Make sure that connected markers are within visible range and are not obscured by corners or other obstacles. There is robustness against minor obstacles, but don't expect the bot to find its way through a maze with sparsely provided waypoints.
 
 Useful to know is that markers will no longer be touched when they are at least _57 units_ below the player. This way, markers can be placed in liquids near solid ground markers, when it is important that those liquid markers are not touched while walking on the surface.
+
+![Water jump path](images/waterjump.jpg)
+
+Paths that make the bot _jump out_ of a liquid, must:
+- be more or less perpendicular to the ledge on which to jump, and:
+- have _focused path_ mode for the water jump to work reliably.
+
+Because bots normally look towards their swimming direction anyway, this is the only valid use of _focused path_ while submerged. It is especially important to set this mode on jumps towards a platform/ledge under which the bot can swim, like in the water zone of `dm3`. This will cause the bot to first come near the marker from where this path begins, before trying to mount the ledge. Without this mode, there would be a risk of the bot already moving back under the platform too soon, and getting stuck in an eternal loop that ends with drowning. Make sure to place the marker from where to exit the liquid sufficiently far away from the platform edge, but not too far either.
 
 
 ### Slime and Lava

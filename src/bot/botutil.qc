@@ -617,7 +617,7 @@ void() CanJumpOver =
 ============
 OffsetProbeMarker
 
-Traces a line towards linked_marker from self.origin plus
+Traces a line towards swim_marker from self.origin plus
 X, Z offsets in plane defined by v_right and v_up unit vectors.
 Returns 1 if no obstacle encountered, 0 otherwise
 ============
@@ -627,10 +627,10 @@ float(float x_ofs, float z_ofs) OffsetProbeMarker =
 	local vector spot1, spot2;
 
 	spot1 = self.origin + (x_ofs * v_right) + (z_ofs * v_up);
-	spot2 = self.linked_marker.absmin + self.linked_marker.view_ofs;
+	spot2 = swim_marker.absmin + swim_marker.view_ofs;
 	traceline (spot1, spot2, TRUE, self);
 	// marker for switch, platform, etc may be inside its brush
-	if (trace_ent == self.linked_marker) return 1;
+	if (trace_ent == swim_marker) return 1;
 	if (trace_fraction == 1) return 1;
 	return 0;
 };
@@ -660,7 +660,7 @@ float(float x_ofs, float z_ofs) OffsetProbeObstacle =
 ForwardProbeMarker
 
 Check if bot can move across f_dist * v_forward
-and will then be able to see linked_marker
+and will then be able to see swim_marker
 ============
 */
 float(float f_dist) ForwardProbeMarker =
@@ -672,8 +672,8 @@ float(float f_dist) ForwardProbeMarker =
 	traceline(spot1, spot2, TRUE, self);
 	if (trace_fraction < 1) return FALSE;
 
-	spot1 = self.linked_marker.absmin + self.linked_marker.view_ofs;
+	spot1 = swim_marker.absmin + swim_marker.view_ofs;
 	traceline(spot2, spot1, TRUE, self);
-	if (trace_ent == self.linked_marker) return TRUE;
+	if (trace_ent == swim_marker) return TRUE;
 	return (trace_fraction == 1);
 };

@@ -2151,7 +2151,18 @@ entity touch_marker_;
 // - 1: initializing
 // - 2: homing in on touch marker
 // - 3+: became airborne while homing
+// NARROW_PATH mode is not used while swimming, but similar logic is
+// used when exiting water through a FOCUS_PATH, and will also rely on
+// this same variable, but with a negative value. See CheckWaterExit().
 .float narrow_path_state;
+
+// Marker the swimming logic currently steers towards. Normally linked
+// marker, but toggles to touched marker while preparing a water exit.
+entity swim_marker;
+
+// Distance in units within which the bot must come to the touched marker
+// before it may head for the marker it wants to jump onto.
+float water_exit_dist = 20;
 
 .float color_;
 .float teamcolor;

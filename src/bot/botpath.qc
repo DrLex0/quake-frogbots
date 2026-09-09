@@ -13,6 +13,7 @@
 float() able_rj;
 void() NewArrowForDirMove;
 float(float max_angle) right_direction;
+void() SetWaterExitState;
 
 
 /*
@@ -899,6 +900,8 @@ void() frogbot_marker_touch =
 					self.narrow_path_state = 0;
 				self.path_state = new_path_state;
 				self.path_from_marker = touch_marker_;
+				// Do not (re-)arm water exit state here, it could cause the bot
+				// to get stuck on a marker from where the FOCUS_PATH starts.
 				// Keep any air strafing override from the original marker, given
 				// that touching the intermediate marker was not intentional
 				return;
@@ -1295,6 +1298,8 @@ void() frogbot_marker_touch =
 		self.narrow_path_state = 1;
 	else
 		self.narrow_path_state = 0;
+	// ... or its underwater counterpart, which overrules the above while swimming
+	SetWaterExitState();
 	// Enforce air strafing if path has rotation override or marker is air touchable
 	if (new_airstrafe)
 		new_path_state = new_path_state | AIR_ACCELERATION;

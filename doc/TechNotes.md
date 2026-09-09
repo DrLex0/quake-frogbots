@@ -26,7 +26,8 @@ Mind that this is the flow for a _pure bot._ The flow will be slightly different
 2. **FrogbotPrePhysics2** (`botphys.qc`)
    - Invoked through `.think` on `prephysics`; also loops over all clients
    - **PlayerPreThink_apply** (`client.qc`)
-     - Applies water movement
+     - `CheckWaterJump` performs the actual jump out of a liquid, only at waterlevel 2
+     - Applies water movement in **FrogWaterMove** (`botwater.qc`). Its main body only runs when fully submerged and is clocked through `.frogwatermove_time`, but `CheckWaterExit` also runs at waterlevel 2, clocked through `special_moves_clock`, 64/s.
      - Applies jumping when button2 is set
        - In QW, only bots need to be given vertical velocity, the engine applies it to players
        - Finalize wall strafe jumping
@@ -67,6 +68,14 @@ Mind that this is the flow for a _pure bot._ The flow will be slightly different
 ## Bot Movement
 
 Important to know is that movement for bots is not governed by the same source code as for players, which is why the code has a lot of tests on `MOVETYPE_STEP` which applies to bots, while regular players should have `MOVETYPE_WALK`. The bot code reimplements some of the movement logic that is hard-coded in the game engine, and there may be differences that are usually subtle, but sometimes not. Mind that when becoming a Frogbot in the waypoint tool or in Quake, the move type remains `WALK`, hence testing things this way might not be perfectly reliable to know how a pure bot will behave, although I haven't seen any evidence of this.
+
+Being airborne is an important aspect of bot movement; it is important to always set `DELIBERATE_AIR, WAIT_GROUND,` or both when the bot is making a deliberate jump and/or knows it has become airborne. This includes performing a jump out of liquids. Without the `WAIT_GROUND` mode, edge avoidance logic may trip at undesired moments, for instance the bot could back off and fall back into water instead of reaching the intended ledge.
+
+## Water movement
+
+Just like regular players, the bot moves in liquids by facing towards the desired moving direction and then applying the appropriate key(s). The decision which keys to press is made by some rather fancy obstacle avoiding logic.
+
+The target the bot uses for certain parts of the swimming logic is the global `swim_marker`, not `.linked_marker`. Normally they are the same, but when the bot is about to jump out of a liquid through a `FOCUS_PATH`, it will first home in on the touched marker by setting this as `swim_marker` until the bot has come near enough to it to safely change direction to initiate the water jump. The `.narrow_path_state` field is reused for this, because narrow path logic is mutually exclusive with water movement anyway.
 
 ## Marker touch quirks
 
