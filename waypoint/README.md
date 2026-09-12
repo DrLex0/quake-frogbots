@@ -36,6 +36,8 @@ Place both the waypoint `progs.dat` and the `autoexec.cfg` in your Quake engine'
 
 To run the tool, do `game waypoint` in the Quake console, or select it from the menu, or directly launch it with appropriate command-line arguments for your engine. Then use the `map` command to load a map, and you can start waypointin'.
 
+**Note:** the `autoexec.cfg` modifies the `gamma` and `contrast` values to make it easier to edit waypoints in dark maps. Depending on your Quake engine, these values may _stick_ when going back to the regular game or other mods like the runtime Frogbot mod. For instance vkQuake 1.36 introduced some weird config handling that causes this. If this is problematic, either remove the custom values from the waypoint `autoexec.cfg,` or add your explicit preferred values to the `autoexec.cfg` of the `id1` folder and each of your mods. Defaults should be: `gamma 0.9; contrast 1.4`.
+
 **Rebuilding the waypoint tool** is required if you:
 - want to fix bugs or add functionality;
 - want to use the recompiling workflow mentioned above to resume editing work-in-progress waypoints. This is not as scary as it sounds; it is in fact the smoothest way of working with a well-configured workflow.
