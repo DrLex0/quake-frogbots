@@ -1182,7 +1182,7 @@ entity(vector org, float rad) findradius = #22;
 
 // 1 to 8 arguments, all strings, will be concatenated
 void (...) bprint					= #23;
-void(entity client, float level, string s) sprint = #24;
+void(entity client, string s) sprint = #24;
 void (...) dprint					= #25;
 string(float f) ftos				= #26;
 string(vector v) vtos				= #27;
@@ -1297,13 +1297,13 @@ float scoreboardsize;
 void(float level, string s) bprint_fb =
 {
 	if (scoreboardsize)
-	bprint(level, s);
+	bprint(s);
 };
 
 void(entity client, float level, string s) sprint_fb =
 {
 	if (!client.player) return;
-	sprint(client, level, s);
+	sprint(client, s);
 };
 
 void(float level, float f) bprint_ftos =
