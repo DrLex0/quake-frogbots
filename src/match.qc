@@ -386,7 +386,7 @@ void() PlayerReady =
 						bprint_ftos(2, f1 - 2);
 						bprint_fb(2, " \steam");
 						if ((f1 - 2) != 1) bprint_fb(2, "\ss");
-						bprint(2, "!\n");
+						bprint_fb(2, "!\n");
 						return;
 					}
 				}

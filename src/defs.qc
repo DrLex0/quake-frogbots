@@ -1181,9 +1181,9 @@ void(string s) stuffcmd =
 entity(vector org, float rad) findradius = #22;
 
 // 1 to 8 arguments, all strings, will be concatenated
-void (...) bprint					= #23;
-void(entity client, string s) sprint = #24;
-void (...) dprint					= #25;
+void(string s, ...) bprint					= #23;
+void(entity client, string s, ...) sprint = #24;
+void(string s, ...) dprint					= #25;
 string(float f) ftos				= #26;
 string(vector v) vtos				= #27;
 float(float yaw, float dist) walkmove	= #32;	// returns TRUE or FALSE

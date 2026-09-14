@@ -85,7 +85,7 @@ void(string pmapname) SelectMapCore =
 			{
 				if (numberofplayers > 1)
 				{
-					bprint(2, "Majority votes for mapchange\n");
+					bprint_fb(2, "Majority votes for mapchange\n");
 				}
 				changelevel(pmapname);
 				return;
