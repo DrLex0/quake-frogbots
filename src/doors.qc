@@ -254,6 +254,20 @@ float (entity e1, entity e2) EntitiesTouching =
 	return TRUE;
 };
 
+void() set_lowest_highest_states =
+{
+	if (self.pos1_z > self.pos2_z) {
+		// lift that is up at rest and goes down when activated
+		self.state_lowest = STATE_TOP;
+		self.state_highest = STATE_BOTTOM;
+	}
+	else {
+		// most common: lift goes up when activated (or moves horizontally)
+		self.state_lowest = STATE_BOTTOM;
+		self.state_highest = STATE_TOP;
+	}
+}
+
 
 /*
 =============
@@ -392,6 +406,7 @@ void() func_door =
 		self.pos2 = self.pos1;
 		self.pos1 = self.origin;
 	}
+	set_lowest_highest_states();
 #ifdef MANUAL
 	// Allow restoring when toggling T_FIRE_ON_MATCH_START in waypoint tool
 	self.oldorigin = self.origin;
@@ -726,6 +741,11 @@ void () func_door_secret =
 		self.pos1 = self.origin + v_right * (self.t_width * (1 - (self.spawnflags & SECRET_1ST_LEFT)));
 		
 	self.pos2 = self.pos1 + v_forward * self.t_length;
+	// Secret doors never set .state, will appear to be always in TOP.
+	// Even though they should usually be made untouchable anyway, set
+	// values that should cause minimal mess for marker touch logic.
+	self.state_lowest = STATE_TOP;
+	self.state_highest = STATE_BOTTOM;
 #ifdef MANUAL
 	// Allow restoring when toggling T_FIRE_ON_MATCH_START in waypoint tool
 	self.oldorigin = self.origin;

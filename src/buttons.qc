@@ -17,6 +17,7 @@ void() button_return;
 void() AddToQue;
 void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
+void() set_lowest_highest_states;
 
 void() button_wait =
 {
@@ -132,6 +133,9 @@ void() func_button =
 
 	self.pos1 = self.origin;
 	self.pos2 = self.pos1 + self.movedir*(fabs(self.movedir*self.size) - self.lip);
+	// For correctness mostly; buttons are not lifts, but maybe
+	// there will ever be a need to treat one as such...
+	set_lowest_highest_states();
 #ifdef MANUAL
 	// Allow restoring when toggling T_FIRE_ON_MATCH_START in waypoint tool
 	self.oldorigin = self.origin;

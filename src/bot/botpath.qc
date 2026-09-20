@@ -169,7 +169,7 @@ Updates variables if path scores better than previous:
 */
 void() EvalPath =
 {
-	// Default for 'lifts' not in down position: do not consider them at all.
+	// Default for 'lifts' currently active: do not consider them at all.
 	// If 'wait lift' is set on them, do consider them and wait if best path.
 	// Also do not ignore when coming from a T_WAITLIFT button, platform may
 	// already be moving.
@@ -444,7 +444,11 @@ float() WaitOnLift =
 			return FALSE;  // allow override for specific paths
 		if (linked_marker_.classname == "door")
 		{
-			if (linked_marker_.state == STATE_BOTTOM)
+			// Test on actual lowest position here, not STATE_BOTTOM:
+			// the main purpose of T_WAITLIFT is to ensure bots wait until they
+			// can mount a rising lift, instead of just rushing it and getting
+			// squished by the lift coming down or falling down a hole.
+			if (linked_marker_.state == linked_marker_.state_lowest)
 				return FALSE;
 			else
 			{
@@ -461,7 +465,7 @@ float() WaitOnLift =
 			btn_target = find (world, targetname, linked_marker_.target);
 			while (btn_target)
 			{
-				if (btn_target.state != STATE_BOTTOM)
+				if (btn_target.state != btn_target.state_lowest)
 				{
 #ifdef DEBUG_LIFT
 					dprint("Waiting for lift... play some muzak\n");
@@ -477,9 +481,9 @@ float() WaitOnLift =
 	/* Comment from ancient times: "FIXME: should this include doors?"
 	 * DrLex says: probably not, but map makers do use func_door as lifts, which raises
 	 * the question what is a "door". So far I have not seen obvious problems caused
-	 * by considering classname "door" here. Walking across a true closed horizontal door
-	 * like in dm6 may be OK because it will be in STATE_TOP. However, in general it
-	 * is best to just set T_NOTOUCH on doors that should not be part of a true path. */
+	 * by considering classname "door" here. (For instance the secret door in dm6 will
+	 * always be in STATE_TOP.) However, in general it is best to just set T_NOTOUCH
+	 * on doors that should not be part of a true path. */
 	if (touch_marker_.classname != "door")
 		return FALSE;
 	if (deathtype == "squish")
@@ -488,7 +492,8 @@ float() WaitOnLift =
 	dprint("Touching LIFT/DOOR; Lm", ftos(linked_marker_.index), " state=", ftos(linked_marker_.state), "\n");
 #endif
 
-	if (touch_marker_.state == STATE_TOP)
+	// No longer touch lifts that have reached their destination
+	if (touch_marker_.state == touch_marker_.state_highest)
 		return FALSE;
 	if (linked_marker_.absmin_z + linked_marker_.view_ofs_z <= self.origin_z + 18)
 		return FALSE;  // can walk to destination

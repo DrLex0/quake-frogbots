@@ -21,6 +21,7 @@ float PLAT_LOW_TRIGGER = 1;
 void() AddToQue;
 void() adjust_view_ofs_z;
 void(entity marker) BecomeMarker;
+void() set_lowest_highest_states;
 
 void() plat_spawn_inside_trigger =
 {
@@ -185,6 +186,7 @@ void() func_plat =
 		self.pos1_z = self.origin_z - self.height;
 	else
 		self.pos1_z = self.origin_z - self.size_z + 8;
+	set_lowest_highest_states();
 
 	plat_spawn_inside_trigger ();	// the "start moving" trigger	
 

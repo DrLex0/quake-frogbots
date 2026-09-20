@@ -837,6 +837,9 @@ void() FrogbotPostPhysics1 =
 				dist = ((new_velocity * frametime) - (self.origin - self.oldorigin)) * self.obstruction_normal;
 				oldflags = self.flags;
 				self.flags = self.flags | FL_ONGROUND_PARTIALGROUND;
+				// In theory there is a risk of bots tunneling through thin walls or
+				// other obstacles. TODO: check if really a concern, and if it is,
+				// split up into multiple walkmoves of limited length.
 				local float moved_ok = walkmove(yaw, dist);
 				// DrLex: fix ascending very steep stairs (fake ladders)
 				if (! moved_ok)

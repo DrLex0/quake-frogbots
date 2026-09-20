@@ -747,10 +747,20 @@ float	CONTENT_SLIME			= -4;
 float	CONTENT_LAVA			= -5;
 float	CONTENT_SKY				= -6;
 
+/*
+Lift/platform states. UP means moving from BOTTOM to TOP; DOWN the opposite.
+Mind that these names assume a normally retracted lift that goes up when
+activated. For a lift that comes down, the names represent the inverse of
+what one would expect. To simplify lift handling for bots, the 'state_'
+fields represent true physical lowest/highest position states.
+*/
 float	STATE_TOP		= 0;
 float	STATE_BOTTOM	= 1;
 float	STATE_UP		= 2;
 float	STATE_DOWN		= 3;
+
+.float state_lowest;
+.float state_highest;
 
 #ifndef QUAKE
 float TE_BLOOD		= 12;
