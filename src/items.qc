@@ -435,6 +435,8 @@ void() armor_touch =
 				if (!other.button0_)
 				// Overriding linked_marker would break the exclusive path
 				if (!(other.exclusive_deadline && other.linked_marker != self))
+				// Don't interfere with water jumps like in e2m1
+				if (!(other.flags & FL_WATERJUMPING))
 				{
 					// Deliberately damage onseself to be able to pick up the armor and deny
 					// it from other players. This is advanced behavior that should be disabled
@@ -448,6 +450,10 @@ void() armor_touch =
 						other.path_state = 0;
 					other.linked_marker_time = time + 0.5;
 					other.goal_refresh_time = time + 2 + random();
+				}
+				else
+				{
+					other.state = other.state & NOT_HURT_SELF;
 				}
 				return ItemMarkerTouch();
 			}
