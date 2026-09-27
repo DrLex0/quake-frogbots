@@ -229,10 +229,33 @@ void() AvoidHazards =
 
 	if (self.path_state & JUST_GO)  // skip all safety nets, just go wild
 	{
-		// Simplified version of the JL logic, only enable WAIT_GROUND when airborne
+		// Simplified version of the JL logic
 		if (self.path_state & JUMP_LEDGE)
-		if (! (self.flags & FL_ONGROUND))
+		if (self.flags & FL_ONGROUND)
 		{
+			// If destination is at similar height, force a jump: JG+JL may
+			// help to cross tricky gaps where CanJumpOver probing fails and
+			// PRECISE_JUMP has no room for a run-up.
+			rel_pos = (linked_marker_.absmin + linked_marker_.view_ofs) - self.origin;
+			rel_pos_z = 0;
+			new_velocity_z = 0;
+			if (fabs(linked_marker_.absmin_z + linked_marker_.view_ofs_z -
+			    (self.path_from_marker.absmin_z + self.path_from_marker.view_ofs_z)) < 18.1)
+			if (vlen(new_velocity) > half_sv_maxspeed)
+			if (normalize(rel_pos) * normalize(new_velocity) > 0.7)
+			{
+#ifdef DEBUG_JUMPS
+				dprint("Just jump, v_xy ", ftos(vlen(new_velocity)), "\n");
+#endif
+				self.button2_ = TRUE;
+				// clear JG: try this only once
+				self.path_state = (self.path_state - JUST_GO) | AIR_ACCELERATION | DELIBERATE_AIR_WAIT_GROUND;
+				return;
+			}
+		}
+		else
+		{
+			// Other cases: set WAIT_GROUND when airborne
 			self.path_state = self.path_state | AIR_ACCELERATION | WAIT_GROUND;
 			return;
 		}

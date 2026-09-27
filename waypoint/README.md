@@ -390,7 +390,7 @@ These steps do not need to be done in this exact order, but you will typically g
      The situations where setting JL path mode is useful, are:
      - When the path ascends a step taller than 18 units, hence requires a jump. Mind that JL mode is _crude_ and may cause unwanted or poorly timed jumps, _precise jump_ mode should be used instead when accuracy matters.
      - Downward jumps/falls where the bot should ignore any markers until landing, and/or do extra effort to air strafe towards the destination marker. Setting JL mode makes the bot fully aware that this is a downward jump and avoids it getting confused when suddenly becoming airborne.
-     - This mode can also be combined with _precise jump_ mode for certain tricky jumps, see the advanced section.
+     - This mode can also be combined with _precise jump_ or _just GO_ modes for certain tricky jumps, see the advanced section.
      - However, _never_ set JL mode on a path starting inside liquids too deep for jumping, it may have ill side effects.
    - **Rocket jump mode** (shown as `‘R’`, number 512 in code) is to make the bot consider a RJ from that place to the destination. It will only do this if the conditions are right, and will also add a coin flip to the decision, so don't expect the bot to RJ all the time. See the advanced section below for some tips.
    - **Slow precise jump mode** (shown as `‘PS’`, number 2176 in code) is actually a combination of the next 2 modes, provided for convenience because often you will need them together. This combined mode allows to _navigate small steps_ like the ones towards the yellow armour in `e1m2`. The bot _will not jump_ until it is within a distance of _40 units_ of the marker from which this `PS` path originates. This means you must place such markers close enough to the ledge on which the bot needs to jump, otherwise it will not jump at the right moment, and get stuck.  
@@ -756,6 +756,11 @@ The solution here is to combine _precise jump_ and _jump ledge_ path modes, whic
 - This greatly reduces the need for accurate marker placement, which makes it convenient. However, do not over-use this, because it overrides all the bot's protection mechanisms for the sake of jump performance, and is also computationally expensive. A regular precise jump with explicit jump location is preferred when adequate.
 
 An example is the jump towards the Mega Health in `zite,` which made me implement this, although I'm probably going to start using it a lot more from now on…
+
+#### Just jump
+
+If you want the bot to just drop down a ledge with all safety checks disabled, but still be aware that it is to be considered a jump, combine _jump ledge_ and _just GO_ path modes.  
+This combination also does something extra if the destination is no more than 18 units above or below the start marker: the bot will force a jump as soon as it is moving in the path's direction with at least some velocity. This can be used in the rare cases where a jump in a tight spot is needed and neither the automatic jump detection nor a precise jump work well. An example is near one of the “X” shaped doors in `e2m1.`
 
 
 ### The Danger Zone
