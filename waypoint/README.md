@@ -760,7 +760,7 @@ An example is the jump towards the Mega Health in `zite,` which made me implemen
 #### Just jump
 
 If you want the bot to just drop down a ledge with all safety checks disabled, but still be aware that it is to be considered a jump, combine _jump ledge_ and _just GO_ path modes.  
-This combination also does something extra if the destination is no more than 18 units above or below the start marker: the bot will force a jump as soon as it is moving in the path's direction with at least some velocity. This can be used in the rare cases where a jump in a tight spot is needed and neither the automatic jump detection nor a precise jump work well. An example is near one of the “X” shaped doors in `e2m1.`
+This combination also does something extra if the destination is no more than 43 units above or below the start marker: the bot will force a jump as soon as it is moving in the path's direction with at least some velocity. This can be used in the rare cases where a jump in a tight spot is needed and neither the automatic jump detection nor a precise jump work well. An example is near one of the “X” shaped doors in `e2m1.`
 
 
 ### The Danger Zone

@@ -464,23 +464,37 @@ float() WallStrafeJumpLogic =
 
 float() PreciseRunUpLogic =
 {
-	if (self.running_up > 0)
+	if (self.running_up > 0)  // heading towards RU start point
 	{
 		tmp_vec = self.run_up_point - origin_;
 		// Begin the actual run-up when either:
-		// - it takes suspiciously long to reach the run-up spot
-		//   (probably because is inside wall due to tight space);
+		// 1. it takes suspiciously long to reach the run-up spot
 		if (time > self.running_up)
+		{
+#ifdef DEBUG_JUMPS
+	dprint("PJ timeout while heading for run-up start\n");
+#endif
 			self.running_up = -(time + 1.0);
-		// - or we did come sufficiently near the spot
+		}
+		// 2. or we bumped into an obstacle
+		//    (probably because of tight space);
+		else if (self.obstruction_normal != '0 0 0')
+		{
+#ifdef DEBUG_JUMPS
+	dprint("PJ obstruction while heading for run-up start\n");
+#endif
+			self.running_up = -(time + 1.0);
+		}
+		// 3. or we did come sufficiently near the spot
 		else if (vlen(tmp_vec) < 40)
 			self.running_up = -(time + 1.0);
+
 		dir_move_ = normalize(tmp_vec);
 		if (time > self.arrow_time2)
 			NewArrowForDirMove();
 		return TRUE;
 	}
-	if (self.running_up < 0)
+	if (self.running_up < 0)  // doing actual RU
 	{
 		// Either something went awry, bot probably fell off a ledge or something;
 		// but we also use this to clear RU state when doing the actual jump.
