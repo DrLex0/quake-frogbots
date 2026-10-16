@@ -792,6 +792,20 @@ void() SpecialAccurateMoves =
 			self.arrow = 0;
 			CheckAccurateRunUp(TRUE);
 		}
+		if (self.path_state & SLOW_DOWN)
+		if (self.obstruction_normal != '0 0 0')
+		{
+			// The touch box reaches past low walls, so the bot can touch the
+			// start of the jump from where the way to the landing spot is
+			// blocked. Go for the start, over the wall if it is in the way
+			// (otherwise it keeps pushing into the wall).
+			dir_move_ = normalize(v_touch);
+			NewArrowForDirMove();
+			self.arrow_time2 = time + 0.3;
+			if (self.obstruction_normal * dir_move_ > 0.5)
+			if (z_touch < 40)
+				self.button2_ = 1;
+		}
 		return;
 	}
 	local vector v_link = linked_marker_.absmin + linked_marker_.view_ofs - origin_;
