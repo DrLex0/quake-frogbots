@@ -677,6 +677,7 @@ void() PutClientInServer_apply =
 	spawn_tdeath (self.origin, self);
 
 	self.goal_refresh_time = 0;
+	self.goal_tracked = world;
 	self.allowedMakeNoise = TRUE;	// FIXME: calculate this
 
 	self.spawn_frag_time = time + 1; // New

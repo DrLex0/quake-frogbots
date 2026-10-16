@@ -2185,6 +2185,12 @@ float water_exit_dist = 20;
 .float input_time;
 
 .float fast_aim;
+// Goal the bot is after and when it should have had it, and the goal it
+// gave up on and stays away from until avoid_goal_time
+.entity goal_tracked;
+.float goal_deadline;
+.entity avoid_goal;
+.float avoid_goal_time;
 .float dodge_amount;
 .float lookahead_time;
 .float prediction_error;

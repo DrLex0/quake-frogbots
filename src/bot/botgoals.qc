@@ -70,6 +70,13 @@ void() EvalGoal =
 	goal_entity.saved_goal_desire = goal_desire;
 	if (goal_desire > 0)
 	{
+		if (goal_entity == self.avoid_goal)
+		if (time < self.avoid_goal_time)
+		{
+			goal_entity.saved_goal_desire = 0;
+			return;
+		}
+
 		if (mapname == "aerowalk")
 		if (pre_game)
 		if (!game_disable_powerups)
@@ -534,4 +541,23 @@ void() UpdateGoal =
 	}
 	else
 		goalentity_ = self.goalentity = world;
+
+	// Give up on an item that takes much longer to get than it should, and
+	// leave it alone for a while
+	if (goalentity_ != self.goal_tracked)
+	{
+		self.goal_tracked = goalentity_;
+		self.goal_deadline = time + 5 + (2 * goalentity_.saved_goal_time);
+	}
+	else if (goalentity_)
+	{
+		if (!goalentity_.client_)
+		if (time > self.goal_deadline)
+		{
+			self.avoid_goal = goalentity_;
+			self.avoid_goal_time = time + 15;
+			self.goal_tracked = world;
+			self.goal_refresh_time = 0;
+		}
+	}
 };
