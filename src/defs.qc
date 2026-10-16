@@ -530,6 +530,7 @@ float FL_NOT_ONGROUND			= 16776703;
 .float frogbot;
 .float fl_thud;	// for thud removal
 .float fl_ontrain;	// for Frogbot train movement
+.entity train_jump;	// train to jump onto from the train the bot is on, see TrainJump
 .float ready;
 .float p_break;
 float e_break;
@@ -2184,6 +2185,12 @@ float water_exit_dist = 20;
 .float input_time;
 
 .float fast_aim;
+// Goal the bot is after and when it should have had it, and the goal it
+// gave up on and stays away from until avoid_goal_time
+.entity goal_tracked;
+.float goal_deadline;
+.entity avoid_goal;
+.float avoid_goal_time;
 .float dodge_amount;
 .float lookahead_time;
 .float prediction_error;

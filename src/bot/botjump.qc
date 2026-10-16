@@ -682,10 +682,87 @@ float() NarrowPathLogic =
 	return TRUE;
 };
 
+/*
+============
+TrainJump
+
+The gap between two trains that pass each other may only be narrow for
+a moment. A bot on one train that wants the other waits at the edge
+facing it, and jumps across when the gap closes, for the middle of the
+other train.
+Return value indicates whether this steers the bot.
+============
+*/
+float() TrainJump =
+{
+	local entity on, train;
+	local vector hold;
+	local float gap_x, gap_y, flight;
+	on = self.touch_marker;
+	train = self.train_jump;
+	if (!train)
+		return FALSE;
+	if (on.touch != train_touch || self.linked_marker != on)
+	{
+		self.train_jump = world;
+		return FALSE;
+	}
+	if (!(self.flags & FL_ONGROUND))
+		return FALSE;
+	hold = 0.5 * (train.absmin + train.absmax);
+	if (hold_x < on.absmin_x + 16)
+		hold_x = on.absmin_x + 16;
+	else if (hold_x > on.absmax_x - 16)
+		hold_x = on.absmax_x - 16;
+	if (hold_y < on.absmin_y + 16)
+		hold_y = on.absmin_y + 16;
+	else if (hold_y > on.absmax_y - 16)
+		hold_y = on.absmax_y - 16;
+	tmp_vec = hold - origin_;
+	tmp_vec_z = 0;
+	if (vlen(tmp_vec) > 12)
+	{
+		dir_move_ = normalize(tmp_vec);
+		NewArrowForDirMove();
+		return TRUE;
+	}
+	self.arrow = 0;
+	gap_x = train.absmin_x - on.absmax_x;
+	if (on.absmin_x - train.absmax_x > gap_x)
+		gap_x = on.absmin_x - train.absmax_x;
+	gap_y = train.absmin_y - on.absmax_y;
+	if (on.absmin_y - train.absmax_y > gap_y)
+		gap_y = on.absmin_y - train.absmax_y;
+	if (gap_x > 48 || gap_y > 48)
+		return TRUE;
+	tmp_vec = 0.5 * (train.absmin + train.absmax - on.absmin - on.absmax);
+	tmp_vec_z = 0;
+	// wait while they move apart, unless the gap is narrow already
+	if (tmp_vec * (train.velocity - on.velocity) > 0)
+	if (gap_x > 16 || gap_y > 16)
+		return TRUE;
+	// a jump that lands at the height it started from
+	flight = 2 * 270 / cvar("sv_gravity");
+	tmp_vec = 0.5 * (train.absmin + train.absmax) - origin_;
+	tmp_vec_z = 0;
+	tmp_vec = tmp_vec * (1 / flight);
+	if (vlen(tmp_vec) > sv_maxspeed)
+		tmp_vec = sv_maxspeed * normalize(tmp_vec);
+	self.velocity_x = tmp_vec_x;
+	self.velocity_y = tmp_vec_y;
+	self.button2_ = 1;
+	self.path_state = self.path_state | DELIBERATE_AIR_WAIT_GROUND;
+	self.linked_marker = linked_marker_ = train;
+	self.train_jump = world;
+	return TRUE;
+};
+
 // Accurate jumps and/or slow moves  -- DrLex
 void() SpecialAccurateMoves =
 {
 	self.precise_speed = 0;
+	if (TrainJump())
+		return;
 	if (WallStrafeJumpLogic())
 		return;
 	if (PreciseRunUpLogic())
@@ -791,6 +868,20 @@ void() SpecialAccurateMoves =
 			self.velocity = '0 0 0';
 			self.arrow = 0;
 			CheckAccurateRunUp(TRUE);
+		}
+		if (self.path_state & SLOW_DOWN)
+		if (self.obstruction_normal != '0 0 0')
+		{
+			// The touch box reaches past low walls, so the bot can touch the
+			// start of the jump from where the way to the landing spot is
+			// blocked. Go for the start, over the wall if it is in the way
+			// (otherwise it keeps pushing into the wall).
+			dir_move_ = normalize(v_touch);
+			NewArrowForDirMove();
+			self.arrow_time2 = time + 0.3;
+			if (self.obstruction_normal * dir_move_ > 0.5)
+			if (z_touch < 40)
+				self.button2_ = 1;
 		}
 		return;
 	}
