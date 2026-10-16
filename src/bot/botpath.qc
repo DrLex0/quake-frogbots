@@ -531,6 +531,69 @@ float() WaitOnLift =
 
 /*
 ============
+TrainNear
+
+Returns TRUE if the train is next to the marker, at the height of its floor.
+============
+*/
+float(entity train, entity marker) TrainNear =
+{
+	local vector pos, gap;
+	pos = marker.absmin + marker.view_ofs;
+	gap = '0 0 0';
+	if (pos_x < train.absmin_x)
+		gap_x = train.absmin_x - pos_x;
+	else if (pos_x > train.absmax_x)
+		gap_x = pos_x - train.absmax_x;
+	if (pos_y < train.absmin_y)
+		gap_y = train.absmin_y - pos_y;
+	else if (pos_y > train.absmax_y)
+		gap_y = pos_y - train.absmax_y;
+	if (gap_x > 48 || gap_y > 48)
+		return FALSE;
+	return (fabs(train.absmax_z + 24 - pos_z) <= 24);
+};
+
+/*
+============
+WaitOnTrain
+
+A func_train keeps moving between its corners. A bot waits at the marker
+it gets on from until the train is next to it, and stays on the train
+until it is next to the marker it gets off at.
+Return value indicates whether the bot will be waiting or not.
+============
+*/
+float() WaitOnTrain =
+{
+	if (linked_marker_.touch == train_touch)
+	if (touch_marker_ != linked_marker_)
+	{
+		if (TrainNear(linked_marker_, touch_marker_))
+			return FALSE;
+		WaitAtTouchMarker(0.5);
+		return TRUE;
+	}
+	if (touch_marker_.touch != train_touch)
+		return FALSE;
+	if (linked_marker_ == touch_marker_)
+		return FALSE;
+	if (TrainNear(touch_marker_, linked_marker_))
+		return FALSE;
+	// heading for the train itself keeps the bot on it
+	WaitAtTouchMarker(0.2);
+	tmp_vec = 0.5 * (touch_marker_.absmin + touch_marker_.absmax) - self.origin;
+	tmp_vec_z = 0;
+	if (vlen(tmp_vec) > 16)
+	{
+		dir_move_ = normalize(tmp_vec);
+		NewArrowForDirMove();
+	}
+	return TRUE;
+};
+
+/*
+============
 WaitAndShootAtTrigger
 
 Logic for shootable triggers -- it's complicated.
@@ -1197,6 +1260,8 @@ void() frogbot_marker_touch =
 		return;
 	}
 	if (WaitOnLift())
+		return;
+	if (WaitOnTrain())
 		return;
 
 	// NOTE: is currently not set anywhere
