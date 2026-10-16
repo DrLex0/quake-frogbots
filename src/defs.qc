@@ -530,6 +530,7 @@ float FL_NOT_ONGROUND			= 16776703;
 .float frogbot;
 .float fl_thud;	// for thud removal
 .float fl_ontrain;	// for Frogbot train movement
+.entity train_jump;	// train to jump onto from the train the bot is on, see TrainJump
 .float ready;
 .float p_break;
 float e_break;

@@ -533,13 +533,19 @@ float() WaitOnLift =
 ============
 TrainNear
 
-Returns TRUE if the train is next to the marker, at the height of its floor.
+Returns TRUE if the train is next to the marker, at the height of its
+floor, and not moving away from it: a train that turns at the marker is
+only next to it for a moment.
 ============
 */
 float(entity train, entity marker) TrainNear =
 {
 	local vector pos, gap;
 	pos = marker.absmin + marker.view_ofs;
+	tmp_vec = pos - 0.5 * (train.absmin + train.absmax);
+	tmp_vec_z = 0;
+	if (tmp_vec * train.velocity < 0)
+		return FALSE;
 	gap = '0 0 0';
 	if (pos_x < train.absmin_x)
 		gap_x = train.absmin_x - pos_x;
@@ -568,6 +574,7 @@ float() WaitOnTrain =
 {
 	if (linked_marker_.touch == train_touch)
 	if (touch_marker_ != linked_marker_)
+	if (touch_marker_.touch != train_touch)
 	{
 		if (TrainNear(linked_marker_, touch_marker_))
 			return FALSE;
@@ -578,6 +585,13 @@ float() WaitOnTrain =
 		return FALSE;
 	if (linked_marker_ == touch_marker_)
 		return FALSE;
+	if (linked_marker_.touch == train_touch)
+	{
+		// TrainJump waits for the gap between the trains to close
+		self.train_jump = linked_marker_;
+		WaitAtTouchMarker(0.2);
+		return TRUE;
+	}
 	if (TrainNear(touch_marker_, linked_marker_))
 		return FALSE;
 	// heading for the train itself keeps the bot on it
