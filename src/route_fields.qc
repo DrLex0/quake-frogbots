@@ -2,38 +2,254 @@
 	route_fields.qc
 
 	Copyright (C) 1997-1999 Robert 'Frog' Field
+	Enhancements by DrLex 2026
 */
 
 #include "settings.h"
+
+#ifdef DEBUG_ASSERT
+// Useful to debug dodgy waypoints.
+// Unfortunately at this point entities do not have a valid .index to be logged.
+void(entity marker, float num) assertMarkerG =
+{
+	if (! frogbot_loading) return;
+	if (! marker.fl_marker)
+	{
+		dprint("ERROR: invoking G", ftos(num), " on non-marker\n");
+		error("Frogbot ERROR: G is invoked on a non-marker\n");
+	}
+}
+
+void(entity marker, float num) assertMarkerZ =
+{
+	if (! marker.fl_marker)
+	{
+		dprint("ERROR: invoking Z", ftos(num), " on non-marker\n");
+		error("Frogbot ERROR: Z is invoked on a non-marker\n");
+	}
+}
+#endif
+
 
 //
 // Goals
 //
 
-void(entity marker) G1 = { marker.G1_ = marker; marker.G_ = 1; };
-void(entity marker) G2 = { marker.G2_ = marker; marker.G_ = 2; };
-void(entity marker) G3 = { marker.G3_ = marker; marker.G_ = 3; };
-void(entity marker) G4 = { marker.G4_ = marker; marker.G_ = 4; };
-void(entity marker) G5 = { marker.G5_ = marker; marker.G_ = 5; };
-void(entity marker) G6 = { marker.G6_ = marker; marker.G_ = 6; };
-void(entity marker) G7 = { marker.G7_ = marker; marker.G_ = 7; };
-void(entity marker) G8 = { marker.G8_ = marker; marker.G_ = 8; };
-void(entity marker) G9 = { marker.G9_ = marker; marker.G_ = 9; };
-void(entity marker) G10 = { marker.G10_ = marker; marker.G_ = 10; };
-void(entity marker) G11 = { marker.G11_ = marker; marker.G_ = 11; };
-void(entity marker) G12 = { marker.G12_ = marker; marker.G_ = 12; };
-void(entity marker) G13 = { marker.G13_ = marker; marker.G_ = 13; };
-void(entity marker) G14 = { marker.G14_ = marker; marker.G_ = 14; };
-void(entity marker) G15 = { marker.G15_ = marker; marker.G_ = 15; };
-void(entity marker) G16 = { marker.G16_ = marker; marker.G_ = 16; };
-void(entity marker) G17 = { marker.G17_ = marker; marker.G_ = 17; };
-void(entity marker) G18 = { marker.G18_ = marker; marker.G_ = 18; };
-void(entity marker) G19 = { marker.G19_ = marker; marker.G_ = 19; };
-void(entity marker) G20 = { marker.G20_ = marker; marker.G_ = 20; };
-void(entity marker) G21 = { marker.G21_ = marker; marker.G_ = 21; };
-void(entity marker) G22 = { marker.G22_ = marker; marker.G_ = 22; };
-void(entity marker) G23 = { marker.G23_ = marker; marker.G_ = 23; };
-void(entity marker) G24 = { marker.G24_ = marker; marker.G_ = 24; };
+void(entity marker) G1 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 1);
+#endif 
+	marker.G1_ = marker;
+	marker.G_ = 1;
+};
+
+void(entity marker) G2 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 2);
+#endif 
+	marker.G2_ = marker;
+	marker.G_ = 2;
+};
+
+void(entity marker) G3 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 3);
+#endif 
+	marker.G3_ = marker;
+	marker.G_ = 3;
+};
+
+void(entity marker) G4 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 4);
+#endif 
+	marker.G4_ = marker;
+	marker.G_ = 4;
+};
+
+void(entity marker) G5 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 5);
+#endif 
+	marker.G5_ = marker;
+	marker.G_ = 5;
+};
+
+void(entity marker) G6 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 6);
+#endif 
+	marker.G6_ = marker;
+	marker.G_ = 6;
+};
+
+void(entity marker) G7 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 7);
+#endif 
+	marker.G7_ = marker;
+	marker.G_ = 7;
+};
+
+void(entity marker) G8 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 8);
+#endif 
+	marker.G8_ = marker;
+	marker.G_ = 8;
+};
+
+void(entity marker) G9 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 9);
+#endif 
+	marker.G9_ = marker;
+	marker.G_ = 9;
+};
+
+void(entity marker) G10 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 10);
+#endif 
+	marker.G10_ = marker;
+	marker.G_ = 10;
+};
+
+void(entity marker) G11 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 11);
+#endif 
+	marker.G11_ = marker;
+	marker.G_ = 11;
+};
+
+void(entity marker) G12 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 12);
+#endif 
+	marker.G12_ = marker;
+	marker.G_ = 12;
+};
+
+void(entity marker) G13 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 13);
+#endif 
+	marker.G13_ = marker;
+	marker.G_ = 13;
+};
+
+void(entity marker) G14 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 14);
+#endif 
+	marker.G14_ = marker;
+	marker.G_ = 14;
+};
+
+void(entity marker) G15 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 15);
+#endif 
+	marker.G15_ = marker;
+	marker.G_ = 15;
+};
+
+void(entity marker) G16 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 16);
+#endif 
+	marker.G16_ = marker;
+	marker.G_ = 16;
+};
+
+void(entity marker) G17 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 17);
+#endif 
+	marker.G17_ = marker;
+	marker.G_ = 17;
+};
+
+void(entity marker) G18 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 18);
+#endif 
+	marker.G18_ = marker;
+	marker.G_ = 18;
+};
+
+void(entity marker) G19 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 19);
+#endif 
+	marker.G19_ = marker;
+	marker.G_ = 19;
+};
+
+void(entity marker) G20 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 20);
+#endif 
+	marker.G20_ = marker;
+	marker.G_ = 20;
+};
+
+void(entity marker) G21 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 21);
+#endif 
+	marker.G21_ = marker;
+	marker.G_ = 21;
+};
+
+void(entity marker) G22 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 22);
+#endif 
+	marker.G22_ = marker;
+	marker.G_ = 22;
+};
+
+void(entity marker) G23 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 23);
+#endif 
+	marker.G23_ = marker;
+	marker.G_ = 23;
+};
+
+void(entity marker) G24 =
+{
+#ifdef DEBUG_ASSERT
+	assertMarkerG(marker, 24);
+#endif 
+	marker.G24_ = marker;
+	marker.G_ = 24;
+};
 
 
 //
@@ -302,6 +518,9 @@ void(entity marker) Set_sub_arrival_time =
 
 void(entity marker) Z1 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 1);
+#endif 
 	Z1_S_index = Z1_S_index + 1;
 	S_index = Z1_S_index;
 	Set_sub_arrival_time(marker);
@@ -331,6 +550,9 @@ void(entity marker) Z1 =
 
 void(entity marker) Z2 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 2);
+#endif 
 	Z2_S_index = Z2_S_index + 1;
 	S_index = Z2_S_index;
 	Set_sub_arrival_time(marker);
@@ -360,6 +582,9 @@ void(entity marker) Z2 =
 
 void(entity marker) Z3 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 3);
+#endif 
 	Z3_S_index = Z3_S_index + 1;
 	S_index = Z3_S_index;
 	Set_sub_arrival_time(marker);
@@ -389,6 +614,9 @@ void(entity marker) Z3 =
 
 void(entity marker) Z4 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 4);
+#endif 
 	Z4_S_index = Z4_S_index + 1;
 	S_index = Z4_S_index;
 	Set_sub_arrival_time(marker);
@@ -418,6 +646,9 @@ void(entity marker) Z4 =
 
 void(entity marker) Z5 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 5);
+#endif 
 	Z5_S_index = Z5_S_index + 1;
 	S_index = Z5_S_index;
 	Set_sub_arrival_time(marker);
@@ -447,6 +678,9 @@ void(entity marker) Z5 =
 
 void(entity marker) Z6 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 6);
+#endif 
 	Z6_S_index = Z6_S_index + 1;
 	S_index = Z6_S_index;
 	Set_sub_arrival_time(marker);
@@ -476,6 +710,9 @@ void(entity marker) Z6 =
 
 void(entity marker) Z7 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 7);
+#endif 
 	Z7_S_index = Z7_S_index + 1;
 	S_index = Z7_S_index;
 	Set_sub_arrival_time(marker);
@@ -505,6 +742,9 @@ void(entity marker) Z7 =
 
 void(entity marker) Z8 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 8);
+#endif 
 	Z8_S_index = Z8_S_index + 1;
 	S_index = Z8_S_index;
 	Set_sub_arrival_time(marker);
@@ -534,6 +774,9 @@ void(entity marker) Z8 =
 
 void(entity marker) Z9 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 9);
+#endif 
 	Z9_S_index = Z9_S_index + 1;
 	S_index = Z9_S_index;
 	Set_sub_arrival_time(marker);
@@ -563,6 +806,9 @@ void(entity marker) Z9 =
 
 void(entity marker) Z10 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 10);
+#endif 
 	Z10_S_index = Z10_S_index + 1;
 	S_index = Z10_S_index;
 	Set_sub_arrival_time(marker);
@@ -592,6 +838,9 @@ void(entity marker) Z10 =
 
 void(entity marker) Z11 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 11);
+#endif 
 	Z11_S_index = Z11_S_index + 1;
 	S_index = Z11_S_index;
 	Set_sub_arrival_time(marker);
@@ -621,6 +870,9 @@ void(entity marker) Z11 =
 
 void(entity marker) Z12 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 12);
+#endif 
 	Z12_S_index = Z12_S_index + 1;
 	S_index = Z12_S_index;
 	Set_sub_arrival_time(marker);
@@ -650,6 +902,9 @@ void(entity marker) Z12 =
 
 void(entity marker) Z13 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 13);
+#endif 
 	Z13_S_index = Z13_S_index + 1;
 	S_index = Z13_S_index;
 	Set_sub_arrival_time(marker);
@@ -679,6 +934,9 @@ void(entity marker) Z13 =
 
 void(entity marker) Z14 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 14);
+#endif 
 	Z14_S_index = Z14_S_index + 1;
 	S_index = Z14_S_index;
 	Set_sub_arrival_time(marker);
@@ -708,6 +966,9 @@ void(entity marker) Z14 =
 
 void(entity marker) Z15 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 15);
+#endif 
 	Z15_S_index = Z15_S_index + 1;
 	S_index = Z15_S_index;
 	Set_sub_arrival_time(marker);
@@ -737,6 +998,9 @@ void(entity marker) Z15 =
 
 void(entity marker) Z16 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 16);
+#endif 
 	Z16_S_index = Z16_S_index + 1;
 	S_index = Z16_S_index;
 	Set_sub_arrival_time(marker);
@@ -766,6 +1030,9 @@ void(entity marker) Z16 =
 
 void(entity marker) Z17 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 17);
+#endif 
 	Z17_S_index = Z17_S_index + 1;
 	S_index = Z17_S_index;
 	Set_sub_arrival_time(marker);
@@ -795,6 +1062,9 @@ void(entity marker) Z17 =
 
 void(entity marker) Z18 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 18);
+#endif 
 	Z18_S_index = Z18_S_index + 1;
 	S_index = Z18_S_index;
 	Set_sub_arrival_time(marker);
@@ -824,6 +1094,9 @@ void(entity marker) Z18 =
 
 void(entity marker) Z19 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 19);
+#endif 
 	Z19_S_index = Z19_S_index + 1;
 	S_index = Z19_S_index;
 	Set_sub_arrival_time(marker);
@@ -853,6 +1126,9 @@ void(entity marker) Z19 =
 
 void(entity marker) Z20 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 20);
+#endif 
 	Z20_S_index = Z20_S_index + 1;
 	S_index = Z20_S_index;
 	Set_sub_arrival_time(marker);
@@ -882,6 +1158,9 @@ void(entity marker) Z20 =
 
 void(entity marker) Z21 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 21);
+#endif 
 	Z21_S_index = Z21_S_index + 1;
 	S_index = Z21_S_index;
 	Set_sub_arrival_time(marker);
@@ -911,6 +1190,9 @@ void(entity marker) Z21 =
 
 void(entity marker) Z22 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 22);
+#endif 
 	Z22_S_index = Z22_S_index + 1;
 	S_index = Z22_S_index;
 	Set_sub_arrival_time(marker);
@@ -940,6 +1222,9 @@ void(entity marker) Z22 =
 
 void(entity marker) Z23 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 23);
+#endif 
 	Z23_S_index = Z23_S_index + 1;
 	S_index = Z23_S_index;
 	Set_sub_arrival_time(marker);
@@ -969,6 +1254,9 @@ void(entity marker) Z23 =
 
 void(entity marker) Z24 =
 {
+#ifdef DEBUG_ASSERT
+	assertMarkerZ(marker, 24);
+#endif 
 	Z24_S_index = Z24_S_index + 1;
 	S_index = Z24_S_index;
 	Set_sub_arrival_time(marker);
