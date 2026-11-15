@@ -359,6 +359,13 @@ float(float timespan) PredictNoDrop =
 	tmp_vec = self.origin;
 	self.origin = self.origin + timespan * self.velocity;
 	local float oldz = self.origin_z - 2;  // allow some error on slopes
+	// When path has JUST_GO, assume the bot first has to mount a step
+	// before it reaches the abyss: raise probe Z by max step size.
+	// Otherwise the step would cause droptofloor() to fail.
+	if (self.path_state & JUST_GO) {
+		self.origin_z = self.origin_z + 18;
+		oldz = self.origin_z - 18;
+	}
 	// Don't use walkmove() because it is overly strict,
 	// we just want to know whether the bot will fall down.
 	if (! droptofloor())  // endless pit or other weirdness

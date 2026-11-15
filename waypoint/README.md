@@ -754,6 +754,7 @@ Certain jumps require very accurate timing to cross gaps _almost_ too wide for j
 The solution here is to combine _precise jump_ and _jump ledge_ path modes, which will make the bot actively probe for the edge of the ledge, and jump when it predicts it is about to fall off.
 - The main difference with regular precise jump mode lies in the placement of the marker where this combined path mode starts. The marker must be placed further back than for regular precise jump mode. Keep it at least 20 units away from the actual edge of the ledge, to give the bot time to prepare for the jump.
 - This greatly reduces the need for accurate marker placement, which makes it convenient. However, do not over-use this, because it overrides all the bot's protection mechanisms for the sake of jump performance, and is also computationally expensive. A regular precise jump with explicit jump location is preferred when adequate.
+- If a small step has to be mounted right before the jump, you may need to add _just GO_ path mode to avoid that the step is treated as an obstacle that causes the bot to jump too soon (only do this when truly necessary).
 
 An example is the jump towards the Mega Health in `zite,` which made me implement this, although I'm probably going to start using it a lot more from now on…
 

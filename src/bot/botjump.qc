@@ -483,7 +483,12 @@ float() PreciseRunUpLogic =
 #ifdef DEBUG_JUMPS
 	dprint("PJ obstruction while heading for run-up start\n");
 #endif
-			self.running_up = -(time + 1.0);
+			if (! (self.path_state & JUST_GO))
+				self.running_up = -(time + 1.0);
+#ifdef DEBUG_JUMPS
+			else
+				dprint("... but ignoring due to JUST_GO\n");
+#endif
 		}
 		// 3. or we did come sufficiently near the spot
 		else if (vlen(tmp_vec) < 40)
