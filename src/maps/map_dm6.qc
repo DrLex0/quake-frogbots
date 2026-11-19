@@ -2,9 +2,11 @@
 // Minor tweaks by DrLex 2025-06
 // Upgraded dm6_door to universal shootable trigger 2025-07
 // Replaced kludge at pipe near RL with narrow path 2025-11
+// ALIASES dm6frost dm6frostfixed
+//   (these seem to be bitwise identical to each other BTW)
 void() map_dm6 =
 {
-// custom markers start at m52
+custom_marker_start=52;
 N(152,-841,171);N(1522,-1090,40);N(1145,-1090,-40);N(1503,-555,88);
 N(1072,-453,40);N(710,-1089,56);N(287,-1089,112);N(1025,-706,40);
 N(1278,-436,40);N(1515,-287,40);N(1726,-318,40);N(1786,-577,40);

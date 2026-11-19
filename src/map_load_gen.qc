@@ -20,6 +20,7 @@
 #include "maps/drlex/map_dad2.qc"
 #include "maps/drlex/map_dark-terror-ffa.qc"
 #include "maps/drlex/map_dm1ex.qc"
+#include "maps/drlex/map_dm4frost.qc"
 #include "maps/drlex/map_dmz1++.qc"
 #include "maps/drlex/map_doomed.qc"
 #include "maps/drlex/map_e1m4.qc"
@@ -143,8 +144,9 @@ void() SprintMaps =
 	sprint_fb(self, 2, "        dad2      dakdm1     dapak12\n");
 	sprint_fb(self, 2, " dark-terror-ffa     debello    del1\n");
 	sprint_fb(self, 2, "  dm-cepheus         dm1       dm1ex\n");
-	sprint_fb(self, 2, "         dm3         dm4      dm4ish\n");
-	sprint_fb(self, 2, "         dm5         dm6  dm_cepheus\n");
+	sprint_fb(self, 2, "         dm3         dm4    dm4frost\n");
+	sprint_fb(self, 2, "      dm4ish         dm5         dm6\n");
+	sprint_fb(self, 2, "   dm6frost dm6frostfixed dm_cepheus\n");
 	sprint_fb(self, 2, "      dmz1++      doomed    dranzdm6\n");
 	sprint_fb(self, 2, "    dranzdm7    dranzdm8        e1m1\n");
 	sprint_fb(self, 2, "        e1m2        e1m3        e1m4\n");
@@ -281,6 +283,11 @@ float() LoadWaypoints =
 	if (mapname == "dm1ex")
 	{
 		map_dm1ex();
+		return TRUE;
+	}
+	if (mapname == "dm4frost")
+	{
+		map_dm4frost();
 		return TRUE;
 	}
 	if (mapname == "dmz1++")
@@ -833,6 +840,16 @@ float() LoadWaypoints =
 		map_dmDASHcepheus();
 		return TRUE;
 	}
+	if (mapname == "dm6frost")
+	{
+		map_dm6();
+		return TRUE;
+	}
+	if (mapname == "dm6frostfixed")
+	{
+		map_dm6();
+		return TRUE;
+	}
 	if (mapname == "ztndm3frost")
 	{
 		map_ztndm3();
@@ -918,6 +935,8 @@ string(string mname) MapHasWaypoints =
 		return "dark-terror-ffa";
 	if (mname == "dm1ex")
 		return "dm1ex";
+	if (mname == "dm4frost")
+		return "dm4frost";
 	if (mname == "dmz1++")
 		return "dmz1++";
 	if (mname == "doomed")
@@ -1138,6 +1157,10 @@ string(string mname) MapHasWaypoints =
 		return "ztndm6";
 	if (mname == "dm-cepheus")
 		return "dm-cepheus";
+	if (mname == "dm6frost")
+		return "dm6frost";
+	if (mname == "dm6frostfixed")
+		return "dm6frostfixed";
 	if (mname == "ztndm3frost")
 		return "ztndm3frost";
 	if (mname == "naked7b2")
