@@ -831,6 +831,10 @@ void() FrogbotPostPhysics1 =
 				self.flags = self.flags | FL_ONGROUND_PARTIALGROUND;
 				if (!walkmove(0, 0))
 					self.flags = oldflags;
+#ifdef DEBUG_HAZD
+				else
+					dprint("Work around bot stuck on lift\n");
+#endif
 			}
 
 			obstruction();

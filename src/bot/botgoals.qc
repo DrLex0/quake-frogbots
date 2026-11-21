@@ -554,6 +554,9 @@ void() UpdateGoal =
 		if (!goalentity_.client_)
 		if (time > self.goal_deadline)
 		{
+#ifdef DEBUG_GOALS
+			dprint("Giving up on unreached goal m", ftos(goalentity_.index), " for a while\n");
+#endif
 			self.avoid_goal = goalentity_;
 			self.avoid_goal_time = time + 15;
 			self.goal_tracked = world;

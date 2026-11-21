@@ -770,47 +770,30 @@ potential spawning position for deathmatch games
 */
 void() info_player_deathmatch =
 {
-	local vector spot;
-
 // put on save que
 	AddToQue();
 
 	self.solid = SOLID_TRIGGER;
 	self.touch = marker_touch;
+
+	// Work around poorly positioned spawn points in some maps, partially inside
+	// solid geometry like floors/walls/steps. For real players, the "unstuck"
+	// mechanism in engines usually handles these, but bots (or players in worst
+	// cases) may get stuck. Set the box down on top of what it overlaps.
+	local vector spot = self.origin;
+	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
+	self.flags = FL_ONGROUND_PARTIALGROUND;  // walkmove refuses otherwise
+	// PutClientInServer already lifts players by 1
+	if (walkmove(0, 0) && self.origin_z > spot_z + 1)
+		dprint("Moving info_player_deathmatch out of solid: m", ftos(self.index), "\n");
+	else
+		setorigin (self, spot);
+
 	self.flags = FL_ITEM;
 	BecomeMarker(self);
 	setsize (self, '-65 -65 -24', '65 65 32');
 	self.view_ofs = '80 80 24';
 	self.pickup = pickup_true;
-
-	// Work around poorly positioned spawn points in some maps.
-	// Usually the "unstuck" mechanism in engines handles this, but
-	// sometimes not, and then players or bots get stuck in the floor.
-	if(pointcontents(self.origin + '0 0 -23') == CONTENT_SOLID)
-	{
-		traceline(self.origin, self.origin + '0 0 -24', TRUE, self);
-		if (trace_fraction < 1) {
-			self.origin_z = self.origin_z + trace_endpos_z - self.absmin_z;
-			setorigin (self, self.origin);
-			dprint("Moving info_player_deathmatch out of solid: m", ftos(self.index), "\n");
-		}
-	}
-	else
-	{
-		// The player box can overlap a step or wall next to the spawn while
-		// the point below it is clear. The engine does not nudge bots out of
-		// that, so set the box down on top of what it overlaps.
-		spot = self.origin;
-		setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
-		self.flags = FL_ONGROUND_PARTIALGROUND;  // walkmove refuses otherwise
-		// PutClientInServer already lifts players by 1
-		if (walkmove(0, 0) && self.origin_z > spot_z + 1)
-			dprint("Moving info_player_deathmatch out of solid: m", ftos(self.index), "\n");
-		else
-			setorigin (self, spot);
-		self.flags = FL_ITEM;
-		setsize (self, '-65 -65 -24', '65 65 32');
-	}
 
 	if (game_enable_runes)
 	{
