@@ -677,6 +677,7 @@ void() PutClientInServer_apply =
 	spawn_tdeath (self.origin, self);
 
 	self.goal_refresh_time = 0;
+	self.goal_tracked = world;
 	self.allowedMakeNoise = TRUE;	// FIXME: calculate this
 
 	self.spawn_frag_time = time + 1; // New
@@ -769,6 +770,8 @@ potential spawning position for deathmatch games
 */
 void() info_player_deathmatch =
 {
+	local vector spot;
+
 // put on save que
 	AddToQue();
 
@@ -791,6 +794,22 @@ void() info_player_deathmatch =
 			setorigin (self, self.origin);
 			dprint("Moving info_player_deathmatch out of solid: m", ftos(self.index), "\n");
 		}
+	}
+	else
+	{
+		// The player box can overlap a step or wall next to the spawn while
+		// the point below it is clear. The engine does not nudge bots out of
+		// that, so set the box down on top of what it overlaps.
+		spot = self.origin;
+		setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
+		self.flags = FL_ONGROUND_PARTIALGROUND;  // walkmove refuses otherwise
+		// PutClientInServer already lifts players by 1
+		if (walkmove(0, 0) && self.origin_z > spot_z + 1)
+			dprint("Moving info_player_deathmatch out of solid: m", ftos(self.index), "\n");
+		else
+			setorigin (self, spot);
+		self.flags = FL_ITEM;
+		setsize (self, '-65 -65 -24', '65 65 32');
 	}
 
 	if (game_enable_runes)

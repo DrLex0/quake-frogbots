@@ -820,6 +820,19 @@ void() FrogbotPostPhysics1 =
 
 			self.waterlevel = self.oldwaterlevel;
 			self.watertype = self.oldwatertype;
+
+			// A lift or door snaps to the end of its move and can leave a rider
+			// a fraction of a unit inside it. The engine then stops the bot dead
+			// in the air every frame; step it out on top.
+			if (!(self.flags & FL_ONGROUND))
+			if (self.velocity == '0 0 0')
+			{
+				oldflags = self.flags;
+				self.flags = self.flags | FL_ONGROUND_PARTIALGROUND;
+				if (!walkmove(0, 0))
+					self.flags = oldflags;
+			}
+
 			obstruction();
 
 			//

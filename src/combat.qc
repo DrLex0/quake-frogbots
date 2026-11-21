@@ -242,7 +242,9 @@ void() T_Damage =
 	{
 	// react to the damage
 		UpdateTotalDamage(self);
-		self.th_pain ();
+		// shootable buttons and doors have none
+		if (self.th_pain)
+			self.th_pain ();
 	}
 
 	self = killed_self;
